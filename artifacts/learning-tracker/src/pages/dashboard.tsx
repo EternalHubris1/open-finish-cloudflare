@@ -21,10 +21,10 @@ export default function Dashboard() {
   if (dashboardLoading || activitiesLoading) {
     return (
       <div className="p-8 space-y-8 max-w-6xl mx-auto">
-        <Skeleton className="h-12 w-64 rounded-sm" />
+        <Skeleton className="h-12 w-64 rounded-2xl" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-32 rounded-sm" />
+            <Skeleton key={i} className="h-32 rounded-2xl" />
           ))}
         </div>
       </div>
@@ -49,13 +49,13 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen p-8 space-y-12 animate-slide-up max-w-6xl mx-auto">
-      <div className="flex items-end justify-between border-b border-border pb-6">
+      <div className="flex items-end justify-between border-b border-white/10 pb-6">
         <div>
-          <h1 className="text-5xl font-bold text-foreground mb-2 font-serif tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground uppercase tracking-widest text-sm">Discipline is the bridge to mastery</p>
+          <h1 className="text-5xl font-bold text-white mb-2 tracking-tight">Dashboard</h1>
+          <p className="text-white/40 uppercase tracking-widest text-sm">Track your progress</p>
         </div>
         <Link href="/activities">
-          <Button size="lg" className="gap-2 rounded-sm font-semibold uppercase tracking-wider text-xs" data-testid="button-manage-activities">
+          <Button size="lg" className="gap-2 rounded-2xl font-semibold uppercase tracking-wider text-xs bg-blue-500/10 border border-blue-400/30 text-blue-300 hover:bg-blue-500/20 hover:scale-[1.03] active:scale-[0.97] transition-all backdrop-blur-md" data-testid="button-manage-activities">
             <Plus className="w-4 h-4" />
             Add Activity
           </Button>
@@ -79,37 +79,37 @@ export default function Dashboard() {
           trend="minutes logged"
         />
         <StatCard
-          label="Path Walked"
+          label="Completed"
           value={`${dashboard?.activitiesTodayCompleted || 0}/${dashboard?.activitiesTodayTotal || 0}`}
           icon={Target}
           variant="default"
           trend="activities done"
         />
         <StatCard
-          label="Milestones"
+          label="Achievements"
           value={dashboard?.totalAchievements || 0}
           icon={Award}
           variant="default"
-          trend="achievements"
+          trend="milestones"
         />
       </div>
 
       {/* Weekly Progress Heatmap */}
       {weeklyProgress.length > 0 && (
-        <div className="bg-card border border-card-border rounded-sm p-8 shadow-sm">
+        <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8 shadow-2xl">
           <div className="flex items-center gap-2 mb-6">
-            <TrendingUp className="w-5 h-5 text-primary" />
-            <h2 className="text-2xl font-bold font-serif ink-divider inline-block">Weekly Progress</h2>
+            <TrendingUp className="w-5 h-5 text-cyan-300" />
+            <h2 className="text-2xl font-bold text-white">Weekly Progress</h2>
           </div>
           <div className="space-y-6">
             {weeklyProgress.slice(0, 5).map((activity) => (
               <div key={activity.activityId}>
                 <div className="flex items-center gap-3 mb-3">
                   <div
-                    className="w-1.5 h-4 rounded-none"
-                    style={{ backgroundColor: activity.color || 'hsl(var(--foreground))' }}
+                    className="w-1.5 h-4 rounded-full"
+                    style={{ backgroundColor: activity.color || '#3b82f6' }}
                   />
-                  <span className="text-sm font-bold uppercase tracking-wider">{activity.activityName}</span>
+                  <span className="text-sm font-bold uppercase tracking-wider text-white/70">{activity.activityName}</span>
                 </div>
                 <div className="flex gap-2">
                   {activity.days.map((day, idx) => {
@@ -118,15 +118,14 @@ export default function Dashboard() {
                     return (
                       <div
                         key={day.date}
-                        className="flex-1 h-12 rounded-sm border flex items-center justify-center text-xs font-serif font-bold transition-all duration-200"
+                        className="flex-1 h-12 rounded-2xl border flex items-center justify-center text-xs font-bold transition-all duration-200"
                         style={{
                           backgroundColor: day.completed
                             ? activity.color
-                            : 'transparent',
-                          color: day.completed ? '#fff' : 'hsl(var(--muted-foreground))',
-                          borderColor: isToday ? 'hsl(var(--primary))' : 'hsl(var(--card-border))',
+                            : 'rgba(255, 255, 255, 0.05)',
+                          color: day.completed ? '#fff' : 'rgba(255, 255, 255, 0.4)',
+                          borderColor: isToday ? '#3b82f6' : 'rgba(255, 255, 255, 0.1)',
                           borderWidth: isToday ? '2px' : '1px',
-                          opacity: day.completed ? 1 : 0.6,
                         }}
                         data-testid={`heatmap-${activity.activityId}-${idx}`}
                       >
@@ -143,16 +142,16 @@ export default function Dashboard() {
 
       {/* Activities Grid */}
       <div>
-        <h2 className="text-2xl font-bold mb-6 font-serif ink-divider inline-block">Your Disciplines</h2>
+        <h2 className="text-2xl font-bold mb-6 text-white">Your Activities</h2>
         {activities.length === 0 ? (
-          <div className="bg-card border border-card-border border-dashed rounded-sm p-16 text-center">
-            <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-            <h3 className="text-lg font-bold font-serif mb-2 text-foreground">The path is empty</h3>
-            <p className="text-muted-foreground mb-6 font-serif italic">Take the first step and choose your discipline.</p>
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 border-dashed rounded-3xl p-16 text-center">
+            <Target className="w-12 h-12 text-white/30 mx-auto mb-4" />
+            <h3 className="text-lg font-bold mb-2 text-white">No activities yet</h3>
+            <p className="text-white/50 mb-6">Start tracking your first activity</p>
             <Link href="/activities">
-              <Button className="rounded-sm uppercase tracking-wider text-xs font-semibold" data-testid="button-create-first-activity">
+              <Button className="rounded-2xl uppercase tracking-wider text-xs font-semibold bg-blue-500/10 border border-blue-400/30 text-blue-300 hover:bg-blue-500/20 backdrop-blur-md" data-testid="button-create-first-activity">
                 <Plus className="w-4 h-4 mr-2" />
-                Begin
+                Get Started
               </Button>
             </Link>
           </div>
@@ -171,12 +170,12 @@ export default function Dashboard() {
                   />
                   <Button
                     variant="outline"
-                    className="w-full rounded-sm border-dashed hover:border-solid hover:border-primary hover:text-primary transition-all font-semibold uppercase tracking-wider text-xs"
+                    className="w-full rounded-2xl border-dashed border-white/20 hover:border-cyan-400/50 hover:text-cyan-300 hover:bg-cyan-500/10 transition-all font-semibold uppercase tracking-wider text-xs text-white/70 bg-white/5 backdrop-blur-md hover:scale-[1.02] active:scale-[0.98]"
                     onClick={() => handleLogClick(activity)}
                     data-testid={`button-log-${activity.id}`}
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Record Session
+                    Log Session
                   </Button>
                 </div>
               );
@@ -187,22 +186,22 @@ export default function Dashboard() {
 
       {/* Recent Achievements */}
       {dashboard?.recentAchievements && dashboard.recentAchievements.length > 0 && (
-        <div className="bg-card border border-card-border rounded-sm p-8 shadow-sm">
+        <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8 shadow-2xl">
           <div className="flex items-center gap-2 mb-6">
-            <Award className="w-5 h-5 text-primary" />
-            <h2 className="text-2xl font-bold font-serif ink-divider inline-block">Honors</h2>
+            <Award className="w-5 h-5 text-amber-300" />
+            <h2 className="text-2xl font-bold text-white">Recent Achievements</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {dashboard.recentAchievements.slice(0, 3).map((achievement) => (
               <div
                 key={achievement.id}
-                className="bg-background rounded-sm p-5 border border-border border-l-4 border-l-primary flex gap-4 items-center"
+                className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl p-5 border border-amber-400/30 flex gap-4 items-center backdrop-blur-md"
                 data-testid={`achievement-${achievement.id}`}
               >
                 <div className="text-3xl">{achievement.icon || '🏆'}</div>
                 <div>
-                  <h3 className="font-bold font-serif mb-1 leading-tight">{achievement.title}</h3>
-                  <p className="text-xs text-muted-foreground leading-snug">{achievement.description}</p>
+                  <h3 className="font-bold mb-1 leading-tight text-white">{achievement.title}</h3>
+                  <p className="text-xs text-white/50 leading-snug">{achievement.description}</p>
                 </div>
               </div>
             ))}

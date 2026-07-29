@@ -31,7 +31,7 @@ export default function Alerts() {
   const [formData, setFormData] = useState<AlertInput>({
     activityId: 0,
     timeOfDay: '09:00',
-    daysOfWeek: [1, 2, 3, 4, 5], // Mon-Fri
+    daysOfWeek: [1, 2, 3, 4, 5],
     enabled: true,
     message: 'Time to practice!',
   });
@@ -113,7 +113,7 @@ export default function Alerts() {
       { id: deletingAlert.id },
       {
         onSuccess: () => {
-          toast({ title: 'Alert silenced' });
+          toast({ title: 'Alert deleted' });
           queryClient.invalidateQueries({ queryKey: getListAlertsQueryKey() });
           setDeleteDialogOpen(false);
           setDeletingAlert(null);
@@ -139,10 +139,10 @@ export default function Alerts() {
   if (alertsLoading || activitiesLoading) {
     return (
       <div className="p-8 space-y-8 max-w-5xl mx-auto">
-        <Skeleton className="h-12 w-64 rounded-sm" />
+        <Skeleton className="h-12 w-64 rounded-2xl" />
         <div className="grid gap-4">
           {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-24 rounded-sm" />
+            <Skeleton key={i} className="h-24 rounded-2xl" />
           ))}
         </div>
       </div>
@@ -151,37 +151,37 @@ export default function Alerts() {
 
   return (
     <div className="min-h-screen p-8 space-y-12 animate-slide-up max-w-5xl mx-auto">
-      <div className="flex items-end justify-between border-b border-border pb-6">
+      <div className="flex items-end justify-between border-b border-white/10 pb-6">
         <div>
-          <h1 className="text-5xl font-bold mb-2 font-serif text-foreground tracking-tight">Alerts</h1>
-          <p className="text-muted-foreground uppercase tracking-widest text-sm">Calls to discipline</p>
+          <h1 className="text-5xl font-bold mb-2 text-white tracking-tight">Alerts</h1>
+          <p className="text-white/40 uppercase tracking-widest text-sm">Set reminders for your activities</p>
         </div>
         <Button
           size="lg"
           onClick={openCreateDialog}
-          className="gap-2 rounded-sm font-semibold uppercase tracking-wider text-xs"
+          className="gap-2 rounded-2xl font-semibold uppercase tracking-wider text-xs bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 hover:bg-cyan-500/20 backdrop-blur-md hover:scale-[1.03] active:scale-[0.97] transition-all"
           disabled={activities.length === 0}
           data-testid="button-create-alert"
         >
           <Plus className="w-4 h-4" />
-          Set Bell
+          New Alert
         </Button>
       </div>
 
       {activities.length === 0 ? (
-        <div className="bg-card border border-card-border border-dashed rounded-sm p-16 text-center">
-          <Bell className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-          <h3 className="text-xl font-bold font-serif mb-2">No path defined</h3>
-          <p className="text-muted-foreground font-serif italic">Choose an activity first before setting the bell.</p>
+        <div className="bg-white/5 backdrop-blur-md border border-white/10 border-dashed rounded-3xl p-16 text-center">
+          <Bell className="w-12 h-12 text-white/30 mx-auto mb-4" />
+          <h3 className="text-xl font-bold mb-2 text-white">No activities yet</h3>
+          <p className="text-white/50">Create an activity first to set up alerts</p>
         </div>
       ) : alerts.length === 0 ? (
-        <div className="bg-card border border-card-border border-dashed rounded-sm p-16 text-center">
-          <Bell className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-          <h3 className="text-xl font-bold font-serif mb-2">The bell is silent</h3>
-          <p className="text-muted-foreground mb-6 font-serif italic">Set a reminder to keep your practice steady.</p>
-          <Button onClick={openCreateDialog} className="rounded-sm uppercase tracking-wider text-xs font-semibold" data-testid="button-create-first-alert">
+        <div className="bg-white/5 backdrop-blur-md border border-white/10 border-dashed rounded-3xl p-16 text-center">
+          <Bell className="w-12 h-12 text-white/30 mx-auto mb-4" />
+          <h3 className="text-xl font-bold mb-2 text-white">No alerts set</h3>
+          <p className="text-white/50 mb-6">Create your first reminder to stay on track</p>
+          <Button onClick={openCreateDialog} className="rounded-2xl uppercase tracking-wider text-xs font-semibold bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 hover:bg-cyan-500/20 backdrop-blur-md" data-testid="button-create-first-alert">
             <Plus className="w-4 h-4 mr-2" />
-            Set First Bell
+            Create Alert
           </Button>
         </div>
       ) : (
@@ -189,29 +189,29 @@ export default function Alerts() {
           {alerts.map((alert) => (
             <div
               key={alert.id}
-              className={`bg-card border rounded-sm p-6 transition-all duration-300 hover:shadow-md ${alert.enabled ? 'border-primary/50' : 'border-card-border opacity-70'}`}
+              className={`bg-white/5 backdrop-blur-md border rounded-2xl p-6 transition-all duration-300 hover:shadow-2xl ${alert.enabled ? 'border-cyan-400/30' : 'border-white/10 opacity-70'}`}
               data-testid={`alert-${alert.id}`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-start gap-6 flex-1">
-                  <div className={`p-4 rounded-sm border ${alert.enabled ? 'bg-primary/5 text-primary border-primary/20' : 'bg-muted text-muted-foreground border-border'}`}>
+                  <div className={`p-4 rounded-2xl ${alert.enabled ? 'bg-cyan-500/10 text-cyan-300 border border-cyan-400/30' : 'bg-white/5 text-white/40 border border-white/10'}`}>
                     {alert.enabled ? <Bell className="w-6 h-6" /> : <BellOff className="w-6 h-6" />}
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-2xl font-bold font-serif mb-1">{alert.activityName || 'Activity'}</h3>
-                    <p className="text-sm text-foreground font-serif italic mb-4">"{alert.message}"</p>
+                    <h3 className="text-2xl font-bold mb-1 text-white">{alert.activityName || 'Activity'}</h3>
+                    <p className="text-sm text-white/70 mb-4">"{alert.message}"</p>
                     <div className="flex items-center gap-6">
-                      <div className="font-serif font-bold text-xl tracking-wider border-b-2 border-primary/30 pb-1">{alert.timeOfDay}</div>
+                      <div className="font-bold text-xl tracking-wider text-cyan-300">{alert.timeOfDay}</div>
                       <div className="flex items-center gap-1">
                         {DAYS.map((day, i) => {
                           const isActive = alert.daysOfWeek.includes(i);
                           return (
                             <span
                               key={day}
-                              className={`w-8 h-8 flex items-center justify-center rounded-sm text-xs font-bold border ${
+                              className={`w-8 h-8 flex items-center justify-center rounded-full text-xs font-bold ${
                                 isActive 
-                                  ? 'bg-foreground text-background border-foreground' 
-                                  : 'bg-transparent text-muted-foreground border-border'
+                                  ? 'bg-white text-[#1a1a2e]' 
+                                  : 'bg-white/5 text-white/30'
                               }`}
                             >
                               {day[0]}
@@ -232,7 +232,7 @@ export default function Alerts() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="rounded-sm border-transparent hover:border-border hover:bg-muted"
+                      className="rounded-2xl bg-white/5 border-white/10 hover:bg-cyan-500/10 hover:border-cyan-400/30 hover:text-cyan-300 backdrop-blur-md text-white/70"
                       onClick={() => openEditDialog(alert)}
                       data-testid={`button-edit-alert-${alert.id}`}
                     >
@@ -241,7 +241,7 @@ export default function Alerts() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="rounded-sm border-transparent hover:border-destructive hover:text-destructive hover:bg-destructive/10"
+                      className="rounded-2xl bg-white/5 border-white/10 hover:border-red-500/50 hover:text-red-400 hover:bg-red-500/10 backdrop-blur-md text-white/70"
                       onClick={() => {
                         setDeletingAlert(alert);
                         setDeleteDialogOpen(true);
@@ -260,24 +260,24 @@ export default function Alerts() {
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="rounded-sm border-border p-8" data-testid="dialog-alert-form">
+        <DialogContent className="rounded-3xl border-white/10 p-8 bg-[#1a1a2e] backdrop-blur-md shadow-2xl" data-testid="dialog-alert-form">
           <DialogHeader>
-            <DialogTitle className="font-serif text-3xl font-bold mb-2">
-              {editingAlert ? 'Adjust Bell' : 'Set New Bell'}
+            <DialogTitle className="text-3xl font-bold mb-2 text-white">
+              {editingAlert ? 'Edit Alert' : 'New Alert'}
             </DialogTitle>
-            <DialogDescription className="font-serif italic text-muted-foreground">
-              Define the time of your practice.
+            <DialogDescription className="text-white/50">
+              Set up a reminder for your activity
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-6 mt-6">
             <div className="space-y-2">
-              <Label htmlFor="activity" className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Discipline</Label>
+              <Label htmlFor="activity" className="text-xs uppercase tracking-wider text-white/40 font-semibold">Activity</Label>
               <select
                 id="activity"
                 value={formData.activityId}
                 onChange={(e) => setFormData({ ...formData, activityId: Number(e.target.value) })}
-                className="w-full px-3 py-3 border border-input rounded-sm bg-background font-serif text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="w-full px-3 py-3 border border-white/10 rounded-2xl bg-white/5 text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 text-white backdrop-blur-md"
                 data-testid="select-activity"
               >
                 {activities.map((activity) => (
@@ -289,28 +289,28 @@ export default function Alerts() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="time" className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Time</Label>
+              <Label htmlFor="time" className="text-xs uppercase tracking-wider text-white/40 font-semibold">Time</Label>
               <Input
                 id="time"
                 type="time"
                 value={formData.timeOfDay}
                 onChange={(e) => setFormData({ ...formData, timeOfDay: e.target.value })}
-                className="rounded-sm font-serif text-xl border-border h-12"
+                className="rounded-2xl text-xl border-white/10 h-12 bg-white/5 text-white backdrop-blur-md"
                 data-testid="input-time"
               />
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Days of Practice</Label>
+              <Label className="text-xs uppercase tracking-wider text-white/40 font-semibold">Days</Label>
               <div className="grid grid-cols-7 gap-2 pt-2">
                 {DAYS.map((day, idx) => (
                   <button
                     key={idx}
                     type="button"
-                    className={`py-3 px-1 rounded-sm border-2 transition-all duration-200 text-sm font-bold uppercase tracking-wider ${
+                    className={`py-3 px-1 rounded-2xl border-2 transition-all duration-200 text-sm font-bold uppercase tracking-wider ${
                       formData.daysOfWeek.includes(idx)
-                        ? 'bg-foreground text-background border-foreground shadow-sm'
-                        : 'bg-background text-muted-foreground border-border hover:border-foreground/50'
+                        ? 'bg-white text-[#1a1a2e] border-white shadow-md'
+                        : 'bg-white/5 text-white/40 border-white/10 hover:border-white/30'
                     }`}
                     onClick={() => toggleDay(idx)}
                     data-testid={`day-${idx}`}
@@ -322,23 +322,23 @@ export default function Alerts() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="message" className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Message</Label>
+              <Label htmlFor="message" className="text-xs uppercase tracking-wider text-white/40 font-semibold">Message</Label>
               <Input
                 id="message"
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 placeholder="Time to practice!"
-                className="rounded-sm font-serif italic border-border"
+                className="rounded-2xl border-white/10 bg-white/5 text-white backdrop-blur-md"
                 data-testid="input-message"
               />
             </div>
 
-            <div className="flex gap-4 pt-6 mt-8 border-t border-border">
+            <div className="flex gap-4 pt-6 mt-8 border-t border-white/10">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setDialogOpen(false)}
-                className="flex-1 rounded-sm uppercase tracking-wider text-xs font-semibold border-border hover:bg-muted"
+                className="flex-1 rounded-2xl uppercase tracking-wider text-xs font-semibold bg-white/5 border-white/10 hover:bg-white/10 text-white backdrop-blur-md"
                 data-testid="button-cancel"
               >
                 Cancel
@@ -346,7 +346,7 @@ export default function Alerts() {
               <Button
                 type="submit"
                 disabled={createAlert.isPending || updateAlert.isPending}
-                className="flex-1 rounded-sm uppercase tracking-wider text-xs font-semibold"
+                className="flex-1 rounded-2xl uppercase tracking-wider text-xs font-semibold bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 hover:bg-cyan-500/20 backdrop-blur-md"
                 data-testid="button-submit-alert"
               >
                 {editingAlert ? 'Update' : 'Create'}
@@ -358,21 +358,21 @@ export default function Alerts() {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="rounded-sm border-border p-8" data-testid="dialog-delete-alert">
+        <AlertDialogContent className="rounded-3xl border-white/10 p-8 bg-[#1a1a2e] backdrop-blur-md shadow-2xl" data-testid="dialog-delete-alert">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-serif text-2xl font-bold text-destructive">Silence Bell?</AlertDialogTitle>
-            <AlertDialogDescription className="font-serif text-muted-foreground text-base">
-              This will permanently remove this reminder from your path.
+            <AlertDialogTitle className="text-2xl font-bold text-red-400">Delete Alert?</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/50 text-base">
+              This will permanently remove this alert.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-8">
-            <AlertDialogCancel className="rounded-sm uppercase tracking-wider text-xs font-semibold" data-testid="button-cancel-delete-alert">Keep</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-2xl uppercase tracking-wider text-xs font-semibold bg-white/5 border-white/10 hover:bg-white/10 text-white" data-testid="button-cancel-delete-alert">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-sm uppercase tracking-wider text-xs font-semibold"
+              className="bg-red-500/10 border border-red-500/50 text-red-400 hover:bg-red-500/20 rounded-2xl uppercase tracking-wider text-xs font-semibold backdrop-blur-md"
               data-testid="button-confirm-delete-alert"
             >
-              Silence
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

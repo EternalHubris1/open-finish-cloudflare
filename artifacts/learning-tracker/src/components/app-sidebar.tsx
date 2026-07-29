@@ -1,7 +1,6 @@
 import { Link, useLocation } from 'wouter';
-import { Home, Target, Award, Bell, User, Flame } from 'lucide-react';
+import { Home, Target, Award, Bell, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import musashi from '@assets/musashi_1785336444855.jpg';
 
 export function AppSidebar() {
   const [location] = useLocation();
@@ -15,20 +14,20 @@ export function AppSidebar() {
   ];
 
   return (
-    <aside className="w-64 border-r border-sidebar-border bg-sidebar flex flex-col h-screen sticky top-0 overflow-hidden relative">
-      <div className="p-6 border-b border-sidebar-border relative z-10 bg-sidebar/80 backdrop-blur-sm">
+    <aside className="w-64 flex flex-col h-screen sticky top-0 relative z-20 backdrop-blur-md border-r border-white/10" style={{ background: 'rgba(0, 0, 0, 0.4)' }}>
+      <div className="p-6 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-sm bg-foreground flex items-center justify-center border border-border">
-            <Flame className="w-5 h-5 text-primary" />
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+            <Target className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold font-serif text-sidebar-foreground">Musashi</h1>
-            <p className="text-xs text-muted-foreground uppercase tracking-widest">Tracker</p>
+            <h1 className="text-lg font-bold text-white">Progress Checker</h1>
+            <p className="text-xs text-white/40 uppercase tracking-widest">Track your journey</p>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1 relative z-10">
+      <nav className="flex-1 p-4 space-y-1">
         {routes.map((route) => {
           const Icon = route.icon;
           const isActive = location === route.path;
@@ -38,11 +37,11 @@ export function AppSidebar() {
               key={route.path}
               href={route.path}
               className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-sm transition-all duration-200 border border-transparent',
-                'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                'flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200',
+                'hover:bg-white/5 hover:scale-[1.03] active:scale-[0.97]',
                 isActive
-                  ? 'bg-sidebar-primary text-sidebar-primary-foreground font-semibold shadow-sm border-sidebar-border'
-                  : 'text-sidebar-foreground'
+                  ? 'bg-blue-500/10 text-blue-300 font-semibold border border-blue-400/30'
+                  : 'text-white/70 hover:text-white'
               )}
               data-testid={`nav-${route.label.toLowerCase()}`}
             >
@@ -53,19 +52,9 @@ export function AppSidebar() {
         })}
       </nav>
 
-      {/* Decorative Musashi Image at the bottom */}
-      <div className="absolute bottom-0 left-0 w-full h-2/3 pointer-events-none z-0 overflow-hidden opacity-20 dark:opacity-30 mix-blend-multiply dark:mix-blend-lighten">
-        <img 
-          src={musashi} 
-          alt="Musashi decoration" 
-          className="w-full h-full object-cover object-bottom"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-transparent to-sidebar" />
-      </div>
-
-      <div className="p-4 border-t border-sidebar-border relative z-10 bg-sidebar/80 backdrop-blur-sm">
-        <div className="text-xs text-muted-foreground text-center font-serif italic">
-          "Step by step walk the thousand-mile road."
+      <div className="p-4 border-t border-white/10">
+        <div className="text-xs text-white/30 text-center">
+          Keep building momentum
         </div>
       </div>
     </aside>
