@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Learning Tracker"
+version = "1.0.0"
+id = "artifacts/learning-tracker"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18714
+
+[services.development]
+run = "pnpm --filter @workspace/learning-tracker run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/learning-tracker", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/learning-tracker/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18714"
+BASE_PATH = "/"

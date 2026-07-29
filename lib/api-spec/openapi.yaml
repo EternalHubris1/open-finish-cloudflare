@@ -3,20 +3,32 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Learning Tracker API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: activities
+    description: Learning activities
+  - name: logs
+    description: Activity logs
+  - name: profile
+    description: User profile
+  - name: alerts
+    description: Reminders and alerts
+  - name: achievements
+    description: Achievements and milestones
+  - name: dashboard
+    description: Dashboard and summaries
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +36,574 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /profile:
+    get:
+      operationId: getProfile
+      tags: [profile]
+      summary: Get user profile
+      responses:
+        "200":
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+    patch:
+      operationId: updateProfile
+      tags: [profile]
+      summary: Update user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileInput"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+
+  /activities:
+    get:
+      operationId: listActivities
+      tags: [activities]
+      summary: List all activities
+      responses:
+        "200":
+          description: List of activities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Activity"
+    post:
+      operationId: createActivity
+      tags: [activities]
+      summary: Create an activity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivityInput"
+      responses:
+        "201":
+          description: Created activity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+
+  /activities/{id}:
+    get:
+      operationId: getActivity
+      tags: [activities]
+      summary: Get a single activity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Activity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateActivity
+      tags: [activities]
+      summary: Update an activity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivityPatch"
+      responses:
+        "200":
+          description: Updated activity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteActivity
+      tags: [activities]
+      summary: Delete an activity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /activities/{id}/logs:
+    get:
+      operationId: listActivityLogs
+      tags: [logs]
+      summary: List logs for an activity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityLog"
+    post:
+      operationId: logActivity
+      tags: [logs]
+      summary: Log a session for an activity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivityLogInput"
+      responses:
+        "201":
+          description: Created log entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActivityLog"
+
+  /logs/{id}:
+    delete:
+      operationId: deleteLog
+      tags: [logs]
+      summary: Delete a log entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /alerts:
+    get:
+      operationId: listAlerts
+      tags: [alerts]
+      summary: List all alerts
+      responses:
+        "200":
+          description: List of alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Alert"
+    post:
+      operationId: createAlert
+      tags: [alerts]
+      summary: Create an alert/reminder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AlertInput"
+      responses:
+        "201":
+          description: Created alert
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Alert"
+
+  /alerts/{id}:
+    patch:
+      operationId: updateAlert
+      tags: [alerts]
+      summary: Update an alert
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AlertPatch"
+      responses:
+        "200":
+          description: Updated alert
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Alert"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteAlert
+      tags: [alerts]
+      summary: Delete an alert
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /achievements:
+    get:
+      operationId: listAchievements
+      tags: [achievements]
+      summary: List all achievements
+      responses:
+        "200":
+          description: List of achievements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Achievement"
+
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Get dashboard summary
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /streaks:
+    get:
+      operationId: listStreaks
+      tags: [dashboard]
+      summary: List streaks for all activities
+      responses:
+        "200":
+          description: List of streaks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Streak"
+
+  /progress/weekly:
+    get:
+      operationId: getWeeklyProgress
+      tags: [dashboard]
+      summary: Weekly progress for all activities (last 7 days)
+      responses:
+        "200":
+          description: Weekly progress
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WeeklyProgress"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    Profile:
+      type: object
+      required: [id, username, bio, avatarUrl, createdAt]
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        bio:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    ProfileInput:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+        bio:
+          type: string
+        avatarUrl:
+          type: string
+
+    Activity:
+      type: object
+      required: [id, name, category, color, targetMinutesPerDay, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        color:
+          type: string
+        icon:
+          type: ["string", "null"]
+        targetMinutesPerDay:
+          type: integer
+        createdAt:
+          type: string
+
+    ActivityInput:
+      type: object
+      required: [name, category, color, targetMinutesPerDay]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        category:
+          type: string
+        color:
+          type: string
+        icon:
+          type: string
+        targetMinutesPerDay:
+          type: integer
+          minimum: 1
+
+    ActivityPatch:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        category:
+          type: string
+        color:
+          type: string
+        icon:
+          type: string
+        targetMinutesPerDay:
+          type: integer
+          minimum: 1
+
+    ActivityLog:
+      type: object
+      required: [id, activityId, durationMinutes, logDate, createdAt]
+      properties:
+        id:
+          type: integer
+        activityId:
+          type: integer
+        durationMinutes:
+          type: integer
+        notes:
+          type: ["string", "null"]
+        logDate:
+          type: string
+        createdAt:
+          type: string
+
+    ActivityLogInput:
+      type: object
+      required: [durationMinutes]
+      properties:
+        durationMinutes:
+          type: integer
+          minimum: 1
+        notes:
+          type: string
+        logDate:
+          type: string
+          description: "YYYY-MM-DD, defaults to today"
+
+    Alert:
+      type: object
+      required: [id, activityId, timeOfDay, daysOfWeek, enabled, message]
+      properties:
+        id:
+          type: integer
+        activityId:
+          type: integer
+        activityName:
+          type: ["string", "null"]
+        timeOfDay:
+          type: string
+          description: "HH:MM"
+        daysOfWeek:
+          type: array
+          items:
+            type: integer
+          description: "0=Sun, 1=Mon, ... 6=Sat"
+        enabled:
+          type: boolean
+        message:
+          type: string
+
+    AlertInput:
+      type: object
+      required: [activityId, timeOfDay, daysOfWeek, message]
+      properties:
+        activityId:
+          type: integer
+        timeOfDay:
+          type: string
+        daysOfWeek:
+          type: array
+          items:
+            type: integer
+        enabled:
+          type: boolean
+          default: true
+        message:
+          type: string
+
+    AlertPatch:
+      type: object
+      properties:
+        timeOfDay:
+          type: string
+        daysOfWeek:
+          type: array
+          items:
+            type: integer
+        enabled:
+          type: boolean
+        message:
+          type: string
+
+    Achievement:
+      type: object
+      required: [id, type, title, description, unlockedAt]
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        icon:
+          type: ["string", "null"]
+        activityId:
+          type: ["integer", "null"]
+        activityName:
+          type: ["string", "null"]
+        unlockedAt:
+          type: string
+
+    Streak:
+      type: object
+      required: [activityId, activityName, currentStreak, longestStreak, lastLoggedDate]
+      properties:
+        activityId:
+          type: integer
+        activityName:
+          type: string
+        currentStreak:
+          type: integer
+        longestStreak:
+          type: integer
+        lastLoggedDate:
+          type: ["string", "null"]
+
+    DashboardSummary:
+      type: object
+      required: [totalActivities, totalMinutesToday, activitiesTodayCompleted, activitiesTodayTotal, overallCurrentStreak, totalAchievements, recentAchievements, todayLogs]
+      properties:
+        totalActivities:
+          type: integer
+        totalMinutesToday:
+          type: integer
+        activitiesTodayCompleted:
+          type: integer
+        activitiesTodayTotal:
+          type: integer
+        overallCurrentStreak:
+          type: integer
+        totalAchievements:
+          type: integer
+        recentAchievements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Achievement"
+        todayLogs:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityLog"
+
+    WeeklyProgress:
+      type: object
+      required: [activityId, activityName, color, days]
+      properties:
+        activityId:
+          type: integer
+        activityName:
+          type: string
+        color:
+          type: string
+        targetMinutesPerDay:
+          type: integer
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/DayProgress"
+
+    DayProgress:
+      type: object
+      required: [date, minutesLogged, completed]
+      properties:
+        date:
+          type: string
+        minutesLogged:
+          type: integer
+        completed:
+          type: boolean
