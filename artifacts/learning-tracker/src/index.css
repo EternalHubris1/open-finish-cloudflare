@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
@@ -62,48 +62,48 @@
 }
 
 :root {
-  /* Dark glassmorphic theme */
-  --background: 222 47% 11%;
+  /* Dark glassmorphic theme - Japanese Warrior Aesthetic */
+  --background: 0 0% 4%;
   --foreground: 0 0% 100%;
   --border: 0 0% 100% / 0.1;
-  --card: 0 0% 100% / 0.05;
+  --card: 0 0% 10% / 0.85;
   --card-foreground: 0 0% 100%;
   --card-border: 0 0% 100% / 0.1;
   
-  --sidebar: 0 0% 0% / 0.4;
+  --sidebar: 0 0% 0% / 0.6;
   --sidebar-foreground: 0 0% 100%;
-  --sidebar-border: 0 0% 100% / 0.1;
-  --sidebar-primary: 217 91% 60%;
+  --sidebar-border: 0 0% 100% / 0.05;
+  --sidebar-primary: 0 72% 51%;
   --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 0 0% 100% / 0.05;
   --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-ring: 217 91% 60%;
+  --sidebar-ring: 0 72% 51%;
 
-  --popover: 0 0% 100% / 0.06;
+  --popover: 240 14% 7% / 0.85;
   --popover-foreground: 0 0% 100%;
   --popover-border: 0 0% 100% / 0.1;
 
-  --primary: 217 91% 60%;
+  --primary: 0 72% 51%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 189 94% 43%;
+  --secondary: 0 0% 20%;
   --secondary-foreground: 0 0% 100%;
 
   --muted: 0 0% 100% / 0.1;
   --muted-foreground: 0 0% 100% / 0.5;
 
-  --accent: 217 91% 60%;
+  --accent: 0 72% 51%;
   --accent-foreground: 0 0% 100%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
 
   --input: 0 0% 100% / 0.1;
-  --ring: 217 91% 60%;
+  --ring: 0 72% 51%;
   
-  --chart-1: 217 91% 60%;
-  --chart-2: 189 94% 43%;
-  --chart-3: 221 83% 53%;
+  --chart-1: 0 72% 51%;
+  --chart-2: 24 94% 43%;
+  --chart-3: 0 83% 53%;
   --chart-4: 0 0% 70%;
   --chart-5: 0 0% 85%;
 
@@ -119,43 +119,43 @@
 }
 
 .dark {
-  --background: 222 47% 11%;
+  --background: 0 0% 4%;
   --foreground: 0 0% 100%;
   --border: 0 0% 100% / 0.1;
-  --card: 0 0% 100% / 0.05;
+  --card: 0 0% 10% / 0.85;
   --card-foreground: 0 0% 100%;
   --card-border: 0 0% 100% / 0.1;
   
-  --sidebar: 0 0% 0% / 0.4;
+  --sidebar: 0 0% 0% / 0.6;
   --sidebar-foreground: 0 0% 100%;
-  --sidebar-border: 0 0% 100% / 0.1;
-  --sidebar-primary: 217 91% 60%;
+  --sidebar-border: 0 0% 100% / 0.05;
+  --sidebar-primary: 0 72% 51%;
   --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 0 0% 100% / 0.05;
   --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-ring: 217 91% 60%;
+  --sidebar-ring: 0 72% 51%;
 
-  --popover: 0 0% 100% / 0.06;
+  --popover: 240 14% 7% / 0.85;
   --popover-foreground: 0 0% 100%;
   --popover-border: 0 0% 100% / 0.1;
 
-  --primary: 217 91% 60%;
+  --primary: 0 72% 51%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 189 94% 43%;
+  --secondary: 0 0% 20%;
   --secondary-foreground: 0 0% 100%;
 
   --muted: 0 0% 100% / 0.1;
   --muted-foreground: 0 0% 100% / 0.5;
 
-  --accent: 217 91% 60%;
+  --accent: 0 72% 51%;
   --accent-foreground: 0 0% 100%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
 
   --input: 0 0% 100% / 0.1;
-  --ring: 217 91% 60%;
+  --ring: 0 72% 51%;
 }
 
 @layer base {
@@ -165,7 +165,7 @@
 
   body {
     @apply font-sans antialiased text-foreground;
-    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 40%, #16213e 70%, #0f0f23 100%);
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 40%, #16161d 70%, #0f0f0f 100%);
     background-attachment: fixed;
     min-height: 100dvh;
   }
@@ -178,10 +178,10 @@
 
 @layer utilities {
   .glass-card {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(15, 15, 20, 0.85);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
   }
 
   .animate-slide-up {
@@ -204,11 +204,11 @@
       opacity: 0.1;
     }
     50% {
-      opacity: 0.15;
+      opacity: 0.25;
     }
   }
 
   .animate-pulse-glow {
-    animation: pulse-glow 4s ease-in-out infinite;
+    animation: pulse-glow 6s ease-in-out infinite;
   }
 }

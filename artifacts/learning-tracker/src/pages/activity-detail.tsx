@@ -29,12 +29,12 @@ export default function ActivityDetail() {
 
   if (activityLoading || logsLoading) {
     return (
-      <div className="p-8 space-y-8 max-w-5xl mx-auto">
-        <Skeleton className="h-12 w-32 rounded-2xl" />
-        <Skeleton className="h-32 rounded-2xl" />
+      <div className="p-8 space-y-8 max-w-5xl mx-auto relative z-10">
+        <Skeleton className="h-12 w-32 rounded-2xl bg-white/5" />
+        <Skeleton className="h-40 rounded-3xl bg-white/5" />
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-24 rounded-2xl" />
+            <Skeleton key={i} className="h-28 rounded-3xl bg-white/5" />
           ))}
         </div>
       </div>
@@ -43,9 +43,9 @@ export default function ActivityDetail() {
 
   if (!activity) {
     return (
-      <div className="p-8 max-w-5xl mx-auto text-center mt-20">
+      <div className="p-8 max-w-5xl mx-auto text-center mt-20 relative z-10">
         <p className="text-2xl text-white/50">Activity not found</p>
-        <Link href="/activities" className="text-cyan-300 mt-4 inline-block underline">Back to activities</Link>
+        <Link href="/activities" className="text-red-400 mt-4 inline-block underline font-bold tracking-wide">Back to activities</Link>
       </div>
     );
   }
@@ -76,10 +76,10 @@ export default function ActivityDetail() {
   const remainingMinutes = totalMinutes % 60;
 
   return (
-    <div className="min-h-screen p-8 space-y-10 animate-slide-up max-w-5xl mx-auto">
+    <div className="min-h-screen p-8 space-y-10 animate-slide-up max-w-5xl mx-auto relative z-10 pb-20">
       <div>
         <Link href="/activities">
-          <Button variant="ghost" size="sm" className="gap-2 rounded-2xl uppercase tracking-wider text-xs font-semibold text-white/50 hover:text-white hover:bg-white/5" data-testid="button-back">
+          <Button variant="ghost" size="sm" className="gap-2 rounded-2xl uppercase tracking-wider text-[10px] font-bold text-white/40 hover:text-white hover:bg-white/5" data-testid="button-back">
             <ArrowLeft className="w-4 h-4" />
             Back
           </Button>
@@ -87,66 +87,66 @@ export default function ActivityDetail() {
       </div>
 
       {/* Activity Header */}
-      <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-10 shadow-2xl relative overflow-hidden group">
+      <div className="bg-[rgba(15,15,20,0.85)] backdrop-blur-xl border border-white/10 rounded-3xl p-10 shadow-2xl relative overflow-hidden group hover:border-white/20 transition-all duration-500">
         <div 
-          className="absolute left-0 top-0 bottom-0 w-2"
-          style={{ backgroundColor: activity.color || '#3b82f6' }}
+          className="absolute left-0 top-0 bottom-0 w-2 shadow-[0_0_20px_rgba(220,38,38,0.5)]"
+          style={{ backgroundColor: activity.color || '#dc2626' }}
         />
-        <div className="flex items-start justify-between relative z-10 pl-4">
-          <div className="flex items-center gap-8">
+        <div className="flex items-start justify-between relative z-10 pl-6">
+          <div className="flex items-center gap-10">
             <div
-              className="w-24 h-24 flex items-center justify-center border-2 rounded-3xl backdrop-blur-md"
+              className="w-24 h-24 flex items-center justify-center border-2 rounded-[2rem] backdrop-blur-md shadow-xl"
               style={{ 
-                borderColor: activity.color || '#3b82f6',
+                borderColor: activity.color || '#dc2626',
                 backgroundColor: 'rgba(255, 255, 255, 0.05)'
               }}
             >
-              <Clock className="w-12 h-12" style={{ color: activity.color || '#3b82f6' }} />
+              <Clock className="w-10 h-10" style={{ color: activity.color || '#dc2626' }} />
             </div>
             <div>
-              <h1 className="text-5xl font-bold mb-2 text-white tracking-tight">{activity.name}</h1>
-              <p className="text-sm uppercase tracking-widest text-white/40 mb-6">{activity.category}</p>
-              <div className="flex items-center gap-8 text-sm">
-                <div className="flex items-center gap-2 text-white/70">
-                  <Clock className="w-4 h-4 text-cyan-300" />
-                  <span className="font-bold">{activity.targetMinutesPerDay} min</span> 
-                  <span className="text-white/50">daily target</span>
+              <h1 className="text-4xl md:text-5xl font-bold mb-3 text-white tracking-wide">{activity.name}</h1>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-6">{activity.category}</p>
+              <div className="flex items-center gap-10 text-sm">
+                <div className="flex items-center gap-2 text-white/60">
+                  <Clock className="w-4 h-4 text-red-400" />
+                  <span className="font-bold text-white">{activity.targetMinutesPerDay} min</span> 
+                  <span className="text-white/40 font-semibold uppercase tracking-wider text-[10px]">daily target</span>
                 </div>
-                <div className="flex items-center gap-2 text-white/70">
-                  <Calendar className="w-4 h-4 text-cyan-300" />
-                  <span className="font-bold">{logs.length}</span>
-                  <span className="text-white/50">sessions</span>
+                <div className="flex items-center gap-2 text-white/60">
+                  <Calendar className="w-4 h-4 text-red-400" />
+                  <span className="font-bold text-white">{logs.length}</span>
+                  <span className="text-white/40 font-semibold uppercase tracking-wider text-[10px]">sessions</span>
                 </div>
               </div>
             </div>
           </div>
-          <Button size="lg" onClick={() => setLogDialogOpen(true)} className="gap-2 rounded-2xl font-semibold uppercase tracking-wider text-xs bg-blue-500/10 border border-blue-400/30 text-blue-300 hover:bg-blue-500/20 backdrop-blur-md hover:scale-[1.03] active:scale-[0.97] transition-all" data-testid="button-log-session">
+          <Button size="lg" onClick={() => setLogDialogOpen(true)} className="gap-2 rounded-2xl font-bold uppercase tracking-wider text-[11px] bg-gradient-to-r from-red-700 via-red-600 to-red-800 text-white shadow-lg hover:shadow-red-500/25 hover:scale-[1.03] active:scale-[0.97] transition-all border-0 px-8" data-testid="button-log-session">
             <Plus className="w-4 h-4" />
             Log Session
           </Button>
         </div>
         
         <div 
-          className="absolute right-0 top-0 bottom-0 w-64 opacity-5 pointer-events-none transition-transform duration-700 group-hover:scale-110 blur-3xl"
-          style={{ backgroundColor: activity.color || '#3b82f6' }}
+          className="absolute right-0 top-0 bottom-0 w-80 opacity-[0.03] pointer-events-none transition-transform duration-700 group-hover:scale-110 blur-3xl"
+          style={{ backgroundColor: activity.color || '#dc2626' }}
         />
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="rounded-3xl p-8 border-b-4 backdrop-blur-md bg-gradient-to-br from-white/10 to-white/5" style={{ borderColor: activity.color || '#3b82f6' }}>
-          <p className="text-xs uppercase tracking-widest text-white/40 mb-3 font-semibold">Total Time</p>
-          <p className="text-4xl font-bold text-white">
+        <div className="rounded-3xl p-8 border-b-4 backdrop-blur-xl bg-[rgba(20,20,25,0.7)] shadow-lg" style={{ borderColor: activity.color || '#dc2626' }}>
+          <p className="text-[10px] uppercase tracking-widest text-white/40 mb-3 font-bold">Total Time</p>
+          <p className="text-4xl font-bold text-white tracking-tight">
             {totalHours > 0 ? `${totalHours}h ${remainingMinutes}m` : `${totalMinutes}m`}
           </p>
         </div>
-        <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8">
-          <p className="text-xs uppercase tracking-widest text-white/40 mb-3 font-semibold">Total Sessions</p>
-          <p className="text-4xl font-bold text-white">{logs.length}</p>
+        <div className="bg-[rgba(15,15,20,0.85)] backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-lg">
+          <p className="text-[10px] uppercase tracking-widest text-white/40 mb-3 font-bold">Total Sessions</p>
+          <p className="text-4xl font-bold text-white tracking-tight">{logs.length}</p>
         </div>
-        <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8">
-          <p className="text-xs uppercase tracking-widest text-white/40 mb-3 font-semibold">Avg Session</p>
-          <p className="text-4xl font-bold text-white">
+        <div className="bg-[rgba(15,15,20,0.85)] backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-lg">
+          <p className="text-[10px] uppercase tracking-widest text-white/40 mb-3 font-bold">Avg Session</p>
+          <p className="text-4xl font-bold text-white tracking-tight">
             {logs.length > 0 ? Math.round(totalMinutes / logs.length) : 0}m
           </p>
         </div>
@@ -154,13 +154,13 @@ export default function ActivityDetail() {
 
       {/* Log History */}
       <div className="pt-6">
-        <h2 className="text-2xl font-bold mb-8 text-white">Session History</h2>
+        <h2 className="text-2xl font-bold mb-8 text-white tracking-wide">Session History</h2>
         {logs.length === 0 ? (
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 border-dashed rounded-3xl p-16 text-center">
-            <Clock className="w-12 h-12 text-white/30 mx-auto mb-4" />
-            <h3 className="text-xl font-bold mb-2 text-white">No sessions yet</h3>
-            <p className="text-white/50 mb-6">Log your first session to get started</p>
-            <Button onClick={() => setLogDialogOpen(true)} className="rounded-2xl uppercase tracking-wider text-xs font-semibold bg-blue-500/10 border border-blue-400/30 text-blue-300 hover:bg-blue-500/20 backdrop-blur-md" data-testid="button-log-first">
+          <div className="bg-[rgba(15,15,20,0.85)] backdrop-blur-xl border border-white/5 border-dashed rounded-3xl p-16 text-center shadow-2xl">
+            <Clock className="w-12 h-12 text-white/20 mx-auto mb-4" />
+            <h3 className="text-xl font-bold mb-2 text-white tracking-wide">No sessions yet</h3>
+            <p className="text-[11px] uppercase tracking-wider font-semibold text-white/40 mb-8">Log your first session to build momentum</p>
+            <Button onClick={() => setLogDialogOpen(true)} className="rounded-2xl px-8 uppercase tracking-wider text-[11px] font-bold bg-gradient-to-r from-red-700 via-red-600 to-red-800 text-white shadow-lg hover:shadow-red-500/25 border-0 hover:scale-[1.02] active:scale-[0.98] transition-all" data-testid="button-log-first">
               <Plus className="w-4 h-4 mr-2" />
               Log First Session
             </Button>
@@ -172,32 +172,32 @@ export default function ActivityDetail() {
               .map((log) => (
                 <div
                   key={log.id}
-                  className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 transition-all duration-200 hover:border-white/20 hover:shadow-2xl flex items-start justify-between group"
+                  className="bg-[rgba(15,15,20,0.85)] backdrop-blur-xl border border-white/10 rounded-3xl p-8 transition-all duration-300 hover:border-white/20 hover:shadow-2xl flex items-start justify-between group"
                   data-testid={`log-${log.id}`}
                 >
                   <div className="flex-1 pr-8">
-                    <div className="flex items-center gap-6 mb-3 border-b border-white/10 pb-3">
-                      <div className="flex items-center gap-2 text-sm text-white font-bold uppercase tracking-wider">
-                        <Calendar className="w-4 h-4 text-white/40" />
+                    <div className="flex items-center gap-8 mb-5 border-b border-white/5 pb-4">
+                      <div className="flex items-center gap-2 text-[11px] text-white/80 font-bold uppercase tracking-widest">
+                        <Calendar className="w-4 h-4 text-white/30" />
                         <span>{format(new Date(log.logDate), 'MMMM d, yyyy')}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-lg">
-                        <Clock className="w-4 h-4" style={{ color: activity.color || '#3b82f6' }} />
-                        <span className="font-bold text-white">{log.durationMinutes} min</span>
+                      <div className="flex items-center gap-2 text-xl">
+                        <Clock className="w-4 h-4" style={{ color: activity.color || '#dc2626' }} />
+                        <span className="font-bold text-white tracking-tight">{log.durationMinutes} min</span>
                       </div>
                     </div>
                     {log.notes ? (
-                      <p className="text-base text-white/70 leading-relaxed pl-2 border-l-2" style={{ borderColor: activity.color || '#3b82f6' }}>
+                      <p className="text-base text-white/60 leading-relaxed pl-4 border-l-2 font-medium italic" style={{ borderColor: activity.color || '#dc2626' }}>
                         "{log.notes}"
                       </p>
                     ) : (
-                      <p className="text-sm text-white/30">No notes</p>
+                      <p className="text-[11px] uppercase tracking-wider font-semibold text-white/30 pl-4 border-l-2 border-white/10">No notes</p>
                     )}
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/10 hover:text-red-400 rounded-2xl"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-900/30 hover:text-red-400 rounded-2xl h-10 w-10 p-0"
                     onClick={() => {
                       setDeletingLogId(log.id);
                       setDeleteDialogOpen(true);
@@ -219,18 +219,18 @@ export default function ActivityDetail() {
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="rounded-3xl border-white/10 p-8 bg-[#1a1a2e] backdrop-blur-md shadow-2xl" data-testid="dialog-delete-log">
+        <AlertDialogContent className="rounded-3xl border-white/10 p-8 bg-[#0a0a0a] backdrop-blur-2xl shadow-2xl" data-testid="dialog-delete-log">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-2xl font-bold text-red-400">Delete Session?</AlertDialogTitle>
-            <AlertDialogDescription className="text-white/50 text-base">
+            <AlertDialogTitle className="text-2xl font-bold text-red-500">Delete Session?</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/40 text-sm mt-2">
               This will permanently delete this session log.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="mt-8">
-            <AlertDialogCancel className="rounded-2xl uppercase tracking-wider text-xs font-semibold bg-white/5 border-white/10 hover:bg-white/10 text-white" data-testid="button-cancel-delete-log">Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="mt-8 gap-4">
+            <AlertDialogCancel className="rounded-2xl h-12 uppercase tracking-wider text-[11px] font-bold bg-white/5 border-white/10 hover:bg-white/10 text-white" data-testid="button-cancel-delete-log">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteLog}
-              className="bg-red-500/10 border border-red-500/50 text-red-400 hover:bg-red-500/20 rounded-2xl uppercase tracking-wider text-xs font-semibold backdrop-blur-md"
+              className="rounded-2xl h-12 uppercase tracking-wider text-[11px] font-bold bg-red-900/50 border border-red-500/50 text-red-400 hover:bg-red-900/80 backdrop-blur-xl"
               data-testid="button-confirm-delete-log"
             >
               Delete

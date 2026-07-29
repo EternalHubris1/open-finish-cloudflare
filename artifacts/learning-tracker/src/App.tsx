@@ -23,31 +23,36 @@ const queryClient = new QueryClient({
 
 function Router() {
   return (
-    <div className="flex min-h-screen relative">
-      {/* Fixed Musashi background decoration */}
+    <div className="flex min-h-screen relative bg-[#0a0a0a] overflow-hidden">
+      {/* Background Gradient to ensure full coverage */}
+      <div className="absolute inset-0 z-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 40%, #16161d 70%, #0f0f0f 100%)' }} />
+
+      {/* Prominent Musashi background */}
       <div 
-        className="fixed right-0 bottom-0 w-[480px] h-[640px] pointer-events-none z-0"
+        className="fixed right-0 top-0 bottom-0 w-[55%] pointer-events-none z-0"
         style={{
           backgroundImage: `url(${musashi})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'top center',
-          maskImage: 'linear-gradient(to left, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.28) 50%, transparent 100%), linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 35%)',
-          WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.28) 50%, transparent 100%), linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 35%)',
-          maskComposite: 'intersect',
-          WebkitMaskComposite: 'source-in',
-          filter: 'contrast(1.15) saturate(0.9)',
-          opacity: 0.38,
+          backgroundPosition: 'center top',
+          maskImage: 'linear-gradient(to left, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 50%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 50%, transparent 100%)',
+          filter: 'contrast(1.15) saturate(0.85)',
+          opacity: 0.9,
           mixBlendMode: 'screen'
         }}
       />
 
-      {/* Ambient glow orbs */}
-      <div className="fixed top-[-80px] left-[10%] w-[400px] h-[400px] rounded-full bg-blue-500 blur-3xl opacity-10 pointer-events-none z-0 animate-pulse-glow" style={{ animationDelay: '0s' }} />
-      <div className="fixed top-[30%] right-[5%] w-[300px] h-[300px] rounded-full bg-cyan-500 blur-3xl opacity-[0.08] pointer-events-none z-0 animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
-      <div className="fixed bottom-[10%] left-[20%] w-[350px] h-[350px] rounded-full bg-blue-700 blur-3xl opacity-[0.06] pointer-events-none z-0 animate-pulse-glow" style={{ animationDelay: '3s' }} />
+      {/* Ambient glow orbs - red/orange motif */}
+      <div className="fixed top-[15%] left-[8%] w-[400px] h-[400px] rounded-full bg-red-600 blur-[120px] opacity-[0.15] pointer-events-none z-0 animate-pulse-glow" style={{ animationDelay: '0s' }} />
+      <div className="fixed top-[40%] right-[10%] w-[350px] h-[350px] rounded-full bg-orange-600 blur-[100px] opacity-[0.12] pointer-events-none z-0 animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
+      <div className="fixed bottom-[5%] left-[25%] w-[450px] h-[450px] rounded-full bg-red-900 blur-[120px] opacity-[0.18] pointer-events-none z-0 animate-pulse-glow" style={{ animationDelay: '3s' }} />
+
+      {/* Calligraphy-style red divider lines top/bottom */}
+      <div className="fixed top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-red-600/50 to-transparent z-50 pointer-events-none" />
+      <div className="fixed bottom-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-red-600/50 to-transparent z-50 pointer-events-none" />
 
       <AppSidebar />
-      <main className="flex-1 overflow-x-hidden relative z-10">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden relative z-10 h-screen">
         <Switch>
           <Route path="/" component={Dashboard} />
           <Route path="/activities" component={Activities} />
