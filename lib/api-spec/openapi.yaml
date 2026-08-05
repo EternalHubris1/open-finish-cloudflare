@@ -347,6 +347,34 @@ paths:
                 items:
                   $ref: "#/components/schemas/WeeklyProgress"
 
+  /calendar:
+    get:
+      operationId: getCalendar
+      tags: [dashboard]
+      summary: Daily activity totals within a date range, compared against the daily goal
+      parameters:
+        - name: start
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "YYYY-MM-DD, inclusive"
+        - name: end
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "YYYY-MM-DD, inclusive"
+      responses:
+        "200":
+          description: Calendar days with logged activity within the range
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CalendarDay"
+
 components:
   schemas:
     HealthStatus:
@@ -607,3 +635,41 @@ components:
           type: integer
         completed:
           type: boolean
+
+    CalendarLogEntry:
+      type: object
+      required: [id, activityId, activityName, activityColor, durationMinutes, logDate]
+      properties:
+        id:
+          type: integer
+        activityId:
+          type: integer
+        activityName:
+          type: string
+        activityColor:
+          type: string
+        durationMinutes:
+          type: integer
+        notes:
+          type: ["string", "null"]
+        logDate:
+          type: string
+
+    CalendarDay:
+      type: object
+      required: [date, totalMinutes, goalMinutes, status, logs]
+      properties:
+        date:
+          type: string
+        totalMinutes:
+          type: integer
+        goalMinutes:
+          type: integer
+        status:
+          type: string
+          enum: [under, met, over]
+          description: "under: below goal, met: reached goal (below the 'heavily over' threshold), over: heavily exceeded the goal"
+        logs:
+          type: array
+          items:
+            $ref: "#/components/schemas/CalendarLogEntry"

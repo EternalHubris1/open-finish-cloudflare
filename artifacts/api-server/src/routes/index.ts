@@ -6,6 +6,7 @@ import logsRouter from "./logs";
 import alertsRouter from "./alerts";
 import achievementsRouter from "./achievements";
 import dashboardRouter from "./dashboard";
+import calendarRouter from "./calendar";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(logsRouter);
 router.use(alertsRouter);
 router.use(achievementsRouter);
 router.use(dashboardRouter);
+router.use(calendarRouter);
 
 export default router;

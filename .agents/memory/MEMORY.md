@@ -1,0 +1,1 @@
+- [Learning tracker API codegen](learning-tracker-codegen.md) — API schema changes flow through openapi.yaml → orval codegen, not hand-written types.

@@ -6,6 +6,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import Dashboard from '@/pages/dashboard';
 import Activities from '@/pages/activities';
 import ActivityDetail from '@/pages/activity-detail';
+import History from '@/pages/history';
 import Achievements from '@/pages/achievements';
 import Alerts from '@/pages/alerts';
 import Profile from '@/pages/profile';
@@ -57,6 +58,7 @@ function Router() {
           <Route path="/" component={Dashboard} />
           <Route path="/activities" component={Activities} />
           <Route path="/activities/:id" component={ActivityDetail} />
+          <Route path="/history" component={History} />
           <Route path="/achievements" component={Achievements} />
           <Route path="/alerts" component={Alerts} />
           <Route path="/profile" component={Profile} />

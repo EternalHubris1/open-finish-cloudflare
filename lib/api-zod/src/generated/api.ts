@@ -353,3 +353,29 @@ export const GetWeeklyProgressResponseItem = zod.object({
 export const GetWeeklyProgressResponse = zod.array(GetWeeklyProgressResponseItem)
 
 
+/**
+ * @summary Daily activity totals within a date range, compared against the daily goal
+ */
+export const GetCalendarQueryParams = zod.object({
+  "start": zod.coerce.string().describe('YYYY-MM-DD, inclusive'),
+  "end": zod.coerce.string().describe('YYYY-MM-DD, inclusive')
+})
+
+export const GetCalendarResponseItem = zod.object({
+  "date": zod.string(),
+  "totalMinutes": zod.int(),
+  "goalMinutes": zod.int(),
+  "status": zod.enum(['under', 'met', 'over']).describe('under: below goal, met: reached goal (below the \'heavily over\' threshold), over: heavily exceeded the goal'),
+  "logs": zod.array(zod.object({
+  "id": zod.int(),
+  "activityId": zod.int(),
+  "activityName": zod.string(),
+  "activityColor": zod.string(),
+  "durationMinutes": zod.int(),
+  "notes": zod.string().nullish(),
+  "logDate": zod.string()
+}))
+})
+export const GetCalendarResponse = zod.array(GetCalendarResponseItem)
+
+

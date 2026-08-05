@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'wouter';
-import { Home, Target, Award, Bell, User } from 'lucide-react';
+import { Home, Target, Award, Bell, User, CalendarDays } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function AppSidebar() {
@@ -8,6 +8,7 @@ export function AppSidebar() {
   const routes = [
     { path: '/', label: 'Dashboard', icon: Home },
     { path: '/activities', label: 'Activities', icon: Target },
+    { path: '/history', label: 'History', icon: CalendarDays },
     { path: '/achievements', label: 'Achievements', icon: Award },
     { path: '/alerts', label: 'Alerts', icon: Bell },
     { path: '/profile', label: 'Profile', icon: User },

@@ -151,3 +151,46 @@ export interface WeeklyProgress {
   days: DayProgress[];
 }
 
+export interface CalendarLogEntry {
+  id: number;
+  activityId: number;
+  activityName: string;
+  activityColor: string;
+  durationMinutes: number;
+  /** @nullable */
+  notes?: string | null;
+  logDate: string;
+}
+
+/**
+ * under: below goal, met: reached goal (below the 'heavily over' threshold), over: heavily exceeded the goal
+ */
+export type CalendarDayStatus = typeof CalendarDayStatus[keyof typeof CalendarDayStatus];
+
+
+export const CalendarDayStatus = {
+  under: 'under',
+  met: 'met',
+  over: 'over',
+} as const;
+
+export interface CalendarDay {
+  date: string;
+  totalMinutes: number;
+  goalMinutes: number;
+  /** under: below goal, met: reached goal (below the 'heavily over' threshold), over: heavily exceeded the goal */
+  status: CalendarDayStatus;
+  logs: CalendarLogEntry[];
+}
+
+export type GetCalendarParams = {
+/**
+ * YYYY-MM-DD, inclusive
+ */
+start: string;
+/**
+ * YYYY-MM-DD, inclusive
+ */
+end: string;
+};
+
