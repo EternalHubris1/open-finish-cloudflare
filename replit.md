@@ -49,7 +49,7 @@ A personal learning task manager for tracking progress, maintaining streaks, and
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- In this chat, keep responses as concise as possible.
 
 ## Gotchas
 

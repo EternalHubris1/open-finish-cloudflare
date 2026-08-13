@@ -1,4 +1,4 @@
-import { Activity } from '@workspace/api-client-react/src/generated/api.schemas';
+import { Activity } from '@workspace/api-client-react';
 import { Clock, Flame } from 'lucide-react';
 import { Link } from 'wouter';
 import { cn } from '@/lib/utils';

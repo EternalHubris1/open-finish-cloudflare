@@ -10,6 +10,7 @@ import History from '@/pages/history';
 import Achievements from '@/pages/achievements';
 import Alerts from '@/pages/alerts';
 import Profile from '@/pages/profile';
+import Streaks from '@/pages/streaks';
 import NotFound from '@/pages/not-found';
 import musashi from '@assets/musashi_1785336444855.jpg';
 
@@ -53,12 +54,13 @@ function Router() {
       <div className="fixed bottom-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-red-600/50 to-transparent z-50 pointer-events-none" />
 
       <AppSidebar />
-      <main className="flex-1 overflow-y-auto overflow-x-hidden relative z-10 h-screen">
+      <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden relative z-10 h-screen">
         <Switch>
           <Route path="/" component={Dashboard} />
           <Route path="/activities" component={Activities} />
           <Route path="/activities/:id" component={ActivityDetail} />
           <Route path="/history" component={History} />
+          <Route path="/streaks" component={Streaks} />
           <Route path="/achievements" component={Achievements} />
           <Route path="/alerts" component={Alerts} />
           <Route path="/profile" component={Profile} />

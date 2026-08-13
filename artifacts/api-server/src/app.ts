@@ -1,6 +1,9 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
@@ -30,5 +33,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
+
+// Replit Autoscale exposes one web process. Serve the built SPA from the API
+// process so the frontend and backend share the same origin and PORT.
+const serverDir = path.dirname(fileURLToPath(import.meta.url));
+const publicDir = path.resolve(serverDir, "../../learning-tracker/dist/public");
+
+if (existsSync(publicDir)) {
+  app.use(express.static(publicDir));
+  app.use((req, res, next) => {
+    if (req.method !== "GET" || req.path.startsWith("/api")) {
+      next();
+      return;
+    }
+
+    res.sendFile(path.join(publicDir, "index.html"));
+  });
+}
 
 export default app;

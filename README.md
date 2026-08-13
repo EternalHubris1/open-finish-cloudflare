@@ -55,6 +55,15 @@ pnpm --filter @workspace/learning-tracker run dev
 | `pnpm run build` | Typecheck + build all packages |
 | `pnpm --filter @workspace/api-spec run codegen` | Regenerate API hooks/Zod schemas from the OpenAPI spec |
 | `pnpm --filter @workspace/db run push` | Push DB schema changes (dev only) |
+| `pnpm run build:deploy` | Build the production frontend and API used by Replit |
+| `pnpm run start:deploy` | Start the single production server |
+
+## Replit deployment
+
+The checked-in `.replit` config uses an Autoscale deployment. Add `DATABASE_URL`
+to Replit Deployment Secrets, run `pnpm --filter @workspace/db run push` once if
+the database is new, then publish. The Express server serves both `/api/*` and
+the built React app from the deployment `PORT`.
 
 ## Notes
 

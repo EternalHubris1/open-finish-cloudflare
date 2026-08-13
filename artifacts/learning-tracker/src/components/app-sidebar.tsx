@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'wouter';
-import { Home, Target, Award, Bell, User, CalendarDays } from 'lucide-react';
+import { Home, Target, Award, Bell, User, CalendarDays, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function AppSidebar() {
@@ -9,13 +9,15 @@ export function AppSidebar() {
     { path: '/', label: 'Dashboard', icon: Home },
     { path: '/activities', label: 'Activities', icon: Target },
     { path: '/history', label: 'History', icon: CalendarDays },
+    { path: '/streaks', label: 'Streaks', icon: Flame },
     { path: '/achievements', label: 'Achievements', icon: Award },
     { path: '/alerts', label: 'Alerts', icon: Bell },
     { path: '/profile', label: 'Profile', icon: User },
   ];
 
   return (
-    <aside className="w-64 flex flex-col h-screen sticky top-0 relative z-20 backdrop-blur-xl border-r border-white/5" style={{ background: 'rgba(10, 10, 12, 0.6)' }}>
+    <>
+    <aside className="hidden w-64 flex-col h-screen sticky top-0 relative z-20 backdrop-blur-xl border-r border-white/5 md:flex" style={{ background: 'rgba(10, 10, 12, 0.6)' }}>
       <div className="p-6 border-b border-white/5">
         <div className="flex items-center gap-4">
           <div style={{ background: 'radial-gradient(circle, rgba(220,38,38,0.2) 0%, transparent 70%)' }}
@@ -60,5 +62,25 @@ export function AppSidebar() {
         </div>
       </div>
     </aside>
+    <nav className="fixed inset-x-0 bottom-0 z-50 flex overflow-x-auto border-t border-white/10 bg-black/90 px-2 py-2 backdrop-blur-2xl md:hidden">
+      {routes.map((route) => {
+        const Icon = route.icon;
+        const isActive = location === route.path;
+        return (
+          <Link
+            key={route.path}
+            href={route.path}
+            className={cn(
+              'flex min-w-[68px] flex-1 flex-col items-center gap-1 rounded-xl px-2 py-2 text-[9px] font-bold uppercase tracking-wide',
+              isActive ? 'bg-red-500/15 text-red-400' : 'text-white/35',
+            )}
+          >
+            <Icon className="h-5 w-5" />
+            {route.label}
+          </Link>
+        );
+      })}
+    </nav>
+    </>
   );
 }

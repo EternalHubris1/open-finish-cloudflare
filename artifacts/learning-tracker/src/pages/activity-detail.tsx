@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { useParams, Link } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
-import { useGetActivity, useListActivityLogs, useDeleteLog, getListActivityLogsQueryKey, getGetDashboardQueryKey, getListStreaksQueryKey } from '@workspace/api-client-react';
+import { useGetActivity, useListActivityLogs, useDeleteLog, getGetCalendarQueryKey, getGetWeeklyProgressQueryKey, getListActivityLogsQueryKey, getGetDashboardQueryKey, getListStreaksQueryKey } from '@workspace/api-client-react';
 import { LogActivityDialog } from '@/components/log-activity-dialog';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Plus, Trash2, Calendar, Clock } from 'lucide-react';
-import { format } from 'date-fns';
+import { addDays, format, startOfWeek, subWeeks } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { DailyActivityChart } from '@/components/daily-activity-chart';
 
 export default function ActivityDetail() {
   const params = useParams();
@@ -61,6 +62,8 @@ export default function ActivityDetail() {
           queryClient.invalidateQueries({ queryKey: getListActivityLogsQueryKey(activityId) });
           queryClient.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
           queryClient.invalidateQueries({ queryKey: getListStreaksQueryKey() });
+          queryClient.invalidateQueries({ queryKey: getGetWeeklyProgressQueryKey() });
+          queryClient.invalidateQueries({ queryKey: getGetCalendarQueryKey() });
           setDeleteDialogOpen(false);
           setDeletingLogId(null);
         },
@@ -74,6 +77,15 @@ export default function ActivityDetail() {
   const totalMinutes = logs.reduce((sum, log) => sum + log.durationMinutes, 0);
   const totalHours = Math.floor(totalMinutes / 60);
   const remainingMinutes = totalMinutes % 60;
+  const chartStart = startOfWeek(subWeeks(new Date(), 11), { weekStartsOn: 1 });
+  const minutesByDate = new Map<string, number>();
+  logs.forEach((log) => {
+    minutesByDate.set(log.logDate, (minutesByDate.get(log.logDate) ?? 0) + log.durationMinutes);
+  });
+  const chartDays = Array.from({ length: 84 }, (_, index) => {
+    const date = format(addDays(chartStart, index), 'yyyy-MM-dd');
+    return { date, minutes: minutesByDate.get(date) ?? 0 };
+  });
 
   return (
     <div className="min-h-screen p-8 space-y-10 animate-slide-up max-w-5xl mx-auto relative z-10 pb-20">
@@ -151,6 +163,14 @@ export default function ActivityDetail() {
           </p>
         </div>
       </div>
+
+      <section className="rounded-3xl border border-white/10 bg-[rgba(15,15,20,0.85)] p-6 shadow-2xl backdrop-blur-xl md:p-8">
+        <div className="mb-7">
+          <h2 className="text-2xl font-bold text-white">Daily rhythm</h2>
+          <p className="mt-2 text-sm text-white/40">The last 12 weeks of {activity.name.toLowerCase()}.</p>
+        </div>
+        <DailyActivityChart days={chartDays} color={activity.color} />
+      </section>
 
       {/* Log History */}
       <div className="pt-6">

@@ -64,6 +64,10 @@ router.post("/activities/:id/logs", async (req, res): Promise<void> => {
   }
 
   const logDate = parsed.data.logDate ?? todayStr();
+  if (logDate > todayStr()) {
+    res.status(400).json({ error: "Activity cannot be logged in the future" });
+    return;
+  }
 
   const [log] = await db
     .insert(activityLogsTable)
@@ -76,7 +80,7 @@ router.post("/activities/:id/logs", async (req, res): Promise<void> => {
     .returning();
 
   // Update streak after logging
-  await updateStreak(params.data.id, logDate);
+  await updateStreak(params.data.id);
 
   res.status(201).json(LogActivityResponse.parse(formatLog(log)));
 });
@@ -97,6 +101,8 @@ router.delete("/logs/:id", async (req, res): Promise<void> => {
     res.status(404).json({ error: "Log not found" });
     return;
   }
+
+  await updateStreak(deleted.activityId);
 
   res.sendStatus(204);
 });

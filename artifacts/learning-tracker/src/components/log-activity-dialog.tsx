@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useLogActivity, getGetDashboardQueryKey, getListActivityLogsQueryKey, getListStreaksQueryKey, getGetWeeklyProgressQueryKey } from '@workspace/api-client-react';
-import { Activity } from '@workspace/api-client-react/src/generated/api.schemas';
+import { useLogActivity, getGetCalendarQueryKey, getGetDashboardQueryKey, getListActivityLogsQueryKey, getListStreaksQueryKey, getGetWeeklyProgressQueryKey } from '@workspace/api-client-react';
+import { Activity } from '@workspace/api-client-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
 
 interface LogActivityDialogProps {
   activity: Activity;
@@ -18,6 +19,7 @@ interface LogActivityDialogProps {
 export function LogActivityDialog({ activity, open, onOpenChange }: LogActivityDialogProps) {
   const [durationMinutes, setDurationMinutes] = useState('');
   const [notes, setNotes] = useState('');
+  const [logDate, setLogDate] = useState(() => format(new Date(), 'yyyy-MM-dd'));
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -32,7 +34,7 @@ export function LogActivityDialog({ activity, open, onOpenChange }: LogActivityD
     }
 
     logActivity.mutate(
-      { id: activity.id, data: { durationMinutes: duration, notes: notes || undefined } },
+      { id: activity.id, data: { durationMinutes: duration, notes: notes || undefined, logDate } },
       {
         onSuccess: () => {
           toast({ title: 'Session logged!', description: `${duration} minutes added to ${activity.name}` });
@@ -40,8 +42,10 @@ export function LogActivityDialog({ activity, open, onOpenChange }: LogActivityD
           queryClient.invalidateQueries({ queryKey: getListActivityLogsQueryKey(activity.id) });
           queryClient.invalidateQueries({ queryKey: getListStreaksQueryKey() });
           queryClient.invalidateQueries({ queryKey: getGetWeeklyProgressQueryKey() });
+          queryClient.invalidateQueries({ queryKey: getGetCalendarQueryKey() });
           setDurationMinutes('');
           setNotes('');
+          setLogDate(format(new Date(), 'yyyy-MM-dd'));
           onOpenChange(false);
         },
         onError: () => {
@@ -62,19 +66,34 @@ export function LogActivityDialog({ activity, open, onOpenChange }: LogActivityD
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 mt-6">
-          <div className="space-y-2">
-            <Label htmlFor="duration" className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Duration (minutes)</Label>
-            <Input
-              id="duration"
-              type="number"
-              min="1"
-              value={durationMinutes}
-              onChange={(e) => setDurationMinutes(e.target.value)}
-              placeholder="30"
-              required
-              className="rounded-2xl h-12 text-base bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-red-500 backdrop-blur-xl"
-              data-testid="input-duration"
-            />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="duration" className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Duration (minutes)</Label>
+              <Input
+                id="duration"
+                type="number"
+                min="1"
+                value={durationMinutes}
+                onChange={(e) => setDurationMinutes(e.target.value)}
+                placeholder="30"
+                required
+                className="rounded-2xl h-12 text-base bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-red-500 backdrop-blur-xl"
+                data-testid="input-duration"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="log-date" className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Date</Label>
+              <Input
+                id="log-date"
+                type="date"
+                max={format(new Date(), 'yyyy-MM-dd')}
+                value={logDate}
+                onChange={(event) => setLogDate(event.target.value)}
+                required
+                className="rounded-2xl h-12 bg-white/5 border-white/10 text-white focus-visible:ring-red-500 [color-scheme:dark]"
+                data-testid="input-log-date"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useListAlerts, useListActivities, useCreateAlert, useUpdateAlert, useDeleteAlert, getListAlertsQueryKey } from '@workspace/api-client-react';
-import { Alert, AlertInput } from '@workspace/api-client-react/src/generated/api.schemas';
+import { Alert, AlertInput } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';

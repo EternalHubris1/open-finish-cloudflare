@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Flame, Clock, Target, Award, Plus, TrendingUp } from 'lucide-react';
 import { Link } from 'wouter';
-import { Activity } from '@workspace/api-client-react/src/generated/api.schemas';
+import { Activity } from '@workspace/api-client-react';
 import { format, startOfWeek, addDays } from 'date-fns';
 
 export default function Dashboard() {
@@ -75,11 +75,11 @@ export default function Dashboard() {
           trend="minutes logged"
         />
         <StatCard
-          label="Completed"
-          value={`${dashboard?.activitiesTodayCompleted || 0}/${dashboard?.activitiesTodayTotal || 0}`}
+          label="Active Today"
+          value={dashboard?.activitiesTodayCompleted || 0}
           icon={Target}
           variant="default"
-          trend="activities done"
+          trend="directions touched"
         />
         <StatCard
           label="Achievements"

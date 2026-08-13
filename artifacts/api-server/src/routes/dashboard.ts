@@ -1,7 +1,8 @@
 import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
-import { db, activitiesTable, activityLogsTable, streaksTable, achievementsTable } from "@workspace/db";
+import { db, activitiesTable, activityLogsTable, achievementsTable } from "@workspace/db";
 import { GetDashboardResponse, ListStreaksResponse, GetWeeklyProgressResponse } from "@workspace/api-zod";
+import { calculateStreak } from "../lib/streaks";
 
 const router: IRouter = Router();
 
@@ -27,7 +28,7 @@ router.get("/dashboard", async (_req, res): Promise<void> => {
     .from(activityLogsTable)
     .where(eq(activityLogsTable.logDate, today))
     .orderBy(desc(activityLogsTable.createdAt));
-  const allStreaks = await db.select().from(streaksTable);
+  const allLogs = await db.select().from(activityLogsTable);
   const recentAchievements = await db
     .select()
     .from(achievementsTable)
@@ -38,13 +39,15 @@ router.get("/dashboard", async (_req, res): Promise<void> => {
   const totalMinutesToday = todayLogs.reduce((s, l) => s + l.durationMinutes, 0);
 
   const activityIdsDoneToday = new Set(todayLogs.map((l) => l.activityId));
-  const activitiesTodayCompleted = activities.filter((a) => {
-    const logsForActivity = todayLogs.filter((l) => l.activityId === a.id);
-    const totalMins = logsForActivity.reduce((s, l) => s + l.durationMinutes, 0);
-    return totalMins >= a.targetMinutesPerDay;
-  }).length;
+  const activitiesTodayCompleted = activityIdsDoneToday.size;
 
-  const overallCurrentStreak = allStreaks.reduce((max, s) => Math.max(max, s.currentStreak), 0);
+  const overallCurrentStreak = activities.reduce((max, activity) => {
+    const summary = calculateStreak(
+      allLogs.filter((log) => log.activityId === activity.id).map((log) => log.logDate),
+      today,
+    );
+    return Math.max(max, summary.currentStreak);
+  }, 0);
 
   const totalAchievements = (await db.select().from(achievementsTable)).length;
 
@@ -73,19 +76,22 @@ router.get("/dashboard", async (_req, res): Promise<void> => {
 });
 
 router.get("/streaks", async (_req, res): Promise<void> => {
-  const streaks = await db.select().from(streaksTable).orderBy(desc(streaksTable.currentStreak));
   const activities = await db.select().from(activitiesTable);
-  const actMap = new Map(activities.map((a) => [a.id, a.name]));
+  const logs = await db.select().from(activityLogsTable);
+  const today = todayStr();
 
   res.json(
     ListStreaksResponse.parse(
-      streaks.map((s) => ({
-        activityId: s.activityId,
-        activityName: actMap.get(s.activityId) ?? "Unknown",
-        currentStreak: s.currentStreak,
-        longestStreak: s.longestStreak,
-        lastLoggedDate: s.lastLoggedDate ?? null,
-      })),
+      activities
+        .map((activity) => ({
+          activityId: activity.id,
+          activityName: activity.name,
+          ...calculateStreak(
+            logs.filter((log) => log.activityId === activity.id).map((log) => log.logDate),
+            today,
+          ),
+        }))
+        .sort((a, b) => b.currentStreak - a.currentStreak),
     ),
   );
 });

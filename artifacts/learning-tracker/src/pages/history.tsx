@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
-import { useGetCalendar } from '@workspace/api-client-react';
+import { getGetCalendarQueryKey, useGetCalendar } from '@workspace/api-client-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, CalendarDays, Clock, BarChart3 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CalendarDays, Clock, BarChart3, RefreshCw, Sparkles } from 'lucide-react';
 import {
   format,
   startOfMonth,
@@ -15,6 +15,8 @@ import {
   isToday,
   addMonths,
   subMonths,
+  addDays,
+  subWeeks,
 } from 'date-fns';
 import {
   Bar,
@@ -26,19 +28,10 @@ import {
   YAxis,
   CartesianGrid,
 } from 'recharts';
-import type { CalendarDay, CalendarDayStatus } from '@workspace/api-client-react/src/generated/api.schemas';
+import type { CalendarDay } from '@workspace/api-client-react';
+import { DailyActivityChart } from '@/components/daily-activity-chart';
 
-const STATUS_COLOR: Record<CalendarDayStatus, string> = {
-  under: '#dc2626', // red - fell short of the goal
-  met: '#16a34a', // green - goal met
-  over: '#a855f7', // purple - heavily exceeded the goal
-};
-
-const STATUS_LABEL: Record<CalendarDayStatus, string> = {
-  under: 'Under goal',
-  met: 'Goal met',
-  over: 'Heavily exceeded',
-};
+const ACTIVITY_COLOR = '#dc2626';
 
 export default function History() {
   const [month, setMonth] = useState(() => new Date());
@@ -52,10 +45,37 @@ export default function History() {
   const startStr = format(gridStart, 'yyyy-MM-dd');
   const endStr = format(gridEnd, 'yyyy-MM-dd');
 
-  const { data: calendarDays = [], isLoading } = useGetCalendar(
+  const monthQuery = useGetCalendar(
     { start: startStr, end: endStr },
     { query: { queryKey: ['calendar', startStr, endStr] as any } }
   );
+  const calendarDays = monthQuery.data ?? [];
+
+  const overviewStart = useMemo(
+    () => startOfWeek(subWeeks(new Date(), 11), { weekStartsOn: 1 }),
+    [],
+  );
+  const overviewEnd = useMemo(() => addDays(overviewStart, 83), [overviewStart]);
+  const overviewStartStr = format(overviewStart, 'yyyy-MM-dd');
+  const overviewEndStr = format(overviewEnd, 'yyyy-MM-dd');
+  const overviewQuery = useGetCalendar(
+    { start: overviewStartStr, end: overviewEndStr },
+    { query: { queryKey: getGetCalendarQueryKey({ start: overviewStartStr, end: overviewEndStr }) } },
+  );
+  const overviewDays = overviewQuery.data ?? [];
+  const overviewMap = useMemo(
+    () => new Map(overviewDays.map((day) => [day.date, day.totalMinutes])),
+    [overviewDays],
+  );
+  const overviewChartDays = useMemo(
+    () => Array.from({ length: 84 }, (_, index) => {
+      const date = format(addDays(overviewStart, index), 'yyyy-MM-dd');
+      return { date, minutes: overviewMap.get(date) ?? 0 };
+    }),
+    [overviewMap, overviewStart],
+  );
+  const overviewActiveDays = overviewChartDays.filter((day) => day.minutes > 0).length;
+  const overviewMinutes = overviewChartDays.reduce((sum, day) => sum + day.minutes, 0);
 
   const dayMap = useMemo(() => {
     const map = new Map<string, CalendarDay>();
@@ -77,14 +97,13 @@ export default function History() {
         date: dateStr,
         label: format(d, 'd'),
         totalMinutes: entry?.totalMinutes ?? 0,
-        status: (entry?.status ?? null) as CalendarDayStatus | null,
       };
     });
   }, [dayMap, monthStart, monthEnd]);
 
   const selectedDay = selectedDate ? dayMap.get(selectedDate) : undefined;
 
-  if (isLoading) {
+  if (monthQuery.isLoading || overviewQuery.isLoading) {
     return (
       <div className="p-8 space-y-8 max-w-6xl mx-auto">
         <Skeleton className="h-12 w-64 rounded-3xl bg-white/5" />
@@ -93,30 +112,59 @@ export default function History() {
     );
   }
 
+  if (monthQuery.isError || overviewQuery.isError) {
+    return (
+      <div className="mx-auto flex min-h-screen max-w-xl items-center px-4 text-center">
+        <div className="w-full rounded-3xl border border-red-500/20 bg-red-950/20 p-10">
+          <CalendarDays className="mx-auto mb-4 h-10 w-10 text-red-400" />
+          <h1 className="mb-2 text-2xl font-bold text-white">Couldn’t load activity history</h1>
+          <p className="mb-6 text-sm text-white/50">Your entries are still saved. Check the connection and try again.</p>
+          <Button
+            onClick={() => Promise.all([monthQuery.refetch(), overviewQuery.refetch()])}
+            className="gap-2 rounded-2xl bg-red-600 text-white hover:bg-red-500"
+          >
+            <RefreshCw className="h-4 w-4" /> Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen p-8 space-y-10 animate-slide-up max-w-6xl mx-auto relative z-10 pb-20">
+    <div className="min-h-screen px-4 py-6 md:p-8 space-y-10 animate-slide-up max-w-6xl mx-auto relative z-10 pb-28 md:pb-20">
       <div className="flex items-end justify-between border-b border-white/10 pb-6">
         <div>
           <h1 className="text-4xl md:text-5xl font-bold mb-2 text-white tracking-tight">History</h1>
           <p className="text-red-400/80 font-bold uppercase tracking-widest text-[10px]">
-            Review past activity against your daily goal
+            Every day you moved something forward
           </p>
         </div>
-        <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest">
-          <div className="flex items-center gap-2 text-white/50">
-            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STATUS_COLOR.under }} />
-            Under
+      </div>
+
+      <section className="overflow-hidden rounded-3xl border border-white/10 bg-[rgba(15,15,20,0.88)] shadow-2xl backdrop-blur-xl">
+        <div className="flex flex-col gap-5 border-b border-white/5 p-6 md:flex-row md:items-end md:justify-between md:p-8">
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-red-400">
+              <Sparkles className="h-4 w-4" /> Your rhythm
+            </div>
+            <h2 className="text-2xl font-bold text-white">Activity by day</h2>
+            <p className="mt-2 text-sm text-white/40">One active day means you moved at least one activity forward.</p>
           </div>
-          <div className="flex items-center gap-2 text-white/50">
-            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STATUS_COLOR.met }} />
-            Met
-          </div>
-          <div className="flex items-center gap-2 text-white/50">
-            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STATUS_COLOR.over }} />
-            Heavily over
+          <div className="flex gap-3">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 text-center">
+              <p className="text-2xl font-bold text-white">{overviewActiveDays}</p>
+              <p className="text-[9px] font-bold uppercase tracking-wider text-white/30">active days</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 text-center">
+              <p className="text-2xl font-bold text-white">{Math.round(overviewMinutes / 60)}h</p>
+              <p className="text-[9px] font-bold uppercase tracking-wider text-white/30">logged</p>
+            </div>
           </div>
         </div>
-      </div>
+        <div className="p-6 md:p-8">
+          <DailyActivityChart days={overviewChartDays} />
+        </div>
+      </section>
 
       {/* Calendar */}
       <div className="bg-[rgba(15,15,20,0.85)] backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
@@ -179,7 +227,7 @@ export default function History() {
             const entry = dayMap.get(dateStr);
             const inMonth = isSameMonth(day, month);
             const selected = selectedDate === dateStr;
-            const color = entry ? STATUS_COLOR[entry.status] : null;
+            const color = entry ? ACTIVITY_COLOR : null;
 
             return (
               <button
@@ -225,13 +273,12 @@ export default function History() {
               <h3 className="text-xl font-bold text-white tracking-wide">
                 {format(new Date(selectedDay.date), 'EEEE, MMMM d, yyyy')}
               </h3>
-              <p className="text-[10px] uppercase tracking-widest font-bold mt-1" style={{ color: STATUS_COLOR[selectedDay.status] }}>
-                {STATUS_LABEL[selectedDay.status]} &middot; {selectedDay.totalMinutes}/{selectedDay.goalMinutes} min
+              <p className="text-[10px] uppercase tracking-widest font-bold mt-1 text-red-400">
+                {selectedDay.logs.length} {selectedDay.logs.length === 1 ? 'session' : 'sessions'} &middot; {selectedDay.totalMinutes} min
               </p>
             </div>
             <div
-              className="px-4 py-2 rounded-2xl text-xs font-bold uppercase tracking-widest"
-              style={{ backgroundColor: `${STATUS_COLOR[selectedDay.status]}26`, color: STATUS_COLOR[selectedDay.status] }}
+              className="px-4 py-2 rounded-2xl text-xs font-bold uppercase tracking-widest bg-red-500/10 text-red-400"
             >
               {selectedDay.totalMinutes}m logged
             </div>
@@ -304,16 +351,13 @@ export default function History() {
                   labelFormatter={(_, payload) =>
                     payload?.[0]?.payload?.date ? format(new Date(payload[0].payload.date), 'MMMM d, yyyy') : ''
                   }
-                  formatter={(value: number, _name, entry) => {
-                    const status = (entry?.payload?.status as CalendarDayStatus | null) ?? null;
-                    return [`${value} min`, status ? STATUS_LABEL[status] : 'No activity'];
-                  }}
+                  formatter={(value: number) => [`${value} min`, value > 0 ? 'Activity' : 'No activity']}
                 />
                 <Bar dataKey="totalMinutes" radius={[8, 8, 0, 0]} maxBarSize={28}>
                   {chartData.map((d) => (
                     <Cell
                       key={d.date}
-                      fill={d.status ? STATUS_COLOR[d.status] : 'rgba(255,255,255,0.08)'}
+                      fill={d.totalMinutes > 0 ? ACTIVITY_COLOR : 'rgba(255,255,255,0.08)'}
                     />
                   ))}
                 </Bar>
