@@ -61,9 +61,10 @@ pnpm --filter @workspace/learning-tracker run dev
 ## Replit deployment
 
 The checked-in `.replit` config uses an Autoscale deployment. Add `DATABASE_URL`
-to Replit Deployment Secrets, run `pnpm --filter @workspace/db run push` once if
-the database is new, then publish. The Express server serves both `/api/*` and
-the built React app from the deployment `PORT`.
+and `ADMIN_PASSWORD` to Replit Deployment Secrets. `ADMIN_USERNAME` is optional
+and defaults to `Admin`. Run `pnpm --filter @workspace/db run push` once if the
+database is new, then publish. The Express server serves both `/api/*` and the
+built React app from the deployment `PORT`.
 
 ## Notes
 

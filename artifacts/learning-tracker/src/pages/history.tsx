@@ -1,126 +1,195 @@
-import { useMemo, useState } from 'react';
-import { getGetCalendarQueryKey, useGetCalendar } from '@workspace/api-client-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, CalendarDays, Clock, BarChart3, RefreshCw, Sparkles } from 'lucide-react';
-import {
-  format,
-  startOfMonth,
-  endOfMonth,
-  startOfWeek,
-  endOfWeek,
-  eachDayOfInterval,
-  isSameMonth,
-  isSameDay,
-  isToday,
-  addMonths,
-  subMonths,
-  addDays,
-  subWeeks,
-} from 'date-fns';
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'wouter';
+import { getGetCalendarQueryKey, useGetCalendar, useListActivities } from '@workspace/api-client-react';
+import type { Activity, CalendarDay } from '@workspace/api-client-react';
 import {
   Bar,
   BarChart,
-  Cell,
+  CartesianGrid,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
 } from 'recharts';
-import type { CalendarDay } from '@workspace/api-client-react';
+import {
+  Activity as ActivityIcon,
+  BarChart3,
+  CalendarDays,
+  Clock3,
+  RefreshCw,
+  Sparkles,
+  Trophy,
+} from 'lucide-react';
+import {
+  eachDayOfInterval,
+  format,
+  parseISO,
+  startOfMonth,
+  startOfWeek,
+  subDays,
+  subWeeks,
+} from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { DailyActivityChart } from '@/components/daily-activity-chart';
 
-const ACTIVITY_COLOR = '#dc2626';
+type Period = 'week' | 'month' | '12weeks';
+
+const PERIOD_LABELS: Record<Period, string> = {
+  week: 'Week',
+  month: 'Month',
+  '12weeks': '12 weeks',
+};
+
+const HEATMAP_SCALE = ['#1A1716', '#493229', '#8B433F', '#C24B63', '#D36AF4'];
+
+function getRange(period: Period) {
+  const end = new Date();
+  if (period === 'week') return { start: subDays(end, 6), end };
+  if (period === 'month') return { start: startOfMonth(end), end };
+  return { start: startOfWeek(subWeeks(end, 11), { weekStartsOn: 1 }), end };
+}
+
+function activityKey(id: number): string {
+  return `activity_${id}`;
+}
+
+function formatMinutes(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  const remainder = minutes % 60;
+  if (hours === 0) return `${remainder}m`;
+  if (remainder === 0) return `${hours}h`;
+  return `${hours}h ${remainder}m`;
+}
+
+function SummaryCard({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string;
+  value: string;
+  icon: typeof Clock3;
+}) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
+      <div className="mb-4 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/30">
+        <Icon className="h-4 w-4 text-red-400" /> {label}
+      </div>
+      <p className="truncate text-2xl font-bold text-white" title={value}>{value}</p>
+    </div>
+  );
+}
 
 export default function History() {
-  const [month, setMonth] = useState(() => new Date());
+  const [period, setPeriod] = useState<Period>('month');
+  const [hiddenActivityIds, setHiddenActivityIds] = useState<number[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const range = useMemo(() => getRange(period), [period]);
+  const start = format(range.start, 'yyyy-MM-dd');
+  const end = format(range.end, 'yyyy-MM-dd');
 
-  const monthStart = startOfMonth(month);
-  const monthEnd = endOfMonth(month);
-  const gridStart = startOfWeek(monthStart);
-  const gridEnd = endOfWeek(monthEnd);
+  const activitiesQuery = useListActivities();
+  const calendarQuery = useGetCalendar(
+    { start, end },
+    { query: { queryKey: getGetCalendarQueryKey({ start, end }) } },
+  );
+  const activities = activitiesQuery.data ?? [];
+  const calendarDays = calendarQuery.data ?? [];
+  const isLoading = activitiesQuery.isLoading || calendarQuery.isLoading;
+  const isError = activitiesQuery.isError || calendarQuery.isError;
+  const hasCachedData = activitiesQuery.data !== undefined && calendarQuery.data !== undefined;
 
-  const startStr = format(gridStart, 'yyyy-MM-dd');
-  const endStr = format(gridEnd, 'yyyy-MM-dd');
-
-  const monthQuery = useGetCalendar(
-    { start: startStr, end: endStr },
-    { query: { queryKey: ['calendar', startStr, endStr] as any } }
+  const dayMap = useMemo(
+    () => new Map(calendarDays.map((day) => [day.date, day])),
+    [calendarDays],
   );
-  const calendarDays = monthQuery.data ?? [];
-
-  const overviewStart = useMemo(
-    () => startOfWeek(subWeeks(new Date(), 11), { weekStartsOn: 1 }),
-    [],
-  );
-  const overviewEnd = useMemo(() => addDays(overviewStart, 83), [overviewStart]);
-  const overviewStartStr = format(overviewStart, 'yyyy-MM-dd');
-  const overviewEndStr = format(overviewEnd, 'yyyy-MM-dd');
-  const overviewQuery = useGetCalendar(
-    { start: overviewStartStr, end: overviewEndStr },
-    { query: { queryKey: getGetCalendarQueryKey({ start: overviewStartStr, end: overviewEndStr }) } },
-  );
-  const overviewDays = overviewQuery.data ?? [];
-  const overviewMap = useMemo(
-    () => new Map(overviewDays.map((day) => [day.date, day.totalMinutes])),
-    [overviewDays],
-  );
-  const overviewChartDays = useMemo(
-    () => Array.from({ length: 84 }, (_, index) => {
-      const date = format(addDays(overviewStart, index), 'yyyy-MM-dd');
-      return { date, minutes: overviewMap.get(date) ?? 0 };
+  const chartDays = useMemo(
+    () => eachDayOfInterval(range).map((date) => {
+      const dateString = format(date, 'yyyy-MM-dd');
+      return { date: dateString, minutes: dayMap.get(dateString)?.totalMinutes ?? 0 };
     }),
-    [overviewMap, overviewStart],
-  );
-  const overviewActiveDays = overviewChartDays.filter((day) => day.minutes > 0).length;
-  const overviewMinutes = overviewChartDays.reduce((sum, day) => sum + day.minutes, 0);
-
-  const dayMap = useMemo(() => {
-    const map = new Map<string, CalendarDay>();
-    calendarDays.forEach((d) => map.set(d.date, d));
-    return map;
-  }, [calendarDays]);
-
-  const gridDays = useMemo(
-    () => eachDayOfInterval({ start: gridStart, end: gridEnd }),
-    [gridStart, gridEnd]
+    [dayMap, range],
   );
 
-  const chartData = useMemo(() => {
-    const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
-    return monthDays.map((d) => {
-      const dateStr = format(d, 'yyyy-MM-dd');
-      const entry = dayMap.get(dateStr);
-      return {
-        date: dateStr,
-        label: format(d, 'd'),
-        totalMinutes: entry?.totalMinutes ?? 0,
+  const stackedData = useMemo(
+    () => chartDays.map((day) => {
+      const calendarDay = dayMap.get(day.date);
+      const row: Record<string, string | number> = {
+        date: day.date,
+        totalMinutes: day.minutes,
       };
-    });
-  }, [dayMap, monthStart, monthEnd]);
+      activities.forEach((activity) => {
+        row[activityKey(activity.id)] = calendarDay?.logs
+          .filter((log) => log.activityId === activity.id)
+          .reduce((sum, log) => sum + log.durationMinutes, 0) ?? 0;
+      });
+      return row;
+    }),
+    [activities, chartDays, dayMap],
+  );
 
-  const selectedDay = selectedDate ? dayMap.get(selectedDate) : undefined;
+  const activityTotals = useMemo(() => {
+    const totals = new Map(activities.map((activity) => [activity.id, 0]));
+    calendarDays.forEach((day) => day.logs.forEach((log) => {
+      totals.set(log.activityId, (totals.get(log.activityId) ?? 0) + log.durationMinutes);
+    }));
+    return totals;
+  }, [activities, calendarDays]);
 
-  if (monthQuery.isLoading || overviewQuery.isLoading) {
+  const totalMinutes = calendarDays.reduce((sum, day) => sum + day.totalMinutes, 0);
+  const activeDays = calendarDays.filter((day) => day.totalMinutes > 0).length;
+  const averageMinutes = activeDays > 0 ? Math.round(totalMinutes / activeDays) : 0;
+  const longestSession = Math.max(0, ...calendarDays.flatMap((day) => day.logs.map((log) => log.durationMinutes)));
+  const topActivity = activities.reduce<Activity | null>((top, activity) => {
+    if (!top) return activity;
+    return (activityTotals.get(activity.id) ?? 0) > (activityTotals.get(top.id) ?? 0) ? activity : top;
+  }, null);
+  const maxDailyMinutes = Math.max(60, ...chartDays.map((day) => day.minutes));
+  const chartWidth = Math.max(720, chartDays.length * (period === '12weeks' ? 26 : 42));
+
+  useEffect(() => {
+    const selectedIsInRange = selectedDate && selectedDate >= start && selectedDate <= end;
+    if (selectedIsInRange) return;
+    setSelectedDate(calendarDays.at(-1)?.date ?? end);
+  }, [calendarDays, end, selectedDate, start]);
+
+  const selectedDay: CalendarDay | undefined = selectedDate ? dayMap.get(selectedDate) : undefined;
+  const selectedRows = activities
+    .map((activity) => ({
+      activity,
+      logs: selectedDay?.logs.filter((log) => log.activityId === activity.id) ?? [],
+    }))
+    .filter((row) => row.logs.length > 0);
+
+  const toggleActivity = (activityId: number) => {
+    setHiddenActivityIds((current) => current.includes(activityId)
+      ? current.filter((id) => id !== activityId)
+      : [...current, activityId]);
+  };
+
+  if (isLoading && !hasCachedData) {
     return (
-      <div className="p-8 space-y-8 max-w-6xl mx-auto">
-        <Skeleton className="h-12 w-64 rounded-3xl bg-white/5" />
-        <Skeleton className="h-96 rounded-3xl bg-white/5" />
+      <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 md:p-8">
+        <Skeleton className="h-16 w-72 rounded-3xl bg-white/5" />
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {[0, 1, 2, 3].map((item) => <Skeleton key={item} className="h-28 rounded-3xl bg-white/5" />)}
+        </div>
+        <Skeleton className="h-[420px] rounded-3xl bg-white/5" />
+        <Skeleton className="h-64 rounded-3xl bg-white/5" />
       </div>
     );
   }
 
-  if (monthQuery.isError || overviewQuery.isError) {
+  if (isError && !hasCachedData) {
     return (
       <div className="mx-auto flex min-h-screen max-w-xl items-center px-4 text-center">
         <div className="w-full rounded-3xl border border-red-500/20 bg-red-950/20 p-10">
           <CalendarDays className="mx-auto mb-4 h-10 w-10 text-red-400" />
-          <h1 className="mb-2 text-2xl font-bold text-white">Couldn’t load activity history</h1>
+          <h1 className="mb-2 text-2xl font-bold text-white">Couldn’t load activity analytics</h1>
           <p className="mb-6 text-sm text-white/50">Your entries are still saved. Check the connection and try again.</p>
           <Button
-            onClick={() => Promise.all([monthQuery.refetch(), overviewQuery.refetch()])}
+            onClick={() => Promise.all([activitiesQuery.refetch(), calendarQuery.refetch()])}
             className="gap-2 rounded-2xl bg-red-600 text-white hover:bg-red-500"
           >
             <RefreshCw className="h-4 w-4" /> Retry
@@ -131,241 +200,196 @@ export default function History() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-6 md:p-8 space-y-10 animate-slide-up max-w-6xl mx-auto relative z-10 pb-28 md:pb-20">
-      <div className="flex items-end justify-between border-b border-white/10 pb-6">
+    <div className="relative z-10 mx-auto min-h-screen max-w-6xl space-y-8 px-4 py-6 pb-28 md:p-8 md:pb-20">
+      <header className="flex flex-col gap-5 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-2 text-white tracking-tight">History</h1>
-          <p className="text-red-400/80 font-bold uppercase tracking-widest text-[10px]">
-            Every day you moved something forward
-          </p>
-        </div>
-      </div>
-
-      <section className="overflow-hidden rounded-3xl border border-white/10 bg-[rgba(15,15,20,0.88)] shadow-2xl backdrop-blur-xl">
-        <div className="flex flex-col gap-5 border-b border-white/5 p-6 md:flex-row md:items-end md:justify-between md:p-8">
-          <div>
-            <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-red-400">
-              <Sparkles className="h-4 w-4" /> Your rhythm
-            </div>
-            <h2 className="text-2xl font-bold text-white">Activity by day</h2>
-            <p className="mt-2 text-sm text-white/40">One active day means you moved at least one activity forward.</p>
+          <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-red-400">
+            <Sparkles className="h-4 w-4" /> Activity analytics
           </div>
-          <div className="flex gap-3">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 text-center">
-              <p className="text-2xl font-bold text-white">{overviewActiveDays}</p>
-              <p className="text-[9px] font-bold uppercase tracking-wider text-white/30">active days</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 text-center">
-              <p className="text-2xl font-bold text-white">{Math.round(overviewMinutes / 60)}h</p>
-              <p className="text-[9px] font-bold uppercase tracking-wider text-white/30">logged</p>
-            </div>
-          </div>
+          <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">History</h1>
+          <p className="mt-2 text-sm text-white/40">See where your time went — every active day counts.</p>
         </div>
-        <div className="p-6 md:p-8">
-          <DailyActivityChart days={overviewChartDays} />
-        </div>
-      </section>
-
-      {/* Calendar */}
-      <div className="bg-[rgba(15,15,20,0.85)] backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <CalendarDays className="w-5 h-5 text-red-500" />
-            <h2 className="text-2xl font-bold text-white tracking-wide">{format(month, 'MMMM yyyy')}</h2>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-2xl bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/30 backdrop-blur-xl text-white/70 hover:text-white h-10 w-10 p-0"
-              onClick={() => {
-                setMonth((m) => subMonths(m, 1));
-                setSelectedDate(null);
-              }}
-              data-testid="button-prev-month"
+        <div className="flex rounded-2xl border border-white/10 bg-white/[0.03] p-1">
+          {(Object.keys(PERIOD_LABELS) as Period[]).map((value) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setPeriod(value)}
+              className={`rounded-xl px-4 py-2 text-[10px] font-bold uppercase tracking-wider transition-colors ${period === value ? 'bg-red-600 text-white' : 'text-white/35 hover:text-white'}`}
             >
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-2xl bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/30 backdrop-blur-xl text-white/70 hover:text-white text-[10px] font-bold uppercase tracking-widest px-4"
-              onClick={() => {
-                setMonth(new Date());
-                setSelectedDate(null);
-              }}
-              data-testid="button-today"
-            >
-              Today
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-2xl bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/30 backdrop-blur-xl text-white/70 hover:text-white h-10 w-10 p-0"
-              onClick={() => {
-                setMonth((m) => addMonths(m, 1));
-                setSelectedDate(null);
-              }}
-              data-testid="button-next-month"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-7 gap-2 mb-3">
-          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
-            <div key={i} className="text-center text-[10px] font-bold uppercase tracking-widest text-white/30 pb-2">
-              {d}
-            </div>
+              {PERIOD_LABELS[value]}
+            </button>
           ))}
         </div>
+      </header>
 
-        <div className="grid grid-cols-7 gap-2">
-          {gridDays.map((day) => {
-            const dateStr = format(day, 'yyyy-MM-dd');
-            const entry = dayMap.get(dateStr);
-            const inMonth = isSameMonth(day, month);
-            const selected = selectedDate === dateStr;
-            const color = entry ? ACTIVITY_COLOR : null;
-
-            return (
-              <button
-                key={dateStr}
-                type="button"
-                disabled={!entry}
-                onClick={() => setSelectedDate(selected ? null : dateStr)}
-                className="aspect-square rounded-2xl border flex flex-col items-center justify-center gap-1 transition-all duration-200 disabled:cursor-default"
-                style={{
-                  backgroundColor: color ? `${color}26` : 'rgba(255,255,255,0.02)',
-                  borderColor: selected ? '#ffffff' : color ? `${color}66` : 'rgba(255,255,255,0.05)',
-                  borderWidth: selected ? '2px' : '1px',
-                  opacity: inMonth ? 1 : 0.3,
-                  boxShadow: selected && color ? `0 0 20px ${color}66` : 'none',
-                }}
-                data-testid={`calendar-day-${dateStr}`}
-              >
-                <span
-                  className="text-sm font-bold"
-                  style={{ color: color ?? 'rgba(255,255,255,0.4)' }}
-                >
-                  {format(day, 'd')}
-                </span>
-                {entry && (
-                  <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: color ?? undefined }}>
-                    {entry.totalMinutes}m
-                  </span>
-                )}
-                {isToday(day) && (
-                  <span className="w-1 h-1 rounded-full bg-red-500 shadow-[0_0_6px_rgba(220,38,38,0.8)]" />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Day detail */}
-      {selectedDay && (
-        <div className="bg-[rgba(15,15,20,0.85)] backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
-          <div className="flex items-center justify-between mb-6 border-b border-white/5 pb-6">
-            <div>
-              <h3 className="text-xl font-bold text-white tracking-wide">
-                {format(new Date(selectedDay.date), 'EEEE, MMMM d, yyyy')}
-              </h3>
-              <p className="text-[10px] uppercase tracking-widest font-bold mt-1 text-red-400">
-                {selectedDay.logs.length} {selectedDay.logs.length === 1 ? 'session' : 'sessions'} &middot; {selectedDay.totalMinutes} min
-              </p>
-            </div>
-            <div
-              className="px-4 py-2 rounded-2xl text-xs font-bold uppercase tracking-widest bg-red-500/10 text-red-400"
-            >
-              {selectedDay.totalMinutes}m logged
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {selectedDay.logs.map((log) => (
-              <div
-                key={log.id}
-                className="rounded-2xl p-5 border border-white/10 bg-white/[0.02] flex items-start gap-4"
-                data-testid={`history-log-${log.id}`}
-              >
-                <div className="w-1.5 self-stretch rounded-full" style={{ backgroundColor: log.activityColor }} />
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-white tracking-wide">{log.activityName}</span>
-                    <div className="flex items-center gap-1.5 text-sm font-bold" style={{ color: log.activityColor }}>
-                      <Clock className="w-3.5 h-3.5" />
-                      {log.durationMinutes} min
-                    </div>
-                  </div>
-                  {log.notes ? (
-                    <p className="text-sm text-white/50 italic mt-2 leading-relaxed">"{log.notes}"</p>
-                  ) : (
-                    <p className="text-[10px] uppercase tracking-wider font-semibold text-white/25 mt-2">No notes</p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+      {isError && hasCachedData && (
+        <div className="flex items-center justify-between gap-4 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-5 py-4 text-sm text-amber-100">
+          <span>Showing saved data. Fresh activity could not be loaded.</span>
+          <Button variant="ghost" size="sm" onClick={() => void calendarQuery.refetch()} className="gap-2 text-amber-100">
+            <RefreshCw className="h-4 w-4" /> Retry
+          </Button>
         </div>
       )}
 
-      {/* Bar chart */}
-      <div className="bg-[rgba(15,15,20,0.85)] backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
-        <div className="flex items-center gap-3 mb-8">
-          <BarChart3 className="w-5 h-5 text-red-500" />
-          <h2 className="text-2xl font-bold text-white tracking-wide">Duration Over Time</h2>
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <SummaryCard label="Total time" value={formatMinutes(totalMinutes)} icon={Clock3} />
+        <SummaryCard label="Active days" value={String(activeDays)} icon={CalendarDays} />
+        <SummaryCard label="Average day" value={formatMinutes(averageMinutes)} icon={BarChart3} />
+        <SummaryCard label="Most active" value={topActivity && (activityTotals.get(topActivity.id) ?? 0) > 0 ? topActivity.name : '—'} icon={Trophy} />
+      </section>
+
+      <section className="overflow-hidden rounded-3xl border border-white/10 bg-[rgba(15,15,20,0.88)] shadow-2xl backdrop-blur-xl">
+        <div className="flex flex-col gap-2 border-b border-white/5 p-6 md:p-8">
+          <h2 className="text-2xl font-bold text-white">Activity timeline</h2>
+          <p className="text-sm text-white/40">Daily volume and the activities that made it up.</p>
         </div>
-        {chartData.every((d) => d.totalMinutes === 0) ? (
-          <div className="text-center py-16">
-            <BarChart3 className="w-12 h-12 text-white/20 mx-auto mb-4" />
-            <p className="text-[11px] uppercase tracking-wider font-semibold text-white/40">No activity logged this month</p>
-          </div>
-        ) : (
-          <div className="h-72">
+
+        <div className="overflow-x-auto px-4 py-7 md:px-8">
+          <div style={{ width: `${chartWidth}px` }} className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+              <BarChart
+                data={stackedData}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                onClick={(state) => {
+                  if (state?.activeLabel) setSelectedDate(String(state.activeLabel));
+                }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
                 <XAxis
-                  dataKey="label"
-                  tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11, fontWeight: 700 }}
+                  dataKey="date"
+                  tickFormatter={(date) => format(parseISO(String(date)), period === 'week' ? 'EEE' : 'd MMM')}
+                  tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 10, fontWeight: 700 }}
                   axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
                   tickLine={false}
+                  minTickGap={12}
                 />
                 <YAxis
-                  tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11, fontWeight: 700 }}
+                  domain={[0, maxDailyMinutes]}
+                  tickFormatter={(minutes) => `${Math.round(Number(minutes) / 60)}h`}
+                  tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
                   axisLine={false}
                   tickLine={false}
-                  width={40}
+                  width={32}
                 />
                 <Tooltip
                   cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                  labelFormatter={(date) => format(parseISO(String(date)), 'EEEE, MMMM d')}
+                  formatter={(value, name) => {
+                    const id = Number(String(name).replace('activity_', ''));
+                    return [formatMinutes(Number(value)), activities.find((activity) => activity.id === id)?.name ?? 'Activity'];
+                  }}
                   contentStyle={{
-                    backgroundColor: '#0a0a0a',
-                    border: '1px solid rgba(255,255,255,0.1)',
+                    backgroundColor: '#0a0a0d',
+                    border: '1px solid rgba(255,255,255,0.12)',
                     borderRadius: '1rem',
                     color: '#fff',
                   }}
-                  labelFormatter={(_, payload) =>
-                    payload?.[0]?.payload?.date ? format(new Date(payload[0].payload.date), 'MMMM d, yyyy') : ''
-                  }
-                  formatter={(value: number) => [`${value} min`, value > 0 ? 'Activity' : 'No activity']}
                 />
-                <Bar dataKey="totalMinutes" radius={[8, 8, 0, 0]} maxBarSize={28}>
-                  {chartData.map((d) => (
-                    <Cell
-                      key={d.date}
-                      fill={d.totalMinutes > 0 ? ACTIVITY_COLOR : 'rgba(255,255,255,0.08)'}
+                {activities
+                  .filter((activity) => !hiddenActivityIds.includes(activity.id))
+                  .map((activity) => (
+                    <Bar
+                      key={activity.id}
+                      dataKey={activityKey(activity.id)}
+                      stackId="activities"
+                      fill={activity.color}
+                      maxBarSize={30}
+                      radius={[3, 3, 0, 0]}
                     />
                   ))}
-                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
+        </div>
+
+        <div className="max-h-36 overflow-y-auto border-t border-white/5 px-6 py-5 md:px-8">
+          <div className="flex flex-wrap gap-2">
+            {activities.map((activity) => {
+              const isVisible = !hiddenActivityIds.includes(activity.id);
+              return (
+                <button
+                  key={activity.id}
+                  type="button"
+                  aria-pressed={isVisible}
+                  onClick={() => toggleActivity(activity.id)}
+                  className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-[10px] font-bold uppercase tracking-wider transition-all ${isVisible ? 'border-white/10 bg-white/5 text-white/70' : 'border-transparent bg-transparent text-white/20'}`}
+                >
+                  <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: activity.color, opacity: isVisible ? 1 : 0.25 }} />
+                  {activity.name}
+                  <span className="text-white/25">{formatMinutes(activityTotals.get(activity.id) ?? 0)}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-white/10 bg-[rgba(15,15,20,0.88)] p-6 shadow-2xl backdrop-blur-xl md:p-8">
+        <div className="mb-7">
+          <h2 className="text-2xl font-bold text-white">Intensity</h2>
+          <p className="mt-2 text-sm text-white/40">Brown marks lighter days, crimson marks strong days, purple marks the largest volume.</p>
+        </div>
+        <DailyActivityChart
+          days={chartDays}
+          colorScale={HEATMAP_SCALE}
+          intensityThresholds={[30, 90, 180]}
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
+        />
+      </section>
+
+      <section className="rounded-3xl border border-white/10 bg-[rgba(15,15,20,0.88)] p-6 shadow-2xl backdrop-blur-xl md:p-8">
+        <div className="mb-6 flex flex-col gap-3 border-b border-white/5 pb-6 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-red-400">Selected day</p>
+            <h2 className="mt-1 text-2xl font-bold text-white">
+              {selectedDate ? format(parseISO(selectedDate), 'EEEE, MMMM d') : 'Choose a day'}
+            </h2>
+          </div>
+          <p className="text-2xl font-bold text-white">{formatMinutes(selectedDay?.totalMinutes ?? 0)}</p>
+        </div>
+
+        {selectedRows.length === 0 ? (
+          <div className="py-10 text-center">
+            <ActivityIcon className="mx-auto mb-3 h-9 w-9 text-white/15" />
+            <p className="text-sm text-white/35">No activity recorded. Choose another day or log a session.</p>
+            <Link href="/">
+              <Button variant="outline" className="mt-5 rounded-2xl border-white/10 bg-white/5 text-white">Go to dashboard</Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {selectedRows.map(({ activity, logs }) => (
+              <div key={activity.id} className="rounded-2xl border border-white/8 bg-white/[0.025] p-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <span className="h-8 w-1.5 rounded-full" style={{ backgroundColor: activity.color }} />
+                    <div>
+                      <p className="font-bold text-white">{activity.name}</p>
+                      <p className="text-[9px] font-bold uppercase tracking-wider text-white/25">{logs.length} {logs.length === 1 ? 'session' : 'sessions'}</p>
+                    </div>
+                  </div>
+                  <p className="font-bold" style={{ color: activity.color }}>
+                    {formatMinutes(logs.reduce((sum, log) => sum + log.durationMinutes, 0))}
+                  </p>
+                </div>
+                {logs.some((log) => log.notes) && (
+                  <div className="mt-4 space-y-2 border-l border-white/10 pl-4">
+                    {logs.filter((log) => log.notes).map((log) => (
+                      <p key={log.id} className="text-sm italic leading-relaxed text-white/45">“{log.notes}”</p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         )}
-      </div>
+      </section>
+
+      <p className="text-center text-[10px] font-semibold uppercase tracking-widest text-white/20">
+        Longest session in this period: {formatMinutes(longestSession)}
+      </p>
     </div>
   );
 }

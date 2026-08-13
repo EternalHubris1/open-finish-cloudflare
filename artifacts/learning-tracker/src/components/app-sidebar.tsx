@@ -1,8 +1,8 @@
 import { Link, useLocation } from 'wouter';
-import { Home, Target, Award, Bell, User, CalendarDays, Flame } from 'lucide-react';
+import { Home, Target, Award, Bell, User, CalendarDays, Flame, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export function AppSidebar() {
+export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
   const [location] = useLocation();
 
   const routes = [
@@ -60,6 +60,13 @@ export function AppSidebar() {
         <div className="relative z-10 text-[10px] text-white/30 text-center uppercase tracking-widest font-semibold">
           Keep building momentum
         </div>
+        <button
+          type="button"
+          onClick={() => void onLogout()}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-white/30 transition-colors hover:bg-white/5 hover:text-white"
+        >
+          <LogOut className="h-4 w-4" /> Sign out
+        </button>
       </div>
     </aside>
     <nav className="fixed inset-x-0 bottom-0 z-50 flex overflow-x-auto border-t border-white/10 bg-black/90 px-2 py-2 backdrop-blur-2xl md:hidden">
@@ -80,6 +87,14 @@ export function AppSidebar() {
           </Link>
         );
       })}
+      <button
+        type="button"
+        onClick={() => void onLogout()}
+        className="flex min-w-[68px] flex-1 flex-col items-center gap-1 rounded-xl px-2 py-2 text-[9px] font-bold uppercase tracking-wide text-white/35"
+      >
+        <LogOut className="h-5 w-5" />
+        Sign out
+      </button>
     </nav>
     </>
   );

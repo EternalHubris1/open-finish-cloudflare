@@ -9,15 +9,23 @@ export interface DailyActivityPoint {
 interface DailyActivityChartProps {
   days: DailyActivityPoint[];
   color?: string;
+  colorScale?: string[];
+  intensityThresholds?: number[];
   emptyLabel?: string;
   className?: string;
+  selectedDate?: string | null;
+  onSelectDate?: (date: string) => void;
 }
 
 export function DailyActivityChart({
   days,
   color = '#dc2626',
+  colorScale,
+  intensityThresholds = [30, 90, 180],
   emptyLabel = 'No activity recorded in this period',
   className,
+  selectedDate,
+  onSelectDate,
 }: DailyActivityChartProps) {
   const maxMinutes = Math.max(...days.map((day) => day.minutes), 1);
   const hasActivity = days.some((day) => day.minutes > 0);
@@ -45,21 +53,31 @@ export function DailyActivityChart({
                 const intensity = day.minutes > 0
                   ? 0.3 + 0.7 * Math.sqrt(day.minutes / maxMinutes)
                   : 0;
+                const thresholdIndex = intensityThresholds.findIndex((threshold) => day.minutes <= threshold);
+                const scaleIndex = day.minutes === 0
+                  ? 0
+                  : thresholdIndex === -1
+                    ? intensityThresholds.length + 1
+                    : thresholdIndex + 1;
+                const cellColor = colorScale?.[scaleIndex] ?? color;
 
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={day.date}
                     title={`${format(parsedDate, 'MMMM d, yyyy')} · ${day.minutes > 0 ? `${day.minutes} min` : 'no activity'}`}
                     aria-label={`${format(parsedDate, 'MMMM d, yyyy')}: ${day.minutes} minutes`}
                     className={cn(
                       'h-5 min-w-5 rounded-[6px] border transition-all duration-200 hover:z-10 hover:scale-125',
                       isSameDay(parsedDate, today) && 'ring-1 ring-white/80 ring-offset-2 ring-offset-[#0f0f14]',
+                      selectedDate === day.date && 'outline outline-2 outline-offset-2 outline-white',
                     )}
+                    onClick={() => onSelectDate?.(day.date)}
                     style={{
-                      backgroundColor: day.minutes > 0 ? color : 'rgba(255,255,255,0.035)',
-                      borderColor: day.minutes > 0 ? color : 'rgba(255,255,255,0.06)',
-                      opacity: isFuture ? 0.2 : day.minutes > 0 ? intensity : 1,
-                      boxShadow: day.minutes > 0 ? `0 0 ${Math.round(10 * intensity)}px ${color}55` : 'none',
+                      backgroundColor: colorScale ? cellColor : day.minutes > 0 ? color : 'rgba(255,255,255,0.035)',
+                      borderColor: colorScale ? cellColor : day.minutes > 0 ? color : 'rgba(255,255,255,0.06)',
+                      opacity: isFuture ? 0.2 : colorScale ? 1 : day.minutes > 0 ? intensity : 1,
+                      boxShadow: day.minutes > 0 ? `0 0 ${Math.round(10 * intensity)}px ${cellColor}55` : 'none',
                     }}
                   />
                 );
@@ -73,14 +91,14 @@ export function DailyActivityChart({
         <span>{hasActivity ? 'Every square is one day' : emptyLabel}</span>
         <div className="flex shrink-0 items-center gap-2">
           <span>Less</span>
-          {[0, 0.3, 0.5, 0.72, 1].map((opacity, index) => (
+          {(colorScale ?? [0, 0.3, 0.5, 0.72, 1]).map((value, index) => (
             <span
               key={index}
               className="h-3 w-3 rounded-[4px] border"
               style={{
-                backgroundColor: opacity === 0 ? 'rgba(255,255,255,0.035)' : color,
-                borderColor: opacity === 0 ? 'rgba(255,255,255,0.06)' : color,
-                opacity: opacity || 1,
+                backgroundColor: typeof value === 'string' ? value : value === 0 ? 'rgba(255,255,255,0.035)' : color,
+                borderColor: typeof value === 'string' ? value : value === 0 ? 'rgba(255,255,255,0.06)' : color,
+                opacity: typeof value === 'number' ? value || 1 : 1,
               }}
             />
           ))}
