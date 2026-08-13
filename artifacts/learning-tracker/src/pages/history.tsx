@@ -84,7 +84,7 @@ function SummaryCard({
 export default function History() {
   const [period, setPeriod] = useState<Period>('month');
   const [hiddenActivityIds, setHiddenActivityIds] = useState<number[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(() => new URLSearchParams(window.location.search).get('date'));
   const range = useMemo(() => getRange(period), [period]);
   const start = format(range.start, 'yyyy-MM-dd');
   const end = format(range.end, 'yyyy-MM-dd');
@@ -94,8 +94,8 @@ export default function History() {
     { start, end },
     { query: { queryKey: getGetCalendarQueryKey({ start, end }) } },
   );
-  const activities = activitiesQuery.data ?? [];
-  const calendarDays = calendarQuery.data ?? [];
+  const activities = Array.isArray(activitiesQuery.data) ? activitiesQuery.data : [];
+  const calendarDays = Array.isArray(calendarQuery.data) ? calendarQuery.data : [];
   const isLoading = activitiesQuery.isLoading || calendarQuery.isLoading;
   const isError = activitiesQuery.isError || calendarQuery.isError;
   const hasCachedData = activitiesQuery.data !== undefined && calendarQuery.data !== undefined;

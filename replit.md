@@ -1,6 +1,6 @@
-# Learning Tracker
+# Open Finish
 
-A personal learning task manager for tracking progress, maintaining streaks, and celebrating milestones across multiple learning activities.
+A Personal Operating System for long-term mastery. The current implementation focuses on learning and practice across multiple activities; it should not be framed as a task manager or generic productivity dashboard.
 
 ## Run & Operate
 

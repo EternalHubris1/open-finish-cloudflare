@@ -1,6 +1,8 @@
-# Progress Checker
+# Open Finish
 
-A personal learning tracker for logging study/practice sessions, keeping streaks alive, and visualizing progress across multiple activities (coding, reading, languages, etc.).
+A Personal Operating System for long-term mastery. The current product surface supports learning and practice: logging sessions, maintaining continuity, and understanding progress across several pursuits. It is intentionally not framed as a task manager, habit tracker, productivity app, or admin dashboard.
+
+Product-design foundations and permanent design memory live in [`design-lab`](./design-lab/README.md).
 
 ## Features
 

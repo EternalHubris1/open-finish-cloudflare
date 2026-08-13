@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Route, Switch, Router as WouterRouter } from 'wouter';
 import { AppSidebar } from '@/components/app-sidebar';
-import Dashboard from '@/pages/dashboard';
+import Dashboard from '@/pages/dashboard-v2';
 import Activities from '@/pages/activities';
 import ActivityDetail from '@/pages/activity-detail';
 import History from '@/pages/history';
@@ -12,6 +12,7 @@ import Achievements from '@/pages/achievements';
 import Alerts from '@/pages/alerts';
 import Profile from '@/pages/profile';
 import Streaks from '@/pages/streaks';
+import DashboardExploration from '@/pages/dashboard-exploration';
 import NotFound from '@/pages/not-found';
 import musashi from '@assets/musashi_1785336444855.jpg';
 import { LoginScreen } from '@/components/login-screen';
@@ -67,6 +68,11 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
           <Route path="/achievements" component={Achievements} />
           <Route path="/alerts" component={Alerts} />
           <Route path="/profile" component={Profile} />
+          <Route path="/explore/dashboard-a">{() => <DashboardExploration concept="a" />}</Route>
+          <Route path="/explore/dashboard-b">{() => <DashboardExploration concept="b" />}</Route>
+          <Route path="/explore/dashboard-c">{() => <DashboardExploration concept="c" />}</Route>
+          <Route path="/explore/dashboard-d">{() => <DashboardExploration concept="d" />}</Route>
+          <Route path="/explore/dashboard-e">{() => <DashboardExploration concept="e" />}</Route>
           <Route component={NotFound} />
         </Switch>
       </main>
@@ -130,11 +136,12 @@ function AuthGate() {
 }
 
 function App() {
+  const isLocalPreview = import.meta.env.DEV && new URLSearchParams(window.location.search).has('preview');
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <AuthGate />
+          {isLocalPreview ? <Router onLogout={async () => undefined} /> : <AuthGate />}
         </WouterRouter>
         <Toaster />
       </TooltipProvider>

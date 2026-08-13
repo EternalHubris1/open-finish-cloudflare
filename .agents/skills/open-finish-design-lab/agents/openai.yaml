@@ -1,0 +1,4 @@
+interface:
+  display_name: "Open Finish Design Lab"
+  short_description: "Evolve a cumulative Open Finish design language"
+  default_prompt: "Use $open-finish-design-lab to explore and document a product design decision without breaking established design memory."
