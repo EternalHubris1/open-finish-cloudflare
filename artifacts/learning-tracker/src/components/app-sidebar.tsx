@@ -23,16 +23,16 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
 
   return (
     <>
-    <aside className="hidden w-64 flex-col h-screen sticky top-0 relative z-20 backdrop-blur-xl border-r border-white/5 md:flex" style={{ background: 'rgba(10, 10, 12, 0.6)' }}>
+    <aside className="hidden w-64 flex-col h-screen sticky top-0 relative z-20 backdrop-blur-xl border-r border-white/[.07] md:flex" style={{ background: 'rgba(7, 10, 15, 0.88)' }}>
       <div className="p-6 border-b border-white/5">
         <div className="flex items-center gap-4">
-          <div style={{ background: 'radial-gradient(circle, rgba(220,38,38,0.2) 0%, transparent 70%)' }}
-               className="w-12 h-12 rounded-full border border-red-500/40 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(220,38,38,0.2)]">
-            <span className="text-xl font-bold text-red-500" style={{ fontFamily: 'serif' }}>道</span>
+          <div style={{ background: 'radial-gradient(circle, rgba(255,111,97,.14) 0%, transparent 72%)' }}
+               className="w-12 h-12 rounded-full border border-[#ff7868]/35 flex items-center justify-center shrink-0 shadow-[0_0_18px_rgba(255,111,97,.1)]">
+            <span className="text-xl font-bold text-[#ff7868]" style={{ fontFamily: 'serif' }}>道</span>
           </div>
           <div>
             <h1 className="text-lg font-bold text-white tracking-wide">Open Finish</h1>
-            <p className="text-[10px] text-red-400/80 uppercase tracking-widest font-bold">Personal OS</p>
+            <p className="text-[10px] text-[#ff8b7c]/75 uppercase tracking-widest font-bold">Personal OS</p>
           </div>
         </div>
       </div>
@@ -50,12 +50,12 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
                 'flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200',
                 'hover:bg-white/5 hover:scale-[1.03] active:scale-[0.97]',
                 isActive
-                  ? 'bg-gradient-to-r from-red-500/15 to-transparent text-red-400 font-semibold border-l-2 border-red-500'
+                  ? 'bg-gradient-to-r from-[#ff6f61]/12 to-transparent text-[#ff8b7c] font-semibold border-l-2 border-[#ff7465]'
                   : 'text-white/50 hover:text-white'
               )}
               data-testid={`nav-${route.label.toLowerCase()}`}
             >
-              <Icon className={cn("w-5 h-5", isActive ? "text-red-400" : "text-white/40")} />
+              <Icon className={cn("w-5 h-5", isActive ? "text-[#ff8b7c]" : "text-white/40")} />
               <span>{route.label}</span>
             </Link>
           );
@@ -85,7 +85,7 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
             href={route.path}
             className={cn(
               'flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[8px] font-bold uppercase tracking-wide',
-              isActive ? 'bg-red-500/15 text-red-400' : 'text-white/35',
+              isActive ? 'bg-[#ff7868]/12 text-[#ff8b7c]' : 'text-white/35',
             )}
           >
             <Icon className="h-5 w-5" />
@@ -98,7 +98,7 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
         aria-expanded={mobileMoreOpen}
         aria-label={mobileMoreOpen ? 'Close more navigation' : 'Open more navigation'}
         onClick={() => setMobileMoreOpen((open) => !open)}
-        className={cn('flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[8px] font-bold uppercase tracking-wide', mobileMoreOpen ? 'bg-red-500/15 text-red-400' : 'text-white/35')}
+        className={cn('flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[8px] font-bold uppercase tracking-wide', mobileMoreOpen ? 'bg-[#ff7868]/12 text-[#ff8b7c]' : 'text-white/35')}
       >
         {mobileMoreOpen ? <X className="h-5 w-5" /> : <MoreHorizontal className="h-5 w-5" />}
         More
@@ -106,7 +106,7 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
       {mobileMoreOpen && <div className="absolute bottom-[calc(100%+.6rem)] right-2 w-56 overflow-hidden rounded-2xl border border-white/10 bg-[#111014]/95 p-2 shadow-2xl backdrop-blur-2xl">
         {mobileMoreRoutes.map((route) => {
           const Icon = route.icon;
-          return <Link key={route.path} href={route.path} className={cn('flex items-center gap-3 rounded-xl px-3 py-3 text-sm', location === route.path ? 'bg-red-500/15 text-red-300' : 'text-white/60 hover:bg-white/5 hover:text-white')}><Icon className="h-4 w-4" />{route.label}</Link>;
+          return <Link key={route.path} href={route.path} className={cn('flex items-center gap-3 rounded-xl px-3 py-3 text-sm', location === route.path ? 'bg-[#ff7868]/12 text-[#ff9a89]' : 'text-white/60 hover:bg-white/5 hover:text-white')}><Icon className="h-4 w-4" />{route.label}</Link>;
         })}
         <button type="button" onClick={() => void onLogout()} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm text-white/60 hover:bg-white/5 hover:text-white"><LogOut className="h-4 w-4" />Sign out</button>
       </div>}

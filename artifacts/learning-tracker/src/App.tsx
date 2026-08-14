@@ -29,9 +29,8 @@ const queryClient = new QueryClient({
 
 function Router({ onLogout }: { onLogout: () => Promise<void> }) {
   return (
-    <div className="flex min-h-screen relative bg-[#0a0a0a] overflow-hidden">
-      {/* Background Gradient to ensure full coverage */}
-      <div className="absolute inset-0 z-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 40%, #16161d 70%, #0f0f0f 100%)' }} />
+    <div className="flex min-h-screen relative overflow-hidden bg-[#080b10]">
+      <div className="absolute inset-0 z-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 78% 12%, rgba(46,55,72,.48), transparent 34%), linear-gradient(135deg, #080b10 0%, #0d1119 48%, #090c12 100%)' }} />
 
       {/* Prominent Musashi background */}
       <div 
@@ -40,22 +39,18 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
           backgroundImage: `url(${musashi})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center top',
-          maskImage: 'linear-gradient(to left, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 50%, transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 50%, transparent 100%)',
-          filter: 'contrast(1.15) saturate(0.85)',
-          opacity: 0.9,
-          mixBlendMode: 'screen'
+          maskImage: 'linear-gradient(to left, rgba(0,0,0,.52) 0%, rgba(0,0,0,.14) 54%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,.52) 0%, rgba(0,0,0,.14) 54%, transparent 100%)',
+          filter: 'grayscale(1) contrast(1.08)',
+          opacity: 0.32,
+          mixBlendMode: 'luminosity'
         }}
       />
 
-      {/* Ambient glow orbs - red/orange motif */}
-      <div className="fixed top-[15%] left-[8%] w-[400px] h-[400px] rounded-full bg-red-600 blur-[120px] opacity-[0.15] pointer-events-none z-0 animate-pulse-glow" style={{ animationDelay: '0s' }} />
-      <div className="fixed top-[40%] right-[10%] w-[350px] h-[350px] rounded-full bg-orange-600 blur-[100px] opacity-[0.12] pointer-events-none z-0 animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
-      <div className="fixed bottom-[5%] left-[25%] w-[450px] h-[450px] rounded-full bg-red-900 blur-[120px] opacity-[0.18] pointer-events-none z-0 animate-pulse-glow" style={{ animationDelay: '3s' }} />
+      <div className="fixed top-[9%] left-[16%] h-[380px] w-[380px] rounded-full bg-[#ff6b5f] blur-[150px] opacity-[0.045] pointer-events-none z-0" />
+      <div className="fixed bottom-[2%] right-[8%] h-[420px] w-[420px] rounded-full bg-[#ffc268] blur-[170px] opacity-[0.035] pointer-events-none z-0" />
 
-      {/* Calligraphy-style red divider lines top/bottom */}
-      <div className="fixed top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-red-600/50 to-transparent z-50 pointer-events-none" />
-      <div className="fixed bottom-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-red-600/50 to-transparent z-50 pointer-events-none" />
+      <div className="fixed top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#ff7a68]/45 to-transparent z-50 pointer-events-none" />
 
       <AppSidebar onLogout={onLogout} />
       <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden relative z-10 h-screen">

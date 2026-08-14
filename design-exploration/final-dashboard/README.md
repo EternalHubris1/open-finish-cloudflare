@@ -1,5 +1,7 @@
 # Final Dashboard art direction
 
+Experimental follow-up: [Clean Signal interaction study](CLEAN_SIGNAL.md).
+
 The production Dashboard now combines Concept D's spacious, single-focus composition with Concept E's atmosphere and living mission state.
 
 ## What changed

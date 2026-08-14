@@ -14,9 +14,10 @@ interface LogActivityDialogProps {
   activity: Activity;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onLogged?: (result: { date: string; duration: number }) => void;
 }
 
-export function LogActivityDialog({ activity, open, onOpenChange }: LogActivityDialogProps) {
+export function LogActivityDialog({ activity, open, onOpenChange, onLogged }: LogActivityDialogProps) {
   const [durationMinutes, setDurationMinutes] = useState('');
   const [notes, setNotes] = useState('');
   const [logDate, setLogDate] = useState(() => format(new Date(), 'yyyy-MM-dd'));
@@ -38,6 +39,7 @@ export function LogActivityDialog({ activity, open, onOpenChange }: LogActivityD
       {
         onSuccess: () => {
           toast({ title: 'Session logged!', description: `${duration} minutes added to ${activity.name}` });
+          onLogged?.({ date: logDate, duration });
           queryClient.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
           queryClient.invalidateQueries({ queryKey: getListActivityLogsQueryKey(activity.id) });
           queryClient.invalidateQueries({ queryKey: getListStreaksQueryKey() });
