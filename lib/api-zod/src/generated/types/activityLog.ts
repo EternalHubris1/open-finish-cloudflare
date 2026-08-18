@@ -12,6 +12,14 @@ export interface ActivityLog {
   durationMinutes: number;
   /** @nullable */
   notes?: string | null;
+  /** @nullable */
+  recallNote?: string | null;
+  /** @nullable */
+  whatMoved?: string | null;
+  /** @nullable */
+  whatLearned?: string | null;
+  /** @nullable */
+  nextContinuation?: string | null;
   logDate: string;
   createdAt: string;
 }

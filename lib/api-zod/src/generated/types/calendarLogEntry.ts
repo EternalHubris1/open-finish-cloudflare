@@ -5,12 +5,14 @@
  * Learning Tracker API
  * OpenAPI spec version: 0.1.0
  */
+import type { ActivityType } from './activityType';
 
 export interface CalendarLogEntry {
   id: number;
   activityId: number;
   activityName: string;
   activityColor: string;
+  activityType: ActivityType;
   durationMinutes: number;
   /** @nullable */
   notes?: string | null;

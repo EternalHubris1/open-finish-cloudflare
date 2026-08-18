@@ -5,14 +5,31 @@
  * Learning Tracker API
  * OpenAPI spec version: 0.1.0
  */
+import type { ActivityType } from './activityType';
 
 export interface Activity {
   id: number;
   name: string;
   category: string;
+  activityType: ActivityType;
   color: string;
   /** @nullable */
   icon?: string | null;
   targetMinutesPerDay: number;
+  /**
+     * @maxLength 280
+     * @nullable
+     */
+  purpose?: string | null;
+  /**
+     * @maxLength 160
+     * @nullable
+     */
+  currentThread?: string | null;
+  /**
+     * @maxLength 280
+     * @nullable
+     */
+  evidenceNote?: string | null;
   createdAt: string;
 }

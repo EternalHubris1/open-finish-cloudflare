@@ -26,14 +26,25 @@ export interface ProfileInput {
   avatarUrl?: string;
 }
 
+export type ActivityType = (typeof ActivityType)[keyof typeof ActivityType];
+
+export const ActivityType = {
+  practice: "practice",
+  sport: "sport",
+} as const;
+
 export interface Activity {
   id: number;
   name: string;
   category: string;
+  activityType: ActivityType;
   color: string;
   /** @nullable */
   icon?: string | null;
   targetMinutesPerDay: number;
+  purpose?: string | null;
+  currentThread?: string | null;
+  evidenceNote?: string | null;
   createdAt: string;
 }
 
@@ -41,20 +52,28 @@ export interface ActivityInput {
   /** @minLength 1 */
   name: string;
   category: string;
+  activityType?: ActivityType;
   color: string;
   icon?: string;
   /** @minimum 1 */
   targetMinutesPerDay: number;
+  purpose?: string | null;
+  currentThread?: string | null;
+  evidenceNote?: string | null;
 }
 
 export interface ActivityPatch {
   /** @minLength 1 */
   name?: string;
   category?: string;
+  activityType?: ActivityType;
   color?: string;
   icon?: string;
   /** @minimum 1 */
   targetMinutesPerDay?: number;
+  purpose?: string | null;
+  currentThread?: string | null;
+  evidenceNote?: string | null;
 }
 
 export interface ActivityLog {
@@ -63,6 +82,10 @@ export interface ActivityLog {
   durationMinutes: number;
   /** @nullable */
   notes?: string | null;
+  recallNote?: string | null;
+  whatMoved?: string | null;
+  whatLearned?: string | null;
+  nextContinuation?: string | null;
   logDate: string;
   createdAt: string;
 }
@@ -71,6 +94,7 @@ export interface ActivityLogInput {
   /** @minimum 1 */
   durationMinutes: number;
   notes?: string;
+  recallNote?: string;
   /** YYYY-MM-DD, defaults to today */
   logDate?: string;
 }
@@ -129,12 +153,21 @@ export interface Streak {
 export interface DashboardSummary {
   totalActivities: number;
   totalMinutesToday: number;
+  sportMinutesToday: number;
   activitiesTodayCompleted: number;
   activitiesTodayTotal: number;
   overallCurrentStreak: number;
   totalAchievements: number;
   recentAchievements: Achievement[];
   todayLogs: ActivityLog[];
+  frequentActivities: FrequentActivity[];
+}
+
+export interface FrequentActivity {
+  activityId: number;
+  sessionCount: number;
+  totalMinutes: number;
+  lastLoggedDate: string;
 }
 
 export interface DayProgress {
@@ -146,6 +179,7 @@ export interface DayProgress {
 export interface WeeklyProgress {
   activityId: number;
   activityName: string;
+  activityType: ActivityType;
   color: string;
   targetMinutesPerDay?: number;
   days: DayProgress[];
@@ -156,6 +190,7 @@ export interface CalendarLogEntry {
   activityId: number;
   activityName: string;
   activityColor: string;
+  activityType: ActivityType;
   durationMinutes: number;
   /** @nullable */
   notes?: string | null;
@@ -165,18 +200,20 @@ export interface CalendarLogEntry {
 /**
  * under: below goal, met: reached goal (below the 'heavily over' threshold), over: heavily exceeded the goal
  */
-export type CalendarDayStatus = typeof CalendarDayStatus[keyof typeof CalendarDayStatus];
-
+export type CalendarDayStatus =
+  (typeof CalendarDayStatus)[keyof typeof CalendarDayStatus];
 
 export const CalendarDayStatus = {
-  under: 'under',
-  met: 'met',
-  over: 'over',
+  under: "under",
+  met: "met",
+  over: "over",
 } as const;
 
 export interface CalendarDay {
   date: string;
   totalMinutes: number;
+  focusMinutes: number;
+  sportMinutes: number;
   goalMinutes: number;
   /** under: below goal, met: reached goal (below the 'heavily over' threshold), over: heavily exceeded the goal */
   status: CalendarDayStatus;
@@ -184,13 +221,12 @@ export interface CalendarDay {
 }
 
 export type GetCalendarParams = {
-/**
- * YYYY-MM-DD, inclusive
- */
-start: string;
-/**
- * YYYY-MM-DD, inclusive
- */
-end: string;
+  /**
+   * YYYY-MM-DD, inclusive
+   */
+  start: string;
+  /**
+   * YYYY-MM-DD, inclusive
+   */
+  end: string;
 };
-

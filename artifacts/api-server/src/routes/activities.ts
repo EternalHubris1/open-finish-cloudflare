@@ -12,18 +12,23 @@ import {
   UpdateActivityResponse,
   DeleteActivityParams,
 } from "@workspace/api-zod";
+import { resolveActivityType } from "../lib/activity-type";
 
 const router: IRouter = Router();
 
 function formatActivity(a: typeof activitiesTable.$inferSelect) {
   return {
     ...a,
+    activityType: resolveActivityType(a),
     createdAt: a.createdAt.toISOString(),
   };
 }
 
 router.get("/activities", async (_req, res): Promise<void> => {
-  const activities = await db.select().from(activitiesTable).orderBy(activitiesTable.createdAt);
+  const activities = await db
+    .select()
+    .from(activitiesTable)
+    .orderBy(activitiesTable.createdAt);
   res.json(ListActivitiesResponse.parse(activities.map(formatActivity)));
 });
 
@@ -34,7 +39,10 @@ router.post("/activities", async (req, res): Promise<void> => {
     return;
   }
 
-  const [activity] = await db.insert(activitiesTable).values(parsed.data).returning();
+  const [activity] = await db
+    .insert(activitiesTable)
+    .values(parsed.data)
+    .returning();
   res.status(201).json(CreateActivityResponse.parse(formatActivity(activity)));
 });
 
@@ -92,7 +100,9 @@ router.delete("/activities/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  await db.delete(streaksTable).where(eq(streaksTable.activityId, params.data.id));
+  await db
+    .delete(streaksTable)
+    .where(eq(streaksTable.activityId, params.data.id));
   const [deleted] = await db
     .delete(activitiesTable)
     .where(eq(activitiesTable.id, params.data.id))

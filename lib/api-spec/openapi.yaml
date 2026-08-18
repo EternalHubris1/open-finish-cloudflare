@@ -22,6 +22,10 @@ tags:
     description: Achievements and milestones
   - name: dashboard
     description: Dashboard and summaries
+  - name: reflections
+    description: Reflection and continuation memory
+  - name: continuity
+    description: Calm context kept across sessions
 
 paths:
   /healthz:
@@ -203,6 +207,31 @@ paths:
                 $ref: "#/components/schemas/ActivityLog"
 
   /logs/{id}:
+    patch:
+      operationId: updateLogReflection
+      tags: [reflections]
+      summary: Update only the supplied reflection fields on a log
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivityLogReflectionInput"
+      responses:
+        "200":
+          description: Updated log entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActivityLog"
+        "404":
+          description: Not found
     delete:
       operationId: deleteLog
       tags: [logs]
@@ -216,6 +245,119 @@ paths:
       responses:
         "204":
           description: Deleted
+
+  /reflections:
+    get:
+      operationId: listReflections
+      tags: [reflections]
+      summary: List saved reflection evidence from newest to oldest
+      responses:
+        "200":
+          description: Reflection library
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReflectionEntry"
+
+  /context/today:
+    get:
+      operationId: getTodayContext
+      tags: [continuity]
+      summary: Get today's optional orientation context without creating it
+      responses:
+        "200":
+          description: Today's context or null when none has been saved
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: "#/components/schemas/DailyContext"
+                  - type: "null"
+    put:
+      operationId: putTodayContext
+      tags: [continuity]
+      summary: Create or replace today's orientation context
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DailyContextInput"
+      responses:
+        "200":
+          description: Saved context
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyContext"
+
+  /evidence-shelf:
+    get:
+      operationId: getEvidenceShelf
+      tags: [continuity]
+      summary: Get the durable evidence shelf in display order
+      responses:
+        "200":
+          description: Evidence shelf
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/KeptEvidence"
+    put:
+      operationId: putEvidenceShelf
+      tags: [continuity]
+      summary: Replace and reorder the durable evidence shelf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EvidenceShelfInput"
+      responses:
+        "200":
+          description: Saved evidence shelf
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/KeptEvidence"
+
+  /weekly-reflections:
+    get:
+      operationId: listWeeklyReflections
+      tags: [continuity]
+      summary: List durable weekly reflections from newest to oldest
+      responses:
+        "200":
+          description: Weekly reflections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WeeklyReflection"
+    put:
+      operationId: putWeeklyReflection
+      tags: [continuity]
+      summary: Create or replace one weekly reflection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WeeklyReflectionInput"
+      responses:
+        "200":
+          description: Saved weekly reflection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeeklyReflection"
 
   /alerts:
     get:
@@ -410,9 +552,22 @@ components:
         avatarUrl:
           type: string
 
+    ActivityType:
+      type: string
+      enum: [practice, sport]
+
     Activity:
       type: object
-      required: [id, name, category, color, targetMinutesPerDay, createdAt]
+      required:
+        [
+          id,
+          name,
+          category,
+          activityType,
+          color,
+          targetMinutesPerDay,
+          createdAt,
+        ]
       properties:
         id:
           type: integer
@@ -420,12 +575,23 @@ components:
           type: string
         category:
           type: string
+        activityType:
+          $ref: "#/components/schemas/ActivityType"
         color:
           type: string
         icon:
           type: ["string", "null"]
         targetMinutesPerDay:
           type: integer
+        purpose:
+          type: ["string", "null"]
+          maxLength: 280
+        currentThread:
+          type: ["string", "null"]
+          maxLength: 160
+        evidenceNote:
+          type: ["string", "null"]
+          maxLength: 280
         createdAt:
           type: string
 
@@ -438,6 +604,8 @@ components:
           minLength: 1
         category:
           type: string
+        activityType:
+          $ref: "#/components/schemas/ActivityType"
         color:
           type: string
         icon:
@@ -445,6 +613,15 @@ components:
         targetMinutesPerDay:
           type: integer
           minimum: 1
+        purpose:
+          type: ["string", "null"]
+          maxLength: 280
+        currentThread:
+          type: ["string", "null"]
+          maxLength: 160
+        evidenceNote:
+          type: ["string", "null"]
+          maxLength: 280
 
     ActivityPatch:
       type: object
@@ -454,6 +631,8 @@ components:
           minLength: 1
         category:
           type: string
+        activityType:
+          $ref: "#/components/schemas/ActivityType"
         color:
           type: string
         icon:
@@ -461,6 +640,15 @@ components:
         targetMinutesPerDay:
           type: integer
           minimum: 1
+        purpose:
+          type: ["string", "null"]
+          maxLength: 280
+        currentThread:
+          type: ["string", "null"]
+          maxLength: 160
+        evidenceNote:
+          type: ["string", "null"]
+          maxLength: 280
 
     ActivityLog:
       type: object
@@ -473,6 +661,14 @@ components:
         durationMinutes:
           type: integer
         notes:
+          type: ["string", "null"]
+        recallNote:
+          type: ["string", "null"]
+        whatMoved:
+          type: ["string", "null"]
+        whatLearned:
+          type: ["string", "null"]
+        nextContinuation:
           type: ["string", "null"]
         logDate:
           type: string
@@ -488,9 +684,173 @@ components:
           minimum: 1
         notes:
           type: string
+        recallNote:
+          type: string
+          maxLength: 280
         logDate:
           type: string
           description: "YYYY-MM-DD, defaults to today"
+
+    ActivityLogReflectionInput:
+      type: object
+      minProperties: 1
+      properties:
+        whatMoved:
+          type: ["string", "null"]
+          maxLength: 280
+        whatLearned:
+          type: ["string", "null"]
+          maxLength: 280
+        nextContinuation:
+          type: ["string", "null"]
+          maxLength: 280
+
+    ReflectionEntry:
+      type: object
+      required:
+        [
+          id,
+          activityId,
+          activityName,
+          activityColor,
+          durationMinutes,
+          logDate,
+          createdAt,
+        ]
+      properties:
+        id: { type: integer }
+        activityId: { type: integer }
+        activityName: { type: string }
+        activityColor: { type: string }
+        durationMinutes: { type: integer }
+        recallNote: { type: ["string", "null"] }
+        whatMoved: { type: ["string", "null"] }
+        whatLearned: { type: ["string", "null"] }
+        nextContinuation: { type: ["string", "null"] }
+        logDate: { type: string }
+        createdAt: { type: string }
+
+    DailyContext:
+      type: object
+      required:
+        [
+          id,
+          contextDate,
+          focusActivityId,
+          focusActivityName,
+          focusActivityColor,
+          intention,
+          externalUrl,
+          createdAt,
+          updatedAt,
+        ]
+      properties:
+        id: { type: integer }
+        contextDate: { type: string }
+        focusActivityId: { type: ["integer", "null"] }
+        focusActivityName: { type: ["string", "null"] }
+        focusActivityColor: { type: ["string", "null"] }
+        intention: { type: ["string", "null"] }
+        externalUrl: { type: ["string", "null"] }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+
+    DailyContextInput:
+      type: object
+      properties:
+        focusActivityId: { type: ["integer", "null"] }
+        intention:
+          type: ["string", "null"]
+          maxLength: 280
+        externalUrl:
+          type: ["string", "null"]
+          maxLength: 2000
+
+    EvidenceShelfInput:
+      type: object
+      required: [activityLogIds]
+      properties:
+        activityLogIds:
+          type: array
+          maxItems: 6
+          uniqueItems: true
+          items: { type: integer }
+
+    KeptEvidence:
+      type: object
+      required:
+        [
+          id,
+          activityId,
+          activityName,
+          activityColor,
+          logDate,
+          text,
+          kind,
+          savedAt,
+        ]
+      properties:
+        id: { type: integer }
+        activityId: { type: integer }
+        activityName: { type: string }
+        activityColor: { type: string }
+        logDate: { type: string }
+        text: { type: string }
+        kind:
+          type: string
+          enum: [Learned, Moved, Continuation, Recall]
+        savedAt: { type: string }
+
+    WeeklyReflection:
+      type: object
+      required:
+        [
+          id,
+          weekStart,
+          notice,
+          carry,
+          evidenceIds,
+          keptEvidenceIds,
+          savedAt,
+          updatedAt,
+        ]
+      properties:
+        id: { type: integer }
+        weekStart: { type: string }
+        notice: { type: string }
+        carry: { type: string }
+        evidenceIds:
+          type: array
+          items: { type: string }
+        keptEvidenceIds:
+          type: array
+          items: { type: integer }
+        savedAt: { type: string }
+        updatedAt: { type: string }
+
+    WeeklyReflectionInput:
+      type: object
+      required: [weekStart, notice, carry, evidenceIds, keptEvidenceIds]
+      properties:
+        weekStart:
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}$'
+        notice:
+          type: string
+          maxLength: 1200
+        carry:
+          type: string
+          maxLength: 1200
+        evidenceIds:
+          type: array
+          maxItems: 12
+          uniqueItems: true
+          items: { type: string }
+        keptEvidenceIds:
+          type: array
+          maxItems: 6
+          uniqueItems: true
+          items: { type: integer }
 
     Alert:
       type: object
@@ -570,7 +930,8 @@ components:
 
     Streak:
       type: object
-      required: [activityId, activityName, currentStreak, longestStreak, lastLoggedDate]
+      required:
+        [activityId, activityName, currentStreak, longestStreak, lastLoggedDate]
       properties:
         activityId:
           type: integer
@@ -585,11 +946,25 @@ components:
 
     DashboardSummary:
       type: object
-      required: [totalActivities, totalMinutesToday, activitiesTodayCompleted, activitiesTodayTotal, overallCurrentStreak, totalAchievements, recentAchievements, todayLogs]
+      required:
+        [
+          totalActivities,
+          totalMinutesToday,
+          sportMinutesToday,
+          activitiesTodayCompleted,
+          activitiesTodayTotal,
+          overallCurrentStreak,
+          totalAchievements,
+          recentAchievements,
+          todayLogs,
+          frequentActivities,
+        ]
       properties:
         totalActivities:
           type: integer
         totalMinutesToday:
+          type: integer
+        sportMinutesToday:
           type: integer
         activitiesTodayCompleted:
           type: integer
@@ -607,15 +982,30 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ActivityLog"
+        frequentActivities:
+          type: array
+          items:
+            $ref: "#/components/schemas/FrequentActivity"
+
+    FrequentActivity:
+      type: object
+      required: [activityId, sessionCount, totalMinutes, lastLoggedDate]
+      properties:
+        activityId: { type: integer }
+        sessionCount: { type: integer }
+        totalMinutes: { type: integer }
+        lastLoggedDate: { type: string }
 
     WeeklyProgress:
       type: object
-      required: [activityId, activityName, color, days]
+      required: [activityId, activityName, activityType, color, days]
       properties:
         activityId:
           type: integer
         activityName:
           type: string
+        activityType:
+          $ref: "#/components/schemas/ActivityType"
         color:
           type: string
         targetMinutesPerDay:
@@ -638,7 +1028,16 @@ components:
 
     CalendarLogEntry:
       type: object
-      required: [id, activityId, activityName, activityColor, durationMinutes, logDate]
+      required:
+        [
+          id,
+          activityId,
+          activityName,
+          activityColor,
+          activityType,
+          durationMinutes,
+          logDate,
+        ]
       properties:
         id:
           type: integer
@@ -648,6 +1047,8 @@ components:
           type: string
         activityColor:
           type: string
+        activityType:
+          $ref: "#/components/schemas/ActivityType"
         durationMinutes:
           type: integer
         notes:
@@ -657,11 +1058,24 @@ components:
 
     CalendarDay:
       type: object
-      required: [date, totalMinutes, goalMinutes, status, logs]
+      required:
+        [
+          date,
+          totalMinutes,
+          focusMinutes,
+          sportMinutes,
+          goalMinutes,
+          status,
+          logs,
+        ]
       properties:
         date:
           type: string
         totalMinutes:
+          type: integer
+        focusMinutes:
+          type: integer
+        sportMinutes:
           type: integer
         goalMinutes:
           type: integer
