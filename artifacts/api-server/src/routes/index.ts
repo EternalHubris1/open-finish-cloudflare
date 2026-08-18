@@ -7,6 +7,9 @@ import alertsRouter from "./alerts";
 import achievementsRouter from "./achievements";
 import dashboardRouter from "./dashboard";
 import calendarRouter from "./calendar";
+import reflectionsRouter from "./reflections";
+import dailyContextRouter from "./daily-context";
+import continuityMemoryRouter from "./continuity-memory";
 
 const router: IRouter = Router();
 
@@ -18,5 +21,8 @@ router.use(alertsRouter);
 router.use(achievementsRouter);
 router.use(dashboardRouter);
 router.use(calendarRouter);
+router.use(reflectionsRouter);
+router.use(dailyContextRouter);
+router.use(continuityMemoryRouter);
 
 export default router;

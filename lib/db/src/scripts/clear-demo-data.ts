@@ -9,20 +9,48 @@
  *
  * Usage: pnpm --filter @workspace/db run clear-demo-data
  */
-import { db } from "../index";
-import { activityLogsTable } from "../schema/activity-logs";
-import { achievementsTable } from "../schema/achievements";
-import { alertsTable } from "../schema/alerts";
-import { streaksTable } from "../schema/streaks";
-import { activitiesTable } from "../schema/activities";
-
 async function main() {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Refusing to clear data in a production environment.");
+  }
+  if (process.env.OPEN_FINISH_ALLOW_DEMO_DATA_CLEAR !== "DELETE_DEMO_DATA") {
+    throw new Error(
+      "Refusing to clear data without OPEN_FINISH_ALLOW_DEMO_DATA_CLEAR=DELETE_DEMO_DATA.",
+    );
+  }
+
+  const [
+    { db },
+    { activityLogsTable },
+    { achievementsTable },
+    { alertsTable },
+    { streaksTable },
+    { activitiesTable },
+  ] = await Promise.all([
+    import("../index"),
+    import("../schema/activity-logs"),
+    import("../schema/achievements"),
+    import("../schema/alerts"),
+    import("../schema/streaks"),
+    import("../schema/activities"),
+  ]);
+
   // Order respects foreign keys: children before the `activities` parent.
-  const deletedLogs = await db.delete(activityLogsTable).returning({ id: activityLogsTable.id });
-  const deletedAchievements = await db.delete(achievementsTable).returning({ id: achievementsTable.id });
-  const deletedAlerts = await db.delete(alertsTable).returning({ id: alertsTable.id });
-  const deletedStreaks = await db.delete(streaksTable).returning({ id: streaksTable.id });
-  const deletedActivities = await db.delete(activitiesTable).returning({ id: activitiesTable.id });
+  const deletedLogs = await db
+    .delete(activityLogsTable)
+    .returning({ id: activityLogsTable.id });
+  const deletedAchievements = await db
+    .delete(achievementsTable)
+    .returning({ id: achievementsTable.id });
+  const deletedAlerts = await db
+    .delete(alertsTable)
+    .returning({ id: alertsTable.id });
+  const deletedStreaks = await db
+    .delete(streaksTable)
+    .returning({ id: streaksTable.id });
+  const deletedActivities = await db
+    .delete(activitiesTable)
+    .returning({ id: activitiesTable.id });
 
   console.log(
     JSON.stringify({

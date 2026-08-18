@@ -34,6 +34,9 @@ export interface Activity {
   /** @nullable */
   icon?: string | null;
   targetMinutesPerDay: number;
+  purpose?: string | null;
+  currentThread?: string | null;
+  evidenceNote?: string | null;
   createdAt: string;
 }
 
@@ -45,6 +48,9 @@ export interface ActivityInput {
   icon?: string;
   /** @minimum 1 */
   targetMinutesPerDay: number;
+  purpose?: string | null;
+  currentThread?: string | null;
+  evidenceNote?: string | null;
 }
 
 export interface ActivityPatch {
@@ -55,6 +61,9 @@ export interface ActivityPatch {
   icon?: string;
   /** @minimum 1 */
   targetMinutesPerDay?: number;
+  purpose?: string | null;
+  currentThread?: string | null;
+  evidenceNote?: string | null;
 }
 
 export interface ActivityLog {
@@ -63,6 +72,10 @@ export interface ActivityLog {
   durationMinutes: number;
   /** @nullable */
   notes?: string | null;
+  recallNote?: string | null;
+  whatMoved?: string | null;
+  whatLearned?: string | null;
+  nextContinuation?: string | null;
   logDate: string;
   createdAt: string;
 }
@@ -71,6 +84,7 @@ export interface ActivityLogInput {
   /** @minimum 1 */
   durationMinutes: number;
   notes?: string;
+  recallNote?: string;
   /** YYYY-MM-DD, defaults to today */
   logDate?: string;
 }
@@ -135,6 +149,14 @@ export interface DashboardSummary {
   totalAchievements: number;
   recentAchievements: Achievement[];
   todayLogs: ActivityLog[];
+  frequentActivities: FrequentActivity[];
+}
+
+export interface FrequentActivity {
+  activityId: number;
+  sessionCount: number;
+  totalMinutes: number;
+  lastLoggedDate: string;
 }
 
 export interface DayProgress {
@@ -165,13 +187,13 @@ export interface CalendarLogEntry {
 /**
  * under: below goal, met: reached goal (below the 'heavily over' threshold), over: heavily exceeded the goal
  */
-export type CalendarDayStatus = typeof CalendarDayStatus[keyof typeof CalendarDayStatus];
-
+export type CalendarDayStatus =
+  (typeof CalendarDayStatus)[keyof typeof CalendarDayStatus];
 
 export const CalendarDayStatus = {
-  under: 'under',
-  met: 'met',
-  over: 'over',
+  under: "under",
+  met: "met",
+  over: "over",
 } as const;
 
 export interface CalendarDay {
@@ -184,13 +206,12 @@ export interface CalendarDay {
 }
 
 export type GetCalendarParams = {
-/**
- * YYYY-MM-DD, inclusive
- */
-start: string;
-/**
- * YYYY-MM-DD, inclusive
- */
-end: string;
+  /**
+   * YYYY-MM-DD, inclusive
+   */
+  start: string;
+  /**
+   * YYYY-MM-DD, inclusive
+   */
+  end: string;
 };
-

@@ -1,4 +1,11 @@
-import { date, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  date,
+  integer,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { activitiesTable } from "./activities";
@@ -10,11 +17,19 @@ export const activityLogsTable = pgTable("activity_logs", {
     .references(() => activitiesTable.id, { onDelete: "cascade" }),
   durationMinutes: integer("duration_minutes").notNull(),
   notes: text("notes"),
+  recallNote: text("recall_note"),
+  whatMoved: text("what_moved"),
+  whatLearned: text("what_learned"),
+  nextContinuation: text("next_continuation"),
   logDate: date("log_date", { mode: "string" }).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
-export const insertActivityLogSchema = createInsertSchema(activityLogsTable).omit({
+export const insertActivityLogSchema = createInsertSchema(
+  activityLogsTable,
+).omit({
   id: true,
   createdAt: true,
 });

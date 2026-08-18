@@ -7,6 +7,7 @@
  */
 import type { Achievement } from './achievement';
 import type { ActivityLog } from './activityLog';
+import type { FrequentActivity } from './frequentActivity';
 
 export interface DashboardSummary {
   totalActivities: number;
@@ -17,4 +18,5 @@ export interface DashboardSummary {
   totalAchievements: number;
   recentAchievements: Achievement[];
   todayLogs: ActivityLog[];
+  frequentActivities: FrequentActivity[];
 }

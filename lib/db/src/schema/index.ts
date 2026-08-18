@@ -4,3 +4,6 @@ export * from "./activity-logs";
 export * from "./streaks";
 export * from "./achievements";
 export * from "./alerts";
+export * from "./daily-contexts";
+export * from "./evidence-shelf";
+export * from "./weekly-reflections";

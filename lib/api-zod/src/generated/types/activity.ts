@@ -14,5 +14,20 @@ export interface Activity {
   /** @nullable */
   icon?: string | null;
   targetMinutesPerDay: number;
+  /**
+     * @maxLength 280
+     * @nullable
+     */
+  purpose?: string | null;
+  /**
+     * @maxLength 160
+     * @nullable
+     */
+  currentThread?: string | null;
+  /**
+     * @maxLength 280
+     * @nullable
+     */
+  evidenceNote?: string | null;
   createdAt: string;
 }

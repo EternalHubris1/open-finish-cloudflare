@@ -10,6 +10,8 @@ export interface ActivityLogInput {
   /** @minimum 1 */
   durationMinutes: number;
   notes?: string;
+  /** @maxLength 280 */
+  recallNote?: string;
   /** YYYY-MM-DD, defaults to today */
   logDate?: string;
 }

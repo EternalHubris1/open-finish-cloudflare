@@ -9,8 +9,16 @@ export const activitiesTable = pgTable("activities", {
   color: text("color").notNull(),
   icon: text("icon"),
   targetMinutesPerDay: integer("target_minutes_per_day").notNull().default(30),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
+  purpose: text("purpose"),
+  currentThread: text("current_thread"),
+  evidenceNote: text("evidence_note"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
 export const insertActivitySchema = createInsertSchema(activitiesTable).omit({

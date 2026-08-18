@@ -52,6 +52,14 @@ export const UpdateProfileResponse = zod.object({
 /**
  * @summary List all activities
  */
+export const listActivitiesResponsePurposeMax = 280;
+
+export const listActivitiesResponseCurrentThreadMax = 160;
+
+export const listActivitiesResponseEvidenceNoteMax = 280;
+
+
+
 export const ListActivitiesResponseItem = zod.object({
   "id": zod.int(),
   "name": zod.string(),
@@ -59,6 +67,9 @@ export const ListActivitiesResponseItem = zod.object({
   "color": zod.string(),
   "icon": zod.string().nullish(),
   "targetMinutesPerDay": zod.int(),
+  "purpose": zod.string().max(listActivitiesResponsePurposeMax).nullish(),
+  "currentThread": zod.string().max(listActivitiesResponseCurrentThreadMax).nullish(),
+  "evidenceNote": zod.string().max(listActivitiesResponseEvidenceNoteMax).nullish(),
   "createdAt": zod.string()
 })
 export const ListActivitiesResponse = zod.array(ListActivitiesResponseItem)
@@ -69,6 +80,12 @@ export const ListActivitiesResponse = zod.array(ListActivitiesResponseItem)
  */
 
 
+export const createActivityBodyPurposeMax = 280;
+
+export const createActivityBodyCurrentThreadMax = 160;
+
+export const createActivityBodyEvidenceNoteMax = 280;
+
 
 
 export const CreateActivityBody = zod.object({
@@ -76,8 +93,19 @@ export const CreateActivityBody = zod.object({
   "category": zod.string(),
   "color": zod.string(),
   "icon": zod.string().optional(),
-  "targetMinutesPerDay": zod.int().min(1)
+  "targetMinutesPerDay": zod.int().min(1),
+  "purpose": zod.string().max(createActivityBodyPurposeMax).nullish(),
+  "currentThread": zod.string().max(createActivityBodyCurrentThreadMax).nullish(),
+  "evidenceNote": zod.string().max(createActivityBodyEvidenceNoteMax).nullish()
 })
+
+export const createActivityResponsePurposeMax = 280;
+
+export const createActivityResponseCurrentThreadMax = 160;
+
+export const createActivityResponseEvidenceNoteMax = 280;
+
+
 
 export const CreateActivityResponse = zod.object({
   "id": zod.int(),
@@ -86,6 +114,9 @@ export const CreateActivityResponse = zod.object({
   "color": zod.string(),
   "icon": zod.string().nullish(),
   "targetMinutesPerDay": zod.int(),
+  "purpose": zod.string().max(createActivityResponsePurposeMax).nullish(),
+  "currentThread": zod.string().max(createActivityResponseCurrentThreadMax).nullish(),
+  "evidenceNote": zod.string().max(createActivityResponseEvidenceNoteMax).nullish(),
   "createdAt": zod.string()
 })
 
@@ -97,6 +128,14 @@ export const GetActivityParams = zod.object({
   "id": zod.coerce.number().int()
 })
 
+export const getActivityResponsePurposeMax = 280;
+
+export const getActivityResponseCurrentThreadMax = 160;
+
+export const getActivityResponseEvidenceNoteMax = 280;
+
+
+
 export const GetActivityResponse = zod.object({
   "id": zod.int(),
   "name": zod.string(),
@@ -104,6 +143,9 @@ export const GetActivityResponse = zod.object({
   "color": zod.string(),
   "icon": zod.string().nullish(),
   "targetMinutesPerDay": zod.int(),
+  "purpose": zod.string().max(getActivityResponsePurposeMax).nullish(),
+  "currentThread": zod.string().max(getActivityResponseCurrentThreadMax).nullish(),
+  "evidenceNote": zod.string().max(getActivityResponseEvidenceNoteMax).nullish(),
   "createdAt": zod.string()
 })
 
@@ -117,6 +159,12 @@ export const UpdateActivityParams = zod.object({
 
 
 
+export const updateActivityBodyPurposeMax = 280;
+
+export const updateActivityBodyCurrentThreadMax = 160;
+
+export const updateActivityBodyEvidenceNoteMax = 280;
+
 
 
 export const UpdateActivityBody = zod.object({
@@ -124,8 +172,19 @@ export const UpdateActivityBody = zod.object({
   "category": zod.string().optional(),
   "color": zod.string().optional(),
   "icon": zod.string().optional(),
-  "targetMinutesPerDay": zod.int().min(1).optional()
+  "targetMinutesPerDay": zod.int().min(1).optional(),
+  "purpose": zod.string().max(updateActivityBodyPurposeMax).nullish(),
+  "currentThread": zod.string().max(updateActivityBodyCurrentThreadMax).nullish(),
+  "evidenceNote": zod.string().max(updateActivityBodyEvidenceNoteMax).nullish()
 })
+
+export const updateActivityResponsePurposeMax = 280;
+
+export const updateActivityResponseCurrentThreadMax = 160;
+
+export const updateActivityResponseEvidenceNoteMax = 280;
+
+
 
 export const UpdateActivityResponse = zod.object({
   "id": zod.int(),
@@ -134,6 +193,9 @@ export const UpdateActivityResponse = zod.object({
   "color": zod.string(),
   "icon": zod.string().nullish(),
   "targetMinutesPerDay": zod.int(),
+  "purpose": zod.string().max(updateActivityResponsePurposeMax).nullish(),
+  "currentThread": zod.string().max(updateActivityResponseCurrentThreadMax).nullish(),
+  "evidenceNote": zod.string().max(updateActivityResponseEvidenceNoteMax).nullish(),
   "createdAt": zod.string()
 })
 
@@ -160,6 +222,10 @@ export const ListActivityLogsResponseItem = zod.object({
   "activityId": zod.int(),
   "durationMinutes": zod.int(),
   "notes": zod.string().nullish(),
+  "recallNote": zod.string().nullish(),
+  "whatMoved": zod.string().nullish(),
+  "whatLearned": zod.string().nullish(),
+  "nextContinuation": zod.string().nullish(),
   "logDate": zod.string(),
   "createdAt": zod.string()
 })
@@ -174,11 +240,14 @@ export const LogActivityParams = zod.object({
 })
 
 
+export const logActivityBodyRecallNoteMax = 280;
+
 
 
 export const LogActivityBody = zod.object({
   "durationMinutes": zod.int().min(1),
   "notes": zod.string().optional(),
+  "recallNote": zod.string().max(logActivityBodyRecallNoteMax).optional(),
   "logDate": zod.string().optional().describe('YYYY-MM-DD, defaults to today')
 })
 
@@ -187,6 +256,45 @@ export const LogActivityResponse = zod.object({
   "activityId": zod.int(),
   "durationMinutes": zod.int(),
   "notes": zod.string().nullish(),
+  "recallNote": zod.string().nullish(),
+  "whatMoved": zod.string().nullish(),
+  "whatLearned": zod.string().nullish(),
+  "nextContinuation": zod.string().nullish(),
+  "logDate": zod.string(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Update only the supplied reflection fields on a log
+ */
+export const UpdateLogReflectionParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const updateLogReflectionBodyWhatMovedMax = 280;
+
+export const updateLogReflectionBodyWhatLearnedMax = 280;
+
+export const updateLogReflectionBodyNextContinuationMax = 280;
+
+
+
+export const UpdateLogReflectionBody = zod.object({
+  "whatMoved": zod.string().max(updateLogReflectionBodyWhatMovedMax).nullish(),
+  "whatLearned": zod.string().max(updateLogReflectionBodyWhatLearnedMax).nullish(),
+  "nextContinuation": zod.string().max(updateLogReflectionBodyNextContinuationMax).nullish()
+})
+
+export const UpdateLogReflectionResponse = zod.object({
+  "id": zod.int(),
+  "activityId": zod.int(),
+  "durationMinutes": zod.int(),
+  "notes": zod.string().nullish(),
+  "recallNote": zod.string().nullish(),
+  "whatMoved": zod.string().nullish(),
+  "whatLearned": zod.string().nullish(),
+  "nextContinuation": zod.string().nullish(),
   "logDate": zod.string(),
   "createdAt": zod.string()
 })
@@ -200,6 +308,159 @@ export const DeleteLogParams = zod.object({
 })
 
 export const DeleteLogResponse = zod.void()
+
+
+/**
+ * @summary List saved reflection evidence from newest to oldest
+ */
+export const ListReflectionsResponseItem = zod.object({
+  "id": zod.int(),
+  "activityId": zod.int(),
+  "activityName": zod.string(),
+  "activityColor": zod.string(),
+  "durationMinutes": zod.int(),
+  "recallNote": zod.string().nullish(),
+  "whatMoved": zod.string().nullish(),
+  "whatLearned": zod.string().nullish(),
+  "nextContinuation": zod.string().nullish(),
+  "logDate": zod.string(),
+  "createdAt": zod.string()
+})
+export const ListReflectionsResponse = zod.array(ListReflectionsResponseItem)
+
+
+/**
+ * @summary Get today's optional orientation context without creating it
+ */
+export const GetTodayContextResponse = zod.union([zod.object({
+  "id": zod.int(),
+  "contextDate": zod.string(),
+  "focusActivityId": zod.int().nullable(),
+  "focusActivityName": zod.string().nullable(),
+  "focusActivityColor": zod.string().nullable(),
+  "intention": zod.string().nullable(),
+  "externalUrl": zod.string().nullable(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+}),zod.null()])
+
+
+/**
+ * @summary Create or replace today's orientation context
+ */
+export const putTodayContextBodyIntentionMax = 280;
+
+export const putTodayContextBodyExternalUrlMax = 2000;
+
+
+
+export const PutTodayContextBody = zod.object({
+  "focusActivityId": zod.int().nullish(),
+  "intention": zod.string().max(putTodayContextBodyIntentionMax).nullish(),
+  "externalUrl": zod.string().max(putTodayContextBodyExternalUrlMax).nullish()
+})
+
+export const PutTodayContextResponse = zod.object({
+  "id": zod.int(),
+  "contextDate": zod.string(),
+  "focusActivityId": zod.int().nullable(),
+  "focusActivityName": zod.string().nullable(),
+  "focusActivityColor": zod.string().nullable(),
+  "intention": zod.string().nullable(),
+  "externalUrl": zod.string().nullable(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Get the durable evidence shelf in display order
+ */
+export const GetEvidenceShelfResponseItem = zod.object({
+  "id": zod.int(),
+  "activityId": zod.int(),
+  "activityName": zod.string(),
+  "activityColor": zod.string(),
+  "logDate": zod.string(),
+  "text": zod.string(),
+  "kind": zod.enum(['Learned', 'Moved', 'Continuation', 'Recall']),
+  "savedAt": zod.string()
+})
+export const GetEvidenceShelfResponse = zod.array(GetEvidenceShelfResponseItem)
+
+
+/**
+ * @summary Replace and reorder the durable evidence shelf
+ */
+export const putEvidenceShelfBodyActivityLogIdsMax = 6;
+
+
+
+export const PutEvidenceShelfBody = zod.object({
+  "activityLogIds": zod.array(zod.int()).max(putEvidenceShelfBodyActivityLogIdsMax)
+})
+
+export const PutEvidenceShelfResponseItem = zod.object({
+  "id": zod.int(),
+  "activityId": zod.int(),
+  "activityName": zod.string(),
+  "activityColor": zod.string(),
+  "logDate": zod.string(),
+  "text": zod.string(),
+  "kind": zod.enum(['Learned', 'Moved', 'Continuation', 'Recall']),
+  "savedAt": zod.string()
+})
+export const PutEvidenceShelfResponse = zod.array(PutEvidenceShelfResponseItem)
+
+
+/**
+ * @summary List durable weekly reflections from newest to oldest
+ */
+export const ListWeeklyReflectionsResponseItem = zod.object({
+  "id": zod.int(),
+  "weekStart": zod.string(),
+  "notice": zod.string(),
+  "carry": zod.string(),
+  "evidenceIds": zod.array(zod.string()),
+  "keptEvidenceIds": zod.array(zod.int()),
+  "savedAt": zod.string(),
+  "updatedAt": zod.string()
+})
+export const ListWeeklyReflectionsResponse = zod.array(ListWeeklyReflectionsResponseItem)
+
+
+/**
+ * @summary Create or replace one weekly reflection
+ */
+export const putWeeklyReflectionBodyWeekStartRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const putWeeklyReflectionBodyNoticeMax = 1200;
+
+export const putWeeklyReflectionBodyCarryMax = 1200;
+
+export const putWeeklyReflectionBodyEvidenceIdsMax = 12;
+
+export const putWeeklyReflectionBodyKeptEvidenceIdsMax = 6;
+
+
+
+export const PutWeeklyReflectionBody = zod.object({
+  "weekStart": zod.string().regex(putWeeklyReflectionBodyWeekStartRegExp),
+  "notice": zod.string().max(putWeeklyReflectionBodyNoticeMax),
+  "carry": zod.string().max(putWeeklyReflectionBodyCarryMax),
+  "evidenceIds": zod.array(zod.string()).max(putWeeklyReflectionBodyEvidenceIdsMax),
+  "keptEvidenceIds": zod.array(zod.int()).max(putWeeklyReflectionBodyKeptEvidenceIdsMax)
+})
+
+export const PutWeeklyReflectionResponse = zod.object({
+  "id": zod.int(),
+  "weekStart": zod.string(),
+  "notice": zod.string(),
+  "carry": zod.string(),
+  "evidenceIds": zod.array(zod.string()),
+  "keptEvidenceIds": zod.array(zod.int()),
+  "savedAt": zod.string(),
+  "updatedAt": zod.string()
+})
 
 
 /**
@@ -317,8 +578,18 @@ export const GetDashboardResponse = zod.object({
   "activityId": zod.int(),
   "durationMinutes": zod.int(),
   "notes": zod.string().nullish(),
+  "recallNote": zod.string().nullish(),
+  "whatMoved": zod.string().nullish(),
+  "whatLearned": zod.string().nullish(),
+  "nextContinuation": zod.string().nullish(),
   "logDate": zod.string(),
   "createdAt": zod.string()
+})),
+  "frequentActivities": zod.array(zod.object({
+  "activityId": zod.int(),
+  "sessionCount": zod.int(),
+  "totalMinutes": zod.int(),
+  "lastLoggedDate": zod.string()
 }))
 })
 

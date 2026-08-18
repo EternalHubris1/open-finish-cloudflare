@@ -8,8 +8,13 @@ import {
   LogActivityBody,
   LogActivityResponse,
   DeleteLogParams,
+  UpdateLogReflectionParams,
+  UpdateLogReflectionBody,
+  UpdateLogReflectionResponse,
 } from "@workspace/api-zod";
 import { updateStreak } from "../lib/streaks";
+import { todayForRequest } from "../lib/calendar";
+import { buildReflectionUpdate } from "../lib/reflection-update";
 
 const router: IRouter = Router();
 
@@ -18,10 +23,6 @@ function formatLog(log: typeof activityLogsTable.$inferSelect) {
     ...log,
     createdAt: log.createdAt.toISOString(),
   };
-}
-
-function todayStr() {
-  return new Date().toISOString().slice(0, 10);
 }
 
 router.get("/activities/:id/logs", async (req, res): Promise<void> => {
@@ -35,7 +36,7 @@ router.get("/activities/:id/logs", async (req, res): Promise<void> => {
     .select()
     .from(activityLogsTable)
     .where(eq(activityLogsTable.activityId, params.data.id))
-    .orderBy(desc(activityLogsTable.logDate));
+    .orderBy(desc(activityLogsTable.logDate), desc(activityLogsTable.id));
 
   res.json(ListActivityLogsResponse.parse(logs.map(formatLog)));
 });
@@ -63,8 +64,9 @@ router.post("/activities/:id/logs", async (req, res): Promise<void> => {
     return;
   }
 
-  const logDate = parsed.data.logDate ?? todayStr();
-  if (logDate > todayStr()) {
+  const today = todayForRequest(req);
+  const logDate = parsed.data.logDate ?? today;
+  if (logDate > today) {
     res.status(400).json({ error: "Activity cannot be logged in the future" });
     return;
   }
@@ -75,14 +77,45 @@ router.post("/activities/:id/logs", async (req, res): Promise<void> => {
       activityId: params.data.id,
       durationMinutes: parsed.data.durationMinutes,
       notes: parsed.data.notes,
+      recallNote: parsed.data.recallNote ?? null,
       logDate,
     })
     .returning();
 
   // Update streak after logging
-  await updateStreak(params.data.id);
+  await updateStreak(params.data.id, today);
 
   res.status(201).json(LogActivityResponse.parse(formatLog(log)));
+});
+
+router.patch("/logs/:id", async (req, res): Promise<void> => {
+  const params = UpdateLogReflectionParams.safeParse(req.params);
+  const parsed = UpdateLogReflectionBody.safeParse(req.body);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const reflectionUpdate = buildReflectionUpdate(parsed.data);
+  if (!Object.keys(reflectionUpdate).length) {
+    res
+      .status(400)
+      .json({ error: "Provide at least one reflection field to update" });
+    return;
+  }
+  const [updated] = await db
+    .update(activityLogsTable)
+    .set(reflectionUpdate)
+    .where(eq(activityLogsTable.id, params.data.id))
+    .returning();
+  if (!updated) {
+    res.status(404).json({ error: "Log not found" });
+    return;
+  }
+  res.json(UpdateLogReflectionResponse.parse(formatLog(updated)));
 });
 
 router.delete("/logs/:id", async (req, res): Promise<void> => {
@@ -102,7 +135,7 @@ router.delete("/logs/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  await updateStreak(deleted.activityId);
+  await updateStreak(deleted.activityId, todayForRequest(req));
 
   res.sendStatus(204);
 });

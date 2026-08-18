@@ -8,8 +8,10 @@
     "./schema": "./src/schema/index.ts"
   },
   "scripts": {
+    "migrate": "tsx src/scripts/migrate.ts",
+    "migrate:safe": "tsx src/scripts/verify-migration-safety.ts && tsx src/scripts/migrate.ts",
+    "snapshot:data": "tsx src/scripts/snapshot-data-shape.ts",
     "push": "drizzle-kit push --config ./drizzle.config.ts",
-    "push-force": "drizzle-kit push --force --config ./drizzle.config.ts",
     "clear-demo-data": "tsx src/scripts/clear-demo-data.ts"
   },
   "dependencies": {
