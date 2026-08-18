@@ -1,76 +1,117 @@
-# Open Finish
+# Open Finish on Cloudflare Workers
 
-A Personal Operating System for long-term mastery. The current product surface supports learning and practice: logging sessions, maintaining continuity, and understanding progress across several pursuits. It is intentionally not framed as a task manager, habit tracker, productivity app, or admin dashboard.
+**Open Finish** is a personal operating system for long-term mastery. It supports daily learning practice through activities, session logs, continuity notes, progress history, achievements, alerts, and a profile.
 
-Product-design foundations and permanent design memory live in [`design-lab`](./design-lab/README.md).
+This repository is an independently deployable migration of the original Open Finish application to **Cloudflare Workers**. It serves the React single-page application and its same-origin Express API from one Worker deployment while keeping the existing PostgreSQL database through **Cloudflare Hyperdrive**.
 
-## Features
+> The original database schema and API contracts are preserved. Hyperdrive provides the Worker with a pooled PostgreSQL connection string, so this migration does not require a database-engine rewrite.
 
-- **Dashboard** — today's streak, total minutes, weekly progress grid per activity, quick-log buttons
-- **Activities** — create and manage learning activities, each with its own streak
-- **History** — monthly calendar and bar-chart view of past sessions, color-coded against your daily goal (green = goal met, red = under, purple = heavily exceeded); edit or delete past sessions
-- **Achievements** — unlocked badges for streak and session milestones
-- **Alerts** — per-activity reminders with day/time pickers
-- **Profile** — avatar, bio, and stats summary
+## Architecture
 
-## Tech stack
+| Layer | Implementation | Deployment role |
+| --- | --- | --- |
+| Client | React, Vite, Tailwind CSS | Built to `artifacts/learning-tracker/dist/public` and uploaded as Worker static assets. |
+| API | Express 5 via Cloudflare's Node HTTP adapter | Handles `/api/*` on the same origin as the client. |
+| Data | Drizzle ORM, `pg`, PostgreSQL | Uses a per-request client connected through the `HYPERDRIVE` binding. |
+| Hosting | Cloudflare Workers and Wrangler | Publishes client assets and API as one deployment. |
+| Secrets | Cloudflare Worker secrets | Stores `ADMIN_PASSWORD`; it is never committed to the repository. |
 
-- **Monorepo:** pnpm workspaces, Node.js 24, TypeScript 5.9
-- **Frontend:** React + Vite, Tailwind CSS, TanStack Query, wouter (`artifacts/learning-tracker`)
-- **API:** Express 5 (`artifacts/api-server`)
-- **Database:** PostgreSQL + Drizzle ORM (`lib/db`)
-- **Validation:** Zod v4 + `drizzle-zod`
-- **API codegen:** Orval, generated from the OpenAPI spec at `lib/api-spec/openapi.yaml`
+The Worker static-assets configuration sends `/api/*` to Express first and returns `index.html` for other SPA routes. The frontend continues to call relative `/api/*` URLs, so no CORS or API base URL change is required.
 
-## Project structure
+## Repository structure
 
-```
+```text
 artifacts/
-  api-server/        Express API (routes, business logic)
-  learning-tracker/  React frontend
-  mockup-sandbox/    Component preview sandbox (design tooling)
+  api-server/        Existing Express API, adapted for Hyperdrive request context
+  learning-tracker/  React frontend and Vite build
 lib/
-  api-spec/          OpenAPI contract + generated client hooks
-  db/                Drizzle schema and DB access
-scripts/             Workspace tooling scripts
+  api-spec/          OpenAPI contract and generated API hooks
+  db/                Drizzle PostgreSQL schema and Hyperdrive-aware database layer
+worker/
+  index.ts           Cloudflare Worker entrypoint using Express' Node HTTP adapter
+wrangler.jsonc       Worker, static-assets, Hyperdrive and variable configuration
 ```
 
-## Getting started
+## Prerequisites
 
-Requires a PostgreSQL database — set the `DATABASE_URL` environment variable before running.
+You need Node.js 24 or newer, PNPM 10.11.1, a Cloudflare account with Workers access, and an existing reachable PostgreSQL database. The target database should already contain the Open Finish schema and data, or it can be migrated using the existing Drizzle scripts from a Node environment.
+
+## Local development
+
+Install dependencies, create an untracked local-secret file, and build the application.
 
 ```bash
 pnpm install
-
-# Run the API server (port 8080)
-pnpm --filter @workspace/api-server run dev
-
-# Run the frontend (port 18714)
-pnpm --filter @workspace/learning-tracker run dev
+cp .dev.vars.example .dev.vars
+pnpm run build
 ```
 
-## Useful scripts
+Set `ADMIN_PASSWORD` in `.dev.vars` to a strong local value. For an API test that uses PostgreSQL, configure a local Worker Hyperdrive binding in `wrangler.jsonc` after creating it. The production configuration contains the same binding name, `HYPERDRIVE`.
+
+Start the Worker runtime with:
+
+```bash
+pnpm run dev
+```
+
+The command serves the SPA and the API on one local URL. The unauthenticated endpoint `GET /api/auth/session` can be checked before the database is attached; data routes require a valid login and the Hyperdrive binding.
+
+## First Cloudflare deployment
+
+Create a Hyperdrive configuration that points to the PostgreSQL connection used by Open Finish. You can do this in the Cloudflare dashboard or with Wrangler. Do **not** put the raw database URL in the repository.
+
+```bash
+npx wrangler hyperdrive create open-finish-postgres \
+  --connection-string="postgres://USER:PASSWORD@HOST:5432/DATABASE"
+```
+
+Copy the returned Hyperdrive identifier into `wrangler.jsonc`, replacing the value below.
+
+```jsonc
+"id": "REPLACE_WITH_HYPERDRIVE_ID"
+```
+
+Set the production login secret. `ADMIN_USERNAME` is optional and defaults to `Admin` through `wrangler.jsonc`.
+
+```bash
+npx wrangler secret put ADMIN_PASSWORD
+```
+
+Build and publish the worker once from a trusted machine.
+
+```bash
+pnpm run deploy
+```
+
+After the first publication, Cloudflare Workers Builds can deploy from GitHub. Connect this repository to a Worker and use the following build settings.
+
+| Cloudflare setting | Value |
+| --- | --- |
+| Root directory | `/` |
+| Build command | `pnpm run build` |
+| Deploy command | `pnpm exec wrangler deploy` |
+| Production branch | `main` |
+
+The Worker configuration, including its asset directory and Hyperdrive binding, is kept in `wrangler.jsonc`. Configure `ADMIN_PASSWORD` as a Cloudflare secret in the Worker dashboard; never add it to `vars` or commit `.dev.vars`.
+
+## Commands
 
 | Command | Purpose |
 | --- | --- |
-| `pnpm run typecheck` | Typecheck all packages |
-| `pnpm run build` | Typecheck + build all packages |
-| `pnpm --filter @workspace/api-spec run codegen` | Regenerate API hooks/Zod schemas from the OpenAPI spec |
-| `pnpm --filter @workspace/db run push` | Push DB schema changes (dev only) |
-| `pnpm run build:deploy` | Build the production frontend and API used by Replit |
-| `pnpm run start:deploy` | Start the single production server |
+| `pnpm run build` | Typecheck the workspace and build deployable React assets. |
+| `pnpm run dev` | Start the Worker locally through Wrangler. |
+| `pnpm run deploy` | Build and publish the Worker and static assets. |
+| `pnpm run cf-typegen` | Generate Worker binding types after updating `wrangler.jsonc`. |
+| `pnpm run typecheck` | Typecheck libraries, frontend, and API. |
+| `pnpm --filter @workspace/api-spec run codegen` | Regenerate API hooks and Zod schemas from OpenAPI. |
+| `pnpm --filter @workspace/db run migrate` | Run existing PostgreSQL migrations from a Node environment with `DATABASE_URL`. |
 
-## Replit deployment
+## Important operational notes
 
-The checked-in `.replit` config uses an Autoscale deployment. Add `DATABASE_URL`
-and `ADMIN_PASSWORD` to Replit Deployment Secrets. `ADMIN_USERNAME` is optional
-and defaults to `Admin`. Run `pnpm --filter @workspace/db run push` once if the
-database is new, then publish. The Express server serves both `/api/*` and the
-built React app from the deployment `PORT`.
+The `HYPERDRIVE` binding must be attached before protected API routes can access data. Each Worker request receives a Drizzle client backed by Hyperdrive, while the existing Node-oriented migration scripts continue to use `DATABASE_URL` when explicitly run outside Workers.
 
-## Notes
+The original app used Pino HTTP logging, which is not compatible with the Workers runtime in this dependency combination. The API therefore writes structured, cookie-free request logs through the Workers console. Authentication cookies remain `httpOnly`, `secure` in production, and `sameSite=strict`.
 
-- Single-user app — no authentication, one profile is created automatically on first request.
-- API schema changes flow through `lib/api-spec/openapi.yaml` → Orval codegen; don't hand-write client types.
+## References
 
-See [`replit.md`](./replit.md) for deeper architecture notes and gotchas.
+The implementation follows Cloudflare's official guidance for [Express on Workers](https://developers.cloudflare.com/workers/tutorials/deploy-an-express-app/), [Drizzle ORM with Hyperdrive](https://developers.cloudflare.com/hyperdrive/examples/connect-to-postgres/postgres-drivers-and-libraries/drizzle-orm/), [Worker static assets](https://developers.cloudflare.com/workers/static-assets/), and [Worker environment variables and secrets](https://developers.cloudflare.com/workers/configuration/environment-variables/).

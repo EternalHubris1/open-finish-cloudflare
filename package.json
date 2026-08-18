@@ -4,18 +4,23 @@
   "license": "MIT",
   "scripts": {
     "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
-    "build": "pnpm run typecheck && pnpm -r --if-present run build",
-    "build:deploy": "pnpm run typecheck:libs && pnpm --filter @workspace/learning-tracker run typecheck && pnpm --filter @workspace/api-server run typecheck && pnpm --filter @workspace/learning-tracker run build && pnpm --filter @workspace/api-server run build",
-    "start:deploy": "pnpm --filter @workspace/db migrate:safe && pnpm --filter @workspace/api-server run start",
+    "build": "pnpm run build:worker",
+    "build:worker": "pnpm run typecheck:worker && pnpm --filter @workspace/learning-tracker run build",
+    "deploy": "pnpm run build:worker && wrangler deploy",
+    "dev": "wrangler dev",
+    "cf-typegen": "wrangler types",
     "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
+    "typecheck:worker": "pnpm run typecheck:libs && pnpm --filter @workspace/learning-tracker run typecheck && pnpm --filter @workspace/api-server run typecheck",
+    "typecheck": "pnpm run typecheck:worker"
   },
+  "packageManager": "pnpm@10.11.1",
   "private": true,
   "dependencies": {
     "@replit/connectors-sdk": "^0.4.1"
   },
   "devDependencies": {
     "prettier": "^3.9.6",
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "wrangler": "^4.124.0"
   }
 }

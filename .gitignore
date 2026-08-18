@@ -11,6 +11,11 @@ out-tsc
 # dependencies
 node_modules
 
+# Cloudflare Worker local secrets
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+
 # IDEs and editors
 /.idea
 .project
