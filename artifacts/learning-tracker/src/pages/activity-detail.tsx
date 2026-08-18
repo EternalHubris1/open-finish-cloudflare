@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, Trash2, Calendar, Clock } from "lucide-react";
+import { ActivityGlyph } from "@/lib/activity-icons";
 import { addDays, format, startOfWeek, subWeeks } from "date-fns";
 import {
   AlertDialog,
@@ -159,7 +160,10 @@ export default function ActivityDetail() {
                 backgroundColor: "rgba(255, 255, 255, 0.05)",
               }}
             >
-              <Clock
+              <ActivityGlyph
+                icon={activity.icon}
+                activityType={activity.activityType}
+                category={activity.category}
                 className="w-10 h-10"
                 style={{ color: activity.color || "#dc2626" }}
               />
@@ -170,6 +174,15 @@ export default function ActivityDetail() {
               </h1>
               <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-6">
                 {activity.category}
+                <span
+                  className={
+                    activity.activityType === "sport"
+                      ? "ml-3 text-[#72c6b3]"
+                      : "ml-3 text-white/25"
+                  }
+                >
+                  {activity.activityType}
+                </span>
               </p>
               <div className="flex items-center gap-10 text-sm">
                 <div className="flex items-center gap-2 text-white/60">
@@ -255,7 +268,7 @@ export default function ActivityDetail() {
           style={{ borderColor: activity.color || "#dc2626" }}
         >
           <p className="text-[10px] uppercase tracking-widest text-white/40 mb-3 font-bold">
-            Total Time
+            {activity.activityType === "sport" ? "Sport Time" : "Practice Time"}
           </p>
           <p className="text-4xl font-bold text-white tracking-tight">
             {totalHours > 0
@@ -294,7 +307,9 @@ export default function ActivityDetail() {
       {/* Log History */}
       <div className="pt-6">
         <h2 className="text-2xl font-bold mb-8 text-white tracking-wide">
-          Session History
+          {activity.activityType === "sport"
+            ? "Sport History"
+            : "Practice History"}
         </h2>
         {logs.length === 0 ? (
           <div className="bg-[rgba(15,15,20,0.85)] backdrop-blur-xl border border-white/5 border-dashed rounded-3xl p-16 text-center shadow-2xl">
@@ -342,6 +357,11 @@ export default function ActivityDetail() {
                         />
                         <span className="font-bold text-white tracking-tight">
                           {log.durationMinutes} min
+                        </span>
+                        <span
+                          className={`text-[8px] font-bold uppercase tracking-[.14em] ${activity.activityType === "sport" ? "text-[#72c6b3]" : "text-white/25"}`}
+                        >
+                          {activity.activityType}
                         </span>
                       </div>
                     </div>

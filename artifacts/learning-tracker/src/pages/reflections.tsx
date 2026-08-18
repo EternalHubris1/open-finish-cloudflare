@@ -363,10 +363,10 @@ export default function Reflections() {
     : [];
   const weeklyMinutes = preview
     ? 135
-    : weeklyDays.reduce((sum, day) => sum + day.totalMinutes, 0);
+    : weeklyDays.reduce((sum, day) => sum + day.focusMinutes, 0);
   const weeklyActiveDays = preview
     ? 3
-    : weeklyDays.filter((day) => day.totalMinutes > 0).length;
+    : weeklyDays.filter((day) => day.focusMinutes > 0).length;
   const weeklyReviewEvidence: WeeklyReviewEvidence[] = reflections
     .filter(
       (reflection) =>

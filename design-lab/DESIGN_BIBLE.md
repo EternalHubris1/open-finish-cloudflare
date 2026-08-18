@@ -41,6 +41,12 @@ The production Dashboard combines Concept D's spacious single-focus composition 
 
 Momentum is a signature metaphor for the current tempo of development. It is never displayed as a score, level, quota, badge, or competitive rank. Its aura must remain attached to real data and become static under reduced motion.
 
+### Practice and sport clocks
+
+Practice/work and sport are distinct activity domains. The Dashboard's vertical bars, targets, focused totals, and Momentum use practice time only. Sport appears directly beneath each day as a slim horizontal teal lane with its own minute label; its visual hierarchy is secondary but never hidden. History preserves the same split in summaries, charts, selected-day details, and activity pages. A sport session must never inflate practice Momentum.
+
+Activity type cannot be communicated by color alone. Compact labels and semantic icons accompany the restrained expanded palette. The Activity library favors a dense, scannable grid; its richer icon, color, and category choices belong inside creation/editing rather than expanding every card.
+
 ## General rewards
 
 Open Finish keeps general, system-wide rewards. They commemorate rare meaningful milestones across the whole Personal OS rather than routine activity completion. Rewards live in Achievements; the Dashboard may show their total, but Momentum remains a separate present-state signal and never becomes a reward system.

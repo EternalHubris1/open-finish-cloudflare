@@ -5,11 +5,13 @@
  * Learning Tracker API
  * OpenAPI spec version: 0.1.0
  */
+import type { ActivityType } from './activityType';
 
 export interface ActivityInput {
   /** @minLength 1 */
   name: string;
   category: string;
+  activityType?: ActivityType;
   color: string;
   icon?: string;
   /** @minimum 1 */

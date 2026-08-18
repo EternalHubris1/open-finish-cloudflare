@@ -5,11 +5,13 @@
  * Learning Tracker API
  * OpenAPI spec version: 0.1.0
  */
+import type { ActivityType } from './activityType';
 import type { DayProgress } from './dayProgress';
 
 export interface WeeklyProgress {
   activityId: number;
   activityName: string;
+  activityType: ActivityType;
   color: string;
   targetMinutesPerDay?: number;
   days: DayProgress[];

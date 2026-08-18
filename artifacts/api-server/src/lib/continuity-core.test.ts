@@ -4,6 +4,7 @@ import { calendarDateAt, requestTimeZone, shiftCalendarDate } from "./calendar";
 import { normalizeExternalHttpUrl } from "./external-url";
 import { buildReflectionUpdate } from "./reflection-update";
 import { rankFrequentActivities } from "./activity-frequency";
+import { resolveActivityType } from "./activity-type";
 
 describe("continuity calendar model", () => {
   it("uses the user's IANA time zone across the UTC day boundary", () => {
@@ -73,6 +74,27 @@ describe("dashboard continuation choices", () => {
           lastLoggedDate: "2026-08-18",
         },
       ],
+    );
+  });
+});
+
+describe("activity domains", () => {
+  it("keeps sport on a separate clock while preserving legacy fitness data", () => {
+    assert.equal(
+      resolveActivityType({ activityType: "sport", category: "Work" }),
+      "sport",
+    );
+    assert.equal(
+      resolveActivityType({ activityType: null, category: "Fitness" }),
+      "sport",
+    );
+    assert.equal(
+      resolveActivityType({ activityType: null, category: "Running" }),
+      "sport",
+    );
+    assert.equal(
+      resolveActivityType({ activityType: null, category: "Learning" }),
+      "practice",
     );
   });
 });

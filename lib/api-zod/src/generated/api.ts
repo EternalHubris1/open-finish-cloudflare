@@ -64,6 +64,7 @@ export const ListActivitiesResponseItem = zod.object({
   "id": zod.int(),
   "name": zod.string(),
   "category": zod.string(),
+  "activityType": zod.enum(['practice', 'sport']),
   "color": zod.string(),
   "icon": zod.string().nullish(),
   "targetMinutesPerDay": zod.int(),
@@ -91,6 +92,7 @@ export const createActivityBodyEvidenceNoteMax = 280;
 export const CreateActivityBody = zod.object({
   "name": zod.string().min(1),
   "category": zod.string(),
+  "activityType": zod.enum(['practice', 'sport']).optional(),
   "color": zod.string(),
   "icon": zod.string().optional(),
   "targetMinutesPerDay": zod.int().min(1),
@@ -111,6 +113,7 @@ export const CreateActivityResponse = zod.object({
   "id": zod.int(),
   "name": zod.string(),
   "category": zod.string(),
+  "activityType": zod.enum(['practice', 'sport']),
   "color": zod.string(),
   "icon": zod.string().nullish(),
   "targetMinutesPerDay": zod.int(),
@@ -140,6 +143,7 @@ export const GetActivityResponse = zod.object({
   "id": zod.int(),
   "name": zod.string(),
   "category": zod.string(),
+  "activityType": zod.enum(['practice', 'sport']),
   "color": zod.string(),
   "icon": zod.string().nullish(),
   "targetMinutesPerDay": zod.int(),
@@ -170,6 +174,7 @@ export const updateActivityBodyEvidenceNoteMax = 280;
 export const UpdateActivityBody = zod.object({
   "name": zod.string().min(1).optional(),
   "category": zod.string().optional(),
+  "activityType": zod.enum(['practice', 'sport']).optional(),
   "color": zod.string().optional(),
   "icon": zod.string().optional(),
   "targetMinutesPerDay": zod.int().min(1).optional(),
@@ -190,6 +195,7 @@ export const UpdateActivityResponse = zod.object({
   "id": zod.int(),
   "name": zod.string(),
   "category": zod.string(),
+  "activityType": zod.enum(['practice', 'sport']),
   "color": zod.string(),
   "icon": zod.string().nullish(),
   "targetMinutesPerDay": zod.int(),
@@ -559,6 +565,7 @@ export const ListAchievementsResponse = zod.array(ListAchievementsResponseItem)
 export const GetDashboardResponse = zod.object({
   "totalActivities": zod.int(),
   "totalMinutesToday": zod.int(),
+  "sportMinutesToday": zod.int(),
   "activitiesTodayCompleted": zod.int(),
   "activitiesTodayTotal": zod.int(),
   "overallCurrentStreak": zod.int(),
@@ -613,6 +620,7 @@ export const ListStreaksResponse = zod.array(ListStreaksResponseItem)
 export const GetWeeklyProgressResponseItem = zod.object({
   "activityId": zod.int(),
   "activityName": zod.string(),
+  "activityType": zod.enum(['practice', 'sport']),
   "color": zod.string(),
   "targetMinutesPerDay": zod.int().optional(),
   "days": zod.array(zod.object({
@@ -635,6 +643,8 @@ export const GetCalendarQueryParams = zod.object({
 export const GetCalendarResponseItem = zod.object({
   "date": zod.string(),
   "totalMinutes": zod.int(),
+  "focusMinutes": zod.int(),
+  "sportMinutes": zod.int(),
   "goalMinutes": zod.int(),
   "status": zod.enum(['under', 'met', 'over']).describe('under: below goal, met: reached goal (below the \'heavily over\' threshold), over: heavily exceeded the goal'),
   "logs": zod.array(zod.object({
@@ -642,6 +652,7 @@ export const GetCalendarResponseItem = zod.object({
   "activityId": zod.int(),
   "activityName": zod.string(),
   "activityColor": zod.string(),
+  "activityType": zod.enum(['practice', 'sport']),
   "durationMinutes": zod.int(),
   "notes": zod.string().nullish(),
   "logDate": zod.string()

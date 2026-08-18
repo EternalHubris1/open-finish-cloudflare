@@ -552,9 +552,22 @@ components:
         avatarUrl:
           type: string
 
+    ActivityType:
+      type: string
+      enum: [practice, sport]
+
     Activity:
       type: object
-      required: [id, name, category, color, targetMinutesPerDay, createdAt]
+      required:
+        [
+          id,
+          name,
+          category,
+          activityType,
+          color,
+          targetMinutesPerDay,
+          createdAt,
+        ]
       properties:
         id:
           type: integer
@@ -562,6 +575,8 @@ components:
           type: string
         category:
           type: string
+        activityType:
+          $ref: "#/components/schemas/ActivityType"
         color:
           type: string
         icon:
@@ -589,6 +604,8 @@ components:
           minLength: 1
         category:
           type: string
+        activityType:
+          $ref: "#/components/schemas/ActivityType"
         color:
           type: string
         icon:
@@ -614,6 +631,8 @@ components:
           minLength: 1
         category:
           type: string
+        activityType:
+          $ref: "#/components/schemas/ActivityType"
         color:
           type: string
         icon:
@@ -931,6 +950,7 @@ components:
         [
           totalActivities,
           totalMinutesToday,
+          sportMinutesToday,
           activitiesTodayCompleted,
           activitiesTodayTotal,
           overallCurrentStreak,
@@ -943,6 +963,8 @@ components:
         totalActivities:
           type: integer
         totalMinutesToday:
+          type: integer
+        sportMinutesToday:
           type: integer
         activitiesTodayCompleted:
           type: integer
@@ -976,12 +998,14 @@ components:
 
     WeeklyProgress:
       type: object
-      required: [activityId, activityName, color, days]
+      required: [activityId, activityName, activityType, color, days]
       properties:
         activityId:
           type: integer
         activityName:
           type: string
+        activityType:
+          $ref: "#/components/schemas/ActivityType"
         color:
           type: string
         targetMinutesPerDay:
@@ -1005,7 +1029,15 @@ components:
     CalendarLogEntry:
       type: object
       required:
-        [id, activityId, activityName, activityColor, durationMinutes, logDate]
+        [
+          id,
+          activityId,
+          activityName,
+          activityColor,
+          activityType,
+          durationMinutes,
+          logDate,
+        ]
       properties:
         id:
           type: integer
@@ -1015,6 +1047,8 @@ components:
           type: string
         activityColor:
           type: string
+        activityType:
+          $ref: "#/components/schemas/ActivityType"
         durationMinutes:
           type: integer
         notes:
@@ -1024,11 +1058,24 @@ components:
 
     CalendarDay:
       type: object
-      required: [date, totalMinutes, goalMinutes, status, logs]
+      required:
+        [
+          date,
+          totalMinutes,
+          focusMinutes,
+          sportMinutes,
+          goalMinutes,
+          status,
+          logs,
+        ]
       properties:
         date:
           type: string
         totalMinutes:
+          type: integer
+        focusMinutes:
+          type: integer
+        sportMinutes:
           type: integer
         goalMinutes:
           type: integer

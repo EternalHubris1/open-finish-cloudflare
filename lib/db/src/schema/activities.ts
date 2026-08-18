@@ -6,6 +6,7 @@ export const activitiesTable = pgTable("activities", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   category: text("category").notNull(),
+  activityType: text("activity_type"),
   color: text("color").notNull(),
   icon: text("icon"),
   targetMinutesPerDay: integer("target_minutes_per_day").notNull().default(30),

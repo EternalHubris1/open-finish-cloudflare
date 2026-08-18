@@ -12,6 +12,7 @@ import type { FrequentActivity } from './frequentActivity';
 export interface DashboardSummary {
   totalActivities: number;
   totalMinutesToday: number;
+  sportMinutesToday: number;
   activitiesTodayCompleted: number;
   activitiesTodayTotal: number;
   overallCurrentStreak: number;

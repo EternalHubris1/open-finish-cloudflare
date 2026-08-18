@@ -14,6 +14,7 @@ import {
 import { calculateStreak } from "../lib/streaks";
 import { shiftCalendarDate, todayForRequest } from "../lib/calendar";
 import { rankFrequentActivities } from "../lib/activity-frequency";
+import { resolveActivityType } from "../lib/activity-type";
 
 const router: IRouter = Router();
 
@@ -39,16 +40,36 @@ router.get("/dashboard", async (req, res): Promise<void> => {
     .limit(3);
 
   const totalActivities = activities.length;
-  const totalMinutesToday = todayLogs.reduce(
-    (s, l) => s + l.durationMinutes,
+  const activityTypeById = new Map(
+    activities.map((activity) => [activity.id, resolveActivityType(activity)]),
+  );
+  const practiceLogsToday = todayLogs.filter(
+    (log) => activityTypeById.get(log.activityId) !== "sport",
+  );
+  const sportLogsToday = todayLogs.filter(
+    (log) => activityTypeById.get(log.activityId) === "sport",
+  );
+  const totalMinutesToday = practiceLogsToday.reduce(
+    (sum, log) => sum + log.durationMinutes,
+    0,
+  );
+  const sportMinutesToday = sportLogsToday.reduce(
+    (sum, log) => sum + log.durationMinutes,
     0,
   );
 
-  const activityIdsDoneToday = new Set(todayLogs.map((l) => l.activityId));
+  const activityIdsDoneToday = new Set(
+    practiceLogsToday.map((log) => log.activityId),
+  );
   const activitiesTodayCompleted = activityIdsDoneToday.size;
+  const practiceActivities = activities.filter(
+    (activity) => resolveActivityType(activity) === "practice",
+  );
 
   const overallCurrentStreak = calculateStreak(
-    allLogs.map((log) => log.logDate),
+    allLogs
+      .filter((log) => activityTypeById.get(log.activityId) !== "sport")
+      .map((log) => log.logDate),
     today,
   ).currentStreak;
 
@@ -61,8 +82,9 @@ router.get("/dashboard", async (req, res): Promise<void> => {
     GetDashboardResponse.parse({
       totalActivities,
       totalMinutesToday,
+      sportMinutesToday,
       activitiesTodayCompleted,
-      activitiesTodayTotal: totalActivities,
+      activitiesTodayTotal: practiceActivities.length,
       overallCurrentStreak,
       totalAchievements,
       recentAchievements: recentAchievements.map((a) => ({
@@ -126,6 +148,7 @@ router.get("/progress/weekly", async (req, res): Promise<void> => {
       activityId: activity.id,
       activityName: activity.name,
       color: activity.color,
+      activityType: resolveActivityType(activity),
       targetMinutesPerDay: activity.targetMinutesPerDay,
       days,
     };

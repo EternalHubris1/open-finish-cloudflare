@@ -11,6 +11,8 @@ import type { CalendarLogEntry } from './calendarLogEntry';
 export interface CalendarDay {
   date: string;
   totalMinutes: number;
+  focusMinutes: number;
+  sportMinutes: number;
   goalMinutes: number;
   /** under: below goal, met: reached goal (below the 'heavily over' threshold), over: heavily exceeded the goal */
   status: CalendarDayStatus;

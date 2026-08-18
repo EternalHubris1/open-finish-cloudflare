@@ -13,6 +13,7 @@ export * from './activityLog';
 export * from './activityLogInput';
 export * from './activityLogReflectionInput';
 export * from './activityPatch';
+export * from './activityType';
 export * from './alert';
 export * from './alertInput';
 export * from './alertPatch';

@@ -26,10 +26,18 @@ export interface ProfileInput {
   avatarUrl?: string;
 }
 
+export type ActivityType = (typeof ActivityType)[keyof typeof ActivityType];
+
+export const ActivityType = {
+  practice: "practice",
+  sport: "sport",
+} as const;
+
 export interface Activity {
   id: number;
   name: string;
   category: string;
+  activityType: ActivityType;
   color: string;
   /** @nullable */
   icon?: string | null;
@@ -44,6 +52,7 @@ export interface ActivityInput {
   /** @minLength 1 */
   name: string;
   category: string;
+  activityType?: ActivityType;
   color: string;
   icon?: string;
   /** @minimum 1 */
@@ -57,6 +66,7 @@ export interface ActivityPatch {
   /** @minLength 1 */
   name?: string;
   category?: string;
+  activityType?: ActivityType;
   color?: string;
   icon?: string;
   /** @minimum 1 */
@@ -143,6 +153,7 @@ export interface Streak {
 export interface DashboardSummary {
   totalActivities: number;
   totalMinutesToday: number;
+  sportMinutesToday: number;
   activitiesTodayCompleted: number;
   activitiesTodayTotal: number;
   overallCurrentStreak: number;
@@ -168,6 +179,7 @@ export interface DayProgress {
 export interface WeeklyProgress {
   activityId: number;
   activityName: string;
+  activityType: ActivityType;
   color: string;
   targetMinutesPerDay?: number;
   days: DayProgress[];
@@ -178,6 +190,7 @@ export interface CalendarLogEntry {
   activityId: number;
   activityName: string;
   activityColor: string;
+  activityType: ActivityType;
   durationMinutes: number;
   /** @nullable */
   notes?: string | null;
@@ -199,6 +212,8 @@ export const CalendarDayStatus = {
 export interface CalendarDay {
   date: string;
   totalMinutes: number;
+  focusMinutes: number;
+  sportMinutes: number;
   goalMinutes: number;
   /** under: below goal, met: reached goal (below the 'heavily over' threshold), over: heavily exceeded the goal */
   status: CalendarDayStatus;

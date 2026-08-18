@@ -38,6 +38,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { LogActivityDialog } from "@/components/log-activity-dialog";
 import { TodayPlan } from "@/components/today-plan";
+import { ActivityGlyph } from "@/lib/activity-icons";
 import {
   previewActivities,
   previewDashboard,
@@ -78,9 +79,9 @@ function intensityIndex(minutes: number) {
 function momentumSeries(days: CalendarDay[]) {
   let accumulated = 0;
   return days.map((day) => {
-    const dailyEnergy = Math.min(day.totalMinutes / 240, 1);
+    const dailyEnergy = Math.min(day.focusMinutes / 240, 1);
     accumulated =
-      day.totalMinutes === 0
+      day.focusMinutes === 0
         ? accumulated * 0.52
         : Math.min(1, accumulated * 0.68 + dailyEnergy * 0.52);
     return accumulated;
@@ -98,22 +99,28 @@ function momentumStatus(values: number[]) {
 
 function previewCalendar(): CalendarDay[] {
   const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
-  const totals = [42, 126, 18, 208, 76, 286, 164];
-  return totals.map((totalMinutes, index) => {
+  const focusTotals = [42, 126, 18, 208, 76, 286, 164];
+  const sportTotals = [25, 0, 50, 20, 70, 35, 55];
+  return focusTotals.map((focusMinutes, index) => {
     const date = format(addDays(weekStart, index), "yyyy-MM-dd");
-    const first = Math.round(totalMinutes * 0.58);
+    const sportMinutes = sportTotals[index] ?? 0;
+    const totalMinutes = focusMinutes + sportMinutes;
+    const first = Math.round(focusMinutes * 0.58);
     return {
       date,
       totalMinutes,
+      focusMinutes,
+      sportMinutes,
       goalMinutes: 235,
-      status: totalMinutes >= 235 ? "met" : "under",
-      logs: totalMinutes
+      status: focusMinutes >= 235 ? "met" : "under",
+      logs: focusMinutes
         ? [
             {
               id: index * 2 + 1,
               activityId: 1,
               activityName: "Writing",
               activityColor: "#df554f",
+              activityType: "practice",
               durationMinutes: first,
               notes:
                 index === 5
@@ -126,10 +133,25 @@ function previewCalendar(): CalendarDay[] {
               activityId: 2,
               activityName: "Research",
               activityColor: "#6f8fbf",
-              durationMinutes: totalMinutes - first,
+              activityType: "practice",
+              durationMinutes: focusMinutes - first,
               notes: null,
               logDate: date,
             },
+            ...(sportMinutes
+              ? [
+                  {
+                    id: index * 2 + 100,
+                    activityId: 3,
+                    activityName: "Strength",
+                    activityColor: "#3f9d96",
+                    activityType: "sport" as const,
+                    durationMinutes: sportMinutes,
+                    notes: null,
+                    logDate: date,
+                  },
+                ]
+              : []),
           ]
         : [],
     };
@@ -150,7 +172,8 @@ function Timeline({
   const [selectedDate, setSelectedDate] = useState(days.at(-1)?.date ?? "");
   const [focusedDate, setFocusedDate] = useState<string | null>(null);
   const selected = days.find((day) => day.date === selectedDate) ?? days.at(-1);
-  const max = Math.max(60, ...days.map((day) => day.totalMinutes));
+  const max = Math.max(60, ...days.map((day) => day.focusMinutes));
+  const maxSport = Math.max(30, ...days.map((day) => day.sportMinutes));
   const palette = light ? MOMENTUM_PALETTES.light : MOMENTUM_PALETTES.dark;
   const momentum = momentumSeries(days);
   const points = momentum
@@ -170,9 +193,10 @@ function Timeline({
     .join(" ");
   const contribution =
     (momentum[selectedIndex] ?? 0) - (momentum[selectedIndex - 1] ?? 0);
-  const weekTotal = days.reduce((sum, day) => sum + day.totalMinutes, 0);
-  const activeDays = days.filter((day) => day.totalMinutes > 0).length;
-  const bestDay = Math.max(0, ...days.map((day) => day.totalMinutes));
+  const weekTotal = days.reduce((sum, day) => sum + day.focusMinutes, 0);
+  const sportWeekTotal = days.reduce((sum, day) => sum + day.sportMinutes, 0);
+  const activeDays = days.filter((day) => day.focusMinutes > 0).length;
+  const bestDay = Math.max(0, ...days.map((day) => day.focusMinutes));
 
   useEffect(() => {
     if (window.innerWidth >= 768 || !timelineScrollRef.current) return;
@@ -213,14 +237,15 @@ function Timeline({
               <p
                 className={`mt-2 max-w-xl text-xs ${light ? "text-black/40" : "text-white/35"}`}
               >
-                Bars show actual time logged. The line is a quiet continuity
-                signal, not a score.
+                Bars show practice and work. The slim lane beneath each day is
+                sport on its own clock; the line follows practice continuity.
               </p>
               <p className="sr-only">
                 Weekly summary: {activeDays} active{" "}
                 {activeDays === 1 ? "day" : "days"} of 7,{" "}
                 {minutesLabel(weekTotal)} total time logged, and{" "}
-                {minutesLabel(bestDay)} on the most active day.
+                {minutesLabel(bestDay)} on the most active day. Sport is tracked
+                separately at {minutesLabel(sportWeekTotal)}.
               </p>
             </div>
             <div
@@ -330,7 +355,7 @@ function Timeline({
                       palette[
                         Math.max(
                           1,
-                          intensityIndex(days[index]?.totalMinutes ?? 0),
+                          intensityIndex(days[index]?.focusMinutes ?? 0),
                         )
                       ]
                     }
@@ -370,14 +395,14 @@ function Timeline({
                 data-focus-scope
               >
                 {days.map((day) => {
-                  const exceptional = day.totalMinutes > 240;
+                  const exceptional = day.focusMinutes > 240;
                   const selectedDay = selected?.date === day.date;
-                  const color = palette[intensityIndex(day.totalMinutes)];
+                  const color = palette[intensityIndex(day.focusMinutes)];
                   return (
                     <button
                       key={day.date}
                       type="button"
-                      aria-label={`${format(new Date(`${day.date}T00:00:00`), "EEEE")}: ${day.totalMinutes} minutes. Open day history.`}
+                      aria-label={`${format(new Date(`${day.date}T00:00:00`), "EEEE")}: ${day.focusMinutes} practice minutes and ${day.sportMinutes} sport minutes. Open day history.`}
                       onMouseEnter={() => {
                         setSelectedDate(day.date);
                         setFocusedDate(day.date);
@@ -396,16 +421,16 @@ function Timeline({
                           <span
                             className={`absolute inset-x-0 z-30 text-center text-[10px] font-semibold tabular-nums ${light ? "text-black/65" : "text-white/75"}`}
                             style={{
-                              bottom: `calc(${Math.max(day.totalMinutes ? 8 : 2, (day.totalMinutes / max) * 100)}% + 12px)`,
+                              bottom: `calc(${Math.max(day.focusMinutes ? 8 : 2, (day.focusMinutes / max) * 100)}% + 12px)`,
                             }}
                           >
-                            {minutesLabel(day.totalMinutes)}
+                            {minutesLabel(day.focusMinutes)}
                           </span>
                         )}
                         <span
                           className={`signal-bar relative block w-full rounded-t-[.65rem] border border-white/10 group-hover:brightness-110 group-focus-visible:ring-2 ${exceptional ? "exceptional-bloom" : ""}`}
                           style={{
-                            height: `${Math.max(day.totalMinutes ? 8 : 2, (day.totalMinutes / max) * 100)}%`,
+                            height: `${Math.max(day.focusMinutes ? 8 : 2, (day.focusMinutes / max) * 100)}%`,
                             background: `linear-gradient(180deg, color-mix(in oklab, ${color} 94%, white 6%), ${color})`,
                             boxShadow: exceptional
                               ? `0 0 34px color-mix(in oklab, ${color} 38%, transparent), 0 14px 42px color-mix(in oklab, ${color} 24%, transparent)`
@@ -415,6 +440,25 @@ function Timeline({
                           {exceptional && (
                             <span className="absolute inset-x-1 bottom-0 h-2/3 bg-gradient-to-t from-white/16 to-transparent" />
                           )}
+                        </span>
+                      </span>
+                      <span className="w-full" aria-hidden="true">
+                        <span
+                          className={`block h-1.5 overflow-hidden rounded-full ${light ? "bg-black/[.07]" : "bg-white/[.07]"}`}
+                        >
+                          <span
+                            className="block h-full rounded-full bg-[#62bca8] shadow-[0_0_8px_rgba(98,188,168,.32)] transition-[width]"
+                            style={{
+                              width: `${(day.sportMinutes / maxSport) * 100}%`,
+                            }}
+                          />
+                        </span>
+                        <span
+                          className={`mt-1 block min-h-3 text-center text-[7px] font-semibold tabular-nums ${light ? "text-[#287362]/70" : "text-[#83d1bf]/65"}`}
+                        >
+                          {day.sportMinutes
+                            ? `sport ${minutesLabel(day.sportMinutes)}`
+                            : ""}
                         </span>
                       </span>
                       <span
@@ -445,6 +489,8 @@ function Timeline({
               className={`mx-1 h-px w-10 ${light ? "bg-[#9d3d36]" : "bg-[#f6b36a]"} shadow-[0_0_8px_currentColor]`}
             />
             <span>Continuity signal</span>
+            <span className="mx-1 h-1.5 w-8 rounded-full bg-[#62bca8]" />
+            <span>Sport · separate time</span>
           </div>
           <details
             className={`mt-5 rounded-xl border px-3 py-2 text-xs ${light ? "border-black/10 bg-black/[.025] text-black/60" : "border-white/10 bg-white/[.02] text-white/55"}`}
@@ -468,7 +514,13 @@ function Timeline({
                       scope="col"
                       className="px-3 py-2 text-right font-semibold"
                     >
-                      Minutes
+                      Practice
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-right font-semibold"
+                    >
+                      Sport
                     </th>
                   </tr>
                 </thead>
@@ -482,7 +534,10 @@ function Timeline({
                         )}
                       </th>
                       <td className="px-3 py-2 text-right tabular-nums">
-                        {minutesLabel(day.totalMinutes)}
+                        {minutesLabel(day.focusMinutes)}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums text-[#62bca8]">
+                        {minutesLabel(day.sportMinutes)}
                       </td>
                     </tr>
                   ))}
@@ -516,8 +571,15 @@ function Timeline({
               <p
                 className={`mt-7 text-5xl font-light ${light ? "text-[#181719]" : "text-white"}`}
               >
-                {minutesLabel(selected.totalMinutes)}
+                {minutesLabel(selected.focusMinutes)}
               </p>
+              {selected.sportMinutes > 0 && (
+                <p
+                  className={`mt-2 text-[10px] font-bold uppercase tracking-[.16em] ${light ? "text-[#287362]" : "text-[#83d1bf]"}`}
+                >
+                  Sport · {minutesLabel(selected.sportMinutes)} separate
+                </p>
+              )}
               <p
                 className={`mt-3 text-[10px] font-bold uppercase tracking-[.16em] ${contribution > 0.08 ? (light ? "text-[#9a5b23]" : "text-[#ffc46b]") : light ? "text-black/35" : "text-white/35"}`}
               >
@@ -539,6 +601,11 @@ function Timeline({
                           className={`text-xs font-semibold ${light ? "text-black/70" : "text-white/70"}`}
                         >
                           {log.activityName}
+                          <span
+                            className={`ml-2 text-[7px] font-bold uppercase tracking-[.12em] ${log.activityType === "sport" ? "text-[#62bca8]" : light ? "text-black/25" : "text-white/25"}`}
+                          >
+                            {log.activityType}
+                          </span>
                         </span>
                         <span
                           className={`text-xs ${light ? "text-black/40" : "text-white/35"}`}
@@ -563,7 +630,7 @@ function Timeline({
                   </p>
                 )}
               </div>
-              {selected.totalMinutes > 240 && (
+              {selected.focusMinutes > 240 && (
                 <div
                   className={`mt-7 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest ${light ? "text-[#9a5b23]" : "text-[#ffc46b]"}`}
                 >
@@ -625,13 +692,32 @@ function ActivityPickerDialog({
     >
       <span className="flex items-center gap-3">
         <span
-          className="h-3 w-3 rounded-full"
-          style={{ backgroundColor: activity.color || "#e95448" }}
-        />
+          className="flex h-9 w-9 items-center justify-center rounded-xl"
+          style={{
+            color: activity.color || "#e95448",
+            backgroundColor: `${activity.color || "#e95448"}18`,
+          }}
+        >
+          <ActivityGlyph
+            icon={activity.icon}
+            activityType={activity.activityType}
+            category={activity.category}
+            className="h-4 w-4"
+          />
+        </span>
         <span>
           <span className="block font-semibold">{activity.name}</span>
           <span className="mt-1 block text-[10px] font-bold uppercase tracking-[.16em] text-white/35">
             {activity.category}
+            <span
+              className={
+                activity.activityType === "sport"
+                  ? "ml-2 text-[#72c6b3]"
+                  : "ml-2 text-white/20"
+              }
+            >
+              {activity.activityType}
+            </span>
           </span>
         </span>
       </span>
@@ -735,6 +821,8 @@ export default function DashboardV2() {
       calendarMap.get(date) ?? {
         date,
         totalMinutes: 0,
+        focusMinutes: 0,
+        sportMinutes: 0,
         goalMinutes: 0,
         status: "under" as const,
         logs: [],
@@ -743,7 +831,7 @@ export default function DashboardV2() {
   });
   const momentum = momentumSeries(days);
   const momentumStrength = momentum.at(-1) ?? 0;
-  const exceptionalWeek = days.some((day) => day.totalMinutes > 240);
+  const exceptionalWeek = days.some((day) => day.focusMinutes > 240);
   const atmosphere =
     exceptionalWeek && momentumStrength > 0.62
       ? "exceptional"
@@ -752,11 +840,20 @@ export default function DashboardV2() {
         : momentumStrength > (momentum.at(-2) ?? 0) + 0.08
           ? "building"
           : "holding";
+  const practiceActivities = activities.filter(
+    (activity) => activity.activityType !== "sport",
+  );
   const automaticFocus =
-    activities.find(
-      (activity) => activity.id === dashboard?.todayLogs[0]?.activityId,
+    practiceActivities.find(
+      (activity) =>
+        activity.id ===
+        dashboard?.todayLogs.find((log) =>
+          practiceActivities.some(
+            (candidate) => candidate.id === log.activityId,
+          ),
+        )?.activityId,
     ) ??
-    [...activities].sort(
+    [...practiceActivities].sort(
       (a, b) =>
         (streaks.find((s) => s.activityId === b.id)?.currentStreak ?? 0) -
         (streaks.find((s) => s.activityId === a.id)?.currentStreak ?? 0),
@@ -941,6 +1038,14 @@ export default function DashboardV2() {
                   : "directions"}
                 ; nothing else is owed.
               </p>
+              {dashboard.sportMinutesToday > 0 && (
+                <p
+                  className={`mt-2 text-[9px] font-bold uppercase tracking-[.18em] ${light ? "text-[#287362]" : "text-[#83d1bf]"}`}
+                >
+                  Sport moves beside it ·{" "}
+                  {minutesLabel(dashboard.sportMinutesToday)}
+                </p>
+              )}
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Button
                   onClick={() => setActivityPickerOpen(true)}
