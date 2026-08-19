@@ -8,6 +8,7 @@ import {
 import { Link, useLocation } from "wouter";
 import {
   getGetCalendarQueryKey,
+  getGetDashboardQueryKey,
   getListActivityLogsQueryKey,
   useGetCalendar,
   useGetDashboard,
@@ -46,6 +47,41 @@ import {
 } from "@/pages/dashboard-exploration";
 
 const SPORT_TRACK_DAILY_CAPACITY = 90;
+const MOSCOW_TIME_ZONE = "Europe/Moscow";
+const MOSCOW_DAY_ROLLOVER_HOUR = 5;
+
+function moscowOperationalDate(now = new Date()): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: MOSCOW_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(now);
+  const values = new Map(parts.map((part) => [part.type, part.value]));
+  const date = `${values.get("year")}-${values.get("month")}-${values.get("day")}`;
+  const hour = Number(values.get("hour"));
+  if (hour >= MOSCOW_DAY_ROLLOVER_HOUR) return date;
+
+  const previous = new Date(`${date}T00:00:00.000Z`);
+  previous.setUTCDate(previous.getUTCDate() - 1);
+  return previous.toISOString().slice(0, 10);
+}
+
+function useMoscowOperationalDate(): string {
+  const [date, setDate] = useState(() => moscowOperationalDate());
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      const nextDate = moscowOperationalDate();
+      setDate((current) => (current === nextDate ? current : nextDate));
+    }, 60_000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  return date;
+}
 
 const MOMENTUM_PALETTES = {
   dark: [
@@ -808,13 +844,21 @@ export default function DashboardV2() {
     new URLSearchParams(window.location.search).has("preview");
   const light =
     new URLSearchParams(window.location.search).get("theme") === "light";
+  const displayDate = useMoscowOperationalDate();
   const weekStart = useMemo(
-    () => startOfWeek(new Date(), { weekStartsOn: 1 }),
-    [],
+    () => startOfWeek(new Date(`${displayDate}T00:00:00`), { weekStartsOn: 1 }),
+    [displayDate],
   );
   const start = format(weekStart, "yyyy-MM-dd");
   const end = format(addDays(weekStart, 6), "yyyy-MM-dd");
-  const dashboardQuery = useGetDashboard();
+  const dashboardQuery = useGetDashboard({
+    request: {
+      headers: { "x-open-finish-display-date": displayDate },
+    },
+    query: {
+      queryKey: [...getGetDashboardQueryKey(), displayDate],
+    },
+  });
   const activitiesQuery = useListActivities();
   const streaksQuery = useListStreaks();
   const calendarQuery = useGetCalendar(

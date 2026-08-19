@@ -1,5 +1,6 @@
 export const TIME_ZONE_HEADER = "x-open-finish-time-zone";
 const FALLBACK_TIME_ZONE = process.env.OPEN_FINISH_TIME_ZONE ?? "UTC";
+const DISPLAY_DATE_HEADER = "x-open-finish-display-date";
 
 export function isValidTimeZone(value: string): boolean {
   try {
@@ -34,6 +35,27 @@ export function todayForRequest(
   now = new Date(),
 ): string {
   return calendarDateAt(now, requestTimeZone(req));
+}
+
+function isCalendarDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
+/**
+ * Resolves a calendar date supplied by the UI for read-only dashboard views.
+ * Invalid values fall back to the request's real calendar day; write routes keep
+ * using todayForRequest so this display preference never rewrites log dates.
+ */
+export function displayDateForRequest(
+  req: { get(name: string): string | undefined },
+  now = new Date(),
+): string {
+  const requested = req.get(DISPLAY_DATE_HEADER)?.trim();
+  return requested && isCalendarDate(requested)
+    ? requested
+    : todayForRequest(req, now);
 }
 
 export function shiftCalendarDate(date: string, days: number): string {

@@ -12,7 +12,11 @@ import {
   GetWeeklyProgressResponse,
 } from "@workspace/api-zod";
 import { calculateStreak } from "../lib/streaks";
-import { shiftCalendarDate, todayForRequest } from "../lib/calendar";
+import {
+  displayDateForRequest,
+  shiftCalendarDate,
+  todayForRequest,
+} from "../lib/calendar";
 import { rankFrequentActivities } from "../lib/activity-frequency";
 import { resolveActivityType } from "../lib/activity-type";
 
@@ -25,7 +29,7 @@ function getLast7Days(today: string): string[] {
 }
 
 router.get("/dashboard", async (req, res): Promise<void> => {
-  const today = todayForRequest(req);
+  const today = displayDateForRequest(req);
   const activities = await db.select().from(activitiesTable);
   const todayLogs = await db
     .select()
