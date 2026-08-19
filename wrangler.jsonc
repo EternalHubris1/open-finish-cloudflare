@@ -19,8 +19,5 @@
   "vars": {
     "ADMIN_USERNAME": "Admin",
     "LOG_LEVEL": "info"
-  },
-  "secrets": {
-    "required": ["ADMIN_PASSWORD"]
   }
 }
