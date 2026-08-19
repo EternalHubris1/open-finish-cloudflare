@@ -337,7 +337,7 @@ function Timeline({
               <p
                 className={`mt-2 max-w-xl text-xs ${light ? "text-black/40" : "text-white/35"}`}
               >
-                Bars show practice and work. A thin vertical sport mark sits
+                Bars show practice and work. A separate sport track fills
                 beneath each day; the line follows practice continuity.
               </p>
               <p className="sr-only">
