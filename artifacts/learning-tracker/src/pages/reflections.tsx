@@ -1111,11 +1111,17 @@ export default function Reflections() {
                   event.target.value ? Number(event.target.value) : null,
                 )
               }
-              className="h-12 w-full appearance-none rounded-2xl border border-white/10 bg-white/[.035] px-11 text-sm text-white outline-none focus:ring-2 focus:ring-[#ff7868] [color-scheme:dark]"
+              className="h-12 w-full appearance-none rounded-2xl border border-white/10 bg-white/[.035] px-11 text-sm text-white outline-none focus:ring-2 focus:ring-[#ff7868]"
             >
-              <option value="">All directions</option>
+              <option className="bg-white text-black" value="">
+                All directions
+              </option>
               {activities.map((activity) => (
-                <option key={activity.id} value={activity.id}>
+                <option
+                  className="bg-white text-black"
+                  key={activity.id}
+                  value={activity.id}
+                >
                   {activity.name}
                 </option>
               ))}

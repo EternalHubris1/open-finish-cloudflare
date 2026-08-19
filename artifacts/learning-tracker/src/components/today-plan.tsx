@@ -208,11 +208,17 @@ export function TodayPlan({
                     event.target.value ? Number(event.target.value) : null,
                   )
                 }
-                className={`h-10 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-[#ff7868] ${light ? "border-black/10 bg-white text-black" : "border-white/10 bg-white/[.035] text-white [color-scheme:dark]"}`}
+                className={`h-10 w-full rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-[#ff7868] ${light ? "border-black/10 bg-white text-black" : "border-white/10 bg-white/[.035] text-white"}`}
               >
-                <option value="">No direction selected</option>
+                <option className="bg-white text-black" value="">
+                  No direction selected
+                </option>
                 {activities.map((activity) => (
-                  <option key={activity.id} value={activity.id}>
+                  <option
+                    className="bg-white text-black"
+                    key={activity.id}
+                    value={activity.id}
+                  >
                     {activity.name}
                   </option>
                 ))}
