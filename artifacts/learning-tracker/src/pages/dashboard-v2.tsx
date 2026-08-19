@@ -1053,8 +1053,11 @@ export default function DashboardV2() {
               <p
                 className={`hero-daily-signal mt-6 max-w-xl text-sm leading-7 ${light ? "is-light" : ""}`}
               >
-                Today holds {minutesLabel(dashboard.totalMinutesToday)} of
-                deliberate effort. You touched{" "}
+                Today holds{" "}
+                <span className="hero-daily-signal-value">
+                  {minutesLabel(dashboard.totalMinutesToday)}
+                </span>{" "}
+                of deliberate effort. You touched{" "}
                 {dashboard.activitiesTodayCompleted}{" "}
                 {dashboard.activitiesTodayCompleted === 1
                   ? "direction"
