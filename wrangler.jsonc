@@ -11,7 +11,6 @@
     "run_worker_first": ["/api/*"]
   },
   "vars": {
-    "ADMIN_USERNAME": "Admin",
     "LOG_LEVEL": "info"
   }
 }
