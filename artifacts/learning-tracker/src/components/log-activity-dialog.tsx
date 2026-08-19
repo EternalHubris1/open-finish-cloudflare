@@ -24,13 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import {
-  ArrowRight,
-  CircleHelp,
-  Compass,
-  GitBranch,
-  Sparkles,
-} from "lucide-react";
+import { Sparkles } from "lucide-react";
 import {
   findNearestReflectionResonance,
   type ReflectionEvidence,
@@ -50,8 +44,7 @@ interface LogActivityDialogProps {
   priorEvidence?: ReflectionEvidence[];
 }
 
-type DialogStep = "landing" | "entry" | "reflection" | "resonance";
-type SessionMode = "continue" | "question" | "explore" | null;
+type DialogStep = "entry" | "logged" | "reflection" | "resonance";
 
 const emptyToNull = (value: string) => value.trim() || null;
 
@@ -70,9 +63,7 @@ export function LogActivityDialog({
   const [logDate, setLogDate] = useState(() =>
     format(new Date(), "yyyy-MM-dd"),
   );
-  const [step, setStep] = useState<DialogStep>("landing");
-  const [sessionMode, setSessionMode] = useState<SessionMode>(null);
-  const [sessionQuestion, setSessionQuestion] = useState("");
+  const [step, setStep] = useState<DialogStep>("entry");
   const [createdLogId, setCreatedLogId] = useState<number | null>(null);
   const [whatMoved, setWhatMoved] = useState("");
   const [whatLearned, setWhatLearned] = useState("");
@@ -89,9 +80,7 @@ export function LogActivityDialog({
     setNotes("");
     setRecallNote("");
     setLogDate(format(new Date(), "yyyy-MM-dd"));
-    setStep("landing");
-    setSessionMode(null);
-    setSessionQuestion("");
+    setStep("entry");
     setCreatedLogId(null);
     setWhatMoved("");
     setWhatLearned("");
@@ -151,10 +140,10 @@ export function LogActivityDialog({
           setDurationMinutes("");
           setNotes("");
           setCreatedLogId(log.id);
-          setStep("reflection");
+          setStep("logged");
           toast({
             title: "Session logged",
-            description: "Add a brief reflection, or continue without one.",
+            description: "Use Close the loop only if you want to add a reflection.",
           });
         },
         onError: () => {
@@ -217,6 +206,7 @@ export function LogActivityDialog({
     );
   };
 
+  const isLogged = step === "logged";
   const isReflecting = step === "reflection";
   const isResonating = step === "resonance";
   const currentReflection =
@@ -234,26 +224,10 @@ export function LogActivityDialog({
     activity.evidenceNote ||
     activity.purpose,
   );
-  const questionContext =
-    sessionMode === "question"
-      ? sessionQuestion.trim() || startingContext
-      : startingContext;
-  const showReentryBrief =
-    sessionMode !== "explore" && (hasReentryBrief || Boolean(questionContext));
-  const canRecall =
-    sessionMode !== "explore" &&
-    Boolean(questionContext || activity.currentThread || activity.evidenceNote);
-  const entryLabel =
-    sessionMode === "question"
-      ? "Test a question"
-      : sessionMode === "explore"
-        ? "Explore freely"
-        : "Continue a thread";
-  const chooseEntry = (mode: Exclude<SessionMode, null>) => {
-    setSessionMode(mode);
-    setSessionQuestion(mode === "question" ? (startingContext ?? "") : "");
-    setStep("entry");
-  };
+  const showReentryBrief = hasReentryBrief;
+  const canRecall = Boolean(
+    startingContext || activity.currentThread || activity.evidenceNote,
+  );
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -267,8 +241,8 @@ export function LogActivityDialog({
               ? "A nearby earlier note"
               : isReflecting
                 ? "Close the loop"
-                : step === "landing"
-                  ? "Choose an entry"
+                : isLogged
+                  ? "Session marked"
                   : "Log Session"}
           </DialogTitle>
           <DialogDescription className="text-white/40 uppercase tracking-widest text-[10px] font-bold">
@@ -276,9 +250,9 @@ export function LogActivityDialog({
               ? `A private echo from ${activity.name}`
               : isReflecting
                 ? "Optional reflection for your next meaningful move"
-                : step === "landing"
-                  ? `Which way into ${activity.name} fits today?`
-                  : `Record your practice for ${activity.name} · ${entryLabel}`}
+                : isLogged
+                  ? "Your session is saved"
+                  : `Record your practice for ${activity.name}`}
           </DialogDescription>
         </DialogHeader>
 
@@ -421,124 +395,35 @@ export function LogActivityDialog({
               </Button>
             </div>
           </form>
-        ) : step === "landing" ? (
-          <section
-            className="mt-6 space-y-4"
-            aria-label="Choose how to begin this session"
-          >
-            <p className="text-sm leading-7 text-white/55">
-              Choose a frame only if it helps. This does not create a commitment
-              or change what the session is allowed to become.
+        ) : isLogged ? (
+          <section className="mt-6 space-y-4" aria-label="Session saved">
+            <p className="text-sm leading-6 text-white/60">
+              This session is marked. Reflection is optional and stays attached
+              to this specific session.
             </p>
-            <div className="grid gap-3">
-              <button
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
                 type="button"
-                onClick={() => chooseEntry("continue")}
-                className="continuity-card continuity-action rounded-2xl border border-white/10 bg-white/[.025] p-5 text-left hover:bg-white/[.045] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff8b7c]"
+                variant="outline"
+                onClick={() => setStep("reflection")}
+                className="h-10 rounded-xl border-[#ff7868]/35 bg-[#ff7868]/10 px-4 text-[10px] font-bold uppercase tracking-[.12em] text-[#ffb1a7] hover:bg-[#ff7868]/20 hover:text-white"
+                data-testid="button-open-reflection"
               >
-                <span className="flex items-start justify-between gap-4">
-                  <span>
-                    <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.16em] text-[#ff9a89]">
-                      <GitBranch className="h-3.5 w-3.5" /> Continue a thread
-                    </span>
-                    <span className="mt-2 block text-sm leading-relaxed text-white/65">
-                      Begin with a saved continuation, prior context, or the
-                      line already in view.
-                    </span>
-                  </span>
-                  <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-white/35" />
-                </span>
-              </button>
-              <button
+                Reflect on this session
+              </Button>
+              <Button
                 type="button"
-                onClick={() => chooseEntry("question")}
-                className="continuity-card continuity-action rounded-2xl border border-white/10 bg-white/[.025] p-5 text-left hover:bg-white/[.045] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff8b7c]"
+                variant="ghost"
+                onClick={closeDialog}
+                className="h-10 rounded-xl px-4 text-[10px] font-bold uppercase tracking-[.12em] text-white/45 hover:bg-white/[.05] hover:text-white"
+                data-testid="button-finish-session"
               >
-                <span className="flex items-start justify-between gap-4">
-                  <span>
-                    <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.16em] text-[#ff9a89]">
-                      <CircleHelp className="h-3.5 w-3.5" /> Test a question
-                    </span>
-                    <span className="mt-2 block text-sm leading-relaxed text-white/65">
-                      Use a live question or uncertainty as the lens for this
-                      session. An answer is not required.
-                    </span>
-                  </span>
-                  <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-white/35" />
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => chooseEntry("explore")}
-                className="continuity-card continuity-action rounded-2xl border border-white/10 bg-white/[.025] p-5 text-left hover:bg-white/[.045] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff8b7c]"
-              >
-                <span className="flex items-start justify-between gap-4">
-                  <span>
-                    <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.16em] text-[#ff9a89]">
-                      <Compass className="h-3.5 w-3.5" /> Explore freely
-                    </span>
-                    <span className="mt-2 block text-sm leading-relaxed text-white/65">
-                      Start without a prompt. The work may reveal its own useful
-                      direction.
-                    </span>
-                  </span>
-                  <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-white/35" />
-                </span>
-              </button>
+                Done
+              </Button>
             </div>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={closeDialog}
-              className="continuity-action mt-2 w-full rounded-xl text-[10px] font-bold uppercase tracking-[.14em] text-white/45 hover:bg-white/[.05] hover:text-white"
-            >
-              Not now
-            </Button>
           </section>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6 mt-6">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-[10px] font-bold uppercase tracking-[.14em] text-white/35">
-                Starting through: {entryLabel}
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  setSessionMode(null);
-                  setStep("landing");
-                }}
-                className="continuity-action rounded-lg px-2 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-[#ff9a89] hover:bg-white/[.05] hover:text-white"
-              >
-                Change entry
-              </button>
-            </div>
-            {sessionMode === "question" && !startingContext && (
-              <div className="space-y-2">
-                <Label
-                  htmlFor="session-question"
-                  className="text-[10px] uppercase tracking-widest text-white/40 font-bold"
-                >
-                  Question for this session{" "}
-                  <span className="normal-case tracking-normal">
-                    (optional)
-                  </span>
-                </Label>
-                <Textarea
-                  id="session-question"
-                  value={sessionQuestion}
-                  onChange={(event) => setSessionQuestion(event.target.value)}
-                  placeholder="What are you trying to understand or test?"
-                  maxLength={240}
-                  rows={2}
-                  className="resize-none rounded-2xl border-white/10 bg-white/5 text-white placeholder:text-white/20 focus-visible:ring-red-500"
-                />
-                <p className="text-[11px] leading-relaxed text-white/35">
-                  This is a lens for today, not a result you need to reach. It
-                  is not saved unless you choose to include it in your session
-                  note or reflection.
-                </p>
-              </div>
-            )}
             {showReentryBrief && (
               <aside
                 className="rounded-2xl border border-[#ff8b7c]/20 bg-[#ff7868]/[.07] p-4"
@@ -552,15 +437,13 @@ export function LogActivityDialog({
                   allowed to take a different shape.
                 </p>
                 <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-                  {questionContext && (
+                  {startingContext && (
                     <div className="rounded-xl border border-white/10 bg-black/10 p-3 sm:col-span-2">
                       <dt className="text-[9px] font-bold uppercase tracking-[.14em] text-[#ffb1a7]">
-                        {sessionMode === "question"
-                          ? "Question to test"
-                          : (startingContextSource ?? "Last continuation")}
+                        {startingContextSource ?? "Last continuation"}
                       </dt>
                       <dd className="mt-1 text-sm leading-relaxed text-white/80">
-                        “{questionContext}”
+                        “{startingContext}”
                       </dd>
                     </div>
                   )}
