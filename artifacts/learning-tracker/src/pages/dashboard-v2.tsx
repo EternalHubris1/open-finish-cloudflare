@@ -21,7 +21,6 @@ import { addDays, format, startOfWeek } from "date-fns";
 import {
   ArrowUpRight,
   Flame,
-  Leaf,
   Plus,
   Radio,
   RefreshCw,
@@ -160,11 +159,15 @@ function previewCalendar(): CalendarDay[] {
 
 function Timeline({
   days,
+  activities,
   light,
+  preview = false,
   pulseDate,
 }: {
   days: CalendarDay[];
+  activities: Activity[];
   light: boolean;
+  preview?: boolean;
   pulseDate?: string;
 }) {
   const [, navigate] = useLocation();
@@ -191,8 +194,6 @@ function Timeline({
   const trailPoints = [trailStartIndex, selectedIndex]
     .map((index) => `${50 + index * 100},${210 - (momentum[index] ?? 0) * 164}`)
     .join(" ");
-  const contribution =
-    (momentum[selectedIndex] ?? 0) - (momentum[selectedIndex - 1] ?? 0);
   const weekTotal = days.reduce((sum, day) => sum + day.focusMinutes, 0);
   const sportWeekTotal = days.reduce((sum, day) => sum + day.sportMinutes, 0);
   const activeDays = days.filter((day) => day.focusMinutes > 0).length;
@@ -237,8 +238,8 @@ function Timeline({
               <p
                 className={`mt-2 max-w-xl text-xs ${light ? "text-black/40" : "text-white/35"}`}
               >
-                Bars show practice and work. The slim lane beneath each day is
-                sport on its own clock; the line follows practice continuity.
+                Bars show practice and work. A thin vertical sport mark sits
+                beneath each day; the line follows practice continuity.
               </p>
               <p className="sr-only">
                 Weekly summary: {activeDays} active{" "}
@@ -442,24 +443,16 @@ function Timeline({
                           )}
                         </span>
                       </span>
-                      <span className="w-full" aria-hidden="true">
+                      <span
+                        className="flex h-9 w-full items-end justify-center"
+                        aria-hidden="true"
+                      >
                         <span
-                          className={`block h-1.5 overflow-hidden rounded-full ${light ? "bg-black/[.07]" : "bg-white/[.07]"}`}
-                        >
-                          <span
-                            className="block h-full rounded-full bg-[#62bca8] shadow-[0_0_8px_rgba(98,188,168,.32)] transition-[width]"
-                            style={{
-                              width: `${(day.sportMinutes / maxSport) * 100}%`,
-                            }}
-                          />
-                        </span>
-                        <span
-                          className={`mt-1 block min-h-3 text-center text-[7px] font-semibold tabular-nums ${light ? "text-[#287362]/70" : "text-[#83d1bf]/65"}`}
-                        >
-                          {day.sportMinutes
-                            ? `sport ${minutesLabel(day.sportMinutes)}`
-                            : ""}
-                        </span>
+                          className="block w-1 rounded-full bg-[#62bca8] shadow-[0_0_8px_rgba(98,188,168,.42)] transition-[height]"
+                          style={{
+                            height: `${day.sportMinutes ? Math.max(12, (day.sportMinutes / maxSport) * 100) : 0}%`,
+                          }}
+                        />
                       </span>
                       <span
                         className={`text-[10px] font-bold uppercase tracking-[.14em] ${selectedDay ? (light ? "text-black/75" : "text-white/80") : light ? "text-black/45" : "text-white/40"}`}
@@ -489,8 +482,8 @@ function Timeline({
               className={`mx-1 h-px w-10 ${light ? "bg-[#9d3d36]" : "bg-[#f6b36a]"} shadow-[0_0_8px_currentColor]`}
             />
             <span>Continuity signal</span>
-            <span className="mx-1 h-1.5 w-8 rounded-full bg-[#62bca8]" />
-            <span>Sport · separate time</span>
+            <span className="mx-1 h-5 w-1 rounded-full bg-[#62bca8]" />
+            <span>Sport</span>
           </div>
           <details
             className={`mt-5 rounded-xl border px-3 py-2 text-xs ${light ? "border-black/10 bg-black/[.025] text-black/60" : "border-white/10 bg-white/[.02] text-white/55"}`}
@@ -548,103 +541,9 @@ function Timeline({
         </div>
 
         <aside
-          className={`relative border-t p-6 lg:border-l lg:border-t-0 md:p-8 ${light ? "border-black/[.08] bg-[#edf0f3]/90" : "border-white/[.08] bg-[#090d14]/90"}`}
-          aria-live="polite"
+          className={`border-t p-6 lg:border-l lg:border-t-0 md:p-8 ${light ? "border-black/[.08] bg-[#edf0f3]/90" : "border-white/[.08] bg-[#090d14]/90"}`}
         >
-          {selected && (
-            <>
-              <p
-                className={`text-[9px] font-bold uppercase tracking-[.25em] ${light ? "text-[#91463f]" : "text-[#ff9a89]"}`}
-              >
-                Focused day
-              </p>
-              <p
-                className={`mt-3 text-2xl font-semibold ${light ? "text-[#181719]" : "text-white"}`}
-              >
-                {format(new Date(`${selected.date}T00:00:00`), "EEEE")}
-              </p>
-              <p
-                className={`mt-1 text-sm ${light ? "text-black/40" : "text-white/35"}`}
-              >
-                {format(new Date(`${selected.date}T00:00:00`), "MMMM d")}
-              </p>
-              <p
-                className={`mt-7 text-5xl font-light ${light ? "text-[#181719]" : "text-white"}`}
-              >
-                {minutesLabel(selected.focusMinutes)}
-              </p>
-              {selected.sportMinutes > 0 && (
-                <p
-                  className={`mt-2 text-[10px] font-bold uppercase tracking-[.16em] ${light ? "text-[#287362]" : "text-[#83d1bf]"}`}
-                >
-                  Sport · {minutesLabel(selected.sportMinutes)} separate
-                </p>
-              )}
-              <p
-                className={`mt-3 text-[10px] font-bold uppercase tracking-[.16em] ${contribution > 0.08 ? (light ? "text-[#9a5b23]" : "text-[#ffc46b]") : light ? "text-black/35" : "text-white/35"}`}
-              >
-                {contribution > 0.08
-                  ? "Carried Momentum forward"
-                  : contribution < -0.08
-                    ? "The rhythm softened"
-                    : "Held the current line"}
-              </p>
-              <div className="mt-7 space-y-4">
-                {selected.logs.length ? (
-                  selected.logs.map((log) => (
-                    <div
-                      key={log.id}
-                      className={`border-l pl-3 ${light ? "border-black/15" : "border-white/15"}`}
-                    >
-                      <div className="flex justify-between gap-3">
-                        <span
-                          className={`text-xs font-semibold ${light ? "text-black/70" : "text-white/70"}`}
-                        >
-                          {log.activityName}
-                          <span
-                            className={`ml-2 text-[7px] font-bold uppercase tracking-[.12em] ${log.activityType === "sport" ? "text-[#62bca8]" : light ? "text-black/25" : "text-white/25"}`}
-                          >
-                            {log.activityType}
-                          </span>
-                        </span>
-                        <span
-                          className={`text-xs ${light ? "text-black/40" : "text-white/35"}`}
-                        >
-                          {minutesLabel(log.durationMinutes)}
-                        </span>
-                      </div>
-                      {log.notes && (
-                        <p
-                          className={`mt-1 line-clamp-2 text-[11px] italic ${light ? "text-black/35" : "text-white/25"}`}
-                        >
-                          “{log.notes}”
-                        </p>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <p
-                    className={`text-sm ${light ? "text-black/35" : "text-white/25"}`}
-                  >
-                    A quiet day. The line remains open.
-                  </p>
-                )}
-              </div>
-              {selected.focusMinutes > 240 && (
-                <div
-                  className={`mt-7 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest ${light ? "text-[#9a5b23]" : "text-[#ffc46b]"}`}
-                >
-                  <Leaf className="h-4 w-4" /> A day that mattered
-                </div>
-              )}
-              <Link
-                href={`/history?date=${selected.date}&from=dashboard`}
-                className={`mt-8 flex items-center justify-between border-t pt-5 text-[10px] font-bold uppercase tracking-widest ${light ? "border-black/10 text-black/50" : "border-white/10 text-white/40"} hover:text-[#ff8b7c]`}
-              >
-                Open this day <ArrowUpRight className="h-4 w-4" />
-              </Link>
-            </>
-          )}
+          <TodayPlan activities={activities} light={light} preview={preview} compact />
         </aside>
       </div>
     </section>
@@ -1120,7 +1019,13 @@ export default function DashboardV2() {
           </div>
         )}
 
-        <TodayPlan activities={activities} light={light} preview={preview} />
+        <Timeline
+          days={days}
+          activities={activities}
+          light={light}
+          preview={preview}
+          pulseDate={recentLog?.date}
+        />
 
         {focus && (
           <section
@@ -1196,8 +1101,6 @@ export default function DashboardV2() {
             </div>
           </section>
         )}
-
-        <Timeline days={days} light={light} pulseDate={recentLog?.date} />
 
         <Link
           href="/history?from=dashboard"

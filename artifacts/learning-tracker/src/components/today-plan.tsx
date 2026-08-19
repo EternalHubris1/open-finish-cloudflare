@@ -40,10 +40,12 @@ export function TodayPlan({
   activities,
   light,
   preview = false,
+  compact = false,
 }: {
   activities: Activity[];
   light: boolean;
   preview?: boolean;
+  compact?: boolean;
 }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -102,7 +104,7 @@ export function TodayPlan({
   if (!context && contextQuery.isLoading) {
     return (
       <section
-        className={`h-64 animate-pulse rounded-[2rem] border ${light ? "border-black/[.08] bg-white/70" : "border-white/[.08] bg-white/[.03]"}`}
+        className={`${compact ? "h-56" : "h-64 rounded-[2rem] border"} animate-pulse ${light ? "border-black/[.08] bg-white/70" : "border-white/[.08] bg-white/[.03]"}`}
         aria-label="Loading today’s context"
       />
     );
@@ -142,14 +144,16 @@ export function TodayPlan({
 
   return (
     <section
-      className={`signal-surface relative overflow-hidden rounded-[2rem] border p-6 md:p-8 ${light ? "border-black/[.08] bg-white/80" : "border-white/[.08] bg-[#0c1119]/92"}`}
+      className={`${compact ? "relative" : "signal-surface relative overflow-hidden rounded-[2rem] border p-6 md:p-8"} ${light ? (compact ? "text-[#181719]" : "border-black/[.08] bg-white/80") : (compact ? "text-white" : "border-white/[.08] bg-[#0c1119]/92")}`}
       aria-labelledby="today-context-heading"
     >
-      <div
-        className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#ff7868] blur-3xl"
-        style={{ opacity: light ? 0.06 : 0.1 }}
-      />
-      <div className="relative">
+      {!compact && (
+        <div
+          className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#ff7868] blur-3xl"
+          style={{ opacity: light ? 0.06 : 0.1 }}
+        />
+      )}
+      <div className={compact ? "" : "relative"}>
         <p
           className={`flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] ${light ? "text-[#91463f]" : "text-[#ff9a89]"}`}
         >
@@ -157,21 +161,23 @@ export function TodayPlan({
         </p>
         <h2
           id="today-context-heading"
-          className={`mt-3 text-2xl font-semibold ${light ? "text-[#181719]" : "text-white"}`}
+          className={`${compact ? "mt-2 text-lg" : "mt-3 text-2xl"} font-semibold ${light ? "text-[#181719]" : "text-white"}`}
         >
           Keep one useful line visible.
         </h2>
-        <p
-          className={`mt-2 max-w-2xl text-sm leading-7 ${light ? "text-black/55" : "text-white/50"}`}
-        >
-          This is a return cue, not a task list. Name an intention, connect it
-          to a direction, and keep an external source one click away if it
-          helps.
-        </p>
+        {!compact && (
+          <p
+            className={`mt-2 max-w-2xl text-sm leading-7 ${light ? "text-black/55" : "text-white/50"}`}
+          >
+            This is a return cue, not a task list. Name an intention, connect it
+            to a direction, and keep an external source one click away if it
+            helps.
+          </p>
+        )}
 
         <form
           onSubmit={saveContext}
-          className="mt-7 grid gap-5 lg:grid-cols-[1fr_.75fr]"
+          className={compact ? "mt-5 space-y-4" : "mt-7 grid gap-5 lg:grid-cols-[1fr_.75fr]"}
         >
           <div className="space-y-2">
             <label
@@ -186,7 +192,7 @@ export function TodayPlan({
               value={intention}
               onChange={(event) => setIntention(event.target.value)}
               maxLength={280}
-              rows={4}
+              rows={compact ? 3 : 4}
               placeholder="What would make the next return easier to enter?"
               className={`resize-none rounded-2xl ${light ? "border-black/10 bg-black/[.025] text-black placeholder:text-black/30" : "border-white/10 bg-white/[.035] text-white placeholder:text-white/25"}`}
             />
@@ -251,7 +257,7 @@ export function TodayPlan({
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3 lg:col-span-2">
+          <div className={`flex flex-wrap items-center gap-3 ${compact ? "" : "lg:col-span-2"}`}>
             <Button
               type="submit"
               disabled={updateContext.isPending || preview}
