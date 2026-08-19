@@ -1053,16 +1053,18 @@ export default function DashboardV2() {
               <p
                 className={`hero-daily-signal mt-6 max-w-xl text-sm leading-7 ${light ? "is-light" : ""}`}
               >
-                Today holds{" "}
+                <span className="hero-daily-signal-copy">Today holds </span>
                 <span className="hero-daily-signal-value">
                   {minutesLabel(dashboard.totalMinutesToday)}
                 </span>{" "}
-                of deliberate effort. You touched{" "}
-                {dashboard.activitiesTodayCompleted}{" "}
-                {dashboard.activitiesTodayCompleted === 1
-                  ? "direction"
-                  : "directions"}
-                ; nothing else is owed.
+                <span className="hero-daily-signal-copy">
+                  of deliberate effort. You touched{" "}
+                  {dashboard.activitiesTodayCompleted}{" "}
+                  {dashboard.activitiesTodayCompleted === 1
+                    ? "direction"
+                    : "directions"}
+                  ; nothing else is owed.
+                </span>
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Button

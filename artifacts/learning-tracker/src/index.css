@@ -495,30 +495,46 @@
   @keyframes hero-daily-signal {
     0%,
     100% {
-      color: #e24b43;
-      filter: brightness(0.9);
+      color: #e64b43;
+      filter: brightness(0.96);
       text-shadow:
-        0 0 6px rgba(255, 86, 75, 0.38),
-        0 0 16px rgba(255, 67, 58, 0.12);
+        0 0 7px rgba(255, 86, 75, 0.5),
+        0 0 18px rgba(255, 67, 58, 0.16);
     }
-    48% {
-      color: #ff6b61;
-      filter: brightness(1.15);
+    26% {
+      color: #ff6c61;
+      filter: brightness(1.2);
       text-shadow:
-        0 0 8px rgba(255, 109, 97, 0.62),
-        0 0 24px rgba(255, 67, 58, 0.28),
-        0 0 40px rgba(255, 67, 58, 0.1);
+        0 0 9px rgba(255, 109, 97, 0.72),
+        0 0 27px rgba(255, 67, 58, 0.34),
+        0 0 44px rgba(255, 67, 58, 0.13);
     }
-    56% {
+    35% {
+      color: #d8423d;
+      filter: brightness(0.98);
+    }
+    58% {
+      color: #ff786d;
+      filter: brightness(1.16);
+      text-shadow:
+        0 0 10px rgba(255, 116, 104, 0.68),
+        0 0 30px rgba(255, 67, 58, 0.3),
+        0 0 48px rgba(255, 67, 58, 0.12);
+    }
+    67% {
+      color: #df4740;
       filter: brightness(1.01);
     }
   }
 
   .hero-daily-signal {
-    color: #e24b43;
+    color: #e64b43;
     font-weight: 520;
     -webkit-text-stroke: 0.35px rgba(95, 12, 17, 0.74);
-    animation: hero-daily-signal 5.6s ease-in-out infinite;
+  }
+
+  .hero-daily-signal-copy {
+    animation: hero-daily-signal 3.4s ease-in-out infinite;
   }
 
   .hero-daily-signal-value {
@@ -802,6 +818,7 @@
     .spatial-arrival,
     .achievement-ritual,
     .hero-daily-signal,
+    .hero-daily-signal-copy,
     .energy-panel,
     .today-sessions-panel,
     .sport-track-fill,
