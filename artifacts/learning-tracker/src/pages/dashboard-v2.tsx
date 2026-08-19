@@ -543,15 +543,19 @@ function Timeline({
                         </span>
                       </span>
                       <span
-                        className="flex h-9 w-full items-end justify-center"
+                        className="flex h-9 w-full items-center"
                         aria-hidden="true"
                       >
                         <span
-                          className="block w-1 rounded-full bg-[#62bca8] shadow-[0_0_8px_rgba(98,188,168,.42)] transition-[height]"
-                          style={{
-                            height: `${day.sportMinutes ? Math.max(12, (day.sportMinutes / maxSport) * 100) : 0}%`,
-                          }}
-                        />
+                          className={`block h-1.5 w-full overflow-hidden rounded-full ${light ? "bg-black/[.07]" : "bg-white/[.07]"}`}
+                        >
+                          <span
+                            className="block h-full rounded-full bg-gradient-to-r from-[#3c9f8d] via-[#62bca8] to-[#9ce2cf] shadow-[0_0_10px_rgba(98,188,168,.5)] transition-[width] duration-500"
+                            style={{
+                              width: `${(day.sportMinutes / maxSport) * 100}%`,
+                            }}
+                          />
+                        </span>
                       </span>
                       <span
                         className={`text-[10px] font-bold uppercase tracking-[.14em] ${selectedDay ? (light ? "text-black/75" : "text-white/80") : light ? "text-black/45" : "text-white/40"}`}
@@ -581,7 +585,7 @@ function Timeline({
               className={`mx-1 h-px w-10 ${light ? "bg-[#9d3d36]" : "bg-[#f6b36a]"} shadow-[0_0_8px_currentColor]`}
             />
             <span>Continuity signal</span>
-            <span className="mx-1 h-5 w-1 rounded-full bg-[#62bca8]" />
+            <span className="mx-1 h-1.5 w-8 rounded-full bg-gradient-to-r from-[#3c9f8d] to-[#9ce2cf] shadow-[0_0_8px_rgba(98,188,168,.45)]" />
             <span>Sport</span>
           </div>
           <details
