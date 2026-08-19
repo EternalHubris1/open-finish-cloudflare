@@ -2,3 +2,5 @@
 ADMIN_PASSWORD="replace-with-a-strong-local-password"
 ADMIN_USERNAME="Admin"
 LOG_LEVEL="debug"
+# Use the pooled Neon connection string only in an untracked local .dev.vars file.
+DATABASE_URL="postgresql://USER:PASSWORD@HOST-pooler.REGION.aws.neon.tech/open_finish_recovery?sslmode=require&channel_binding=require"

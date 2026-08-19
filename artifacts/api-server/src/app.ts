@@ -1,19 +1,20 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { connectHyperdrive, runWithDatabase } from "@workspace/db";
+import { connectNeon, runWithDatabase } from "@workspace/db";
 import router from "./routes";
 import authRouter from "./routes/auth";
 import { requireAdmin } from "./lib/auth";
 
 interface AppOptions {
-  hyperdriveConnectionString?: string;
+  databaseUrl?: string;
 }
 
 /**
  * The same Express API can run locally with DATABASE_URL or on Workers with a
- * Hyperdrive connection string. Static SPA hosting is intentionally delegated
- * to Wrangler assets so the Worker receives only /api/* requests.
+ * Neon serverless connection string stored as a Cloudflare secret. Static SPA
+ * hosting is intentionally delegated to Wrangler assets so the Worker receives
+ * only /api/* requests.
  */
 export function createApp(options: AppOptions = {}): Express {
   const app: Express = express();
@@ -39,15 +40,13 @@ export function createApp(options: AppOptions = {}): Express {
   app.use(cookieParser());
 
   // Session discovery and sign-in do not touch the database, so keep these
-  // endpoints available while Hyperdrive is temporarily unavailable.
+  // endpoints available while the Neon database is temporarily unavailable.
   app.use("/api/auth", authRouter);
 
-  if (options.hyperdriveConnectionString) {
+  if (options.databaseUrl) {
     app.use("/api", async (_req, res, next) => {
       try {
-        const connection = await connectHyperdrive(
-          options.hyperdriveConnectionString!,
-        );
+        const connection = connectNeon(options.databaseUrl!);
         let closed = false;
         const closeConnection = () => {
           if (closed) return;

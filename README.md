@@ -2,9 +2,9 @@
 
 **Open Finish** is a personal operating system for long-term mastery. It supports daily learning practice through activities, session logs, continuity notes, progress history, achievements, alerts, and a profile.
 
-This repository is an independently deployable migration of the original Open Finish application to **Cloudflare Workers**. It serves the React single-page application and its same-origin Express API from one Worker deployment while keeping the existing PostgreSQL database through **Cloudflare Hyperdrive**.
+This repository is an independently deployable migration of the original Open Finish application to **Cloudflare Workers**. It serves the React single-page application and its same-origin Express API from one Worker deployment while keeping the existing PostgreSQL database through the official **Neon serverless driver**.
 
-> The original database schema and API contracts are preserved. Hyperdrive provides the Worker with a pooled PostgreSQL connection string, so this migration does not require a database-engine rewrite.
+> The original database schema and API contracts are preserved. The Worker reads a pooled Neon connection string from the Cloudflare `DATABASE_URL` secret, so this migration does not require a database-engine rewrite.
 
 ## Architecture
 
@@ -12,9 +12,9 @@ This repository is an independently deployable migration of the original Open Fi
 | --- | --- | --- |
 | Client | React, Vite, Tailwind CSS | Built to `artifacts/learning-tracker/dist/public` and uploaded as Worker static assets. |
 | API | Express 5 via Cloudflare's Node HTTP adapter | Handles `/api/*` on the same origin as the client. |
-| Data | Drizzle ORM, `pg`, PostgreSQL | Uses a per-request client connected through the `HYPERDRIVE` binding. |
+| Data | Drizzle ORM, Neon serverless driver, PostgreSQL | Uses a request-scoped Neon WebSocket client from `DATABASE_URL`. |
 | Hosting | Cloudflare Workers and Wrangler | Publishes client assets and API as one deployment. |
-| Secrets | Cloudflare Worker secrets | Stores `ADMIN_PASSWORD`; it is never committed to the repository. |
+| Secrets | Cloudflare Worker secrets | Stores `ADMIN_PASSWORD` and `DATABASE_URL`; neither is committed to the repository. |
 
 The Worker static-assets configuration sends `/api/*` to Express first and returns `index.html` for other SPA routes. The frontend continues to call relative `/api/*` URLs, so no CORS or API base URL change is required.
 
@@ -22,14 +22,14 @@ The Worker static-assets configuration sends `/api/*` to Express first and retur
 
 ```text
 artifacts/
-  api-server/        Existing Express API, adapted for Hyperdrive request context
+  api-server/        Existing Express API, adapted for Neon request context
   learning-tracker/  React frontend and Vite build
 lib/
   api-spec/          OpenAPI contract and generated API hooks
-  db/                Drizzle PostgreSQL schema and Hyperdrive-aware database layer
+  db/                Drizzle PostgreSQL schema and Neon serverless database layer
 worker/
   index.ts           Cloudflare Worker entrypoint using Express' Node HTTP adapter
-wrangler.jsonc       Worker, static-assets, Hyperdrive and variable configuration
+wrangler.jsonc       Worker, static-assets and non-secret variable configuration
 ```
 
 ## Prerequisites
@@ -46,7 +46,7 @@ cp .dev.vars.example .dev.vars
 pnpm run build
 ```
 
-Set `ADMIN_PASSWORD` in `.dev.vars` to a strong local value. For an API test that uses PostgreSQL, configure a local Worker Hyperdrive binding in `wrangler.jsonc` after creating it. The production configuration contains the same binding name, `HYPERDRIVE`.
+Set `ADMIN_PASSWORD` to a strong local value and set `DATABASE_URL` to the pooled Neon connection string for `open_finish_recovery` in the untracked `.dev.vars` file. Never commit either value.
 
 Start the Worker runtime with:
 
@@ -54,27 +54,15 @@ Start the Worker runtime with:
 pnpm run dev
 ```
 
-The command serves the SPA and the API on one local URL. The unauthenticated endpoint `GET /api/auth/session` can be checked before the database is attached; data routes require a valid login and the Hyperdrive binding.
+The command serves the SPA and the API on one local URL. The unauthenticated endpoint `GET /api/auth/session` can be checked before the database is attached; data routes require a valid login and the Neon database secret.
 
 ## First Cloudflare deployment
 
-Create a Hyperdrive configuration that points to the PostgreSQL connection used by Open Finish. You can do this in the Cloudflare dashboard or with Wrangler. Do **not** put the raw database URL in the repository.
-
-```bash
-npx wrangler hyperdrive create open-finish-postgres \
-  --connection-string="postgres://USER:PASSWORD@HOST:5432/DATABASE"
-```
-
-Copy the returned Hyperdrive identifier into `wrangler.jsonc`, replacing the value below.
-
-```jsonc
-"id": "REPLACE_WITH_HYPERDRIVE_ID"
-```
-
-Set the production login secret. `ADMIN_USERNAME` is optional and defaults to `Admin` through `wrangler.jsonc`.
+Configure the two production secrets in the Cloudflare Worker dashboard. `ADMIN_USERNAME` is optional and defaults to `Admin` through `wrangler.jsonc`. For `DATABASE_URL`, use Neon's pooled connection string for `open_finish_recovery`; do **not** put either secret in the repository.
 
 ```bash
 npx wrangler secret put ADMIN_PASSWORD
+npx wrangler secret put DATABASE_URL
 ```
 
 Build and publish the worker once from a trusted machine.
@@ -92,7 +80,7 @@ After the first publication, Cloudflare Workers Builds can deploy from GitHub. C
 | Deploy command | `pnpm exec wrangler deploy` |
 | Production branch | `main` |
 
-The Worker configuration, including its asset directory and Hyperdrive binding, is kept in `wrangler.jsonc`. Configure `ADMIN_PASSWORD` as a Cloudflare secret in the Worker dashboard; never add it to `vars` or commit `.dev.vars`.
+The Worker configuration and asset directory are kept in `wrangler.jsonc`. Configure `ADMIN_PASSWORD` and `DATABASE_URL` as Cloudflare secrets in the Worker dashboard; never add either value to `vars` or commit `.dev.vars`.
 
 ## Commands
 

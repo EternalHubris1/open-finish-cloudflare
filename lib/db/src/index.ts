@@ -1,29 +1,34 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import { drizzle as drizzleNeon, type NeonDatabase } from "drizzle-orm/neon-serverless";
+import { drizzle as drizzleNode, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import { Pool as NeonPool } from "@neondatabase/serverless";
 import pg from "pg";
 import * as schema from "./schema";
 
-const { Client, Pool } = pg;
+const { Pool } = pg;
 
-export type Database = NodePgDatabase<typeof schema>;
+export type Database =
+  | NodePgDatabase<typeof schema>
+  | NeonDatabase<typeof schema>;
 
-interface WorkerDatabaseConnection {
-  client: pg.Client;
-  db: Database;
-}
+type WorkerDatabaseConnection = {
+  client: NeonPool;
+  db: NeonDatabase<typeof schema>;
+};
 
 const databaseContext = new AsyncLocalStorage<Database>();
 
 /**
- * The original Node deployment uses a process-level connection pool. It is kept
- * for Drizzle migration scripts and local Node development. Workers instead
- * attach a Hyperdrive-backed client to the request context.
+ * The Node deployment retains its process-level pg pool for migration utilities
+ * and local Node development. Cloudflare Workers use Neon's serverless WebSocket
+ * driver with a new request-scoped pool, so no TCP client or Hyperdrive binding
+ * is required in the Worker runtime.
  */
 const nodePool = process.env.DATABASE_URL
   ? new Pool({ connectionString: process.env.DATABASE_URL })
   : null;
 
-const nodeDatabase = nodePool ? drizzle(nodePool, { schema }) : null;
+const nodeDatabase = nodePool ? drizzleNode(nodePool, { schema }) : null;
 
 function getNodePool(): pg.Pool {
   if (nodePool) return nodePool;
@@ -39,13 +44,13 @@ function currentDatabase(): Database {
   if (nodeDatabase) return nodeDatabase;
 
   throw new Error(
-    "Database access requires DATABASE_URL for Node.js or a Hyperdrive request context in Cloudflare Workers.",
+    "Database access requires DATABASE_URL for Node.js or a Neon request context in Cloudflare Workers.",
   );
 }
 
 /**
- * Existing route modules import `db` directly. The proxy resolves that import
- * to the per-request Drizzle client in Workers while preserving the original
+ * Existing route modules import db directly. The proxy resolves that import to
+ * a request-scoped Drizzle client in Workers while preserving the original
  * Node.js pool for scripts and local development.
  */
 export const db = new Proxy({} as Database, {
@@ -56,15 +61,19 @@ export const db = new Proxy({} as Database, {
   },
 });
 
-export async function connectHyperdrive(
+/**
+ * Uses Neon serverless WebSockets rather than Hyperdrive. WebSocket pools are
+ * created inside the request lifecycle and closed when the HTTP response ends.
+ * This preserves Drizzle transaction support used by the continuity endpoints.
+ */
+export function connectNeon(
   connectionString: string,
-): Promise<WorkerDatabaseConnection> {
-  const client = new Client({ connectionString });
-  await client.connect();
+): WorkerDatabaseConnection {
+  const client = new NeonPool({ connectionString });
 
   return {
     client,
-    db: drizzle(client, { schema }),
+    db: drizzleNeon(client, { schema }),
   };
 }
 

@@ -15,6 +15,7 @@
     "clear-demo-data": "tsx src/scripts/clear-demo-data.ts"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "drizzle-orm": "catalog:",
     "drizzle-zod": "^0.8.3",
     "pg": "^8.22.0",
