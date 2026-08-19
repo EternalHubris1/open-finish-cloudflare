@@ -393,35 +393,36 @@ function Timeline({
               </p>
             </div>
             <div
-              className={`hidden items-end gap-5 text-right sm:flex ${light ? "text-black/45" : "text-white/35"}`}
+              className={`energy-metrics hidden min-w-[284px] overflow-hidden rounded-2xl border text-center sm:grid sm:grid-cols-[1.14fr_.78fr_1.14fr] ${light ? "border-black/[.08] bg-black/[.025] text-black/45" : "border-white/[.08] bg-black/10 text-white/35"}`}
+              aria-label="Weekly activity summary"
             >
-              <div>
+              <div className={`px-3 py-3 ${light ? "border-black/[.08]" : "border-white/[.08]"} border-r`}>
                 <p
-                  className={`text-lg font-semibold ${light ? "text-black/75" : "text-white/80"}`}
+                  className={`whitespace-nowrap text-[18px] font-semibold leading-none tabular-nums ${light ? "text-black/78" : "text-white/90"}`}
                 >
                   {minutesLabel(weekTotal)}
                 </p>
-                <span className="text-[9px] font-bold uppercase tracking-widest">
+                <span className="mt-2 block whitespace-nowrap text-[8px] font-bold uppercase tracking-[.12em]">
                   this week
                 </span>
               </div>
-              <div>
+              <div className={`px-2 py-3 ${light ? "border-black/[.08]" : "border-white/[.08]"} border-r`}>
                 <p
-                  className={`text-lg font-semibold ${light ? "text-black/75" : "text-white/80"}`}
+                  className={`whitespace-nowrap text-[18px] font-semibold leading-none tabular-nums ${light ? "text-black/78" : "text-white/90"}`}
                 >
                   {activeDays}/7
                 </p>
-                <span className="text-[9px] font-bold uppercase tracking-widest">
+                <span className="mt-2 block whitespace-nowrap text-[8px] font-bold uppercase tracking-[.1em]">
                   active days
                 </span>
               </div>
-              <div>
+              <div className="px-3 py-3">
                 <p
-                  className={`text-lg font-semibold ${light ? "text-black/75" : "text-white/80"}`}
+                  className={`whitespace-nowrap text-[18px] font-semibold leading-none tabular-nums ${light ? "text-black/78" : "text-white/90"}`}
                 >
                   {minutesLabel(bestDay)}
                 </p>
-                <span className="text-[9px] font-bold uppercase tracking-widest">
+                <span className="mt-2 block whitespace-nowrap text-[8px] font-bold uppercase tracking-[.12em]">
                   best day
                 </span>
               </div>
