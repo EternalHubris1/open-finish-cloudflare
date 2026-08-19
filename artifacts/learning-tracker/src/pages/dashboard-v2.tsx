@@ -1051,7 +1051,7 @@ export default function DashboardV2() {
                 </span>
               </h1>
               <p
-                className={`mt-6 max-w-xl text-sm leading-7 ${light ? "text-black/45" : "text-white/40"}`}
+                className={`hero-daily-signal mt-6 max-w-xl text-sm leading-7 ${light ? "is-light" : ""}`}
               >
                 Today holds {minutesLabel(dashboard.totalMinutesToday)} of
                 deliberate effort. You touched{" "}
@@ -1061,14 +1061,6 @@ export default function DashboardV2() {
                   : "directions"}
                 ; nothing else is owed.
               </p>
-              {dashboard.sportMinutesToday > 0 && (
-                <p
-                  className={`mt-2 text-[9px] font-bold uppercase tracking-[.18em] ${light ? "text-[#287362]" : "text-[#83d1bf]"}`}
-                >
-                  Sport moves beside it ·{" "}
-                  {minutesLabel(dashboard.sportMinutesToday)}
-                </p>
-              )}
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Button
                   onClick={() => setActivityPickerOpen(true)}

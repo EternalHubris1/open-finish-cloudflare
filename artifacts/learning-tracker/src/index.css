@@ -492,6 +492,41 @@
     animation: momentum-draw 520ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
+  @keyframes hero-daily-signal {
+    0%,
+    100% {
+      background-position: 0% 50%;
+      filter: brightness(0.92);
+      text-shadow:
+        0 0 10px rgba(255, 194, 104, 0.1),
+        0 0 22px rgba(255, 111, 97, 0.04);
+    }
+    48% {
+      background-position: 100% 50%;
+      filter: brightness(1.16);
+      text-shadow:
+        0 0 12px rgba(255, 194, 104, 0.28),
+        0 0 30px rgba(255, 111, 97, 0.12);
+    }
+    56% {
+      filter: brightness(1.03);
+    }
+  }
+
+  .hero-daily-signal {
+    color: transparent;
+    background: linear-gradient(100deg, #ffd7ae 0%, #fff2d8 35%, #ffc268 58%, #ff9b85 100%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: hero-daily-signal 5.6s ease-in-out infinite;
+  }
+
+  .hero-daily-signal.is-light {
+    background: linear-gradient(100deg, #6d322a 0%, #a4483a 40%, #bc6a21 72%, #7d4035 100%);
+    background-size: 220% 100%;
+  }
+
   @keyframes energy-panel-arrival {
     from {
       opacity: 0;
@@ -750,6 +785,7 @@
     .session-pulse .signal-bar,
     .spatial-arrival,
     .achievement-ritual,
+    .hero-daily-signal,
     .energy-panel,
     .today-sessions-panel,
     .sport-track-fill,
@@ -771,6 +807,7 @@
     .of-button,
     .sidebar-route,
     .sidebar-emblem::before,
+    .hero-daily-signal,
     .today-sessions-panel,
     .dashboard-continue,
     .signal-atmosphere,
