@@ -1,10 +1,7 @@
 import express, { type Express } from "express";
 import cors from "cors";
-import cookieParser from "cookie-parser";
 import { connectNeon, runWithDatabase } from "@workspace/db";
 import router from "./routes";
-import authRouter from "./routes/auth";
-import { requireAdmin } from "./lib/auth";
 
 interface AppOptions {
   databaseUrl?: string;
@@ -37,12 +34,6 @@ export function createApp(options: AppOptions = {}): Express {
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  app.use(cookieParser());
-
-  // Session discovery and sign-in do not touch the database, so keep these
-  // endpoints available while the Neon database is temporarily unavailable.
-  app.use("/api/auth", authRouter);
-
   if (options.databaseUrl) {
     app.use("/api", async (_req, res, next) => {
       try {
@@ -63,7 +54,8 @@ export function createApp(options: AppOptions = {}): Express {
     });
   }
 
-  app.use("/api", requireAdmin, router);
+  // The Cloudflare deployment is intentionally public.
+  app.use("/api", router);
 
   return app;
 }
