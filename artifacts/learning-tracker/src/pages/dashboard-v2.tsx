@@ -15,6 +15,7 @@ import {
   useListActivityLogs,
   useListStreaks,
   type Activity,
+  type ActivityLog,
   type CalendarDay,
 } from "@workspace/api-client-react";
 import { addDays, format, startOfWeek } from "date-fns";
@@ -157,15 +158,113 @@ function previewCalendar(): CalendarDay[] {
   });
 }
 
+function TodaySessionsList({
+  logs,
+  activities,
+  light,
+}: {
+  logs: ActivityLog[];
+  activities: Activity[];
+  light: boolean;
+}) {
+  return (
+    <section
+      className={`w-full rounded-2xl border p-4 ${light ? "border-black/[.08] bg-black/[.025]" : "border-white/[.08] bg-black/10"}`}
+      aria-labelledby="today-sessions-heading"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <p
+          id="today-sessions-heading"
+          className={`text-[9px] font-bold uppercase tracking-[.2em] ${light ? "text-black/45" : "text-white/40"}`}
+        >
+          Today’s sessions
+        </p>
+        <span
+          className={`text-[10px] font-semibold tabular-nums ${light ? "text-black/45" : "text-white/40"}`}
+        >
+          {logs.length}
+        </span>
+      </div>
+      {logs.length ? (
+        <div
+          className="mt-3 max-h-44 space-y-1.5 overflow-y-auto pr-1 [scrollbar-color:rgba(255,255,255,.2)_transparent] [scrollbar-width:thin]"
+          role="list"
+        >
+          {logs.map((log) => {
+            const activity = activities.find(
+              (candidate) => candidate.id === log.activityId,
+            );
+            const isSport = activity?.activityType === "sport";
+            const accent = isSport
+              ? "#62bca8"
+              : (activity?.color ?? "#ff7868");
+            return (
+              <div
+                key={log.id}
+                className={`rounded-xl px-2.5 py-2 ${light ? "bg-white/65" : "bg-white/[.025]"}`}
+                role="listitem"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg"
+                    style={{
+                      color: accent,
+                      backgroundColor: `${accent}18`,
+                    }}
+                  >
+                    <ActivityGlyph
+                      icon={activity?.icon}
+                      activityType={activity?.activityType}
+                      category={activity?.category}
+                      className="h-3.5 w-3.5"
+                    />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span
+                      className={`block truncate text-xs font-semibold ${light ? "text-black/70" : "text-white/75"}`}
+                    >
+                      {activity?.name ?? "Activity"}
+                    </span>
+                    {log.notes && (
+                      <span
+                        className={`mt-0.5 block truncate text-[10px] italic ${light ? "text-black/35" : "text-white/30"}`}
+                      >
+                        {log.notes}
+                      </span>
+                    )}
+                  </span>
+                  <span
+                    className={`shrink-0 text-[10px] font-semibold tabular-nums ${isSport ? "text-[#62bca8]" : light ? "text-black/45" : "text-white/45"}`}
+                  >
+                    {minutesLabel(log.durationMinutes)}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <p
+          className={`mt-3 text-xs leading-5 ${light ? "text-black/35" : "text-white/30"}`}
+        >
+          No sessions marked yet.
+        </p>
+      )}
+    </section>
+  );
+}
+
 function Timeline({
   days,
   activities,
+  todayLogs,
   light,
   preview = false,
   pulseDate,
 }: {
   days: CalendarDay[];
   activities: Activity[];
+  todayLogs: ActivityLog[];
   light: boolean;
   preview?: boolean;
   pulseDate?: string;
@@ -541,9 +640,14 @@ function Timeline({
         </div>
 
         <aside
-          className={`relative flex border-t p-5 lg:min-h-[35rem] lg:border-l lg:border-t-0 md:p-6 ${light ? "border-black/[.08] bg-[#edf0f3]/60" : "border-white/[.08] bg-[#090d14]/55"}`}
+          className={`relative flex min-h-[32rem] flex-col border-t p-5 lg:min-h-[35rem] lg:border-l lg:border-t-0 md:p-6 ${light ? "border-black/[.08] bg-[#edf0f3]/60" : "border-white/[.08] bg-[#090d14]/55"}`}
         >
-          <div className="w-full lg:mt-auto">
+          <TodaySessionsList
+            logs={todayLogs}
+            activities={activities}
+            light={light}
+          />
+          <div className="mt-auto w-full pt-6">
             <TodayPlan
               activities={activities}
               light={light}
@@ -1018,89 +1122,6 @@ export default function DashboardV2() {
                 </div>
               </div>
 
-              <section
-                className={`w-full max-w-[21rem] rounded-2xl border p-4 ${light ? "border-black/[.08] bg-black/[.025]" : "border-white/[.08] bg-black/10"}`}
-                aria-labelledby="today-sessions-heading"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <p
-                    id="today-sessions-heading"
-                    className={`text-[9px] font-bold uppercase tracking-[.2em] ${light ? "text-black/45" : "text-white/40"}`}
-                  >
-                    Today’s sessions
-                  </p>
-                  <span
-                    className={`text-[10px] font-semibold tabular-nums ${light ? "text-black/45" : "text-white/40"}`}
-                  >
-                    {dashboard.todayLogs.length}
-                  </span>
-                </div>
-                {dashboard.todayLogs.length ? (
-                  <div
-                    className="mt-3 max-h-44 space-y-1.5 overflow-y-auto pr-1 [scrollbar-color:rgba(255,255,255,.2)_transparent] [scrollbar-width:thin]"
-                    role="list"
-                  >
-                    {dashboard.todayLogs.map((log) => {
-                      const activity = activities.find(
-                        (candidate) => candidate.id === log.activityId,
-                      );
-                      const isSport = activity?.activityType === "sport";
-                      const accent = isSport
-                        ? "#62bca8"
-                        : (activity?.color ?? "#ff7868");
-                      return (
-                        <div
-                          key={log.id}
-                          className={`rounded-xl px-2.5 py-2 ${light ? "bg-white/65" : "bg-white/[.025]"}`}
-                          role="listitem"
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <span
-                              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg"
-                              style={{
-                                color: accent,
-                                backgroundColor: `${accent}18`,
-                              }}
-                            >
-                              <ActivityGlyph
-                                icon={activity?.icon}
-                                activityType={activity?.activityType}
-                                category={activity?.category}
-                                className="h-3.5 w-3.5"
-                              />
-                            </span>
-                            <span className="min-w-0 flex-1">
-                              <span
-                                className={`block truncate text-xs font-semibold ${light ? "text-black/70" : "text-white/75"}`}
-                              >
-                                {activity?.name ?? "Activity"}
-                              </span>
-                              {log.notes && (
-                                <span
-                                  className={`mt-0.5 block truncate text-[10px] italic ${light ? "text-black/35" : "text-white/30"}`}
-                                >
-                                  {log.notes}
-                                </span>
-                              )}
-                            </span>
-                            <span
-                              className={`shrink-0 text-[10px] font-semibold tabular-nums ${isSport ? "text-[#62bca8]" : light ? "text-black/45" : "text-white/45"}`}
-                            >
-                              {minutesLabel(log.durationMinutes)}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p
-                    className={`mt-3 text-xs leading-5 ${light ? "text-black/35" : "text-white/30"}`}
-                  >
-                    No sessions marked yet.
-                  </p>
-                )}
-              </section>
             </div>
           </div>
         </header>
@@ -1116,6 +1137,7 @@ export default function DashboardV2() {
         <Timeline
           days={days}
           activities={activities}
+          todayLogs={dashboard.todayLogs}
           light={light}
           preview={preview}
           pulseDate={recentLog?.date}
