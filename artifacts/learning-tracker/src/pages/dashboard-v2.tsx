@@ -629,7 +629,7 @@ function Timeline({
             <span
               className={`mx-1 h-px w-10 ${light ? "bg-[#9d3d36]" : "bg-[#f6b36a]"} shadow-[0_0_8px_currentColor]`}
             />
-            <span>Continuity signal</span>
+            <span>Momentum</span>
             <span className="mx-1 h-1.5 w-8 rounded-full bg-gradient-to-r from-[#3c9f8d] to-[#9ce2cf] shadow-[0_0_8px_rgba(98,188,168,.45)]" />
             <span>Sport</span>
           </div>
