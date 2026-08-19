@@ -45,6 +45,8 @@ import {
   previewStreaks,
 } from "@/pages/dashboard-exploration";
 
+const SPORT_TRACK_DAILY_CAPACITY = 90;
+
 const MOMENTUM_PALETTES = {
   dark: [
     "oklch(0.31 0.018 255)",
@@ -169,7 +171,8 @@ function TodaySessionsList({
 }) {
   return (
     <section
-      className={`w-full rounded-2xl border p-4 ${light ? "border-black/[.08] bg-black/[.025]" : "border-white/[.08] bg-black/10"}`}
+                className={`today-sessions-panel w-full rounded-2xl border p-4 ${light ? "border-black/[.08] bg-black/[.025]" : "border-white/[.08] bg-black/10"}`}
+
       aria-labelledby="today-sessions-heading"
     >
       <div className="flex items-center justify-between gap-3">
@@ -273,9 +276,9 @@ function Timeline({
   const timelineScrollRef = useRef<HTMLDivElement>(null);
   const [selectedDate, setSelectedDate] = useState(days.at(-1)?.date ?? "");
   const [focusedDate, setFocusedDate] = useState<string | null>(null);
+  const [sportTracksReady, setSportTracksReady] = useState(false);
   const selected = days.find((day) => day.date === selectedDate) ?? days.at(-1);
   const max = Math.max(60, ...days.map((day) => day.focusMinutes));
-  const maxSport = Math.max(30, ...days.map((day) => day.sportMinutes));
   const palette = light ? MOMENTUM_PALETTES.light : MOMENTUM_PALETTES.dark;
   const momentum = momentumSeries(days);
   const points = momentum
@@ -308,6 +311,11 @@ function Timeline({
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setSportTracksReady(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
   const selectDay = (day: CalendarDay) => {
     const touchLayout =
       window.innerWidth < 768 || window.matchMedia("(hover: none)").matches;
@@ -317,7 +325,7 @@ function Timeline({
 
   return (
     <section
-      className={`signal-surface overflow-hidden rounded-[2rem] border ${light ? "border-black/[.08] bg-white/80" : "border-white/[.08] bg-[#0c1119]/92"}`}
+      className={`signal-surface energy-panel overflow-hidden rounded-[2rem] border ${light ? "border-black/[.08] bg-white/80" : "border-white/[.08] bg-[#0c1119]/92"}`}
       onMouseLeave={() => setFocusedDate(null)}
     >
       <div className="grid lg:grid-cols-[1.5fr_.5fr]">
@@ -550,9 +558,9 @@ function Timeline({
                           className={`block h-1.5 w-full overflow-hidden rounded-full ${light ? "bg-black/[.07]" : "bg-white/[.07]"}`}
                         >
                           <span
-                            className="block h-full rounded-full bg-gradient-to-r from-[#3c9f8d] via-[#62bca8] to-[#9ce2cf] shadow-[0_0_10px_rgba(98,188,168,.5)] transition-[width] duration-500"
+                            className="sport-track-fill block h-full rounded-full bg-gradient-to-r from-[#3c9f8d] via-[#62bca8] to-[#9ce2cf] shadow-[0_0_10px_rgba(98,188,168,.5)] transition-[width] duration-1000"
                             style={{
-                              width: `${(day.sportMinutes / maxSport) * 100}%`,
+                              width: `${sportTracksReady ? Math.min(100, (day.sportMinutes / SPORT_TRACK_DAILY_CAPACITY) * 100) : 0}%`,
                             }}
                           />
                         </span>
@@ -1064,7 +1072,7 @@ export default function DashboardV2() {
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Button
                   onClick={() => setActivityPickerOpen(true)}
-                  className="signal-button rounded-full bg-[#e95448] px-7 py-6 text-[10px] font-bold uppercase tracking-[.16em] text-white shadow-[0_12px_36px_rgba(233,84,72,.18)] hover:bg-[#f26456]"
+                  className="signal-button dashboard-continue rounded-full bg-[#e95448] px-7 py-6 text-[10px] font-bold uppercase tracking-[.16em] text-white shadow-[0_12px_36px_rgba(233,84,72,.18)] hover:bg-[#f26456]"
                   data-testid="button-continue"
                 >
                   <Plus className="mr-2 h-4 w-4" />
