@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { activitiesTable, dailyContextsTable, db } from "@workspace/db";
 import {
   GetTodayContextResponse,
@@ -39,9 +39,41 @@ async function readContext(contextDate: string) {
     : null;
 }
 
+async function readMostRecentContext() {
+  const [row] = await db
+    .select({
+      id: dailyContextsTable.id,
+      contextDate: dailyContextsTable.contextDate,
+      focusActivityId: dailyContextsTable.focusActivityId,
+      focusActivityName: activitiesTable.name,
+      focusActivityColor: activitiesTable.color,
+      intention: dailyContextsTable.intention,
+      externalUrl: dailyContextsTable.externalUrl,
+      createdAt: dailyContextsTable.createdAt,
+      updatedAt: dailyContextsTable.updatedAt,
+    })
+    .from(dailyContextsTable)
+    .leftJoin(
+      activitiesTable,
+      eq(activitiesTable.id, dailyContextsTable.focusActivityId),
+    )
+    .orderBy(desc(dailyContextsTable.updatedAt))
+    .limit(1);
+  return row
+    ? {
+        ...row,
+        createdAt: row.createdAt.toISOString(),
+        updatedAt: row.updatedAt.toISOString(),
+      }
+    : null;
+}
+
 router.get("/context/today", async (req, res): Promise<void> => {
+  const contextForToday = await readContext(todayForRequest(req));
   res.json(
-    GetTodayContextResponse.parse(await readContext(todayForRequest(req))),
+    GetTodayContextResponse.parse(
+      contextForToday ?? (await readMostRecentContext()),
+    ),
   );
 });
 
