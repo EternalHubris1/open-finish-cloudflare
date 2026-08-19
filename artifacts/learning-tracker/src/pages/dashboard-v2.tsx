@@ -221,7 +221,7 @@ function Timeline({
       className={`signal-surface overflow-hidden rounded-[2rem] border ${light ? "border-black/[.08] bg-white/80" : "border-white/[.08] bg-[#0c1119]/92"}`}
       onMouseLeave={() => setFocusedDate(null)}
     >
-      <div className="grid lg:grid-cols-[1.5fr_.5fr]">
+      <div className="grid lg:grid-cols-[1.2fr_.8fr]">
         <div className="min-w-0 p-6 md:p-9">
           <div className="mb-8 flex items-end justify-between gap-4">
             <div>

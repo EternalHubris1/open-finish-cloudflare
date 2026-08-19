@@ -192,7 +192,7 @@ export function TodayPlan({
               value={intention}
               onChange={(event) => setIntention(event.target.value)}
               maxLength={280}
-              rows={compact ? 3 : 4}
+              rows={compact ? 2 : 4}
               placeholder="What would make the next return easier to enter?"
               className={`resize-none rounded-2xl ${light ? "border-black/10 bg-black/[.025] text-black placeholder:text-black/30" : "border-white/10 bg-white/[.035] text-white placeholder:text-white/25"}`}
             />
@@ -245,16 +245,18 @@ export function TodayPlan({
                 onChange={(event) => setExternalPlanUrl(event.target.value)}
                 maxLength={2000}
                 placeholder="https://docs.google.com/..."
-                aria-describedby="today-external-link-help"
+                aria-describedby={compact ? undefined : "today-external-link-help"}
                 className={`rounded-xl ${light ? "border-black/10 bg-black/[.025] text-black placeholder:text-black/30" : "border-white/10 bg-white/[.035] text-white placeholder:text-white/25"}`}
               />
-              <p
-                id="today-external-link-help"
-                className={`text-xs leading-relaxed ${light ? "text-black/40" : "text-white/35"}`}
-              >
-                A Google Doc, Vikunja project, or another source. Open Finish
-                stores only the link and does not synchronize its contents.
-              </p>
+              {!compact && (
+                <p
+                  id="today-external-link-help"
+                  className={`text-xs leading-relaxed ${light ? "text-black/40" : "text-white/35"}`}
+                >
+                  A Google Doc, Vikunja project, or another source. Open Finish
+                  stores only the link and does not synchronize its contents.
+                </p>
+              )}
             </div>
           </div>
           <div className={`flex flex-wrap items-center gap-3 ${compact ? "" : "lg:col-span-2"}`}>
