@@ -221,7 +221,7 @@ function Timeline({
       className={`signal-surface overflow-hidden rounded-[2rem] border ${light ? "border-black/[.08] bg-white/80" : "border-white/[.08] bg-[#0c1119]/92"}`}
       onMouseLeave={() => setFocusedDate(null)}
     >
-      <div className="grid lg:grid-cols-[1.2fr_.8fr]">
+      <div className="grid lg:grid-cols-[1.5fr_.5fr]">
         <div className="min-w-0 p-6 md:p-9">
           <div className="mb-8 flex items-end justify-between gap-4">
             <div>
@@ -541,9 +541,17 @@ function Timeline({
         </div>
 
         <aside
-          className={`border-t p-6 lg:border-l lg:border-t-0 md:p-8 ${light ? "border-black/[.08] bg-[#edf0f3]/90" : "border-white/[.08] bg-[#090d14]/90"}`}
+          className={`relative flex border-t p-5 lg:min-h-[35rem] lg:border-l lg:border-t-0 md:p-6 ${light ? "border-black/[.08] bg-[#edf0f3]/60" : "border-white/[.08] bg-[#090d14]/55"}`}
         >
-          <TodayPlan activities={activities} light={light} preview={preview} compact />
+          <div className="w-full lg:mt-auto">
+            <TodayPlan
+              activities={activities}
+              light={light}
+              preview={preview}
+              compact
+              minimal
+            />
+          </div>
         </aside>
       </div>
     </section>

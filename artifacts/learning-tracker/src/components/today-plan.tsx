@@ -41,11 +41,13 @@ export function TodayPlan({
   light,
   preview = false,
   compact = false,
+  minimal = false,
 }: {
   activities: Activity[];
   light: boolean;
   preview?: boolean;
   compact?: boolean;
+  minimal?: boolean;
 }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -145,7 +147,8 @@ export function TodayPlan({
   return (
     <section
       className={`${compact ? "relative" : "signal-surface relative overflow-hidden rounded-[2rem] border p-6 md:p-8"} ${light ? (compact ? "text-[#181719]" : "border-black/[.08] bg-white/80") : (compact ? "text-white" : "border-white/[.08] bg-[#0c1119]/92")}`}
-      aria-labelledby="today-context-heading"
+      aria-label={minimal ? "Today’s context" : undefined}
+      aria-labelledby={minimal ? undefined : "today-context-heading"}
     >
       {!compact && (
         <div
@@ -154,17 +157,28 @@ export function TodayPlan({
         />
       )}
       <div className={compact ? "" : "relative"}>
-        <p
-          className={`flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] ${light ? "text-[#91463f]" : "text-[#ff9a89]"}`}
-        >
-          <Target className="h-3.5 w-3.5" /> Today’s context
-        </p>
-        <h2
-          id="today-context-heading"
-          className={`${compact ? "mt-2 text-lg" : "mt-3 text-2xl"} font-semibold ${light ? "text-[#181719]" : "text-white"}`}
-        >
-          Keep one useful line visible.
-        </h2>
+        {!minimal && (
+          <>
+            <p
+              className={`flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] ${light ? "text-[#91463f]" : "text-[#ff9a89]"}`}
+            >
+              <Target className="h-3.5 w-3.5" /> Today’s context
+            </p>
+            <h2
+              id="today-context-heading"
+              className={`${compact ? "mt-2 text-lg" : "mt-3 text-2xl"} font-semibold ${light ? "text-[#181719]" : "text-white"}`}
+            >
+              Keep one useful line visible.
+            </h2>
+          </>
+        )}
+        {minimal && (
+          <p
+            className={`text-[9px] font-bold uppercase tracking-[.2em] ${light ? "text-black/35" : "text-white/30"}`}
+          >
+            Return cue
+          </p>
+        )}
         {!compact && (
           <p
             className={`mt-2 max-w-2xl text-sm leading-7 ${light ? "text-black/55" : "text-white/50"}`}
@@ -177,7 +191,7 @@ export function TodayPlan({
 
         <form
           onSubmit={saveContext}
-          className={compact ? "mt-5 space-y-4" : "mt-7 grid gap-5 lg:grid-cols-[1fr_.75fr]"}
+          className={minimal ? "mt-3 space-y-3" : compact ? "mt-5 space-y-4" : "mt-7 grid gap-5 lg:grid-cols-[1fr_.75fr]"}
         >
           <div className="space-y-2">
             <label
