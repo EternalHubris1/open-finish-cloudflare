@@ -539,13 +539,14 @@
 
   .hero-daily-signal-value {
     color: #c8322e;
-    font-size: 1.16em;
-    font-weight: 760;
-    letter-spacing: -0.025em;
-    -webkit-text-stroke: 0.55px rgba(82, 10, 14, 0.86);
+    font-size: 1.23em;
+    font-weight: 780;
+    letter-spacing: -0.035em;
+    -webkit-text-stroke: 0.8px rgba(74, 8, 12, 0.94);
+    paint-order: stroke fill;
     text-shadow:
-      0 0 8px rgba(255, 78, 69, 0.42),
-      0 0 18px rgba(255, 61, 55, 0.18);
+      0 0 6px rgba(255, 78, 69, 0.34),
+      0 0 15px rgba(255, 61, 55, 0.14);
   }
 
   .hero-daily-signal.is-light {
@@ -555,7 +556,7 @@
 
   .hero-daily-signal.is-light .hero-daily-signal-value {
     color: #86221f;
-    -webkit-text-stroke-color: rgba(64, 14, 14, 0.58);
+    -webkit-text-stroke-color: rgba(64, 14, 14, 0.7);
     text-shadow: 0 0 10px rgba(209, 78, 62, 0.16);
   }
 
