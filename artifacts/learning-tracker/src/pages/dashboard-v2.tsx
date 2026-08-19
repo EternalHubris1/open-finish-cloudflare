@@ -970,51 +970,137 @@ export default function DashboardV2() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center justify-center gap-7 lg:justify-end">
-              <div className="relative flex h-44 w-44 items-center justify-center rounded-full border border-[#ff7868]/18 md:h-52 md:w-52">
-                <span className="absolute inset-3 rounded-full border border-white/5" />
-                <div className="text-center">
-                  <Flame
-                    className={`mx-auto mb-2 h-5 w-5 ${light ? "text-[#9c4d44]" : "text-[#ff8b7c]"}`}
-                  />
-                  <p
-                    className={`text-6xl font-light ${light ? "text-[#181719]" : "text-white"}`}
-                  >
-                    {dashboard.overallCurrentStreak}
-                  </p>
-                  <span
-                    className={`text-[8px] font-bold uppercase tracking-[.2em] ${light ? "text-black/35" : "text-white/25"}`}
-                  >
-                    days moving
-                  </span>
+            <div className="grid w-full gap-6 lg:justify-items-end">
+              <div className="flex items-center justify-center gap-7 lg:justify-end">
+                <div className="relative flex h-44 w-44 items-center justify-center rounded-full border border-[#ff7868]/18 md:h-52 md:w-52">
+                  <span className="absolute inset-3 rounded-full border border-white/5" />
+                  <div className="text-center">
+                    <Flame
+                      className={`mx-auto mb-2 h-5 w-5 ${light ? "text-[#9c4d44]" : "text-[#ff8b7c]"}`}
+                    />
+                    <p
+                      className={`text-6xl font-light ${light ? "text-[#181719]" : "text-white"}`}
+                    >
+                      {dashboard.overallCurrentStreak}
+                    </p>
+                    <span
+                      className={`text-[8px] font-bold uppercase tracking-[.2em] ${light ? "text-black/35" : "text-white/25"}`}
+                    >
+                      days moving
+                    </span>
+                  </div>
+                </div>
+                <div className="hidden space-y-5 sm:block">
+                  <div>
+                    <p
+                      className={`text-2xl font-light ${light ? "text-[#181719]" : "text-white"}`}
+                    >
+                      {focusStreak?.currentStreak ?? 0}
+                    </p>
+                    <span
+                      className={`text-[8px] uppercase tracking-widest ${light ? "text-black/30" : "text-white/25"}`}
+                    >
+                      {focus?.name} streak
+                    </span>
+                  </div>
+                  <div>
+                    <p
+                      className={`text-2xl font-light ${light ? "text-[#181719]" : "text-white"}`}
+                    >
+                      {dashboard.totalAchievements}
+                    </p>
+                    <span
+                      className={`text-[8px] uppercase tracking-widest ${light ? "text-black/30" : "text-white/25"}`}
+                    >
+                      rewards earned
+                    </span>
+                  </div>
                 </div>
               </div>
-              <div className="hidden space-y-5 sm:block">
-                <div>
+
+              <section
+                className={`w-full max-w-[21rem] rounded-2xl border p-4 ${light ? "border-black/[.08] bg-black/[.025]" : "border-white/[.08] bg-black/10"}`}
+                aria-labelledby="today-sessions-heading"
+              >
+                <div className="flex items-center justify-between gap-3">
                   <p
-                    className={`text-2xl font-light ${light ? "text-[#181719]" : "text-white"}`}
+                    id="today-sessions-heading"
+                    className={`text-[9px] font-bold uppercase tracking-[.2em] ${light ? "text-black/45" : "text-white/40"}`}
                   >
-                    {focusStreak?.currentStreak ?? 0}
+                    Today’s sessions
                   </p>
                   <span
-                    className={`text-[8px] uppercase tracking-widest ${light ? "text-black/30" : "text-white/25"}`}
+                    className={`text-[10px] font-semibold tabular-nums ${light ? "text-black/45" : "text-white/40"}`}
                   >
-                    {focus?.name} streak
+                    {dashboard.todayLogs.length}
                   </span>
                 </div>
-                <div>
+                {dashboard.todayLogs.length ? (
+                  <div
+                    className="mt-3 max-h-44 space-y-1.5 overflow-y-auto pr-1 [scrollbar-color:rgba(255,255,255,.2)_transparent] [scrollbar-width:thin]"
+                    role="list"
+                  >
+                    {dashboard.todayLogs.map((log) => {
+                      const activity = activities.find(
+                        (candidate) => candidate.id === log.activityId,
+                      );
+                      const isSport = activity?.activityType === "sport";
+                      const accent = isSport
+                        ? "#62bca8"
+                        : (activity?.color ?? "#ff7868");
+                      return (
+                        <div
+                          key={log.id}
+                          className={`rounded-xl px-2.5 py-2 ${light ? "bg-white/65" : "bg-white/[.025]"}`}
+                          role="listitem"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <span
+                              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg"
+                              style={{
+                                color: accent,
+                                backgroundColor: `${accent}18`,
+                              }}
+                            >
+                              <ActivityGlyph
+                                icon={activity?.icon}
+                                activityType={activity?.activityType}
+                                category={activity?.category}
+                                className="h-3.5 w-3.5"
+                              />
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <span
+                                className={`block truncate text-xs font-semibold ${light ? "text-black/70" : "text-white/75"}`}
+                              >
+                                {activity?.name ?? "Activity"}
+                              </span>
+                              {log.notes && (
+                                <span
+                                  className={`mt-0.5 block truncate text-[10px] italic ${light ? "text-black/35" : "text-white/30"}`}
+                                >
+                                  {log.notes}
+                                </span>
+                              )}
+                            </span>
+                            <span
+                              className={`shrink-0 text-[10px] font-semibold tabular-nums ${isSport ? "text-[#62bca8]" : light ? "text-black/45" : "text-white/45"}`}
+                            >
+                              {minutesLabel(log.durationMinutes)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
                   <p
-                    className={`text-2xl font-light ${light ? "text-[#181719]" : "text-white"}`}
+                    className={`mt-3 text-xs leading-5 ${light ? "text-black/35" : "text-white/30"}`}
                   >
-                    {dashboard.totalAchievements}
+                    No sessions marked yet.
                   </p>
-                  <span
-                    className={`text-[8px] uppercase tracking-widest ${light ? "text-black/30" : "text-white/25"}`}
-                  >
-                    rewards earned
-                  </span>
-                </div>
-              </div>
+                )}
+              </section>
             </div>
           </div>
         </header>
