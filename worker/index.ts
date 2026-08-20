@@ -25,17 +25,6 @@ const nodeHandler = httpServerHandler({ port: 3000 });
 
 export default {
   fetch(request: Request, env: Env, ctx: ExecutionContext) {
-    const url = new URL(request.url);
-    if (url.pathname === "/api/_runtime-secret-check") {
-      return Response.json(
-        {
-          adminPasswordPresent: Boolean(env.ADMIN_PASSWORD),
-          databaseUrlPresent: Boolean(env.DATABASE_URL),
-        },
-        { headers: { "Cache-Control": "no-store" } },
-      );
-    }
-
     runtimeEnv = env;
     return nodeHandler.fetch(request, env, ctx);
   },
