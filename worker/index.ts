@@ -1,3 +1,4 @@
+import { env as cloudflareEnv } from "cloudflare:workers";
 import { httpServerHandler } from "cloudflare:node";
 import { createApp } from "../artifacts/api-server/src/app";
 
@@ -14,8 +15,9 @@ interface Env {
 let runtimeEnv: Env | undefined;
 
 const app = createApp({
-  getDatabaseUrl: () => runtimeEnv?.DATABASE_URL,
-  getAdminPassword: () => runtimeEnv?.ADMIN_PASSWORD,
+  getDatabaseUrl: () => runtimeEnv?.DATABASE_URL ?? cloudflareEnv.DATABASE_URL,
+  getAdminPassword: () =>
+    runtimeEnv?.ADMIN_PASSWORD ?? cloudflareEnv.ADMIN_PASSWORD,
 });
 
 app.listen(3000);
