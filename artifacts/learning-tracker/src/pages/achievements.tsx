@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 
 function achievementDate(value: string, pattern: string) {
   const date = new Date(value);
@@ -381,7 +382,11 @@ export default function Achievements() {
           className="quiet-reveal flex items-center gap-3 rounded-2xl border border-[#ffc268]/18 bg-[#ffc268]/[.06] px-5 py-4 text-sm text-[#ffe0a5]"
           role="status"
         >
-          <Check className="h-4 w-4 shrink-0 text-[#ffc268]" />
+          <SamuraiStatusIcon
+            status="active"
+            label="Journey review complete"
+            className="h-9 w-9 shrink-0 opacity-85"
+          />
           {reconcileMessage}
         </div>
       )}
@@ -399,9 +404,20 @@ export default function Achievements() {
                 : "Every current journey mark is visible."}
             </p>
           </div>
-          <span className="text-3xl font-semibold tracking-tight text-[#ffc268]">
-            {progressPercent}%
-          </span>
+          <div className="flex items-center gap-3">
+            <SamuraiStatusIcon
+              status={unlockedCount === totalCount ? "active" : "focus"}
+              label={
+                unlockedCount === totalCount
+                  ? "Every current journey mark is visible"
+                  : "Focus on the next journey mark"
+              }
+              className="h-12 w-12 opacity-80"
+            />
+            <span className="text-3xl font-semibold tracking-tight text-[#ffc268]">
+              {progressPercent}%
+            </span>
+          </div>
         </div>
         <div className="h-2 bg-white/5 rounded-full overflow-hidden relative z-10">
           <div
@@ -512,7 +528,11 @@ export default function Achievements() {
 
       {achievements.length === 0 && (
         <div className="signal-surface rounded-3xl border border-dashed border-[#ffc268]/14 bg-[#0c1119]/88 p-10 text-center md:p-14">
-          <Award className="mx-auto mb-4 h-11 w-11 text-[#ffc268]/55" />
+          <SamuraiStatusIcon
+            status="standing"
+            label="Your first mark may be waiting"
+            className="mx-auto mb-4 h-16 w-16 opacity-75"
+          />
           <h3 className="text-xl font-semibold text-white">
             Your first mark may already be waiting
           </h3>

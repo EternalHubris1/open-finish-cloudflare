@@ -389,6 +389,34 @@
     animation-duration: 26s;
   }
 
+  .samurai-status-icon {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+  }
+
+  .samurai-status-icon > img {
+    grid-area: 1 / 1;
+  }
+
+  .samurai-status-static {
+    display: none;
+  }
+
+  .samurai-status-static-only {
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .samurai-status-motion {
+      display: none;
+    }
+
+    .samurai-status-static {
+      display: block;
+    }
+  }
+
   .samurai-site-musashi {
     background-repeat: no-repeat;
     background-position: center top;
