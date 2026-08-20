@@ -11,7 +11,8 @@
     "cf-typegen": "wrangler types",
     "typecheck:libs": "tsc --build",
     "typecheck:worker": "pnpm run typecheck:libs && pnpm --filter @workspace/learning-tracker run typecheck && pnpm --filter @workspace/api-server run typecheck",
-    "typecheck": "pnpm run typecheck:worker"
+    "typecheck": "pnpm run typecheck:worker",
+    "test": "pnpm --filter @workspace/api-server run test"
   },
   "packageManager": "pnpm@10.11.1",
   "private": true,

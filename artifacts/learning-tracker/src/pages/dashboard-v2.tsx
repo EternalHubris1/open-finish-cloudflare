@@ -207,7 +207,7 @@ function TodaySessionsList({
 }) {
   return (
     <section
-                className={`today-sessions-panel w-full rounded-2xl border p-4 ${light ? "border-black/[.08] bg-black/[.025]" : "border-white/[.08] bg-black/10"}`}
+      className={`today-sessions-panel w-full rounded-2xl border p-4 ${light ? "border-black/[.08] bg-black/[.025]" : "border-white/[.08] bg-black/10"}`}
 
       aria-labelledby="today-sessions-heading"
     >
@@ -234,9 +234,7 @@ function TodaySessionsList({
               (candidate) => candidate.id === log.activityId,
             );
             const isSport = activity?.activityType === "sport";
-            const accent = isSport
-              ? "#62bca8"
-              : (activity?.color ?? "#ff7868");
+            const accent = isSport ? "#62bca8" : (activity?.color ?? "#ff7868");
             return (
               <div
                 key={log.id}
@@ -364,7 +362,7 @@ function Timeline({
       className={`signal-surface energy-panel overflow-hidden rounded-[2rem] border ${light ? "border-black/[.08] bg-white/80" : "border-white/[.08] bg-[#0c1119]/92"}`}
       onMouseLeave={() => setFocusedDate(null)}
     >
-      <div className="grid lg:grid-cols-[1.5fr_.5fr]">
+      <div className="grid md:grid-cols-[minmax(0,1.5fr)_minmax(15rem,.5fr)]">
         <div className="min-w-0 p-6 md:p-9">
           <div className="mb-8 flex items-end justify-between gap-4">
             <div>
@@ -393,10 +391,12 @@ function Timeline({
               </p>
             </div>
             <div
-              className={`energy-metrics hidden min-w-[284px] overflow-hidden rounded-2xl border text-center sm:grid sm:grid-cols-[1.14fr_.78fr_1.14fr] ${light ? "border-black/[.08] bg-black/[.025] text-black/45" : "border-white/[.08] bg-black/10 text-white/35"}`}
+              className={`energy-metrics hidden min-w-[284px] overflow-hidden rounded-2xl border text-center lg:grid lg:grid-cols-[1.14fr_.78fr_1.14fr] ${light ? "border-black/[.08] bg-black/[.025] text-black/45" : "border-white/[.08] bg-black/10 text-white/35"}`}
               aria-label="Weekly activity summary"
             >
-              <div className={`px-3 py-3 ${light ? "border-black/[.08]" : "border-white/[.08]"} border-r`}>
+              <div
+                className={`px-3 py-3 ${light ? "border-black/[.08]" : "border-white/[.08]"} border-r`}
+              >
                 <p
                   className={`whitespace-nowrap text-[18px] font-semibold leading-none tabular-nums ${light ? "text-black/78" : "text-white/90"}`}
                 >
@@ -406,7 +406,9 @@ function Timeline({
                   this week
                 </span>
               </div>
-              <div className={`px-2 py-3 ${light ? "border-black/[.08]" : "border-white/[.08]"} border-r`}>
+              <div
+                className={`px-2 py-3 ${light ? "border-black/[.08]" : "border-white/[.08]"} border-r`}
+              >
                 <p
                   className={`whitespace-nowrap text-[18px] font-semibold leading-none tabular-nums ${light ? "text-black/78" : "text-white/90"}`}
                 >
@@ -689,7 +691,7 @@ function Timeline({
         </div>
 
         <aside
-          className={`relative flex min-h-[32rem] flex-col border-t p-5 lg:min-h-[35rem] lg:border-l lg:border-t-0 md:p-6 ${light ? "border-black/[.08] bg-[#edf0f3]/60" : "border-white/[.08] bg-[#090d14]/55"}`}
+          className={`relative flex min-h-[32rem] flex-col border-t p-5 md:min-h-full md:border-l md:border-t-0 md:p-6 lg:min-h-[35rem] ${light ? "border-black/[.08] bg-[#edf0f3]/60" : "border-white/[.08] bg-[#090d14]/55"}`}
         >
           <TodaySessionsList
             logs={todayLogs}
@@ -1088,7 +1090,7 @@ export default function DashboardV2() {
                 <Target className="h-3 w-3" /> Current line in view
               </p>
               <h1
-                className={`max-w-3xl text-5xl font-semibold leading-[.98] tracking-[-.045em] md:text-7xl ${light ? "text-[#181719]" : "text-white"}`}
+                className={`max-w-3xl text-5xl font-semibold leading-[.98] tracking-[-.045em] sm:text-6xl lg:text-7xl ${light ? "text-[#181719]" : "text-white"}`}
               >
                 {focus?.name}.<br />
                 <span className={light ? "text-black/30" : "text-white/25"}>
@@ -1175,7 +1177,6 @@ export default function DashboardV2() {
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </header>

@@ -300,11 +300,14 @@ export default function Activities() {
                   <div className="min-w-0">
                     <Link
                       href={`/activities/${activity.id}`}
-                      className="block truncate text-base font-semibold text-white hover:text-[#ff9a89]"
+                      className="block min-h-10 line-clamp-2 text-base font-semibold leading-5 text-white transition-colors hover:text-[#ff9a89]"
                     >
                       {activity.name}
                     </Link>
-                    <p className="mt-1 truncate text-[8px] font-bold uppercase tracking-[.16em] text-white/28">
+                    <p
+                      className="mt-1 truncate text-[8px] font-bold uppercase tracking-[.16em] text-white/28"
+                      title={activity.category}
+                    >
                       {activity.category}
                     </p>
                   </div>
@@ -338,7 +341,7 @@ export default function Activities() {
                   </span>
                   min target
                 </p>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5 rounded-2xl border border-white/[.06] bg-black/10 p-1">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -353,7 +356,7 @@ export default function Activities() {
                     variant="ghost"
                     size="icon"
                     aria-label={`Delete ${activity.name}`}
-                    className="h-8 w-8 rounded-xl text-white/28 hover:bg-red-500/10 hover:text-red-400"
+                    className="ml-0.5 h-8 w-8 rounded-xl border border-red-400/10 text-white/28 hover:border-red-400/20 hover:bg-red-500/10 hover:text-red-400"
                     onClick={() => {
                       setDeletingActivity(activity);
                       setDeleteDialogOpen(true);
