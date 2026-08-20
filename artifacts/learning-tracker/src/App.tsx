@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Route, Switch, Router as WouterRouter, useLocation } from "wouter";
 import { AppSidebar } from "@/components/app-sidebar";
 import musashi from "@assets/musashi_1785336444855.jpg";
-import inkToriiBackground from "@assets/ink-torii-night-background.png";
+import inkToriiBackground from "@assets/ink-torii-night-background-v2-clean.png";
 
 const Dashboard = lazy(() => import("@/pages/dashboard-v2"));
 const Activities = lazy(() => import("@/pages/activities"));
@@ -213,7 +213,7 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
         className="samurai-site-ambient"
         aria-hidden="true"
         style={{
-          backgroundImage: `linear-gradient(138deg, rgba(5, 8, 13, 0.84) 0%, rgba(10, 16, 25, 0.74) 44%, rgba(8, 11, 18, 0.88) 100%), url(${inkToriiBackground})`,
+          backgroundImage: `linear-gradient(138deg, rgba(5, 8, 13, 0.62) 0%, rgba(10, 16, 25, 0.5) 44%, rgba(8, 11, 18, 0.72) 100%), url(${inkToriiBackground})`,
         }}
       />
       <div className="samurai-site-mountains" aria-hidden="true" />
