@@ -40,6 +40,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LogActivityDialog } from "@/components/log-activity-dialog";
 import { TodayPlan } from "@/components/today-plan";
 import { ActivityGlyph } from "@/lib/activity-icons";
+import musashi from "@assets/musashi_1785336444855.jpg";
 import {
   previewActivities,
   previewDashboard,
@@ -287,97 +288,6 @@ function TodaySessionsList({
           No sessions marked yet.
         </p>
       )}
-    </section>
-  );
-}
-
-function ReturnPath({
-  days,
-  displayDate,
-  light,
-  onContinue,
-}: {
-  days: CalendarDay[];
-  displayDate: string;
-  light: boolean;
-  onContinue: () => void;
-}) {
-  const [, navigate] = useLocation();
-  const markedDays = days.filter(
-    (day) => day.focusMinutes > 0 || day.sportMinutes > 0,
-  ).length;
-
-  return (
-    <section
-      className={`return-path signal-surface overflow-hidden rounded-[1.75rem] border px-5 py-5 md:px-7 ${light ? "border-black/[.08] bg-white/76" : "border-white/[.08] bg-[#0c1119]/86"}`}
-      aria-labelledby="return-path-heading"
-    >
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-        <div className="min-w-0">
-          <p
-            className={`flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.22em] ${light ? "text-[#91463f]" : "text-[#ff9a89]"}`}
-          >
-            <Radio className="h-3.5 w-3.5" /> The return path
-          </p>
-          <h2
-            id="return-path-heading"
-            className={`mt-2 text-xl font-semibold tracking-tight ${light ? "text-[#181719]" : "text-white"}`}
-          >
-            A week becomes a line through real returns.
-          </h2>
-          <p
-            className={`mt-2 max-w-xl text-sm leading-6 ${light ? "text-black/45" : "text-white/40"}`}
-          >
-            {markedDays
-              ? `${markedDays} marked ${markedDays === 1 ? "day" : "days"} this week. Select any point to open its history.`
-              : "The first marked day will give this path its first point."}
-          </p>
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onContinue}
-          className={`signal-button h-10 shrink-0 rounded-full px-4 text-[10px] font-bold uppercase tracking-[.14em] ${light ? "border-black/10 bg-black/[.025] text-black/60 hover:bg-black/[.055]" : "border-white/10 bg-white/[.025] text-white/60 hover:bg-white/[.06]"}`}
-        >
-          <Plus className="h-3.5 w-3.5" /> Continue
-        </Button>
-      </div>
-
-      <div
-        className="return-path-track relative mt-7 grid grid-cols-7 gap-1.5 sm:gap-3"
-        data-focus-scope
-      >
-        {days.map((day) => {
-          const marked = day.focusMinutes > 0 || day.sportMinutes > 0;
-          const isCurrent = day.date === displayDate;
-          const minutes = day.focusMinutes + day.sportMinutes;
-          return (
-            <button
-              key={day.date}
-              type="button"
-              onClick={() =>
-                navigate(`/history?date=${day.date}&from=dashboard`)
-              }
-              className={`return-path-node group relative flex min-w-0 flex-col items-center gap-2 rounded-xl px-1 py-1.5 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff8b7c] ${isCurrent ? "is-current" : ""}`}
-              aria-label={`${format(new Date(`${day.date}T00:00:00`), "EEEE, MMMM d")}: ${marked ? `${minutesLabel(minutes)} logged. Open day history.` : "no session logged. Open day history."}`}
-              data-focus-item
-            >
-              <span
-                className={`return-path-dot grid h-7 w-7 place-items-center rounded-full border text-[9px] font-bold tabular-nums ${marked ? "is-marked" : ""} ${light ? "border-black/[.12] bg-white text-black/55" : "border-white/[.13] bg-[#101721] text-white/50"}`}
-              >
-                {marked ? minutesLabel(minutes).replace(" ", "") : "·"}
-              </span>
-              <span
-                className={`text-[8px] font-bold uppercase tracking-[.14em] ${isCurrent ? (light ? "text-[#91463f]" : "text-[#ff9a89]") : light ? "text-black/35" : "text-white/30"}`}
-              >
-                {isCurrent
-                  ? "Now"
-                  : format(new Date(`${day.date}T00:00:00`), "EEE")}
-              </span>
-            </button>
-          );
-        })}
-      </div>
     </section>
   );
 }
@@ -1177,6 +1087,20 @@ export default function DashboardV2() {
             aria-hidden="true"
           />
           <div className="dashboard-hero-ink" aria-hidden="true" />
+          <div
+            className="dashboard-hero-musashi"
+            aria-hidden="true"
+            style={{ backgroundImage: `url(${musashi})` }}
+          />
+          <div
+            className="dashboard-hero-mountains dashboard-hero-mountains-back"
+            aria-hidden="true"
+          />
+          <div
+            className="dashboard-hero-mountains dashboard-hero-mountains-front"
+            aria-hidden="true"
+          />
+          <div className="dashboard-hero-fog" aria-hidden="true" />
           <div className="relative z-10 grid items-center gap-10 lg:grid-cols-[1fr_.58fr]">
             <div>
               <div
@@ -1291,13 +1215,6 @@ export default function DashboardV2() {
             <strong>{minutesLabel(recentLog.duration)}</strong>
           </div>
         )}
-
-        <ReturnPath
-          days={days}
-          displayDate={displayDate}
-          light={light}
-          onContinue={() => setActivityPickerOpen(true)}
-        />
 
         <Timeline
           days={days}
