@@ -2,6 +2,7 @@ import { Router, type RequestHandler } from "express";
 
 type AuthOptions = {
   password?: string;
+  getPassword?: () => string | undefined;
 };
 
 const COOKIE_NAME = "open_finish_session";
@@ -78,9 +79,10 @@ function sessionCookie(value: string, maxAge: number) {
 
 export function createAuth(options: AuthOptions) {
   const router = Router();
-  const password = options.password?.trim() || null;
+  const getPassword = () => options.getPassword?.()?.trim() || options.password?.trim() || null;
 
   router.get("/auth/session", async (req, res): Promise<void> => {
+    const password = getPassword();
     if (!password) {
       res.status(503).json({
         passwordEnabled: false,
@@ -98,6 +100,7 @@ export function createAuth(options: AuthOptions) {
   });
 
   router.post("/auth/login", async (req, res): Promise<void> => {
+    const password = getPassword();
     if (!password) {
       res.status(503).json({ error: "Password access has not been configured" });
       return;
@@ -119,6 +122,7 @@ export function createAuth(options: AuthOptions) {
   });
 
   const requirePassword: RequestHandler = async (req, res, next) => {
+    const password = getPassword();
     if (!password) {
       res.status(503).json({ error: "Password access has not been configured" });
       return;

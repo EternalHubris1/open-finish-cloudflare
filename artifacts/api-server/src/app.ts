@@ -6,6 +6,8 @@ import { createAuth } from "./auth";
 interface AppOptions {
   databaseUrl?: string;
   adminPassword?: string;
+  getDatabaseUrl?: () => string | undefined;
+  getAdminPassword?: () => string | undefined;
 }
 
 const API_SECURITY_HEADERS = {
@@ -52,14 +54,22 @@ export function createApp(options: AppOptions = {}): Express {
   app.use(express.json({ limit: "64kb" }));
   app.use(express.urlencoded({ extended: true, limit: "64kb" }));
 
-  const auth = createAuth({ password: options.adminPassword });
+  const auth = createAuth({
+    password: options.adminPassword,
+    getPassword: options.getAdminPassword,
+  });
   app.use("/api", auth.router);
   app.use("/api", auth.requirePassword);
 
-  if (options.databaseUrl) {
+  if (options.databaseUrl || options.getDatabaseUrl) {
     app.use("/api", async (_req, res, next) => {
       try {
-        const connection = connectNeon(options.databaseUrl!);
+        const databaseUrl = options.getDatabaseUrl?.() ?? options.databaseUrl;
+        if (!databaseUrl) {
+          res.status(503).json({ error: "Database access has not been configured" });
+          return;
+        }
+        const connection = connectNeon(databaseUrl);
         let closed = false;
         const closeConnection = () => {
           if (closed) return;
