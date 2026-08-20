@@ -1,11 +1,20 @@
-import { FormEvent, lazy, Suspense, useEffect, useState } from "react";
+import {
+  Component,
+  FormEvent,
+  lazy,
+  Suspense,
+  useEffect,
+  useState,
+  type ErrorInfo,
+  type ReactNode,
+} from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AlertTriangle, LockKeyhole, LoaderCircle } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Route, Switch, Router as WouterRouter } from "wouter";
+import { Route, Switch, Router as WouterRouter, useLocation } from "wouter";
 import { AppSidebar } from "@/components/app-sidebar";
 import musashi from "@assets/musashi_1785336444855.jpg";
 
@@ -137,7 +146,66 @@ function RouteLoadingFallback() {
   );
 }
 
+type RouteErrorBoundaryProps = {
+  children: ReactNode;
+  resetKey: string;
+};
+
+type RouteErrorBoundaryState = {
+  hasError: boolean;
+};
+
+class RouteErrorBoundary extends Component<
+  RouteErrorBoundaryProps,
+  RouteErrorBoundaryState
+> {
+  state: RouteErrorBoundaryState = { hasError: false };
+
+  static getDerivedStateFromError(): RouteErrorBoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidCatch(_error: Error, _info: ErrorInfo) {
+    // The public UI intentionally does not expose runtime or API details.
+  }
+
+  componentDidUpdate(previousProps: RouteErrorBoundaryProps) {
+    if (this.state.hasError && previousProps.resetKey !== this.props.resetKey) {
+      this.setState({ hasError: false });
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <section className="mx-auto grid min-h-[60vh] max-w-lg place-items-center p-6 text-center text-white">
+          <div className="signal-surface w-full rounded-[2rem] border border-[#ff8b7c]/20 bg-[#0c1119]/92 p-8 shadow-[0_24px_90px_rgba(0,0,0,.26)]">
+            <AlertTriangle className="mx-auto h-7 w-7 text-[#ff9a89]" />
+            <h1 className="mt-4 text-xl font-semibold">
+              This view could not be opened
+            </h1>
+            <p className="mt-3 text-sm leading-7 text-white/50">
+              Return to the dashboard or refresh the page. Your saved activity
+              has not been changed.
+            </p>
+            <a
+              className="mt-6 inline-flex h-11 items-center rounded-full bg-[#e95448] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white transition-colors hover:bg-[#f26456]"
+              href="/"
+            >
+              Return to dashboard
+            </a>
+          </div>
+        </section>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 function Router({ onLogout }: { onLogout: () => Promise<void> }) {
+  const [location] = useLocation();
+
   return (
     <div className="flex min-h-screen relative overflow-hidden bg-[#080b10]">
       <div
@@ -170,35 +238,37 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
 
       <AppSidebar onLogout={onLogout} />
       <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden relative z-10 h-screen">
-        <Suspense fallback={<RouteLoadingFallback />}>
-          <Switch>
-            <Route path="/" component={Dashboard} />
-            <Route path="/activities" component={Activities} />
-            <Route path="/activities/:id" component={ActivityDetail} />
-            <Route path="/history" component={History} />
-            <Route path="/reflections" component={Reflections} />
-            <Route path="/streaks" component={Streaks} />
-            <Route path="/achievements" component={Achievements} />
-            <Route path="/alerts" component={Alerts} />
-            <Route path="/profile" component={Profile} />
-            <Route path="/explore/dashboard-a">
-              {() => <DashboardExploration concept="a" />}
-            </Route>
-            <Route path="/explore/dashboard-b">
-              {() => <DashboardExploration concept="b" />}
-            </Route>
-            <Route path="/explore/dashboard-c">
-              {() => <DashboardExploration concept="c" />}
-            </Route>
-            <Route path="/explore/dashboard-d">
-              {() => <DashboardExploration concept="d" />}
-            </Route>
-            <Route path="/explore/dashboard-e">
-              {() => <DashboardExploration concept="e" />}
-            </Route>
-            <Route component={NotFound} />
-          </Switch>
-        </Suspense>
+        <RouteErrorBoundary resetKey={location}>
+          <Suspense fallback={<RouteLoadingFallback />}>
+            <Switch>
+              <Route path="/" component={Dashboard} />
+              <Route path="/activities" component={Activities} />
+              <Route path="/activities/:id" component={ActivityDetail} />
+              <Route path="/history" component={History} />
+              <Route path="/reflections" component={Reflections} />
+              <Route path="/streaks" component={Streaks} />
+              <Route path="/achievements" component={Achievements} />
+              <Route path="/alerts" component={Alerts} />
+              <Route path="/profile" component={Profile} />
+              <Route path="/explore/dashboard-a">
+                {() => <DashboardExploration concept="a" />}
+              </Route>
+              <Route path="/explore/dashboard-b">
+                {() => <DashboardExploration concept="b" />}
+              </Route>
+              <Route path="/explore/dashboard-c">
+                {() => <DashboardExploration concept="c" />}
+              </Route>
+              <Route path="/explore/dashboard-d">
+                {() => <DashboardExploration concept="d" />}
+              </Route>
+              <Route path="/explore/dashboard-e">
+                {() => <DashboardExploration concept="e" />}
+              </Route>
+              <Route component={NotFound} />
+            </Switch>
+          </Suspense>
+        </RouteErrorBoundary>
       </main>
     </div>
   );
