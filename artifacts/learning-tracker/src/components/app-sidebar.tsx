@@ -55,8 +55,6 @@ const utilityRoutes: SidebarRoute[] = [
   { path: "/profile", label: "Profile", cue: "Personal settings", icon: User },
 ];
 
-const allRoutes = [...orientationRoutes, ...longViewRoutes, ...utilityRoutes];
-
 function routeIsActive(location: string, path: string) {
   return path === "/"
     ? location === path
@@ -159,10 +157,6 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const mobilePrimaryRoutes = orientationRoutes;
   const mobileMoreRoutes = [...longViewRoutes, ...utilityRoutes];
-  const currentRoute =
-    allRoutes.find((route) => routeIsActive(location, route.path)) ??
-    orientationRoutes[0];
-
   useEffect(() => setMobileMoreOpen(false), [location]);
 
   return (
@@ -204,32 +198,36 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
             routes={longViewRoutes}
             location={location}
           />
-          <div className="mt-auto pt-2">
-            <RouteSection
-              label="System"
-              routes={utilityRoutes}
-              location={location}
-            />
+          <div className="mt-auto border-t border-white/[.055] pt-3">
+            <div className="grid grid-cols-2 gap-2" aria-label="Secondary navigation">
+              {utilityRoutes.map((route) => {
+                const Icon = route.icon;
+                const active = routeIsActive(location, route.path);
+                return (
+                  <Link
+                    key={route.path}
+                    href={route.path}
+                    aria-current={active ? "page" : undefined}
+                    aria-label={route.label}
+                    title={route.cue}
+                    className={cn(
+                      "sidebar-route group flex min-h-10 items-center justify-center gap-2 rounded-xl border px-2 py-2 text-[9px] font-bold uppercase tracking-[.12em] transition-[color,background-color,border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff8b7c]/70",
+                      active
+                        ? "border-[#ff7868]/20 bg-[#ff7868]/10 text-[#ff9a89] shadow-[0_0_18px_rgba(255,111,97,.08)]"
+                        : "border-white/[.055] bg-white/[.018] text-white/32 hover:border-white/10 hover:bg-white/[.045] hover:text-white/70",
+                    )}
+                    data-testid={`nav-${route.label.toLowerCase()}`}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    <span>{route.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </nav>
 
         <footer className="relative border-t border-white/[.055] p-3">
-          <div className="mb-2 rounded-2xl border border-white/[.055] bg-white/[.025] px-3 py-2.5">
-            <p className="text-[8px] font-bold uppercase tracking-[.2em] text-white/20">
-              In view
-            </p>
-            <div className="mt-1.5 flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <p className="truncate text-xs font-semibold text-white/70">
-                  {currentRoute.label}
-                </p>
-                <p className="mt-0.5 truncate text-[9px] text-white/28">
-                  {currentRoute.cue}
-                </p>
-              </div>
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#ff8b7c] shadow-[0_0_9px_rgba(255,120,104,.7)]" />
-            </div>
-          </div>
           <button
             type="button"
             onClick={() => void onLogout()}
