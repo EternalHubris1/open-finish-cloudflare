@@ -2,17 +2,17 @@
 
 **Worker URL:** `https://open-finish-cloudflare.dgt-saunin.workers.dev`
 
-**Worker version:** `d93c8216-e4df-4efe-890c-88c660e73494`
+**Worker version:** `2acd07b9-bab2-4bc7-b89c-90b275008ce0`
 
 ## Result
 
-The P1 frontend release was published through the technical Cloudflare API channel with IPv4 preference. No Cloudflare Dashboard or CAPTCHA flow was used.
+The cumulative P1 frontend release, including responsive layout, lazy routes, recovery states, resilient KPI labels, and quieter History days, was published through the technical Cloudflare API channel with IPv4 preference. No Cloudflare Dashboard or CAPTCHA flow was used.
 
 | Check | Result |
 | --- | --- |
 | Production root URL | Served the Open Finish private workspace password-gate. |
 | Browser visual check | Confirmed the expected “Continue your line” login screen and workspace password input. |
-| `GET /api/healthz` without session | Returned `401`, confirming the protected API is not publicly readable. |
+| `GET /api/healthz` without session | Returned `401` with `{"error":"Authentication required"}`, confirming the protected API is not publicly readable. |
 | API response headers | `Cache-Control: no-store`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Content-Type-Options: nosniff`, and `X-Frame-Options: DENY` were present. |
 | Neon data | Not read, changed, or migrated during this verification. |
 
