@@ -1,11 +1,21 @@
 import express, { type Express } from "express";
-import cors from "cors";
 import { connectNeon, runWithDatabase } from "@workspace/db";
 import router from "./routes";
+import { createAuth } from "./auth";
 
 interface AppOptions {
   databaseUrl?: string;
+  adminPassword?: string;
 }
+
+const API_SECURITY_HEADERS = {
+  "Cache-Control": "no-store, max-age=0",
+  "Cross-Origin-Resource-Policy": "same-origin",
+  "Permissions-Policy": "camera=(), geolocation=(), microphone=(), payment=()",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+};
 
 /**
  * The same Express API can run locally with DATABASE_URL or on Workers with a
@@ -16,6 +26,7 @@ interface AppOptions {
 export function createApp(options: AppOptions = {}): Express {
   const app: Express = express();
   app.set("trust proxy", 1);
+  app.disable("x-powered-by");
 
   app.use((req, res, next) => {
     const startedAt = Date.now();
@@ -31,9 +42,20 @@ export function createApp(options: AppOptions = {}): Express {
     });
     next();
   });
-  app.use(cors());
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+
+  // The browser application and API share one origin. Do not grant arbitrary
+  // third-party websites permission to read or mutate private activity data.
+  app.use("/api", (_req, res, next) => {
+    res.set(API_SECURITY_HEADERS);
+    next();
+  });
+  app.use(express.json({ limit: "64kb" }));
+  app.use(express.urlencoded({ extended: true, limit: "64kb" }));
+
+  const auth = createAuth({ password: options.adminPassword });
+  app.use("/api", auth.router);
+  app.use("/api", auth.requirePassword);
+
   if (options.databaseUrl) {
     app.use("/api", async (_req, res, next) => {
       try {
@@ -54,7 +76,9 @@ export function createApp(options: AppOptions = {}): Express {
     });
   }
 
-  // The Cloudflare deployment is intentionally public.
+  // Application-level password access is independent of Replit and stored only
+  // in the Cloudflare ADMIN_PASSWORD secret. Cloudflare Access can be added as
+  // a separate defence-in-depth gate around the entire Worker.
   app.use("/api", router);
 
   return app;

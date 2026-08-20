@@ -3,6 +3,7 @@ import { httpServerHandler } from "cloudflare:node";
 import { createApp } from "../artifacts/api-server/src/app";
 
 interface Env {
+  ADMIN_PASSWORD?: string;
   DATABASE_URL?: string;
 }
 
@@ -14,6 +15,7 @@ interface Env {
  */
 const app = createApp({
   databaseUrl: (env as Env).DATABASE_URL,
+  adminPassword: (env as Env).ADMIN_PASSWORD,
 });
 
 app.listen(3000);
