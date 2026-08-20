@@ -182,7 +182,9 @@ export default function Reflections() {
         >
           <span>
             {filtered.length} {filtered.length === 1 ? "note" : "notes"}
-            {hasFilters ? " match your view." : " kept from completed sessions."}
+            {hasFilters
+              ? " match your view."
+              : " kept from completed sessions."}
           </span>
           {hasFilters && (
             <Button
@@ -225,7 +227,8 @@ export default function Reflections() {
                       {format(
                         new Date(`${entry.logDate}T00:00:00`),
                         "MMMM d, yyyy",
-                      )} · {entry.durationMinutes} min
+                      )}{" "}
+                      · {entry.durationMinutes} min
                     </p>
                   </div>
                 </div>
@@ -292,6 +295,14 @@ export default function Reflections() {
               ? "Try clearing the search or direction filter."
               : "After a session, leave a short note only when it will make the next return lighter."}
           </p>
+          {!hasFilters && (
+            <Link
+              href="/"
+              className="mt-6 inline-flex h-10 items-center gap-2 rounded-full bg-[#e95448] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white transition-colors hover:bg-[#f26456]"
+            >
+              Open dashboard <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
+          )}
         </section>
       )}
     </div>

@@ -15,7 +15,15 @@ import { LogActivityDialog } from "@/components/log-activity-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, Trash2, Calendar, Clock } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  Calendar,
+  Clock,
+  Plus,
+  RefreshCw,
+  Trash2,
+} from "lucide-react";
 import { ActivityGlyph } from "@/lib/activity-icons";
 import { addDays, format, startOfWeek, subWeeks } from "date-fns";
 import {
@@ -33,21 +41,27 @@ import { DailyActivityChart } from "@/components/daily-activity-chart";
 export default function ActivityDetail() {
   const params = useParams();
   const activityId = params.id ? Number(params.id) : 0;
-  const { data: activity, isLoading: activityLoading } = useGetActivity(
-    activityId,
-    {
-      query: {
-        enabled: !!activityId,
-        queryKey: ["activity", activityId] as any,
-      },
+  const activityQuery = useGetActivity(activityId, {
+    query: {
+      enabled: !!activityId,
+      queryKey: ["activity", activityId] as any,
     },
-  );
-  const { data: logs = [], isLoading: logsLoading } = useListActivityLogs(
-    activityId,
-    {
-      query: { queryKey: ["activity-logs", activityId] as any },
-    },
-  );
+  });
+  const logsQuery = useListActivityLogs(activityId, {
+    query: { queryKey: ["activity-logs", activityId] as any },
+  });
+  const {
+    data: activity,
+    isError: activityError,
+    isFetching: activityRetrying,
+    isLoading: activityLoading,
+  } = activityQuery;
+  const {
+    data: logs = [],
+    isError: logsError,
+    isFetching: logsRetrying,
+    isLoading: logsLoading,
+  } = logsQuery;
   const deleteLog = useDeleteLog();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -70,16 +84,68 @@ export default function ActivityDetail() {
     );
   }
 
+  if (activityError || logsError) {
+    const retrying = activityRetrying || logsRetrying;
+    return (
+      <div className="mx-auto flex min-h-[65vh] max-w-3xl items-center p-5 md:p-10">
+        <section
+          className="signal-surface w-full rounded-[2rem] border border-[#ff8b7c]/20 bg-[#0c1119]/92 p-8 text-center"
+          role="alert"
+        >
+          <AlertTriangle className="mx-auto h-9 w-9 text-[#ff9a89]" />
+          <h1 className="mt-5 text-2xl font-semibold text-white">
+            This activity could not be loaded
+          </h1>
+          <p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-white/50">
+            Your saved sessions have not changed. Check the connection and try
+            again.
+          </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Button
+              type="button"
+              onClick={() => {
+                void Promise.all([
+                  activityQuery.refetch(),
+                  logsQuery.refetch(),
+                ]);
+              }}
+              disabled={retrying}
+              className="rounded-full bg-[#e95448] px-6 text-[10px] font-bold uppercase tracking-[.14em] text-white hover:bg-[#f26456]"
+            >
+              <RefreshCw
+                className={`mr-2 h-4 w-4 ${retrying ? "animate-spin" : ""}`}
+              />
+              Try again
+            </Button>
+            <Link
+              href="/activities"
+              className="inline-flex h-10 items-center rounded-full border border-white/10 px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white/65 hover:bg-white/[.05] hover:text-white"
+            >
+              Back to activities
+            </Link>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   if (!activity) {
     return (
-      <div className="p-8 max-w-5xl mx-auto text-center mt-20 relative z-10">
-        <p className="text-2xl text-white/50">Activity not found</p>
-        <Link
-          href="/activities"
-          className="text-red-400 mt-4 inline-block underline font-bold tracking-wide"
-        >
-          Back to activities
-        </Link>
+      <div className="mx-auto flex min-h-[55vh] max-w-3xl items-center p-5 text-center md:p-10">
+        <section className="signal-surface w-full rounded-[2rem] border border-white/[.08] bg-[#0c1119]/92 p-8">
+          <h1 className="text-2xl font-semibold text-white">
+            Activity not found
+          </h1>
+          <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-white/50">
+            It may have been removed, or the address is no longer valid.
+          </p>
+          <Link
+            href="/activities"
+            className="mt-6 inline-flex h-10 items-center rounded-full bg-[#e95448] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white hover:bg-[#f26456]"
+          >
+            Back to activities
+          </Link>
+        </section>
       </div>
     );
   }
