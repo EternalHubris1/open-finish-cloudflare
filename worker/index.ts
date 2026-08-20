@@ -2,10 +2,15 @@ import * as process from "node:process";
 import { httpServerHandler } from "cloudflare:node";
 import { createApp } from "../artifacts/api-server/src/app";
 
+interface Env {
+  ADMIN_PASSWORD?: string;
+  DATABASE_URL?: string;
+}
+
 /**
- * Secrets are resolved for each API request rather than copied into the global
- * Express setup. This prevents a reused Worker isolate from retaining a stale
- * configuration after a Cloudflare Secret is rotated.
+ * Express reads credentials through request-time getters. Cloudflare supplies
+ * bindings to `fetch`, so mirror the current request's immutable bindings into
+ * the Node compatibility environment before dispatching to the HTTP adapter.
  */
 const app = createApp({
   getDatabaseUrl: () => process.env.DATABASE_URL,
@@ -13,5 +18,12 @@ const app = createApp({
 });
 
 app.listen(3000);
+const nodeHandler = httpServerHandler({ port: 3000 });
 
-export default httpServerHandler({ port: 3000 });
+export default {
+  fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    process.env.DATABASE_URL = env.DATABASE_URL ?? "";
+    process.env.ADMIN_PASSWORD = env.ADMIN_PASSWORD ?? "";
+    return nodeHandler.fetch(request, env, ctx);
+  },
+} satisfies ExportedHandler<Env>;
