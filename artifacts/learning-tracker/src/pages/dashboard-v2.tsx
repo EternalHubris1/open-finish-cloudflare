@@ -1100,6 +1100,7 @@ export default function DashboardV2() {
             className="dashboard-hero-mountains dashboard-hero-mountains-front"
             aria-hidden="true"
           />
+          <div className="dashboard-hero-clouds" aria-hidden="true" />
           <div className="dashboard-hero-fog" aria-hidden="true" />
           <div className="relative z-10 grid items-center gap-10 lg:grid-cols-[1fr_.58fr]">
             <div>
