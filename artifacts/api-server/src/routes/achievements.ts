@@ -1,8 +1,14 @@
 import { Router, type IRouter } from "express";
 import { db, achievementsTable, activitiesTable } from "@workspace/db";
 import { ListAchievementsResponse } from "@workspace/api-zod";
+import { reconcileAchievements } from "../lib/achievements";
 
 const router: IRouter = Router();
+
+router.post("/achievements/reconcile", async (_req, res): Promise<void> => {
+  const unlocked = await reconcileAchievements();
+  res.status(200).json({ unlocked });
+});
 
 router.get("/achievements", async (_req, res): Promise<void> => {
   const achievements = await db

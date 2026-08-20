@@ -627,7 +627,12 @@
     inset: 0;
     z-index: -1;
     opacity: 0;
-    background: linear-gradient(115deg, transparent 28%, rgba(255, 255, 255, 0.18) 50%, transparent 72%);
+    background: linear-gradient(
+      115deg,
+      transparent 28%,
+      rgba(255, 255, 255, 0.18) 50%,
+      transparent 72%
+    );
     transform: translateX(-110%);
     transition:
       transform 520ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -694,6 +699,58 @@
   }
   .achievement-ritual {
     animation: achievement-ritual 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .achievement-card {
+    isolation: isolate;
+    transform: translateZ(0);
+    transition:
+      transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 220ms ease,
+      box-shadow 240ms ease,
+      background-color 220ms ease;
+  }
+
+  .achievement-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .achievement-card > .pointer-events-none {
+    z-index: 0;
+  }
+
+  .achievement-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(
+      130deg,
+      transparent 34%,
+      rgba(255, 194, 104, 0.08) 51%,
+      transparent 68%
+    );
+    transform: translateX(-36%);
+    transition:
+      opacity 180ms ease,
+      transform 460ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .achievement-card:hover {
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 24px 64px rgba(0, 0, 0, 0.24),
+        0 0 32px rgba(255, 194, 104, 0.08);
+    }
+
+    .achievement-card:hover::after {
+      opacity: 1;
+      transform: translateX(36%);
+    }
   }
 
   .password-cross-input {
@@ -844,6 +901,8 @@
     .hero-daily-signal,
     .today-sessions-panel,
     .dashboard-continue,
+    .achievement-card,
+    .achievement-card::after,
     .signal-atmosphere,
     .signal-atmosphere::before {
       transition: none;

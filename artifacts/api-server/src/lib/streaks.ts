@@ -1,11 +1,6 @@
 import { eq } from "drizzle-orm";
-import {
-  db,
-  streaksTable,
-  achievementsTable,
-  activityLogsTable,
-  activitiesTable,
-} from "@workspace/db";
+import { db, streaksTable, activityLogsTable } from "@workspace/db";
+import { reconcileAchievements } from "./achievements";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -90,64 +85,5 @@ export async function updateStreak(
       set: summary,
     });
 
-  await checkAndUnlockAchievements(activityId, summary.currentStreak);
-}
-
-async function checkAndUnlockAchievements(
-  activityId: number,
-  currentStreak: number,
-): Promise<void> {
-  // Count total logs across all activities
-  const logs = await db.select().from(activityLogsTable);
-  const totalLogs = logs.length;
-
-  const allAchievements = await db.select().from(achievementsTable);
-  const types = new Set(allAchievements.map((a) => a.type));
-
-  const toUnlock: Array<{
-    type: string;
-    title: string;
-    description: string;
-    icon: string;
-    activityId: number | null;
-  }> = [];
-
-  if (currentStreak >= 30 && !types.has(`streak_30_${activityId}`)) {
-    const [act] = await db
-      .select()
-      .from(activitiesTable)
-      .where(eq(activitiesTable.id, activityId));
-    toUnlock.push({
-      type: `streak_30_${activityId}`,
-      title: "A Month of Return",
-      description: `You returned to ${act?.name ?? "this direction"} across 30 consecutive days.`,
-      icon: "crown",
-      activityId,
-    });
-  }
-
-  if (totalLogs >= 50 && !types.has("sessions_50")) {
-    toUnlock.push({
-      type: "sessions_50",
-      title: "Fifty Returns",
-      description: "Fifty learning sessions now form part of your history.",
-      icon: "medal",
-      activityId: null,
-    });
-  }
-
-  if (totalLogs >= 100 && !types.has("sessions_100")) {
-    toUnlock.push({
-      type: "sessions_100",
-      title: "One Hundred Returns",
-      description:
-        "One hundred learning sessions now form part of your history.",
-      icon: "award",
-      activityId: null,
-    });
-  }
-
-  for (const achievement of toUnlock) {
-    await db.insert(achievementsTable).values(achievement);
-  }
+  await reconcileAchievements();
 }
