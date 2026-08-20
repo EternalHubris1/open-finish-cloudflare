@@ -291,6 +291,97 @@ function TodaySessionsList({
   );
 }
 
+function ReturnPath({
+  days,
+  displayDate,
+  light,
+  onContinue,
+}: {
+  days: CalendarDay[];
+  displayDate: string;
+  light: boolean;
+  onContinue: () => void;
+}) {
+  const [, navigate] = useLocation();
+  const markedDays = days.filter(
+    (day) => day.focusMinutes > 0 || day.sportMinutes > 0,
+  ).length;
+
+  return (
+    <section
+      className={`return-path signal-surface overflow-hidden rounded-[1.75rem] border px-5 py-5 md:px-7 ${light ? "border-black/[.08] bg-white/76" : "border-white/[.08] bg-[#0c1119]/86"}`}
+      aria-labelledby="return-path-heading"
+    >
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <p
+            className={`flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.22em] ${light ? "text-[#91463f]" : "text-[#ff9a89]"}`}
+          >
+            <Radio className="h-3.5 w-3.5" /> The return path
+          </p>
+          <h2
+            id="return-path-heading"
+            className={`mt-2 text-xl font-semibold tracking-tight ${light ? "text-[#181719]" : "text-white"}`}
+          >
+            A week becomes a line through real returns.
+          </h2>
+          <p
+            className={`mt-2 max-w-xl text-sm leading-6 ${light ? "text-black/45" : "text-white/40"}`}
+          >
+            {markedDays
+              ? `${markedDays} marked ${markedDays === 1 ? "day" : "days"} this week. Select any point to open its history.`
+              : "The first marked day will give this path its first point."}
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onContinue}
+          className={`signal-button h-10 shrink-0 rounded-full px-4 text-[10px] font-bold uppercase tracking-[.14em] ${light ? "border-black/10 bg-black/[.025] text-black/60 hover:bg-black/[.055]" : "border-white/10 bg-white/[.025] text-white/60 hover:bg-white/[.06]"}`}
+        >
+          <Plus className="h-3.5 w-3.5" /> Continue
+        </Button>
+      </div>
+
+      <div
+        className="return-path-track relative mt-7 grid grid-cols-7 gap-1.5 sm:gap-3"
+        data-focus-scope
+      >
+        {days.map((day) => {
+          const marked = day.focusMinutes > 0 || day.sportMinutes > 0;
+          const isCurrent = day.date === displayDate;
+          const minutes = day.focusMinutes + day.sportMinutes;
+          return (
+            <button
+              key={day.date}
+              type="button"
+              onClick={() =>
+                navigate(`/history?date=${day.date}&from=dashboard`)
+              }
+              className={`return-path-node group relative flex min-w-0 flex-col items-center gap-2 rounded-xl px-1 py-1.5 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff8b7c] ${isCurrent ? "is-current" : ""}`}
+              aria-label={`${format(new Date(`${day.date}T00:00:00`), "EEEE, MMMM d")}: ${marked ? `${minutesLabel(minutes)} logged. Open day history.` : "no session logged. Open day history."}`}
+              data-focus-item
+            >
+              <span
+                className={`return-path-dot grid h-7 w-7 place-items-center rounded-full border text-[9px] font-bold tabular-nums ${marked ? "is-marked" : ""} ${light ? "border-black/[.12] bg-white text-black/55" : "border-white/[.13] bg-[#101721] text-white/50"}`}
+              >
+                {marked ? minutesLabel(minutes).replace(" ", "") : "·"}
+              </span>
+              <span
+                className={`text-[8px] font-bold uppercase tracking-[.14em] ${isCurrent ? (light ? "text-[#91463f]" : "text-[#ff9a89]") : light ? "text-black/35" : "text-white/30"}`}
+              >
+                {isCurrent
+                  ? "Now"
+                  : format(new Date(`${day.date}T00:00:00`), "EEE")}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function Timeline({
   days,
   activities,
@@ -948,7 +1039,7 @@ export default function DashboardV2() {
   const continuation =
     latestContinuationLog?.nextContinuation ?? focus?.currentThread ?? null;
   const continuationSource = latestContinuationLog
-    ? `From your reflection on ${format(new Date(`${latestContinuationLog.logDate}T00:00:00`), "MMM d")}`
+    ? `From a saved session note on ${format(new Date(`${latestContinuationLog.logDate}T00:00:00`), "MMM d")}`
     : focus?.currentThread
       ? "From this direction’s current thread"
       : null;
@@ -1068,7 +1159,7 @@ export default function DashboardV2() {
           </div>
         )}
         <header
-          className={`signal-surface relative overflow-hidden rounded-[2rem] border px-6 py-9 md:px-10 md:py-12 ${light ? "border-black/[.08] bg-white/84" : "border-white/[.08] bg-[#0c1119]/94"}`}
+          className={`dashboard-hero signal-surface relative overflow-hidden rounded-[2rem] border px-6 py-9 md:px-10 md:py-12 ${light ? "border-black/[.08] bg-white/84" : "border-white/[.08] bg-[#0c1119]/94"}`}
         >
           <div
             className={`momentum-field absolute right-[-8%] top-[-55%] h-96 w-96 rounded-full blur-3xl ${light ? "bg-[#ff7b69]" : "bg-[#ff6f61]"}`}
@@ -1076,6 +1167,14 @@ export default function DashboardV2() {
               opacity: 0.035 + momentumStrength * (light ? 0.08 : 0.13),
               transform: `scale(${0.86 + momentumStrength * 0.28})`,
             }}
+          />
+          <div
+            className="dashboard-hero-orbit dashboard-hero-orbit-one"
+            aria-hidden="true"
+          />
+          <div
+            className="dashboard-hero-orbit dashboard-hero-orbit-two"
+            aria-hidden="true"
           />
           <div className="relative grid items-center gap-10 lg:grid-cols-[1fr_.58fr]">
             <div>
@@ -1087,13 +1186,16 @@ export default function DashboardV2() {
               <p
                 className={`mb-3 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.2em] ${light ? "text-black/40" : "text-white/35"}`}
               >
-                <Target className="h-3 w-3" /> Current line in view
+                <Target className="h-3 w-3" /> Your working line
               </p>
               <h1
-                className={`max-w-3xl text-5xl font-semibold leading-[.98] tracking-[-.045em] sm:text-6xl lg:text-7xl ${light ? "text-[#181719]" : "text-white"}`}
+                className={`dashboard-hero-title max-w-3xl text-5xl font-semibold leading-[.98] tracking-[-.045em] sm:text-6xl lg:text-7xl ${light ? "text-[#181719]" : "text-white"}`}
               >
-                {focus?.name}.<br />
-                <span className={light ? "text-black/30" : "text-white/25"}>
+                <span className="dashboard-hero-focus">{focus?.name}.</span>
+                <br />
+                <span
+                  className={`dashboard-hero-subline ${light ? "text-black/30" : "text-white/25"}`}
+                >
                   Continue the line.
                 </span>
               </h1>
@@ -1189,6 +1291,13 @@ export default function DashboardV2() {
           </div>
         )}
 
+        <ReturnPath
+          days={days}
+          displayDate={displayDate}
+          light={light}
+          onContinue={() => setActivityPickerOpen(true)}
+        />
+
         <Timeline
           days={days}
           activities={activities}
@@ -1242,9 +1351,8 @@ export default function DashboardV2() {
                   <p
                     className={`mt-4 max-w-3xl text-sm leading-relaxed ${light ? "text-black/55" : "text-white/50"}`}
                   >
-                    No next step is saved yet. After your next session, use the
-                    optional reflection to name the smallest useful
-                    continuation.
+                    No next step is saved yet. Start the next session in any
+                    direction; the next return can take shape while you work.
                   </p>
                 )}
                 {mostRecentFocusLog?.whatMoved && (
@@ -1263,9 +1371,8 @@ export default function DashboardV2() {
                     Why this is here
                   </summary>
                   <p className="mt-2 leading-relaxed">
-                    A visible next step connects your plan, your session, and
-                    your reflection without turning the Dashboard into a
-                    scorecard.
+                    A visible next step connects your plan and your session
+                    without turning the Dashboard into a scorecard.
                   </p>
                 </details>
               </div>

@@ -639,6 +639,147 @@
       opacity 180ms ease;
   }
 
+  .dashboard-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.72;
+    background:
+      linear-gradient(115deg, rgba(255, 120, 104, 0.06), transparent 32%),
+      radial-gradient(
+        circle at 76% 38%,
+        rgba(255, 194, 104, 0.08),
+        transparent 24%
+      );
+  }
+
+  .dashboard-hero-orbit {
+    position: absolute;
+    pointer-events: none;
+    border: 1px solid rgba(255, 161, 142, 0.15);
+    border-radius: 999px;
+    opacity: 0.65;
+    transform-origin: center;
+    animation: hero-orbit-turn 12s cubic-bezier(0.45, 0, 0.55, 1) infinite
+      alternate;
+  }
+
+  .dashboard-hero-orbit-one {
+    right: -4rem;
+    top: 1.5rem;
+    height: 15rem;
+    width: 15rem;
+  }
+
+  .dashboard-hero-orbit-two {
+    right: 6rem;
+    top: -8rem;
+    height: 17rem;
+    width: 17rem;
+    border-color: rgba(255, 194, 104, 0.12);
+    animation-delay: -5s;
+    animation-duration: 15s;
+  }
+
+  .dashboard-hero-title {
+    animation: dashboard-title-arrival 660ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .dashboard-hero-focus {
+    text-shadow: 0 0 30px rgba(255, 139, 124, 0.08);
+  }
+
+  .return-path-track::before {
+    content: "";
+    position: absolute;
+    top: 1.55rem;
+    left: 7.2%;
+    right: 7.2%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 139, 124, 0.12),
+      rgba(255, 194, 104, 0.5),
+      rgba(255, 139, 124, 0.12)
+    );
+    box-shadow: 0 0 12px rgba(255, 194, 104, 0.12);
+  }
+
+  .return-path-node {
+    transition:
+      transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      color 180ms ease;
+  }
+
+  .return-path-dot {
+    position: relative;
+    z-index: 1;
+    transition:
+      transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      background-color 180ms ease,
+      border-color 180ms ease,
+      box-shadow 220ms ease,
+      color 180ms ease;
+  }
+
+  .return-path-dot.is-marked {
+    border-color: rgba(255, 157, 139, 0.5);
+    background: linear-gradient(
+      145deg,
+      rgba(233, 84, 72, 0.36),
+      rgba(255, 194, 104, 0.2)
+    );
+    color: rgba(255, 242, 238, 0.92);
+    box-shadow:
+      0 0 0 3px rgba(255, 139, 124, 0.05),
+      0 0 16px rgba(255, 139, 124, 0.18);
+  }
+
+  .return-path-node.is-current .return-path-dot {
+    border-color: rgba(255, 194, 104, 0.76);
+    box-shadow:
+      0 0 0 4px rgba(255, 194, 104, 0.08),
+      0 0 22px rgba(255, 194, 104, 0.32);
+    animation: return-path-current 3.8s ease-in-out infinite;
+  }
+
+  @keyframes hero-orbit-turn {
+    from {
+      transform: rotate(-8deg) scale(0.96);
+      opacity: 0.34;
+    }
+    to {
+      transform: rotate(10deg) scale(1.05);
+      opacity: 0.82;
+    }
+  }
+
+  @keyframes dashboard-title-arrival {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+      letter-spacing: -0.065em;
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      letter-spacing: -0.045em;
+    }
+  }
+
+  @keyframes return-path-current {
+    0%,
+    100% {
+      transform: scale(1);
+      filter: brightness(1);
+    }
+    50% {
+      transform: scale(1.12);
+      filter: brightness(1.18);
+    }
+  }
+
   @media (hover: hover) and (pointer: fine) {
     .today-sessions-panel:hover {
       transform: translateY(-2px);
@@ -649,6 +790,18 @@
     .dashboard-continue:hover::after {
       opacity: 1;
       transform: translateX(110%);
+    }
+
+    .return-path-node:hover {
+      transform: translateY(-2px);
+    }
+
+    .return-path-node:hover .return-path-dot {
+      transform: scale(1.08);
+      border-color: rgba(255, 194, 104, 0.7);
+      box-shadow:
+        0 0 0 4px rgba(255, 194, 104, 0.06),
+        0 0 18px rgba(255, 139, 124, 0.2);
     }
   }
 
@@ -880,7 +1033,10 @@
     .energy-panel,
     .today-sessions-panel,
     .sport-track-fill,
-    .dashboard-continue {
+    .dashboard-continue,
+    .dashboard-hero-orbit,
+    .dashboard-hero-title,
+    .return-path-node.is-current .return-path-dot {
       animation: none;
     }
 
@@ -901,6 +1057,9 @@
     .hero-daily-signal,
     .today-sessions-panel,
     .dashboard-continue,
+    .dashboard-hero-title,
+    .return-path-node,
+    .return-path-dot,
     .achievement-card,
     .achievement-card::after,
     .signal-atmosphere,

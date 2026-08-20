@@ -143,7 +143,7 @@ export function LogActivityDialog({
           setStep("logged");
           toast({
             title: "Session logged",
-            description: "Use Close the loop only if you want to add a reflection.",
+            description: "Your return is now visible on the Dashboard path.",
           });
         },
         onError: () => {
@@ -396,31 +396,26 @@ export function LogActivityDialog({
             </div>
           </form>
         ) : isLogged ? (
-          <section className="mt-6 space-y-4" aria-label="Session saved">
-            <p className="text-sm leading-6 text-white/60">
-              This session is marked. Reflection is optional and stays attached
-              to this specific session.
+          <section
+            className="session-saved-state mt-6 rounded-2xl border border-[#ffc268]/18 bg-[#ffc268]/[.055] p-5"
+            aria-label="Session saved"
+          >
+            <Sparkles className="h-4 w-4 text-[#ffc268]" />
+            <p className="mt-3 text-sm font-medium text-white">
+              Session marked. The return path has moved.
             </p>
-            <div className="flex flex-wrap items-center gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setStep("reflection")}
-                className="h-10 rounded-xl border-[#ff7868]/35 bg-[#ff7868]/10 px-4 text-[10px] font-bold uppercase tracking-[.12em] text-[#ffb1a7] hover:bg-[#ff7868]/20 hover:text-white"
-                data-testid="button-open-reflection"
-              >
-                Reflect on this session
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={closeDialog}
-                className="h-10 rounded-xl px-4 text-[10px] font-bold uppercase tracking-[.12em] text-white/45 hover:bg-white/[.05] hover:text-white"
-                data-testid="button-finish-session"
-              >
-                Done
-              </Button>
-            </div>
+            <p className="mt-2 text-sm leading-6 text-white/48">
+              Nothing else is required. Your Dashboard will show the new point
+              when you close this window.
+            </p>
+            <Button
+              type="button"
+              onClick={closeDialog}
+              className="signal-button mt-5 h-10 rounded-full bg-[#e95448] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white hover:bg-[#f26456]"
+              data-testid="button-finish-session"
+            >
+              Back to the line
+            </Button>
           </section>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6 mt-6">
