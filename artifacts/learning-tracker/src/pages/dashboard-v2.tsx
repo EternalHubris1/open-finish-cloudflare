@@ -1051,7 +1051,7 @@ export default function DashboardV2() {
 
   return (
     <div
-      className={`signal-atmosphere page-arrival relative z-10 min-h-screen ${light ? "is-light bg-[#f2f4f7] text-[#15181e]" : "bg-[#090d14]"}`}
+      className={`signal-atmosphere page-arrival relative z-10 min-h-screen ${light ? "is-light bg-[#f2f4f7] text-[#15181e]" : "bg-[#090d14]/35"}`}
       data-atmosphere={atmosphere}
       style={
         {
@@ -1139,6 +1139,7 @@ export default function DashboardV2() {
                         : "Ready to begin"
                   }
                   className="ml-1 h-8 w-8 opacity-80"
+                  animate={false}
                 />
               </div>
               <p
