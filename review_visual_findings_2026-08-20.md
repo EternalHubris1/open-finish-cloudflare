@@ -59,3 +59,9 @@ Read-only verification в Neon SQL Editor на `open_finish_recovery` верну
 - Worker version metadata lists both secret binding names, so the password issue is limited to the effective `ADMIN_PASSWORD` value rather than its name or database binding.
 - The Cloudflare Dashboard variables page redirected to the login screen and displayed `There was a problem with verification. Please reload and try again`, so it is not a reliable manual recovery path from the sandbox session.
 - Temporary local JSON payload files used for direct API attempts were removed immediately after each operation and were outside the Git repository.
+
+## Password gate verification — 2026-08-20
+
+Published Open Finish now renders a dedicated neutral password screen before any dashboard content. The screen identifies the workspace as private, has one password field and one enter action, and does not reveal activities, sessions, or notes before authentication.
+
+Authenticated production verification completed successfully. The password form opened the Dashboard and exposed personal data only after session creation. Reflections now loads as a deliberately light `Session notes` page with a search field, direction filter, clear optionality wording, and a stable empty state (`0 notes kept from completed sessions`); the former HTTP 500 error state is no longer visible.
