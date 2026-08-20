@@ -1176,7 +1176,8 @@ export default function DashboardV2() {
             className="dashboard-hero-orbit dashboard-hero-orbit-two"
             aria-hidden="true"
           />
-          <div className="relative grid items-center gap-10 lg:grid-cols-[1fr_.58fr]">
+          <div className="dashboard-hero-ink" aria-hidden="true" />
+          <div className="relative z-10 grid items-center gap-10 lg:grid-cols-[1fr_.58fr]">
             <div>
               <div
                 className={`mb-6 flex items-center gap-3 pr-28 text-[10px] font-bold uppercase tracking-[.26em] ${light ? "text-[#91463f]" : "text-[#ff9a89]"}`}

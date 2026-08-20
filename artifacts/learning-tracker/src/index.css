@@ -639,6 +639,49 @@
       opacity 180ms ease;
   }
 
+  .dashboard-hero-ink {
+    position: absolute;
+    inset: -18%;
+    pointer-events: none;
+    opacity: 0.66;
+    background:
+      radial-gradient(
+        ellipse 30% 18% at 24% 64%,
+        rgba(123, 22, 25, 0.28),
+        transparent 74%
+      ),
+      radial-gradient(
+        ellipse 26% 32% at 80% 24%,
+        rgba(199, 108, 52, 0.15),
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 42% 18% at 58% 92%,
+        rgba(31, 42, 57, 0.62),
+        transparent 76%
+      );
+    filter: blur(18px) saturate(0.84);
+    transform-origin: 58% 48%;
+    animation: samurai-ink-drift 22s cubic-bezier(0.45, 0, 0.55, 1) infinite
+      alternate;
+  }
+
+  .dashboard-hero-ink::after {
+    content: "";
+    position: absolute;
+    inset: 13%;
+    opacity: 0.2;
+    background: repeating-linear-gradient(
+      112deg,
+      transparent 0,
+      transparent 17px,
+      rgba(255, 226, 190, 0.022) 18px,
+      transparent 19px,
+      transparent 31px
+    );
+    mix-blend-mode: screen;
+  }
+
   .dashboard-hero::before {
     content: "";
     position: absolute;
@@ -742,6 +785,17 @@
       0 0 0 4px rgba(255, 194, 104, 0.08),
       0 0 22px rgba(255, 194, 104, 0.32);
     animation: return-path-current 3.8s ease-in-out infinite;
+  }
+
+  @keyframes samurai-ink-drift {
+    from {
+      opacity: 0.42;
+      transform: translate3d(-1.8%, 1.2%, 0) scale(0.98) rotate(-1deg);
+    }
+    to {
+      opacity: 0.76;
+      transform: translate3d(2.2%, -1.6%, 0) scale(1.06) rotate(1.2deg);
+    }
   }
 
   @keyframes hero-orbit-turn {
@@ -1034,6 +1088,7 @@
     .today-sessions-panel,
     .sport-track-fill,
     .dashboard-continue,
+    .dashboard-hero-ink,
     .dashboard-hero-orbit,
     .dashboard-hero-title,
     .return-path-node.is-current .return-path-dot {
@@ -1057,6 +1112,8 @@
     .hero-daily-signal,
     .today-sessions-panel,
     .dashboard-continue,
+    .dashboard-hero-ink,
+    .dashboard-hero-ink::after,
     .dashboard-hero-title,
     .return-path-node,
     .return-path-dot,
