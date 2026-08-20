@@ -950,7 +950,6 @@ export default function DashboardV2() {
   const newestFocusLogs = [...focusLogs].sort((a, b) =>
     b.logDate.localeCompare(a.logDate),
   );
-  const mostRecentFocusLog = newestFocusLogs[0];
   const latestContinuationLog = newestFocusLogs.find((log) =>
     Boolean(log.nextContinuation),
   );
@@ -1251,79 +1250,6 @@ export default function DashboardV2() {
           preview={preview}
           pulseDate={recentLog?.date}
         />
-
-        {focus && (
-          <section
-            className={`signal-surface relative overflow-hidden rounded-[2rem] border p-6 md:p-8 ${light ? "border-black/[.08] bg-white/80" : "border-white/[.08] bg-[#0c1119]/92"}`}
-            aria-labelledby="continuation-heading"
-          >
-            <div
-              className="absolute -right-14 -top-20 h-48 w-48 rounded-full blur-3xl"
-              style={{
-                backgroundColor: focus.color || "#e95448",
-                opacity: light ? 0.08 : 0.12,
-              }}
-            />
-            <div className="relative grid gap-7 lg:grid-cols-[1.45fr_.55fr] lg:items-end">
-              <div>
-                <div
-                  className={`flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] ${light ? "text-[#91463f]" : "text-[#ff9a89]"}`}
-                >
-                  <Target className="h-3.5 w-3.5" /> Next meaningful move
-                </div>
-                <h2
-                  id="continuation-heading"
-                  className={`mt-3 text-2xl font-semibold ${light ? "text-[#181719]" : "text-white"}`}
-                >
-                  Keep the line open.
-                </h2>
-                {continuation ? (
-                  <>
-                    <p
-                      className={`mt-4 max-w-3xl text-base leading-relaxed ${light ? "text-black/70" : "text-white/75"}`}
-                    >
-                      “{continuation}”
-                    </p>
-                    {continuationSource && (
-                      <p
-                        className={`mt-3 text-[10px] font-bold uppercase tracking-[.14em] ${light ? "text-black/40" : "text-white/35"}`}
-                      >
-                        {continuationSource}
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <p
-                    className={`mt-4 max-w-3xl text-sm leading-relaxed ${light ? "text-black/55" : "text-white/50"}`}
-                  >
-                    No next step is saved yet. Start the next session in any
-                    direction; the next return can take shape while you work.
-                  </p>
-                )}
-                {mostRecentFocusLog?.whatMoved && (
-                  <p
-                    className={`mt-5 border-l pl-3 text-sm italic ${light ? "border-black/15 text-black/45" : "border-white/15 text-white/35"}`}
-                  >
-                    Last evidence: “{mostRecentFocusLog.whatMoved}”
-                  </p>
-                )}
-              </div>
-              <div className="flex flex-col items-stretch gap-3 sm:flex-row lg:flex-col">
-                <details
-                  className={`flex-1 rounded-2xl border px-4 py-3 text-xs ${light ? "border-black/10 bg-black/[.025] text-black/55" : "border-white/10 bg-white/[.02] text-white/50"}`}
-                >
-                  <summary className="cursor-pointer font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current">
-                    Why this is here
-                  </summary>
-                  <p className="mt-2 leading-relaxed">
-                    A visible next step connects your plan and your session
-                    without turning the Dashboard into a scorecard.
-                  </p>
-                </details>
-              </div>
-            </div>
-          </section>
-        )}
 
         <Link
           href="/history?from=dashboard"
