@@ -81,10 +81,20 @@ export function createAuth(options: AuthOptions) {
   const password = options.password?.trim() || null;
 
   router.get("/auth/session", async (req, res): Promise<void> => {
-    const authenticated = password
-      ? await isValidSession(readCookie(req.headers.cookie, COOKIE_NAME), password)
-      : true;
-    res.json({ passwordEnabled: Boolean(password), authenticated });
+    if (!password) {
+      res.status(503).json({
+        passwordEnabled: false,
+        authenticated: false,
+        error: "Password access has not been configured",
+      });
+      return;
+    }
+
+    const authenticated = await isValidSession(
+      readCookie(req.headers.cookie, COOKIE_NAME),
+      password,
+    );
+    res.json({ passwordEnabled: true, authenticated });
   });
 
   router.post("/auth/login", async (req, res): Promise<void> => {
@@ -110,7 +120,7 @@ export function createAuth(options: AuthOptions) {
 
   const requirePassword: RequestHandler = async (req, res, next) => {
     if (!password) {
-      next();
+      res.status(503).json({ error: "Password access has not been configured" });
       return;
     }
     const authenticated = await isValidSession(
