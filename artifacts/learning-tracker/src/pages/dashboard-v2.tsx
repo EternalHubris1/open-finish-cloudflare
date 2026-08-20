@@ -41,6 +41,7 @@ import { LogActivityDialog } from "@/components/log-activity-dialog";
 import { TodayPlan } from "@/components/today-plan";
 import { ActivityGlyph } from "@/lib/activity-icons";
 import musashi from "@assets/musashi_1785336444855.jpg";
+import inkToriiBackground from "@assets/ink-torii-night-background.png";
 import {
   previewActivities,
   previewDashboard,
@@ -1086,6 +1087,12 @@ export default function DashboardV2() {
             className="dashboard-hero-orbit dashboard-hero-orbit-two"
             aria-hidden="true"
           />
+          <div
+            className="dashboard-hero-torii"
+            aria-hidden="true"
+            style={{ backgroundImage: `url(${inkToriiBackground})` }}
+          />
+          <div className="dashboard-hero-torii-accent" aria-hidden="true" />
           <div className="dashboard-hero-ink" aria-hidden="true" />
           <div
             className="dashboard-hero-musashi"

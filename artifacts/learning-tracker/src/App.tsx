@@ -226,11 +226,13 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
         <span />
         <span />
       </div>
-      <div
-        className="samurai-site-musashi fixed right-0 top-0 bottom-0 w-[55%] pointer-events-none z-0"
-        aria-hidden="true"
-        style={{ backgroundImage: `url(${musashi})` }}
-      />
+      {location !== "/" && (
+        <div
+          className="samurai-site-musashi fixed right-0 top-0 bottom-0 w-[55%] pointer-events-none z-0"
+          aria-hidden="true"
+          style={{ backgroundImage: `url(${musashi})` }}
+        />
+      )}
       <div className="fixed top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#ff7a68]/45 to-transparent z-50 pointer-events-none" />
 
       <AppSidebar onLogout={onLogout} />
