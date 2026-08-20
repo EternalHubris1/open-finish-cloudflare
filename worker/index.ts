@@ -1,4 +1,3 @@
-import * as process from "node:process";
 import { httpServerHandler } from "cloudflare:node";
 import { createApp } from "../artifacts/api-server/src/app";
 
@@ -8,13 +7,15 @@ interface Env {
 }
 
 /**
- * Express reads credentials through request-time getters. Cloudflare supplies
- * bindings to `fetch`, so mirror the current request's immutable bindings into
- * the Node compatibility environment before dispatching to the HTTP adapter.
+ * Cloudflare provides bindings to the fetch handler. The Express application
+ * holds getter functions, so it resolves the current Worker bindings only when
+ * a request reaches the API rather than copying a secret into global setup.
  */
+let runtimeEnv: Env | undefined;
+
 const app = createApp({
-  getDatabaseUrl: () => process.env.DATABASE_URL,
-  getAdminPassword: () => process.env.ADMIN_PASSWORD,
+  getDatabaseUrl: () => runtimeEnv?.DATABASE_URL,
+  getAdminPassword: () => runtimeEnv?.ADMIN_PASSWORD,
 });
 
 app.listen(3000);
@@ -22,8 +23,7 @@ const nodeHandler = httpServerHandler({ port: 3000 });
 
 export default {
   fetch(request: Request, env: Env, ctx: ExecutionContext) {
-    process.env.DATABASE_URL = env.DATABASE_URL ?? "";
-    process.env.ADMIN_PASSWORD = env.ADMIN_PASSWORD ?? "";
+    runtimeEnv = env;
     return nodeHandler.fetch(request, env, ctx);
   },
 } satisfies ExportedHandler<Env>;
