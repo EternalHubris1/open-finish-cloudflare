@@ -153,10 +153,16 @@ function SummaryCard({
 }) {
   return (
     <div className="signal-surface rounded-3xl border border-white/[.08] bg-[#0c1119]/88 p-5">
-      <div className="mb-4 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/30">
-        <Icon className="h-4 w-4 text-[#ff8b7c]" /> {label}
+      <div className="mb-4 flex min-h-8 items-start gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/30">
+        <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#ff8b7c]" />
+        <span className="line-clamp-2" title={label}>
+          {label}
+        </span>
       </div>
-      <p className="truncate text-2xl font-semibold text-white" title={value}>
+      <p
+        className="line-clamp-2 text-2xl font-semibold text-white"
+        title={value}
+      >
         {value}
       </p>
     </div>
@@ -334,12 +340,10 @@ export default function History() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
     const frame = window.requestAnimationFrame(() =>
-      document
-        .getElementById("selected-day")
-        ?.scrollIntoView({
-          behavior: reducedMotion ? "auto" : "smooth",
-          block: "center",
-        }),
+      document.getElementById("selected-day")?.scrollIntoView({
+        behavior: reducedMotion ? "auto" : "smooth",
+        block: "center",
+      }),
     );
     return () => window.cancelAnimationFrame(frame);
   }, [isLoading, navigationContext]);
