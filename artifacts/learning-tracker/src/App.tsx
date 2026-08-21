@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Route, Switch, Router as WouterRouter, useLocation } from "wouter";
 import { AppSidebar } from "@/components/app-sidebar";
-import musashiForeground from "@assets/musashi-foreground-night-gpt-refined.png";
+import musashi from "@assets/musashi_1785336444855.jpg";
 import inkToriiBackground from "@assets/ink-torii-night-background-v2-clean.png";
 
 const Dashboard = lazy(() => import("@/pages/dashboard-v2"));
@@ -227,10 +227,11 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
         <span />
       </div>
       {location !== "/" && (
-        <div className="samurai-site-musashi-fg" aria-hidden="true">
-          <span className="samurai-site-musashi-haze" />
-          <img src={musashiForeground} alt="" />
-        </div>
+        <div
+          className="samurai-site-musashi fixed right-0 top-0 bottom-0 w-[55%] pointer-events-none z-0"
+          aria-hidden="true"
+          style={{ backgroundImage: `url(${musashi})` }}
+        />
       )}
       <div className="fixed top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#ff7a68]/45 to-transparent z-50 pointer-events-none" />
 
