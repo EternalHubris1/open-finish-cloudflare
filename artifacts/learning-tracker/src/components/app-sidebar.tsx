@@ -51,7 +51,12 @@ const longViewRoutes: SidebarRoute[] = [
 ];
 
 const utilityRoutes: SidebarRoute[] = [
-  { path: "/alerts", label: "Alerts", cue: "Gentle reminders", icon: Bell },
+  {
+    path: "/alerts",
+    label: "Rhythms",
+    cue: "Returns & deadlines",
+    icon: Bell,
+  },
   {
     path: "/settings",
     label: "Settings",

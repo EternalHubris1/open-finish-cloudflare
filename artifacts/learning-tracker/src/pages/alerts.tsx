@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
+import rhythmDojoCabinet from "../assets/rhythm-dojo-cabinet.png";
 import { format, isBefore, startOfDay } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -305,33 +306,50 @@ export default function Alerts() {
 
   return (
     <div className="page-arrival relative z-10 mx-auto min-h-screen max-w-6xl space-y-8 px-4 py-6 pb-28 md:p-8 md:pb-20">
-      <header className="flex flex-col gap-5 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between">
-        <div>
-          <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.24em] text-[#ff8b7c]">
-            <CalendarClock className="h-4 w-4" /> Rhythm room
+      <header className="relative isolate overflow-hidden rounded-[2rem] border border-[#ffc268]/15 bg-[radial-gradient(circle_at_72%_24%,rgba(255,194,104,.16),transparent_26%),linear-gradient(125deg,rgba(16,22,33,.98),rgba(10,15,23,.94)_58%,rgba(76,38,37,.58))] px-6 py-7 shadow-[inset_0_1px_0_rgba(255,255,255,.06),0_18px_54px_rgba(0,0,0,.24)] md:px-8 md:py-8">
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[linear-gradient(90deg,transparent,rgba(255,194,104,.04))]" />
+        <img
+          src={rhythmDojoCabinet}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-20 right-0 z-0 hidden h-[22rem] w-auto select-none object-contain opacity-45 mix-blend-screen md:block"
+        />
+        <div className="relative z-10 flex flex-col gap-6 md:pr-52 lg:pr-64">
+          <div>
+            <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]">
+              <CalendarClock className="h-4 w-4" /> Rhythm room · private
+              practice
+            </div>
+            <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
+              Rhythms
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/52">
+              Set one clear mark, leave a quiet return for an ordinary day, or
+              store what should still be within reach after the period ends.
+            </p>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
-            Rhythms
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-white/42">
-            Quiet returns for ordinary days, clear deadlines for a week or
-            month, and a place to keep what matters after the work is done.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            onClick={() => setDialog("milestone")}
-            className="signal-button gap-2 rounded-2xl bg-[#e95448] text-[10px] font-bold uppercase tracking-[.14em] text-white hover:bg-[#f26456]"
-          >
-            <Plus className="h-4 w-4" /> New deadline
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => openReminderDialog()}
-            className="signal-button gap-2 rounded-2xl border-white/10 bg-white/[.04] text-[10px] font-bold uppercase tracking-[.14em] text-white/72 hover:border-[#ffc268]/35 hover:bg-[#ffc268]/10 hover:text-white"
-          >
-            <Bell className="h-4 w-4" /> Daily reminder
-          </Button>
+          <div className="flex flex-wrap gap-2.5">
+            <Button
+              onClick={() => setDialog("milestone")}
+              className="signal-button h-11 gap-2 rounded-2xl bg-[#e95448] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-white shadow-[0_10px_24px_rgba(233,84,72,.22)] hover:bg-[#f26456]"
+            >
+              <Plus className="h-4 w-4" /> Set deadline
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => openReminderDialog()}
+              className="signal-button h-11 gap-2 rounded-2xl border-white/[.14] bg-white/[.055] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-white/80 hover:border-[#ffc268]/45 hover:bg-[#ffc268]/10 hover:text-white"
+            >
+              <Bell className="h-4 w-4" /> Daily reminder
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setDialog("cabinet")}
+              className="signal-button h-11 gap-2 rounded-2xl px-3 text-[10px] font-bold uppercase tracking-[.14em] text-[#ffe0a5] hover:bg-[#ffc268]/10 hover:text-[#fff2cb]"
+            >
+              <Archive className="h-4 w-4" /> Add to cabinet
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -425,14 +443,22 @@ export default function Alerts() {
                 );
               })
             ) : (
-              <div className="p-10 text-center">
-                <CalendarClock className="mx-auto h-8 w-8 text-white/15" />
-                <p className="mt-4 text-sm font-medium text-white/55">
+              <div className="relative overflow-hidden p-10 text-center">
+                <div className="pointer-events-none absolute inset-x-16 top-0 h-px bg-gradient-to-r from-transparent via-[#ff7868]/50 to-transparent" />
+                <CalendarClock className="mx-auto h-9 w-9 text-[#ff9a89]/50" />
+                <p className="mt-4 text-base font-semibold text-white/70">
                   No open marks yet.
                 </p>
-                <p className="mt-1 text-xs leading-5 text-white/30">
-                  Add one thing that deserves a week or month of attention.
+                <p className="mx-auto mt-1 max-w-sm text-xs leading-5 text-white/36">
+                  Start with one outcome that deserves a week or month of
+                  attention. It can stay flexible.
                 </p>
+                <Button
+                  onClick={() => setDialog("milestone")}
+                  className="signal-button mt-5 h-10 gap-2 rounded-xl bg-[#e95448] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-white hover:bg-[#f26456]"
+                >
+                  <Plus className="h-4 w-4" /> Set first deadline
+                </Button>
               </div>
             )}
           </div>
@@ -508,37 +534,50 @@ export default function Alerts() {
                   </div>
                 ))
               ) : (
-                <p className="rounded-2xl border border-dashed border-white/[.08] px-4 py-5 text-center text-xs leading-5 text-white/30">
-                  No reminder has to exist until it makes return easier.
-                </p>
+                <div className="rounded-2xl border border-dashed border-white/[.1] bg-white/[.018] px-4 py-5 text-center">
+                  <BellOff className="mx-auto h-5 w-5 text-[#ffc268]/45" />
+                  <p className="mt-3 text-xs leading-5 text-white/38">
+                    No reminder has to exist until it makes return easier.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => openReminderDialog()}
+                    className="signal-button mt-3 inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[.14em] text-[#ffe0a5] hover:text-white"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Create daily reminder
+                  </button>
+                </div>
               )}
             </div>
           </section>
 
-          <section className="relative overflow-hidden rounded-3xl border border-[#ffc268]/15 bg-[linear-gradient(145deg,rgba(255,194,104,.11),rgba(12,17,25,.94)_54%,rgba(98,188,168,.07))] p-5 md:p-6">
-            <div className="pointer-events-none absolute -right-9 -top-9 h-28 w-28 rounded-full bg-[#ffc268]/[.12] blur-3xl" />
-            <div className="relative">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffe0a5]">
-                    Dojo cabinet
-                  </p>
-                  <h2 className="mt-2 text-lg font-bold text-white">
-                    Tools worth keeping
-                  </h2>
-                </div>
-                <Swords className="h-5 w-5 text-[#ffc268]/80" />
+          <section className="relative min-h-[18rem] overflow-hidden rounded-3xl border border-[#ffc268]/20 bg-[radial-gradient(circle_at_72%_25%,rgba(255,194,104,.17),transparent_34%),linear-gradient(145deg,rgba(59,40,32,.78),rgba(12,17,25,.98)_58%,rgba(32,55,53,.62))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] md:p-6">
+            <img
+              src={rhythmDojoCabinet}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute -bottom-12 -right-8 h-[19rem] w-auto select-none object-contain opacity-45 mix-blend-screen"
+            />
+            <div className="pointer-events-none absolute -right-9 -top-9 h-32 w-32 rounded-full bg-[#ffc268]/[.16] blur-3xl" />
+            <div className="relative z-10 flex h-full max-w-[13rem] flex-col">
+              <div className="flex items-center gap-2 text-[#ffe0a5]">
+                <Swords className="h-4 w-4" />
+                <p className="text-[9px] font-bold uppercase tracking-[.2em]">
+                  Dojo cabinet
+                </p>
               </div>
-              <p className="mt-3 text-xs leading-5 text-white/42">
-                Links, references, and small notes can stand beside a period
-                reflection without becoming a task list.
+              <h2 className="mt-3 text-xl font-bold leading-tight text-white">
+                Keep the tools that survived the period.
+              </h2>
+              <p className="mt-3 text-xs leading-5 text-white/52">
+                Links, references, and notes can sit beside a reflection without
+                becoming a task list.
               </p>
               <Button
-                variant="outline"
                 onClick={() => setDialog("cabinet")}
-                className="signal-button mt-5 w-full gap-2 rounded-2xl border-white/[.12] bg-black/10 text-[10px] font-bold uppercase tracking-[.14em] text-white/80 hover:border-[#ffc268]/45 hover:bg-[#ffc268]/10 hover:text-white"
+                className="signal-button mt-auto h-11 w-full gap-2 rounded-2xl bg-[#ffc268] text-[10px] font-bold uppercase tracking-[.14em] text-[#17120a] shadow-[0_10px_24px_rgba(255,194,104,.16)] hover:bg-[#ffd486]"
               >
-                <Plus className="h-4 w-4" /> Place an item
+                <Plus className="h-4 w-4" /> Add cabinet item
               </Button>
             </div>
           </section>
@@ -546,7 +585,7 @@ export default function Alerts() {
       </section>
 
       <section className="signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
-        <div className="flex flex-col gap-3 border-b border-white/[.06] p-6 md:flex-row md:items-end md:justify-between md:p-7">
+        <div className="flex flex-col gap-4 border-b border-white/[.06] p-6 md:flex-row md:items-end md:justify-between md:p-7">
           <div>
             <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]">
               Shelf of important things
@@ -557,9 +596,17 @@ export default function Alerts() {
               periods.
             </p>
           </div>
-          <span className="rounded-full border border-white/[.08] bg-white/[.035] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.14em] text-white/42">
-            {cabinetItems.length} kept
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-white/[.08] bg-white/[.035] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.14em] text-white/42">
+              {cabinetItems.length} kept
+            </span>
+            <Button
+              onClick={() => setDialog("cabinet")}
+              className="signal-button h-10 gap-2 rounded-xl bg-[#ffc268] px-3 text-[9px] font-bold uppercase tracking-[.14em] text-[#17120a] hover:bg-[#ffd486]"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add item
+            </Button>
+          </div>
         </div>
         <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3 md:p-7">
           {cabinetItems.length ? (
@@ -614,15 +661,27 @@ export default function Alerts() {
               </article>
             ))
           ) : (
-            <div className="col-span-full rounded-2xl border border-dashed border-white/[.08] px-6 py-12 text-center">
-              <Archive className="mx-auto h-8 w-8 text-white/16" />
-              <p className="mt-4 text-sm font-medium text-white/55">
+            <div className="col-span-full relative overflow-hidden rounded-2xl border border-dashed border-[#ffc268]/20 bg-[linear-gradient(100deg,rgba(255,194,104,.05),transparent_48%,rgba(98,188,168,.045))] px-6 py-12 text-center">
+              <img
+                src={rhythmDojoCabinet}
+                alt=""
+                aria-hidden="true"
+                className="pointer-events-none absolute -bottom-24 right-7 hidden h-[18rem] w-auto opacity-20 mix-blend-screen md:block"
+              />
+              <Archive className="relative mx-auto h-9 w-9 text-[#ffc268]/48" />
+              <p className="relative mt-4 text-base font-semibold text-white/68">
                 The cabinet is empty.
               </p>
-              <p className="mt-1 text-xs text-white/30">
-                Save a useful reference, a link, or a note when a period teaches
-                you something worth keeping.
+              <p className="relative mx-auto mt-1 max-w-md text-xs leading-5 text-white/36">
+                Save a useful reference, a link, or a quiet note when a period
+                teaches you something worth keeping.
               </p>
+              <Button
+                onClick={() => setDialog("cabinet")}
+                className="signal-button relative mt-5 h-10 gap-2 rounded-xl bg-[#ffc268] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-[#17120a] hover:bg-[#ffd486]"
+              >
+                <Plus className="h-4 w-4" /> Place first item
+              </Button>
             </div>
           )}
         </div>
