@@ -105,16 +105,14 @@ function intensityIndex(minutes: number) {
 
 type EffortGrade = {
   key: "three" | "five" | "six" | "ten";
-  label: string;
   minutes: number;
-  revealAt: number;
 };
 
 const EFFORT_GRADES: EffortGrade[] = [
-  { key: "three", label: "3h", minutes: 180, revealAt: 120 },
-  { key: "five", label: "5h", minutes: 300, revealAt: 240 },
-  { key: "six", label: "6h", minutes: 360, revealAt: 300 },
-  { key: "ten", label: "10h", minutes: 600, revealAt: 480 },
+  { key: "three", minutes: 180 },
+  { key: "five", minutes: 300 },
+  { key: "six", minutes: 360 },
+  { key: "ten", minutes: 600 },
 ];
 
 function effortGradeFor(minutes: number): EffortGrade | null {
@@ -373,18 +371,6 @@ function Timeline({
   const [selectedDate, setSelectedDate] = useState(days.at(-1)?.date ?? "");
   const [focusedDate, setFocusedDate] = useState<string | null>(null);
   const [sportTracksReady, setSportTracksReady] = useState(false);
-  const frictionActivityIds = useMemo(
-    () =>
-      new Set(
-        activities
-          .filter((activity) => activity.activityType === "friction")
-          .map((activity) => activity.id),
-      ),
-    [activities],
-  );
-  const frictionMinutesToday = todayLogs
-    .filter((log) => frictionActivityIds.has(log.activityId))
-    .reduce((total, log) => total + log.durationMinutes, 0);
   const selected = days.find((day) => day.date === selectedDate) ?? days.at(-1);
   const rhythmNow = useMemo(() => {
     const parts = new Intl.DateTimeFormat("en-US", {
@@ -435,6 +421,13 @@ function Timeline({
   const sportWeekTotal = days.reduce((sum, day) => sum + day.sportMinutes, 0);
   const activeDays = days.filter((day) => day.focusMinutes > 0).length;
   const bestDay = Math.max(0, ...days.map((day) => day.focusMinutes));
+  const lastMarkedDay =
+    [...days].reverse().find((day) => day.focusMinutes > 0) ??
+    [...days].reverse().find((day) => day.logs.length > 0);
+  const lastMarkedDriftMinutes =
+    lastMarkedDay?.logs
+      .filter((log) => log.activityType === "friction")
+      .reduce((sum, log) => sum + log.durationMinutes, 0) ?? 0;
 
   useEffect(() => {
     if (window.innerWidth >= 768 || !timelineScrollRef.current) return;
@@ -477,18 +470,38 @@ function Timeline({
               >
                 Time invested
               </h2>
-              <p
-                className={`mt-2 max-w-xl text-[11px] leading-5 sm:text-xs ${light ? "text-black/40" : "text-white/35"}`}
-              >
-                Bars show practice and work. A separate sport track fills
-                beneath each day; the line follows practice continuity.
-              </p>
-              {frictionMinutesToday > 0 && (
-                <p
-                  className={`mt-3 text-[10px] font-semibold uppercase tracking-[.14em] ${light ? "text-[#695f79]" : "text-[#d6d1e6]/58"}`}
-                  data-testid="friction-clean-balance"
+              {lastMarkedDay ? (
+                <div
+                  className={`mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-semibold leading-5 ${light ? "text-[#574e63]" : "text-white/48"}`}
+                  aria-label="Last marked day summary"
                 >
-                  Drift · {minutesLabel(frictionMinutesToday)}
+                  <span className={light ? "text-[#322b39]" : "text-white/72"}>
+                    {format(
+                      new Date(`${lastMarkedDay.date}T00:00:00`),
+                      "EEEE, d MMMM",
+                    )}
+                  </span>
+                  {lastMarkedDay.focusMinutes > 0 && (
+                    <span>Work {minutesLabel(lastMarkedDay.focusMinutes)}</span>
+                  )}
+                  {lastMarkedDay.sportMinutes > 0 && (
+                    <span className="text-[#7fcab8]">
+                      Sport {minutesLabel(lastMarkedDay.sportMinutes)}
+                    </span>
+                  )}
+                  {lastMarkedDriftMinutes > 0 && (
+                    <span
+                      className={light ? "text-[#756b81]" : "text-white/36"}
+                    >
+                      Drift {minutesLabel(lastMarkedDriftMinutes)}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <p
+                  className={`mt-3 text-[10px] font-semibold ${light ? "text-black/38" : "text-white/32"}`}
+                >
+                  No marked work this week
                 </p>
               )}
               <p className="sr-only">
@@ -713,7 +726,6 @@ function Timeline({
                       }}
                       onBlur={() => setFocusedDate(null)}
                       onClick={() => selectDay(day)}
-                      title={`${format(new Date(`${day.date}T00:00:00`), "EEEE, MMM d")}: ${minutesLabel(day.focusMinutes)} deliberate work${day.sportMinutes ? ` · ${minutesLabel(day.sportMinutes)} sport` : ""}`}
                       aria-pressed={selectedDay}
                       className={`group relative flex h-full min-w-0 flex-col justify-end gap-2 sm:gap-3 outline-none ${latestDayWithWork ? "today-energy-day" : ""} ${pulseDate === day.date ? "session-pulse" : ""}`}
                       data-focus-item
@@ -732,11 +744,7 @@ function Timeline({
                             <span
                               className={`mt-1 block text-[7px] font-bold uppercase tracking-[.11em] ${light ? "text-black/42" : "text-white/42"}`}
                             >
-                              {isLatestDay
-                                ? "today"
-                                : grade
-                                  ? `${grade.label} grade`
-                                  : "work"}
+                              {isLatestDay ? "today" : "work"}
                             </span>
                             {day.sportMinutes > 0 && (
                               <span className="mt-1 block text-[7px] font-semibold leading-none text-[#8bd2c2]">
