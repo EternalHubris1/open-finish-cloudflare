@@ -361,7 +361,11 @@
 
   .visual-effects-muted .samurai-site-ambient::before,
   .visual-effects-muted .samurai-site-fog,
+  .visual-effects-muted .samurai-site-firelight,
+  .visual-effects-muted .samurai-site-firelight::after,
   .visual-effects-muted .samurai-site-leaves span,
+  .visual-effects-muted .samurai-site-petals-deep span,
+  .visual-effects-muted .samurai-site-petals-near span,
   .visual-effects-muted .samurai-status-icon::before,
   .visual-effects-muted .sidebar-emblem::before,
   .visual-effects-muted .sidebar-route[aria-current="page"]::before,
@@ -373,7 +377,13 @@
     opacity: 0.22;
   }
 
-  .visual-effects-muted .samurai-site-leaves {
+  .visual-effects-muted .samurai-site-firelight {
+    opacity: 0.18;
+  }
+
+  .visual-effects-muted .samurai-site-leaves,
+  .visual-effects-muted .samurai-site-petals-deep,
+  .visual-effects-muted .samurai-site-petals-near {
     display: none;
   }
 
@@ -464,6 +474,236 @@
     filter: blur(18px);
     animation: site-fog-drift 19s cubic-bezier(0.45, 0, 0.55, 1) infinite
       alternate;
+  }
+
+  .samurai-site-firelight {
+    position: fixed;
+    z-index: 0;
+    bottom: 16vh;
+    left: clamp(10rem, 15vw, 23rem);
+    width: min(30vw, 33rem);
+    height: min(27vh, 15rem);
+    pointer-events: none;
+    opacity: 0.72;
+    mix-blend-mode: screen;
+    background:
+      radial-gradient(
+        ellipse 24% 36% at 34% 58%,
+        rgba(255, 206, 129, 0.56),
+        rgba(255, 126, 76, 0.22) 32%,
+        transparent 68%
+      ),
+      radial-gradient(
+        ellipse 54% 70% at 42% 60%,
+        rgba(241, 94, 65, 0.16),
+        transparent 72%
+      );
+    filter: blur(13px);
+    animation: dojo-firelight 4.8s cubic-bezier(0.45, 0, 0.55, 1) infinite
+      alternate;
+  }
+
+  .samurai-site-firelight::after {
+    position: absolute;
+    inset: -28%;
+    content: "";
+    background: radial-gradient(
+      ellipse at 38% 58%,
+      rgba(255, 166, 98, 0.14),
+      transparent 55%
+    );
+    filter: blur(20px);
+    animation: dojo-firelight-halo 6.4s ease-in-out infinite alternate;
+  }
+
+  .samurai-site-petals-deep,
+  .samurai-site-petals-near {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .samurai-site-petals-deep {
+    z-index: 0;
+  }
+
+  .samurai-site-petals-near {
+    z-index: 1;
+  }
+
+  .samurai-site-petals-deep span,
+  .samurai-site-petals-near span {
+    position: absolute;
+    display: block;
+    border-radius: 100% 0 100% 0;
+    opacity: 0;
+    animation: samurai-petal-drift linear infinite;
+  }
+
+  .samurai-site-petals-deep span {
+    width: 5px;
+    height: 8px;
+    background: linear-gradient(
+      135deg,
+      rgba(220, 105, 119, 0.52),
+      rgba(255, 191, 154, 0.3)
+    );
+    filter: blur(0.35px);
+    box-shadow: 0 0 6px rgba(238, 111, 103, 0.11);
+    animation-duration: 25s;
+  }
+
+  .samurai-site-petals-near span {
+    width: 10px;
+    height: 15px;
+    background: linear-gradient(
+      135deg,
+      rgba(238, 116, 113, 0.72),
+      rgba(255, 211, 167, 0.46)
+    );
+    box-shadow: 0 0 15px rgba(242, 109, 95, 0.2);
+    animation-duration: 15s;
+  }
+
+  .samurai-site-petals-deep span:nth-child(1) {
+    left: 8%;
+    top: 18%;
+    animation-delay: -4s;
+  }
+  .samurai-site-petals-deep span:nth-child(2) {
+    left: 21%;
+    top: 8%;
+    animation-delay: -17s;
+    animation-duration: 31s;
+  }
+  .samurai-site-petals-deep span:nth-child(3) {
+    left: 39%;
+    top: 31%;
+    animation-delay: -9s;
+    animation-duration: 27s;
+  }
+  .samurai-site-petals-deep span:nth-child(4) {
+    left: 52%;
+    top: 13%;
+    animation-delay: -22s;
+    animation-duration: 34s;
+  }
+  .samurai-site-petals-deep span:nth-child(5) {
+    left: 67%;
+    top: 26%;
+    animation-delay: -11s;
+    animation-duration: 29s;
+  }
+  .samurai-site-petals-deep span:nth-child(6) {
+    left: 79%;
+    top: 6%;
+    animation-delay: -15s;
+    animation-duration: 32s;
+  }
+  .samurai-site-petals-deep span:nth-child(7) {
+    left: 91%;
+    top: 40%;
+    animation-delay: -7s;
+    animation-duration: 26s;
+  }
+  .samurai-site-petals-deep span:nth-child(8) {
+    left: 46%;
+    top: 54%;
+    animation-delay: -19s;
+    animation-duration: 35s;
+  }
+
+  .samurai-site-petals-near span:nth-child(1) {
+    left: 4%;
+    top: 28%;
+    animation-delay: -2s;
+  }
+  .samurai-site-petals-near span:nth-child(2) {
+    left: 17%;
+    top: 7%;
+    animation-delay: -10s;
+    animation-duration: 19s;
+  }
+  .samurai-site-petals-near span:nth-child(3) {
+    left: 31%;
+    top: 43%;
+    animation-delay: -6s;
+    animation-duration: 17s;
+  }
+  .samurai-site-petals-near span:nth-child(4) {
+    left: 49%;
+    top: 16%;
+    animation-delay: -13s;
+    animation-duration: 21s;
+  }
+  .samurai-site-petals-near span:nth-child(5) {
+    left: 63%;
+    top: 34%;
+    animation-delay: -4s;
+    animation-duration: 18s;
+  }
+  .samurai-site-petals-near span:nth-child(6) {
+    left: 75%;
+    top: 10%;
+    animation-delay: -15s;
+    animation-duration: 20s;
+  }
+  .samurai-site-petals-near span:nth-child(7) {
+    left: 87%;
+    top: 48%;
+    animation-delay: -8s;
+    animation-duration: 16s;
+  }
+  .samurai-site-petals-near span:nth-child(8) {
+    left: 94%;
+    top: 21%;
+    animation-delay: -12s;
+    animation-duration: 22s;
+  }
+
+  @keyframes dojo-firelight {
+    from {
+      opacity: 0.48;
+      transform: translate3d(-1.5%, 1%, 0) scale(0.94);
+    }
+    to {
+      opacity: 0.92;
+      transform: translate3d(1.5%, -1%, 0) scale(1.08);
+    }
+  }
+
+  @keyframes dojo-firelight-halo {
+    from {
+      opacity: 0.3;
+      transform: scale(0.92);
+    }
+    to {
+      opacity: 0.78;
+      transform: scale(1.1);
+    }
+  }
+
+  @keyframes samurai-petal-drift {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, -4vh, 0) rotate(0deg) scale(0.7);
+    }
+    12% {
+      opacity: 0.62;
+    }
+    48% {
+      opacity: 0.5;
+      transform: translate3d(15vw, 24vh, 0) rotate(210deg) scale(1);
+    }
+    82% {
+      opacity: 0.14;
+      transform: translate3d(29vw, 56vh, 0) rotate(440deg) scale(0.82);
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(35vw, 70vh, 0) rotate(560deg) scale(0.72);
+    }
   }
 
   .samurai-site-leaves {
@@ -1750,7 +1990,11 @@
     .sport-track-fill,
     .samurai-site-ambient::before,
     .samurai-site-fog,
+    .samurai-site-firelight,
+    .samurai-site-firelight::after,
     .samurai-site-leaves span,
+    .samurai-site-petals-deep span,
+    .samurai-site-petals-near span,
     .dashboard-continue,
     .dashboard-hero-ink,
     .dashboard-hero-clouds,

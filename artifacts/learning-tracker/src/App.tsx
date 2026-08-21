@@ -226,7 +226,28 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
       />
       <div className="samurai-site-mountains" aria-hidden="true" />
       <div className="samurai-site-fog" aria-hidden="true" />
+      <div className="samurai-site-firelight" aria-hidden="true" />
+      <div className="samurai-site-petals-deep" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
       <div className="samurai-site-leaves" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="samurai-site-petals-near" aria-hidden="true">
+        <span />
+        <span />
         <span />
         <span />
         <span />
