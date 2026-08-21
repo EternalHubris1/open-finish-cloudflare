@@ -53,18 +53,24 @@ export function findPendingAchievements({
   const activityById = new Map(
     activities.map((activity) => [activity.id, activity]),
   );
-  const directionsTouched = new Set(logs.map((log) => log.activityId));
-  const activeDays = new Set(logs.map((log) => log.logDate));
-  const practiceMinutes = logs.reduce((total, log) => {
+  // Friction is intentionally visible in a clean balance, but it is not
+  // practice and must never make an achievement easier to unlock.
+  const eligibleLogs = logs.filter((log) => {
+    const activity = activityById.get(log.activityId);
+    return activity && resolveActivityType(activity) !== "friction";
+  });
+  const directionsTouched = new Set(eligibleLogs.map((log) => log.activityId));
+  const activeDays = new Set(eligibleLogs.map((log) => log.logDate));
+  const practiceMinutes = eligibleLogs.reduce((total, log) => {
     const activity = activityById.get(log.activityId);
     return (
       total +
-      (activity && resolveActivityType(activity) === "sport"
-        ? 0
-        : log.durationMinutes)
+      (activity && resolveActivityType(activity) === "practice"
+        ? log.durationMinutes
+        : 0)
     );
   }, 0);
-  const sportMinutes = logs.reduce((total, log) => {
+  const sportMinutes = eligibleLogs.reduce((total, log) => {
     const activity = activityById.get(log.activityId);
     return (
       total +
@@ -74,7 +80,7 @@ export function findPendingAchievements({
     );
   }, 0);
 
-  if (logs.length >= 1) {
+  if (eligibleLogs.length >= 1) {
     add({
       type: "first_log",
       title: "The First Mark",
@@ -84,7 +90,7 @@ export function findPendingAchievements({
       activityId: null,
     });
   }
-  if (logs.length >= 10) {
+  if (eligibleLogs.length >= 10) {
     add({
       type: "sessions_10",
       title: "Ten Returns",
@@ -93,7 +99,7 @@ export function findPendingAchievements({
       activityId: null,
     });
   }
-  if (logs.length >= 25) {
+  if (eligibleLogs.length >= 25) {
     add({
       type: "sessions_25",
       title: "A Habit Takes Shape",
@@ -102,7 +108,7 @@ export function findPendingAchievements({
       activityId: null,
     });
   }
-  if (logs.length >= 50) {
+  if (eligibleLogs.length >= 50) {
     add({
       type: "sessions_50",
       title: "Fifty Returns",
@@ -111,7 +117,7 @@ export function findPendingAchievements({
       activityId: null,
     });
   }
-  if (logs.length >= 100) {
+  if (eligibleLogs.length >= 100) {
     add({
       type: "sessions_100",
       title: "One Hundred Returns",
@@ -170,7 +176,7 @@ export function findPendingAchievements({
 
   streaks.forEach((streak) => {
     const activity = activityById.get(streak.activityId);
-    if (!activity) return;
+    if (!activity || resolveActivityType(activity) === "friction") return;
 
     if (streak.currentStreak >= 3) {
       add({

@@ -11,6 +11,7 @@ const activities = [
   },
   { id: 2, name: "Sport", category: "Sport", activityType: "sport" },
   { id: 3, name: "Reading", category: "Reading", activityType: null },
+  { id: 4, name: "Friction", category: "Balance", activityType: "friction" },
 ];
 
 describe("achievement reconciliation", () => {
@@ -49,6 +50,22 @@ describe("achievement reconciliation", () => {
       logs,
       streaks: [],
       unlockedTypes: new Set(["first_log"]),
+    });
+
+    assert.deepEqual(pending, []);
+  });
+
+  it("does not let friction logs or streaks unlock journey marks", () => {
+    const logs = Array.from({ length: 12 }, (_, index) => ({
+      activityId: 4,
+      durationMinutes: 90,
+      logDate: `2026-08-${String(index + 1).padStart(2, "0")}`,
+    }));
+    const pending = findPendingAchievements({
+      activities,
+      logs,
+      streaks: [{ activityId: 4, currentStreak: 30 }],
+      unlockedTypes: new Set(),
     });
 
     assert.deepEqual(pending, []);
