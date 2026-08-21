@@ -840,10 +840,10 @@
   }
 
   .activity-field-armor-hero {
-    right: clamp(0.25rem, 1.2vw, 1.25rem);
-    bottom: clamp(-0.75rem, -0.25vw, 0rem);
+    right: clamp(0.5rem, 1.6vw, 1.5rem);
+    bottom: clamp(-0.2rem, 0.2vw, 0.45rem);
     z-index: 0;
-    width: clamp(9.75rem, 19vw, 14.75rem);
+    width: clamp(8.5rem, 17vw, 12.75rem);
     aspect-ratio: 1;
     isolation: isolate;
   }
@@ -868,12 +868,12 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    opacity: 0.72;
-    mix-blend-mode: screen;
-    filter: grayscale(1) invert(0.92) sepia(0.28) saturate(0.92)
-      hue-rotate(334deg) contrast(1.32) brightness(1.13)
-      drop-shadow(0 0 10px rgba(255, 176, 111, 0.3))
-      drop-shadow(0 0 24px rgba(133, 199, 199, 0.12));
+    opacity: 0.62;
+    mix-blend-mode: luminosity;
+    filter: grayscale(1) invert(0.78) sepia(0.14) saturate(0.6)
+      hue-rotate(334deg) contrast(1.12) brightness(0.98)
+      drop-shadow(0 0 8px rgba(255, 176, 111, 0.2))
+      drop-shadow(0 0 18px rgba(133, 199, 199, 0.08));
     transform-origin: 50% 88%;
   }
 
@@ -906,13 +906,13 @@
 
   @media (max-width: 640px) {
     .activity-field-armor-hero {
-      right: 0.1rem;
-      bottom: -0.5rem;
-      width: 10.2rem;
+      right: 0.4rem;
+      bottom: 0rem;
+      width: 9.25rem;
     }
 
     .activity-field-armor-hero-art {
-      opacity: 0.68;
+      opacity: 0.58;
     }
   }
 
