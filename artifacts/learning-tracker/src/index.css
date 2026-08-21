@@ -477,10 +477,10 @@
   .samurai-site-musashi-fg {
     position: fixed;
     z-index: 2;
-    right: clamp(-16rem, -13vw, -9rem);
+    right: clamp(-13.75rem, -10.5vw, -6.75rem);
     bottom: clamp(-1.75rem, -0.5vh, -0.4rem);
-    width: min(52vw, 47rem);
-    height: min(96vh, 55rem);
+    width: min(56vw, 51rem);
+    height: min(100vh, 58rem);
     pointer-events: none;
     isolation: isolate;
   }
@@ -561,10 +561,10 @@
 
   @media (max-width: 760px) {
     .samurai-site-musashi-fg {
-      right: -7.4rem;
+      right: -6rem;
       bottom: -0.8rem;
-      width: min(31rem, 86vw);
-      height: min(76vh, 41rem);
+      width: min(34rem, 90vw);
+      height: min(82vh, 44rem);
     }
 
     .samurai-site-musashi-fg > img {
