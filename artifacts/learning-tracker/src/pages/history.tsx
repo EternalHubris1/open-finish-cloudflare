@@ -263,7 +263,7 @@ export default function History() {
           totalMinutes: day.minutes,
         };
         activities
-          .filter((activity) => activity.activityType !== "sport")
+          .filter((activity) => activity.activityType === "practice")
           .forEach((activity) => {
             row[activityKey(activity.id)] =
               calendarDay?.logs
@@ -304,7 +304,7 @@ export default function History() {
     ),
   );
   const topActivity = activities
-    .filter((activity) => activity.activityType !== "sport")
+    .filter((activity) => activity.activityType === "practice")
     .reduce<Activity | null>((top, activity) => {
       if (!top) return activity;
       return (activityTotals.get(activity.id) ?? 0) >
@@ -563,7 +563,7 @@ export default function History() {
                   }}
                 />
                 {activities
-                  .filter((activity) => activity.activityType !== "sport")
+                  .filter((activity) => activity.activityType === "practice")
                   .filter(
                     (activity) => !hiddenActivityIds.includes(activity.id),
                   )
@@ -617,39 +617,41 @@ export default function History() {
 
         <div className="max-h-36 overflow-y-auto border-t border-white/5 px-6 py-5 md:px-8">
           <div className="flex flex-wrap gap-2">
-            {activities.map((activity) => {
-              const isVisible = !hiddenActivityIds.includes(activity.id);
-              return (
-                <button
-                  key={activity.id}
-                  type="button"
-                  aria-pressed={isVisible}
-                  onClick={() => toggleActivity(activity.id)}
-                  className={`signal-button flex items-center gap-2 rounded-xl border px-3 py-2 text-[10px] font-bold uppercase tracking-wider ${isVisible ? "border-white/10 bg-white/5 text-white/70" : "border-transparent bg-transparent text-white/20"}`}
-                >
-                  <span
-                    className="h-2.5 w-2.5 rounded-sm"
-                    style={{
-                      backgroundColor: activityColors.get(activity.id),
-                      opacity: isVisible ? 1 : 0.25,
-                    }}
-                  />
-                  {activity.name}
-                  <span
-                    className={
-                      activity.activityType === "sport"
-                        ? "text-[#72c6b3]/70"
-                        : "text-white/20"
-                    }
+            {activities
+              .filter((activity) => activity.activityType === "practice")
+              .map((activity) => {
+                const isVisible = !hiddenActivityIds.includes(activity.id);
+                return (
+                  <button
+                    key={activity.id}
+                    type="button"
+                    aria-pressed={isVisible}
+                    onClick={() => toggleActivity(activity.id)}
+                    className={`signal-button flex items-center gap-2 rounded-xl border px-3 py-2 text-[10px] font-bold uppercase tracking-wider ${isVisible ? "border-white/10 bg-white/5 text-white/70" : "border-transparent bg-transparent text-white/20"}`}
                   >
-                    {activity.activityType}
-                  </span>
-                  <span className="text-white/25">
-                    {formatMinutes(activityTotals.get(activity.id) ?? 0)}
-                  </span>
-                </button>
-              );
-            })}
+                    <span
+                      className="h-2.5 w-2.5 rounded-sm"
+                      style={{
+                        backgroundColor: activityColors.get(activity.id),
+                        opacity: isVisible ? 1 : 0.25,
+                      }}
+                    />
+                    {activity.name}
+                    <span
+                      className={
+                        activity.activityType === "sport"
+                          ? "text-[#72c6b3]/70"
+                          : "text-white/20"
+                      }
+                    >
+                      {activity.activityType}
+                    </span>
+                    <span className="text-white/25">
+                      {formatMinutes(activityTotals.get(activity.id) ?? 0)}
+                    </span>
+                  </button>
+                );
+              })}
           </div>
         </div>
       </section>

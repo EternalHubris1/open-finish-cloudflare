@@ -41,25 +41,25 @@ export function DailyActivityChart({
   const today = new Date();
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn("space-y-5", className)}>
       <div className="overflow-x-auto pb-2 scrollbar-thin">
-        <div className="min-w-[720px]">
-          <div className="mb-2 ml-9 grid grid-flow-col grid-rows-1 gap-1.5 text-[9px] font-bold uppercase tracking-widest text-white/25">
+        <div className="min-w-[820px]">
+          <div className="mb-3 ml-10 grid grid-flow-col grid-rows-1 gap-2 text-[9px] font-bold uppercase tracking-[.16em] text-white/30">
             {days
               .filter((_, index) => index % 7 === 0)
               .map((day) => (
                 <span key={day.date}>{format(parseISO(day.date), "MMM")}</span>
               ))}
           </div>
-          <div className="flex gap-2">
-            <div className="grid grid-rows-7 gap-1.5 pr-1 text-[9px] font-bold uppercase text-white/25">
+          <div className="flex gap-2.5">
+            <div className="grid grid-rows-7 gap-2 pr-1 text-[9px] font-bold uppercase text-white/30">
               {["M", "", "W", "", "F", "", "S"].map((label, index) => (
-                <span key={index} className="flex h-5 items-center">
+                <span key={index} className="flex h-8 items-center">
                   {label}
                 </span>
               ))}
             </div>
-            <div className="grid flex-1 grid-flow-col grid-rows-7 gap-1.5">
+            <div className="grid flex-1 grid-flow-col grid-rows-7 gap-2">
               {days.map((day) => {
                 const parsedDate = parseISO(day.date);
                 const isFuture = isAfter(parsedDate, today);
@@ -86,11 +86,11 @@ export function DailyActivityChart({
                     title={`${format(parsedDate, "MMMM d, yyyy")} · ${day.minutes > 0 ? `${day.minutes} min practice` : "no practice"}${hasSecondaryEffort ? ` · ${secondaryMinutes} min sport` : ""}`}
                     aria-label={`${format(parsedDate, "MMMM d, yyyy")}: ${day.minutes} practice minutes${hasSecondaryEffort ? ` and ${secondaryMinutes} sport minutes` : ""}`}
                     className={cn(
-                      "group relative h-5 min-w-5 overflow-hidden rounded-[6px] border transition-all duration-200 hover:z-10 hover:scale-125",
+                      "group relative flex h-8 min-w-8 items-start justify-start overflow-hidden rounded-[9px] border px-1.5 pt-1 transition-[transform,box-shadow,border-color] duration-200 hover:z-10 hover:scale-[1.08] focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffc268] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f0f14]",
                       isSameDay(parsedDate, today) &&
-                        "ring-1 ring-white/80 ring-offset-2 ring-offset-[#0f0f14]",
+                        "ring-1 ring-[#ffc268]/85 ring-offset-2 ring-offset-[#0f0f14]",
                       selectedDate === day.date &&
-                        "outline outline-2 outline-offset-2 outline-white",
+                        "scale-[1.08] border-white/80 ring-2 ring-white/75 ring-offset-2 ring-offset-[#0f0f14]",
                     )}
                     onClick={() => onSelectDate?.(day.date)}
                     style={{
@@ -118,14 +118,29 @@ export function DailyActivityChart({
                           : "none",
                     }}
                   >
+                    <span
+                      aria-hidden="true"
+                      className="relative z-10 text-[8px] font-bold tabular-nums text-white/55 transition-colors group-hover:text-white"
+                    >
+                      {format(parsedDate, "d")}
+                    </span>
+                    {hasEffort && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute inset-x-1.5 bottom-1 h-[3px] rounded-full bg-white/45"
+                        style={{
+                          opacity: Math.min(0.9, 0.28 + intensity * 0.72),
+                        }}
+                      />
+                    )}
                     {hasSecondaryEffort && (
                       <span
                         aria-hidden="true"
-                        className="absolute inset-x-[2px] bottom-[2px] h-px rounded-full"
+                        className="absolute inset-x-1.5 bottom-1 h-1 rounded-full"
                         style={{
-                          width: `${Math.max(18, (secondaryMinutes / maxSecondaryMinutes) * 100)}%`,
+                          width: `${Math.max(22, (secondaryMinutes / maxSecondaryMinutes) * 100)}%`,
                           backgroundColor: secondaryColor,
-                          boxShadow: `0 0 6px ${secondaryColor}99`,
+                          boxShadow: `0 0 7px ${secondaryColor}bb`,
                         }}
                       />
                     )}
@@ -137,14 +152,18 @@ export function DailyActivityChart({
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-4 text-[10px] font-semibold uppercase tracking-wider text-white/30">
-        <span>{hasActivity ? "Every square is one day" : emptyLabel}</span>
+      <div className="flex items-center justify-between gap-4 text-[10px] font-semibold uppercase tracking-wider text-white/36">
+        <span>
+          {hasActivity
+            ? "One tile, one day · select to open its return"
+            : emptyLabel}
+        </span>
         <div className="flex shrink-0 items-center gap-2">
           <span>Less</span>
           {(colorScale ?? [0, 0.3, 0.5, 0.72, 1]).map((value, index) => (
             <span
               key={index}
-              className="h-3 w-3 rounded-[4px] border"
+              className="h-4 w-4 rounded-[5px] border"
               style={{
                 backgroundColor:
                   index === 0
