@@ -17,11 +17,11 @@ import { Input } from "@/components/ui/input";
 import { Route, Switch, Router as WouterRouter, useLocation } from "wouter";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DailyDojoGate } from "@/components/daily-dojo-gate";
-import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 import {
   VisualEffectsProvider,
   useVisualEffects,
 } from "@/components/visual-effects-provider";
+import musashi from "@assets/musashi_1785336444855.jpg";
 import inkToriiBackground from "@assets/ink-torii-night-background-v2-clean.png";
 
 const Dashboard = lazy(() => import("@/pages/dashboard-v2"));
@@ -256,16 +256,10 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
       </div>
       {location !== "/" && (
         <div
-          className="samurai-site-sword-emblem fixed pointer-events-none z-0"
+          className="samurai-site-musashi fixed right-0 top-0 bottom-0 w-[55%] pointer-events-none z-0"
           aria-hidden="true"
-        >
-          <SamuraiStatusIcon
-            status="focus"
-            label="Samurai with sword"
-            animate={false}
-            className="h-[clamp(7rem,13vw,12rem)] w-[clamp(7rem,13vw,12rem)]"
-          />
-        </div>
+          style={{ backgroundImage: `url(${musashi})` }}
+        />
       )}
       <div className="fixed top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#ff7a68]/45 to-transparent z-50 pointer-events-none" />
 

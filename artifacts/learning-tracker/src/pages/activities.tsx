@@ -33,7 +33,6 @@ import {
   Dumbbell,
   Edit2,
   Flame,
-  Orbit,
   Plus,
   Search,
   Sparkles,
@@ -310,9 +309,13 @@ export default function Activities() {
         <div className="pointer-events-none absolute bottom-0 left-[38%] h-48 w-72 rounded-full bg-[#72c6b3]/[.06] blur-3xl" />
         <div className="relative z-10 flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div className="flex max-w-2xl items-start gap-4 md:gap-5">
-            <div className="activity-field-emblem relative mt-0.5 grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-[#ff9a89]/30 bg-[linear-gradient(145deg,rgba(255,120,104,.17),rgba(255,194,104,.055))] text-[#ffb1a7] shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_0_34px_rgba(233,84,72,.16)]">
-              <Orbit className="activity-field-emblem-orbit absolute h-10 w-10 text-[#ffc268]/55" />
-              <Target className="relative z-10 h-5 w-5" />
+            <div className="activity-field-armor relative mt-0.5 grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-[#ff9a89]/30 bg-[linear-gradient(145deg,rgba(255,120,104,.17),rgba(255,194,104,.055))] shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_0_34px_rgba(233,84,72,.16)]">
+              <img
+                src={samuraiArmor}
+                alt=""
+                aria-hidden="true"
+                className="activity-field-armor-art"
+              />
               <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[#ffc268] shadow-[0_0_10px_rgba(255,194,104,.9)]" />
             </div>
             <div className="min-w-0">
@@ -378,14 +381,7 @@ export default function Activities() {
         <>
           <section className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(19rem,.8fr)]">
             <div className="signal-surface relative overflow-hidden rounded-[2rem] border border-white/[.1] bg-[#0d1520]/88 p-5 shadow-[0_24px_70px_rgba(0,0,0,.2)] md:p-6">
-              <div
-                className="activity-armor-shrine pointer-events-none absolute"
-                aria-hidden="true"
-              >
-                <span className="activity-armor-aura" />
-                <img src={samuraiArmor} alt="" className="activity-armor-art" />
-              </div>
-              <div className="relative z-10 flex items-center justify-between gap-4 pr-20 sm:pr-24">
+              <div className="relative z-10 flex items-center justify-between gap-4">
                 <div>
                   <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffb1a7]">
                     Direction constellation
