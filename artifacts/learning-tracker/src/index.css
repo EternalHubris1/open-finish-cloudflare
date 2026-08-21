@@ -2508,3 +2508,67 @@
     animation: none;
   }
 }
+
+/* A quiet ink atmosphere behind the Energy invested data plane. */
+.energy-panel {
+  position: relative;
+  isolation: isolate;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 219, 174, 0.025),
+    0 22px 56px rgba(0, 0, 0, 0.2);
+}
+
+.energy-panel::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  opacity: 0.7;
+  background:
+    radial-gradient(
+      ellipse 34% 64% at 10% 86%,
+      rgba(167, 76, 66, 0.08),
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 28% 50% at 86% 14%,
+      rgba(164, 130, 81, 0.055),
+      transparent 76%
+    ),
+    linear-gradient(
+      116deg,
+      transparent 22%,
+      rgba(220, 188, 130, 0.018) 58%,
+      transparent 78%
+    );
+  content: "";
+  pointer-events: none;
+}
+
+.energy-panel > div:first-child {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .energy-panel::before {
+    animation: energy-ink-drift 15s cubic-bezier(0.45, 0, 0.55, 1) infinite
+      alternate;
+  }
+}
+
+@keyframes energy-ink-drift {
+  from {
+    opacity: 0.48;
+    transform: translate3d(-1.25%, 0.8%, 0) scale(1.01);
+  }
+  to {
+    opacity: 0.78;
+    transform: translate3d(1.25%, -0.8%, 0) scale(1.035);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .energy-panel::before {
+    animation: none;
+  }
+}

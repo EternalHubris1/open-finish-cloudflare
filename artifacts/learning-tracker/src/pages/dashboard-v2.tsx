@@ -486,7 +486,7 @@ function Timeline({
                   </span>
                   {lastMarkedDay.focusMinutes > 0 && (
                     <span className="last-marked-token last-marked-token-work">
-                      Work {minutesLabel(lastMarkedDay.focusMinutes)}
+                      {minutesLabel(lastMarkedDay.focusMinutes)}
                     </span>
                   )}
                   {lastMarkedDay.sportMinutes > 0 && (
@@ -702,7 +702,7 @@ function Timeline({
                 />
               </svg>
               <div
-                className="relative z-30 grid h-full grid-cols-7 gap-3 sm:gap-6 md:gap-8"
+                className="relative z-30 grid h-full grid-cols-7 gap-2 sm:gap-4 md:gap-6"
                 data-focus-scope
               >
                 {days.map((day, index) => {
@@ -757,7 +757,7 @@ function Timeline({
                           </span>
                         )}
                         <span
-                          className={`signal-bar energy-bar-settle relative block w-[58%] min-w-[13px] max-w-10 rounded-t-md border border-white/10 group-hover:brightness-110 group-focus-visible:ring-2 sm:w-[52%] ${isLatestDay ? "today-energy-bar" : ""} ${exceptional ? "exceptional-bloom" : ""}`}
+                          className={`signal-bar energy-bar-settle relative block w-[90%] min-w-[22px] max-w-none rounded-t-[.65rem] border border-white/10 group-hover:brightness-110 group-focus-visible:ring-2 sm:w-[88%] ${isLatestDay ? "today-energy-bar" : ""} ${exceptional ? "exceptional-bloom" : ""}`}
                           style={{
                             height: `${Math.max(day.focusMinutes ? 8 : 2, (day.focusMinutes / max) * 100)}%`,
                             animationDelay: `${index * 60}ms`,
@@ -775,7 +775,7 @@ function Timeline({
                         aria-hidden="true"
                       >
                         <span
-                          className={`block h-1.5 w-[58%] min-w-[13px] max-w-10 overflow-hidden rounded-full sm:w-[52%] ${light ? "bg-black/[.07]" : "bg-white/[.07]"}`}
+                          className={`block h-1.5 w-[90%] min-w-[22px] overflow-hidden rounded-full sm:w-[88%] ${light ? "bg-black/[.07]" : "bg-white/[.07]"}`}
                         >
                           <span
                             className="sport-track-fill block h-full rounded-full bg-gradient-to-r from-[#3c9f8d] via-[#62bca8] to-[#9ce2cf] shadow-[0_0_10px_rgba(98,188,168,.5)] transition-[width] duration-1000"
