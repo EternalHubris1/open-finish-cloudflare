@@ -480,7 +480,7 @@ function Timeline({
               <h2
                 className={`mt-2 text-xl font-semibold sm:text-2xl md:text-3xl ${light ? "text-[#181719]" : "text-white"}`}
               >
-                Minutes invested
+                Time invested
               </h2>
               <p
                 className={`mt-2 max-w-xl text-[11px] leading-5 sm:text-xs ${light ? "text-black/40" : "text-white/35"}`}
@@ -834,7 +834,7 @@ function Timeline({
           <div
             className={`mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-[10px] font-bold uppercase tracking-[.12em] ${light ? "text-black/45" : "text-white/40"}`}
           >
-            <span>Minutes logged</span>
+            <span>Time invested</span>
             <span>Low</span>
             {palette.slice(0, 4).map((color) => (
               <span
@@ -873,13 +873,13 @@ function Timeline({
                       scope="col"
                       className="px-3 py-2 text-right font-semibold"
                     >
-                      Practice
+                      Practice time
                     </th>
                     <th
                       scope="col"
                       className="px-3 py-2 text-right font-semibold"
                     >
-                      Sport
+                      Sport time
                     </th>
                   </tr>
                 </thead>
