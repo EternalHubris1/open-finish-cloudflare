@@ -871,6 +871,97 @@
     animation: activity-node-arrival 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
+  .activity-armor-shrine {
+    right: clamp(-3.75rem, -3vw, -1.5rem);
+    bottom: clamp(-5.25rem, -4vw, -2.75rem);
+    z-index: 0;
+    width: clamp(10.5rem, 22vw, 17.5rem);
+    aspect-ratio: 1;
+    opacity: 0.88;
+  }
+
+  .activity-armor-aura {
+    position: absolute;
+    inset: 15%;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 50% 54%,
+      rgba(255, 182, 116, 0.23) 0%,
+      rgba(132, 193, 198, 0.08) 42%,
+      transparent 72%
+    );
+    filter: blur(14px);
+  }
+
+  .activity-armor-art {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0.7;
+    mix-blend-mode: screen;
+    filter: grayscale(1) invert(0.9) sepia(0.24) saturate(0.88)
+      hue-rotate(334deg) contrast(1.24) brightness(1.12)
+      drop-shadow(0 0 10px rgba(255, 174, 111, 0.34))
+      drop-shadow(0 0 26px rgba(126, 190, 197, 0.18));
+    transform-origin: 50% 88%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .activity-armor-art {
+      animation: activity-armor-keep-watch 7.5s cubic-bezier(0.45, 0, 0.55, 1)
+        infinite;
+    }
+
+    .activity-armor-aura {
+      animation: activity-armor-aura 5.8s cubic-bezier(0.45, 0, 0.55, 1)
+        infinite alternate;
+    }
+  }
+
+  @keyframes activity-armor-keep-watch {
+    0%,
+    100% {
+      opacity: 0.62;
+      transform: translate3d(0, 3px, 0) scale(0.985);
+    }
+    50% {
+      opacity: 0.78;
+      transform: translate3d(0, -5px, 0) scale(1.018);
+    }
+  }
+
+  @keyframes activity-armor-aura {
+    from {
+      opacity: 0.5;
+      transform: scale(0.92);
+    }
+    to {
+      opacity: 0.94;
+      transform: scale(1.1);
+    }
+  }
+
+  .visual-effects-muted .activity-armor-shrine {
+    opacity: 0.6;
+  }
+
+  .visual-effects-muted .activity-armor-art,
+  .visual-effects-muted .activity-armor-aura {
+    animation: none;
+  }
+
+  @media (max-width: 640px) {
+    .activity-armor-shrine {
+      right: -2.9rem;
+      bottom: -3.55rem;
+      width: 10.75rem;
+      opacity: 0.68;
+    }
+  }
+
   .activity-week-bar {
     transform-origin: bottom;
     animation: activity-week-bar-rise 760ms cubic-bezier(0.16, 1, 0.3, 1) both;

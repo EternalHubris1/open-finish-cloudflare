@@ -45,6 +45,7 @@ import {
   ActivityGlyph,
   defaultActivityIcon,
 } from "@/lib/activity-icons";
+import samuraiArmor from "@assets/samurai-weapons-armor/samurai-armor.png";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -377,7 +378,14 @@ export default function Activities() {
         <>
           <section className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(19rem,.8fr)]">
             <div className="signal-surface relative overflow-hidden rounded-[2rem] border border-white/[.1] bg-[#0d1520]/88 p-5 shadow-[0_24px_70px_rgba(0,0,0,.2)] md:p-6">
-              <div className="relative z-10 flex items-center justify-between gap-4">
+              <div
+                className="activity-armor-shrine pointer-events-none absolute"
+                aria-hidden="true"
+              >
+                <span className="activity-armor-aura" />
+                <img src={samuraiArmor} alt="" className="activity-armor-art" />
+              </div>
+              <div className="relative z-10 flex items-center justify-between gap-4 pr-20 sm:pr-24">
                 <div>
                   <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffb1a7]">
                     Direction constellation
