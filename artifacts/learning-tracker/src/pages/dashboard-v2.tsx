@@ -429,7 +429,7 @@ function Timeline({
     >
       <div className="grid md:grid-cols-[minmax(0,1.5fr)_minmax(15rem,.5fr)]">
         <div className="min-w-0 p-6 md:p-9">
-          <div className="mb-8 flex items-end justify-between gap-4">
+          <div className="mb-5 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
             <div>
               <p
                 className={`text-[9px] font-bold uppercase tracking-[.28em] ${light ? "text-[#91463f]" : "text-[#ff8b7c]"}`}
@@ -437,12 +437,12 @@ function Timeline({
                 Energy invested
               </p>
               <h2
-                className={`mt-2 text-2xl font-semibold md:text-3xl ${light ? "text-[#181719]" : "text-white"}`}
+                className={`mt-2 text-xl font-semibold sm:text-2xl md:text-3xl ${light ? "text-[#181719]" : "text-white"}`}
               >
                 Minutes invested
               </h2>
               <p
-                className={`mt-2 max-w-xl text-xs ${light ? "text-black/40" : "text-white/35"}`}
+                className={`mt-2 max-w-xl text-[11px] leading-5 sm:text-xs ${light ? "text-black/40" : "text-white/35"}`}
               >
                 Bars show practice and work. A separate sport track fills
                 beneath each day; the line follows practice continuity.
@@ -506,10 +506,49 @@ function Timeline({
             </div>
           </div>
           <div
+            className={`mb-5 grid grid-cols-3 overflow-hidden rounded-2xl border text-center sm:hidden ${light ? "border-black/[.08] bg-black/[.025] text-black/45" : "border-white/[.08] bg-black/10 text-white/35"}`}
+            aria-label="Weekly activity summary"
+          >
+            <div
+              className={`px-2 py-3 ${light ? "border-black/[.08]" : "border-white/[.08]"} border-r`}
+            >
+              <p
+                className={`text-base font-semibold leading-none tabular-nums ${light ? "text-black/78" : "text-white/90"}`}
+              >
+                {minutesLabel(weekTotal)}
+              </p>
+              <span className="mt-2 block text-[7px] font-bold uppercase tracking-[.1em]">
+                This week
+              </span>
+            </div>
+            <div
+              className={`px-2 py-3 ${light ? "border-black/[.08]" : "border-white/[.08]"} border-r`}
+            >
+              <p
+                className={`text-base font-semibold leading-none tabular-nums ${light ? "text-black/78" : "text-white/90"}`}
+              >
+                {activeDays}/7
+              </p>
+              <span className="mt-2 block text-[7px] font-bold uppercase tracking-[.08em]">
+                Active days
+              </span>
+            </div>
+            <div className="px-2 py-3">
+              <p
+                className={`text-base font-semibold leading-none tabular-nums ${light ? "text-black/78" : "text-white/90"}`}
+              >
+                {minutesLabel(bestDay)}
+              </p>
+              <span className="mt-2 block text-[7px] font-bold uppercase tracking-[.1em]">
+                Best day
+              </span>
+            </div>
+          </div>
+          <div
             ref={timelineScrollRef}
             className="overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            <div className="relative h-72 min-w-[560px]">
+            <div className="relative h-64 min-w-0 sm:h-72 sm:min-w-[560px]">
               <svg
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-x-0 top-0 z-20 h-[232px] w-full overflow-visible"
@@ -613,7 +652,7 @@ function Timeline({
                 />
               </svg>
               <div
-                className="relative z-10 grid h-full grid-cols-7 gap-4 md:gap-6"
+                className="relative z-10 grid h-full grid-cols-7 gap-1.5 sm:gap-4 md:gap-6"
                 data-focus-scope
               >
                 {days.map((day) => {
@@ -635,13 +674,13 @@ function Timeline({
                       }}
                       onBlur={() => setFocusedDate(null)}
                       onClick={() => selectDay(day)}
-                      className={`group flex h-full min-w-0 flex-col justify-end gap-3 outline-none ${pulseDate === day.date ? "session-pulse" : ""}`}
+                      className={`group flex h-full min-w-0 flex-col justify-end gap-2 sm:gap-3 outline-none ${pulseDate === day.date ? "session-pulse" : ""}`}
                       data-focus-item
                     >
                       <span className="relative flex w-full flex-1 items-end">
                         {selectedDay && (
                           <span
-                            className={`absolute inset-x-0 z-30 text-center text-[10px] font-semibold tabular-nums ${light ? "text-black/65" : "text-white/75"}`}
+                            className={`absolute inset-x-0 z-30 text-center text-[9px] font-semibold tabular-nums sm:text-[10px] ${light ? "text-black/65" : "text-white/75"}`}
                             style={{
                               bottom: `calc(${Math.max(day.focusMinutes ? 8 : 2, (day.focusMinutes / max) * 100)}% + 12px)`,
                             }}
@@ -665,7 +704,7 @@ function Timeline({
                         </span>
                       </span>
                       <span
-                        className="flex h-9 w-full items-center"
+                        className="flex h-7 w-full items-center sm:h-9"
                         aria-hidden="true"
                       >
                         <span
@@ -680,7 +719,7 @@ function Timeline({
                         </span>
                       </span>
                       <span
-                        className={`text-[10px] font-bold uppercase tracking-[.14em] ${selectedDay ? (light ? "text-black/75" : "text-white/80") : light ? "text-black/45" : "text-white/40"}`}
+                        className={`text-[8px] font-bold uppercase tracking-[.08em] sm:text-[10px] sm:tracking-[.14em] ${selectedDay ? (light ? "text-black/75" : "text-white/80") : light ? "text-black/45" : "text-white/40"}`}
                       >
                         {format(new Date(`${day.date}T00:00:00`), "EEE")}
                       </span>
@@ -766,7 +805,7 @@ function Timeline({
         </div>
 
         <aside
-          className={`relative flex min-h-[32rem] flex-col border-t p-5 md:min-h-full md:border-l md:border-t-0 md:p-6 lg:min-h-[35rem] ${light ? "border-black/[.08] bg-[#edf0f3]/60" : "border-white/[.08] bg-[#090d14]/55"}`}
+          className={`relative flex min-h-0 flex-col border-t p-5 md:min-h-full md:border-l md:border-t-0 md:p-6 lg:min-h-[35rem] ${light ? "border-black/[.08] bg-[#edf0f3]/60" : "border-white/[.08] bg-[#090d14]/55"}`}
         >
           {(dueReminders.length > 0 || nearbyMilestones.length > 0) && (
             <section
@@ -1197,7 +1236,7 @@ export default function DashboardV2() {
           </div>
         )}
         <header
-          className={`dashboard-hero signal-surface relative overflow-hidden rounded-[2rem] border px-6 py-9 md:px-10 md:py-12 ${light ? "border-black/[.08] bg-white/84" : "border-white/[.08] bg-[#0c1119]/94"}`}
+          className={`dashboard-hero signal-surface relative overflow-hidden rounded-[2rem] border px-5 py-7 sm:px-6 sm:py-9 md:px-10 md:py-12 ${light ? "border-black/[.08] bg-white/84" : "border-white/[.08] bg-[#0c1119]/94"}`}
         >
           <div
             className={`momentum-field absolute right-[-8%] top-[-55%] h-96 w-96 rounded-full blur-3xl ${light ? "bg-[#ff7b69]" : "bg-[#ff6f61]"}`}
@@ -1230,7 +1269,7 @@ export default function DashboardV2() {
           />
           <div className="dashboard-hero-clouds" aria-hidden="true" />
           <div className="dashboard-hero-fog" aria-hidden="true" />
-          <div className="relative z-10 grid items-center gap-10 lg:grid-cols-[1fr_.58fr]">
+          <div className="relative z-10 grid items-center gap-7 sm:gap-10 lg:grid-cols-[1fr_.58fr]">
             <div>
               <div
                 className={`mb-6 flex items-center gap-3 pr-28 text-[10px] font-bold uppercase tracking-[.26em] ${light ? "text-[#91463f]" : "text-[#ff9a89]"}`}
@@ -1261,7 +1300,7 @@ export default function DashboardV2() {
                 <Target className="h-3 w-3" /> Your working line
               </p>
               <h1
-                className={`dashboard-hero-title max-w-3xl text-5xl font-semibold leading-[.98] tracking-[-.045em] sm:text-6xl lg:text-7xl ${light ? "text-[#181719]" : "text-white"}`}
+                className={`dashboard-hero-title max-w-3xl text-[2.45rem] font-semibold leading-[.98] tracking-[-.045em] sm:text-6xl lg:text-7xl ${light ? "text-[#181719]" : "text-white"}`}
               >
                 <span className="dashboard-hero-focus">{focus?.name}.</span>
                 <br />
@@ -1272,7 +1311,7 @@ export default function DashboardV2() {
                 </span>
               </h1>
               <p
-                className={`hero-daily-signal mt-6 max-w-xl text-sm leading-7 ${light ? "is-light" : ""}`}
+                className={`hero-daily-signal mt-6 hidden max-w-xl text-sm leading-7 sm:block ${light ? "is-light" : ""}`}
               >
                 <span className="hero-daily-signal-copy">Today holds </span>
                 <span className="hero-daily-signal-value">
@@ -1287,33 +1326,59 @@ export default function DashboardV2() {
                   ; nothing else is owed.
                 </span>
               </p>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
+              <div
+                className={`mt-5 rounded-[1.35rem] border px-4 py-4 sm:hidden ${light ? "border-black/[.08] bg-black/[.025]" : "border-[#ff8b7c]/18 bg-[#080b10]/48"}`}
+                aria-label={`Today’s deliberate effort: ${minutesLabel(dashboard.totalMinutesToday)}`}
+              >
+                <p
+                  className={`text-[8px] font-bold uppercase tracking-[.2em] ${light ? "text-black/42" : "text-[#ffb1a7]/70"}`}
+                >
+                  Today’s deliberate effort
+                </p>
+                <div className="mt-2 flex items-end justify-between gap-4">
+                  <p
+                    className={`tabular-nums text-[2.85rem] font-semibold leading-none tracking-[-.055em] ${light ? "text-[#86221f]" : "text-[#ff8b7c]"}`}
+                  >
+                    {minutesLabel(dashboard.totalMinutesToday)}
+                  </p>
+                  <p
+                    className={`max-w-28 text-right text-[10px] leading-4 ${light ? "text-black/45" : "text-white/45"}`}
+                  >
+                    {dashboard.activitiesTodayCompleted}{" "}
+                    {dashboard.activitiesTodayCompleted === 1
+                      ? "direction"
+                      : "directions"}{" "}
+                    touched
+                  </p>
+                </div>
+              </div>
+              <div className="mt-6 flex flex-wrap items-center gap-3 sm:mt-8">
                 <Button
                   onClick={() => setActivityPickerOpen(true)}
-                  className="signal-button dashboard-continue rounded-full bg-[#e95448] px-7 py-6 text-[10px] font-bold uppercase tracking-[.16em] text-white shadow-[0_12px_36px_rgba(233,84,72,.18)] hover:bg-[#f26456]"
+                  className="signal-button dashboard-continue w-full rounded-full bg-[#e95448] px-7 py-6 text-[10px] font-bold uppercase tracking-[.16em] text-white shadow-[0_12px_36px_rgba(233,84,72,.18)] hover:bg-[#f26456] sm:w-auto"
                   data-testid="button-continue"
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Continue
                 </Button>
                 <p
-                  className={`max-w-sm text-xs leading-6 ${light ? "text-black/40" : "text-white/35"}`}
+                  className={`hidden max-w-sm text-xs leading-6 sm:block ${light ? "text-black/40" : "text-white/35"}`}
                 >
                   Choose from the directions you return to most often, then
                   enter the session with fresh intent.
                 </p>
               </div>
             </div>
-            <div className="grid w-full gap-6 lg:justify-items-end">
-              <div className="flex items-center justify-center gap-7 lg:justify-end">
-                <div className="relative flex h-44 w-44 items-center justify-center rounded-full border border-[#ff7868]/18 md:h-52 md:w-52">
+            <div className="grid w-full gap-5 sm:gap-6 lg:justify-items-end">
+              <div className="flex items-center justify-center gap-5 sm:gap-7 lg:justify-end">
+                <div className="relative flex h-28 w-28 items-center justify-center rounded-full border border-[#ff7868]/18 sm:h-44 sm:w-44 md:h-52 md:w-52">
                   <span className="absolute inset-3 rounded-full border border-white/5" />
                   <div className="text-center">
                     <Flame
                       className={`mx-auto mb-2 h-5 w-5 ${light ? "text-[#9c4d44]" : "text-[#ff8b7c]"}`}
                     />
                     <p
-                      className={`text-6xl font-light ${light ? "text-[#181719]" : "text-white"}`}
+                      className={`text-4xl font-light sm:text-6xl ${light ? "text-[#181719]" : "text-white"}`}
                     >
                       {dashboard.overallCurrentStreak}
                     </p>

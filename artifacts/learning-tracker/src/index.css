@@ -2122,3 +2122,59 @@
     }
   }
 }
+
+/* Mobile dashboard: preserve the atmospheric hero while giving time and actions a clean reading plane. */
+@media (max-width: 639px) {
+  .dashboard-hero-musashi {
+    right: -7rem;
+    top: 3.4rem;
+    bottom: -0.8rem;
+    width: 82%;
+    opacity: 0.18;
+    background-size: auto 84%;
+    background-position: right bottom;
+  }
+
+  .dashboard-hero-orbit {
+    opacity: 0.22;
+  }
+
+  .dashboard-hero-orbit-one {
+    right: -6.4rem;
+    top: 5.4rem;
+    height: 12rem;
+    width: 12rem;
+  }
+
+  .dashboard-hero-orbit-two {
+    right: -2.5rem;
+    top: -7.5rem;
+    height: 13rem;
+    width: 13rem;
+  }
+
+  .dashboard-hero-ink {
+    opacity: 0.42;
+    filter: blur(13px) saturate(0.7);
+  }
+
+  .dashboard-hero-clouds {
+    inset: 34% -22% 18% -34%;
+    opacity: 0.2;
+  }
+
+  .dashboard-hero-fog {
+    inset: 56% -24% -22%;
+    opacity: 0.24;
+  }
+
+  .dashboard-hero-mountains-back {
+    height: 28%;
+    opacity: 0.3;
+  }
+
+  .dashboard-hero-mountains-front {
+    height: 19%;
+    opacity: 0.48;
+  }
+}

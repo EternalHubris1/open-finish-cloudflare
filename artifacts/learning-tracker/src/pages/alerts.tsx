@@ -189,6 +189,12 @@ export default function Cabinet() {
     setDialog("reminder");
   };
 
+  const openCabinetDialog = (periodReflectionId: number | null = null) => {
+    setCabinetReflectionId(periodReflectionId);
+    setCabinetForm({ title: "", url: "", note: "", kind: "link" });
+    setDialog("cabinet");
+  };
+
   const saveReminder = (event: React.FormEvent) => {
     event.preventDefault();
     if (!reminderForm.activityId || reminderForm.daysOfWeek.length === 0) {
@@ -235,8 +241,7 @@ export default function Cabinet() {
     createCabinetItem.mutate(
       {
         ...cabinetForm,
-        periodReflectionId:
-          cabinetReflectionId ?? selectedReflection?.id ?? null,
+        periodReflectionId: cabinetReflectionId,
         position: cabinetItems.length,
       },
       {
@@ -269,7 +274,7 @@ export default function Cabinet() {
           if (reflection.id) {
             setActiveMilestoneId(activeMilestone.id);
             setCabinetReflectionId(reflection.id);
-            if (openCabinetAfterSave) setDialog("cabinet");
+            if (openCabinetAfterSave) openCabinetDialog(reflection.id);
           }
         },
         onError: () =>
@@ -350,6 +355,13 @@ export default function Cabinet() {
             >
               <Bell className="h-4 w-4" /> Daily reminder
             </Button>
+            <Button
+              variant="ghost"
+              onClick={() => openCabinetDialog()}
+              className="signal-button h-11 gap-2 rounded-2xl px-3 text-[10px] font-bold uppercase tracking-[.14em] text-[#ffe0a5] hover:bg-[#ffc268]/10 hover:text-[#fff2cb]"
+            >
+              <Archive className="h-4 w-4" /> Add tool
+            </Button>
           </div>
         </div>
       </header>
@@ -359,10 +371,10 @@ export default function Cabinet() {
           <div className="flex items-start justify-between gap-4 border-b border-white/[.06] p-6 md:p-7">
             <div>
               <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ff9a89]">
-                Period markers
+                Period reflections
               </p>
               <h2 className="mt-2 text-2xl font-bold text-white">
-                Deadlines worth reflecting on
+                Deadlines & reflections
               </h2>
               <p className="mt-2 text-sm leading-6 text-white/42">
                 A deadline is a calm checkpoint, not another scorecard. Complete
@@ -570,16 +582,18 @@ export default function Cabinet() {
                 </p>
               </div>
               <h2 className="mt-3 text-xl font-bold leading-tight text-white">
-                Keep the tools that survived the period.
+                Keep the tools that matter.
               </h2>
               <p className="mt-3 text-xs leading-5 text-white/52">
-                Links, references, and notes can sit beside a reflection without
-                becoming a task list.
+                Save an important link, reference, or quiet note without turning
+                it into a task.
               </p>
-              <p className="mt-auto rounded-2xl border border-[#ffc268]/16 bg-[#080b10]/35 px-3 py-3 text-[10px] leading-5 text-[#ffe0a5]/75">
-                Add a reference from the reflection for the period that made it
-                useful.
-              </p>
+              <Button
+                onClick={() => openCabinetDialog()}
+                className="signal-button mt-auto h-11 w-full gap-2 rounded-2xl bg-[#ffc268] text-[10px] font-bold uppercase tracking-[.14em] text-[#17120a] shadow-[0_10px_24px_rgba(255,194,104,.16)] hover:bg-[#ffd486]"
+              >
+                <Plus className="h-4 w-4" /> Add tool
+              </Button>
             </div>
           </section>
         </aside>
@@ -589,17 +603,26 @@ export default function Cabinet() {
         <div className="flex flex-col gap-4 border-b border-white/[.06] p-6 md:flex-row md:items-end md:justify-between md:p-7">
           <div>
             <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]">
-              Tools kept from reflection
+              Tools kept
             </p>
             <h2 className="mt-2 text-2xl font-bold text-white">Dojo cabinet</h2>
             <p className="mt-2 text-sm text-white/42">
-              Each reference and note is kept beside the period reflection that
-              made it useful.
+              A separate place for important links, references, and small notes.
+              Add them freely; a period reflection can be linked only when it
+              adds useful context.
             </p>
           </div>
-          <span className="rounded-full border border-white/[.08] bg-white/[.035] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.14em] text-white/42">
-            {cabinetItems.length} kept
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-white/[.08] bg-white/[.035] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.14em] text-white/42">
+              {cabinetItems.length} kept
+            </span>
+            <Button
+              onClick={() => openCabinetDialog()}
+              className="signal-button h-10 gap-2 rounded-xl bg-[#ffc268] px-3 text-[9px] font-bold uppercase tracking-[.14em] text-[#17120a] hover:bg-[#ffd486]"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add tool
+            </Button>
+          </div>
         </div>
         <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3 md:p-7">
           {cabinetItems.length ? (
@@ -666,9 +689,16 @@ export default function Cabinet() {
                 The cabinet is empty.
               </p>
               <p className="relative mx-auto mt-1 max-w-md text-xs leading-5 text-white/36">
-                Open a deadline’s period reflection to place a useful reference,
-                link, or quiet note beside what it taught you.
+                Keep the first important link, reference, or quiet note here.
+                You can link it to a period reflection later when that context
+                matters.
               </p>
+              <Button
+                onClick={() => openCabinetDialog()}
+                className="signal-button relative mt-5 h-10 gap-2 rounded-xl bg-[#ffc268] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-[#17120a] hover:bg-[#ffd486]"
+              >
+                <Plus className="h-4 w-4" /> Keep first tool
+              </Button>
             </div>
           )}
         </div>
@@ -908,7 +938,9 @@ export default function Cabinet() {
               Place in the dojo cabinet
             </DialogTitle>
             <DialogDescription className="text-white/42">
-              Keep a reference or note close to the period that made it useful.
+              {cabinetReflectionId
+                ? "This tool will be linked to the selected period reflection."
+                : "Keep an important link, reference, or note independently from your reflections."}
             </DialogDescription>
           </DialogHeader>
           <form className="mt-4 space-y-5" onSubmit={saveCabinetItem}>
@@ -960,7 +992,7 @@ export default function Cabinet() {
                 disabled={createCabinetItem.isPending}
                 className="signal-button bg-[#ffc268] text-[#17120a] hover:bg-[#ffd486]"
               >
-                Keep item
+                Keep tool
               </Button>
             </div>
           </form>
@@ -1015,9 +1047,8 @@ export default function Cabinet() {
                 variant="outline"
                 onClick={() => {
                   if (selectedReflection?.id) {
-                    setCabinetReflectionId(selectedReflection.id);
                     setReflectionOpen(false);
-                    setDialog("cabinet");
+                    openCabinetDialog(selectedReflection.id);
                     return;
                   }
                   saveReflection(true);
