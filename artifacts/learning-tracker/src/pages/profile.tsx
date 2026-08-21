@@ -20,7 +20,10 @@ import {
   Calendar,
   Clock,
   Flame,
+  GitBranch,
+  ListTodo,
   RefreshCw,
+  ShieldCheck,
   Trophy,
   Sparkles,
 } from "lucide-react";
@@ -179,6 +182,80 @@ export default function Settings() {
               onCheckedChange={setVisualEffectsEnabled}
             />
           </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="services-heading">
+        <div className="mb-4 flex items-center gap-3 px-1">
+          <span className="h-px w-8 bg-[#ff8b7c]/50" />
+          <div>
+            <h2
+              id="services-heading"
+              className="text-[10px] font-bold uppercase tracking-[.2em] text-white/40"
+            >
+              Services
+            </h2>
+            <p className="mt-1 text-xs text-white/34">
+              Keep external tools at the edge of the practice, never in its way.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          <article className="signal-surface relative overflow-hidden rounded-[2rem] border border-[#ff8b7c]/18 bg-[linear-gradient(135deg,rgba(28,20,27,.88),rgba(12,18,27,.88))] p-5 shadow-[0_20px_60px_rgba(0,0,0,.16)] md:p-6">
+            <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#ff7868]/10 blur-3xl" />
+            <div className="relative flex h-full flex-col">
+              <div className="flex items-start justify-between gap-4">
+                <span className="grid h-11 w-11 place-items-center rounded-2xl border border-[#ff8b7c]/25 bg-[#ff7868]/10 text-[#ffb1a7] shadow-[0_0_24px_rgba(255,111,97,.11)]">
+                  <GitBranch className="h-5 w-5" />
+                </span>
+                <span className="rounded-full border border-[#ffc268]/22 bg-[#ffc268]/[.07] px-2.5 py-1 text-[8px] font-bold uppercase tracking-[.15em] text-[#ffc268]/80">
+                  Prepared
+                </span>
+              </div>
+              <p className="mt-5 text-[9px] font-bold uppercase tracking-[.2em] text-[#ff9a89]">
+                GitHub
+              </p>
+              <h3 className="mt-1 text-lg font-semibold text-white">
+                Project signals
+              </h3>
+              <p className="mt-2 max-w-md text-sm leading-6 text-white/48">
+                A quiet home for repository evidence. A commit or pull request
+                will only return to a direction when you choose to keep it.
+              </p>
+              <div className="mt-5 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.15em] text-white/34">
+                <ShieldCheck className="h-3.5 w-3.5 text-[#ffb1a7]/70" />
+                No sync is running
+              </div>
+            </div>
+          </article>
+
+          <article className="relative overflow-hidden rounded-[2rem] border border-white/[.08] bg-black/[.12] p-5 md:p-6">
+            <div className="pointer-events-none absolute -bottom-12 -right-8 h-32 w-32 rounded-full bg-[#72c6b3]/[.07] blur-3xl" />
+            <div className="relative flex h-full flex-col">
+              <div className="flex items-start justify-between gap-4">
+                <span className="grid h-11 w-11 place-items-center rounded-2xl border border-[#72c6b3]/20 bg-[#72c6b3]/[.07] text-[#9de1d2] shadow-[0_0_22px_rgba(114,198,179,.08)]">
+                  <ListTodo className="h-5 w-5" />
+                </span>
+                <span className="rounded-full border border-white/[.09] bg-white/[.035] px-2.5 py-1 text-[8px] font-bold uppercase tracking-[.15em] text-white/40">
+                  Next candidate
+                </span>
+              </div>
+              <p className="mt-5 text-[9px] font-bold uppercase tracking-[.2em] text-[#9de1d2]/76">
+                Vikunja
+              </p>
+              <h3 className="mt-1 text-lg font-semibold text-white">
+                Planner, when needed
+              </h3>
+              <p className="mt-2 max-w-md text-sm leading-6 text-white/48">
+                A future place for a single next continuation — without turning
+                planned tasks into finished practice.
+              </p>
+              <div className="mt-5 text-[9px] font-bold uppercase tracking-[.15em] text-white/30">
+                Connection stays off until you invite it
+              </div>
+            </div>
+          </article>
         </div>
       </section>
 
