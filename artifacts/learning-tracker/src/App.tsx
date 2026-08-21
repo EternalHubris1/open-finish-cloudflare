@@ -224,7 +224,6 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
           backgroundImage: `linear-gradient(138deg, rgba(5, 8, 13, 0.62) 0%, rgba(10, 16, 25, 0.5) 44%, rgba(8, 11, 18, 0.72) 100%), url(${inkToriiBackground})`,
         }}
       />
-      <div className="samurai-site-mountains" aria-hidden="true" />
       <div className="samurai-site-fog" aria-hidden="true" />
       <div className="samurai-site-firelight" aria-hidden="true" />
       <div className="samurai-site-petals-deep" aria-hidden="true">
