@@ -801,25 +801,57 @@
     }
   }
 
-  .samurai-site-musashi {
-    background-repeat: no-repeat;
-    background-position: center top;
-    background-size: cover;
-    filter: grayscale(1) contrast(1.08);
-    opacity: 0.32;
-    mix-blend-mode: luminosity;
-    mask-image: linear-gradient(
-      to left,
-      rgba(0, 0, 0, 0.52) 0%,
-      rgba(0, 0, 0, 0.14) 54%,
-      transparent 100%
+  .samurai-site-sword-emblem {
+    top: clamp(5rem, 17vh, 10.5rem);
+    right: clamp(1.25rem, 5vw, 5.5rem);
+    isolation: isolate;
+    opacity: 0.94;
+    transform: rotate(-1.5deg);
+  }
+
+  .samurai-site-sword-emblem::before {
+    position: absolute;
+    z-index: -1;
+    inset: -28%;
+    content: "";
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 50% 54%,
+      rgba(241, 172, 124, 0.18) 0%,
+      rgba(154, 193, 211, 0.08) 40%,
+      transparent 72%
     );
-    -webkit-mask-image: linear-gradient(
-      to left,
-      rgba(0, 0, 0, 0.52) 0%,
-      rgba(0, 0, 0, 0.14) 54%,
-      transparent 100%
-    );
+    filter: blur(13px);
+  }
+
+  .samurai-site-sword-emblem .samurai-status-icon::before {
+    right: -48%;
+    bottom: -11%;
+    left: -48%;
+    height: 102%;
+    filter: blur(10px);
+  }
+
+  .samurai-site-sword-emblem .samurai-status-static-only {
+    filter: brightness(1.28) contrast(1.24)
+      drop-shadow(0 0 9px rgba(252, 180, 125, 0.52))
+      drop-shadow(0 0 21px rgba(164, 205, 220, 0.18));
+  }
+
+  .visual-effects-muted .samurai-site-sword-emblem {
+    opacity: 0.82;
+  }
+
+  .visual-effects-muted .samurai-site-sword-emblem::before {
+    opacity: 0.5;
+  }
+
+  @media (max-width: 768px) {
+    .samurai-site-sword-emblem {
+      top: 5.25rem;
+      right: 0.9rem;
+      opacity: 0.86;
+    }
   }
 
   .activity-field-emblem-orbit {
