@@ -351,6 +351,16 @@ export default function History() {
   const selectedDay: CalendarDay | undefined = selectedDate
     ? dayMap.get(selectedDate)
     : undefined;
+  const dailyEffortActiveDays = chartDays.filter(
+    (day) => day.minutes > 0 || day.sportMinutes > 0,
+  ).length;
+  const peakEffortDay = chartDays.reduce(
+    (peak, day) =>
+      day.minutes + day.sportMinutes > peak.minutes + peak.sportMinutes
+        ? day
+        : peak,
+    chartDays[0] ?? { date: end, minutes: 0, sportMinutes: 0 },
+  );
   const selectedRows = activities
     .map((activity) => ({
       activity,
@@ -646,22 +656,81 @@ export default function History() {
 
       <section
         id="selected-day"
-        className={`signal-surface rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-6 md:p-8 ${navigationContext.fromDashboard && navigationContext.date === selectedDate ? "spatial-arrival" : ""}`}
+        className={`signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 ${navigationContext.fromDashboard && navigationContext.date === selectedDate ? "spatial-arrival" : ""}`}
       >
-        <div className="mb-7">
-          <h2 className="text-2xl font-bold text-white">Daily effort</h2>
-          <p className="mt-2 text-sm text-white/40">
-            Graphite marks quieter days; coral strengthens with effort and gold
-            is reserved for exceptional volume.
-          </p>
+        <div className="flex flex-col gap-5 border-b border-white/[.06] p-6 md:flex-row md:items-end md:justify-between md:p-8">
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[.22em] text-[#ff9a89]">
+              Return field
+            </p>
+            <h2 className="mt-2 text-2xl font-bold text-white">Daily effort</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/44">
+              The field keeps the shape of your practice. Coral and gold carry
+              deliberate work; a quiet green edge records sport.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 rounded-2xl border border-white/[.08] bg-black/15 px-3 py-2 text-[9px] font-bold uppercase tracking-[.14em] text-white/42">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#ff8b7c] shadow-[0_0_9px_rgba(255,139,124,.7)]" />
+            Select a day to read it
+          </div>
         </div>
-        <DailyActivityChart
-          days={chartDays}
-          colorScale={HEATMAP_SCALE}
-          intensityThresholds={[30, 90, 180]}
-          selectedDate={selectedDate}
-          onSelectDate={setSelectedDate}
-        />
+
+        <div className="grid gap-6 p-6 lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start md:p-8">
+          <DailyActivityChart
+            days={chartDays.map((day) => ({
+              date: day.date,
+              minutes: day.minutes,
+              secondaryMinutes: day.sportMinutes,
+            }))}
+            colorScale={HEATMAP_SCALE}
+            secondaryColor="#62bca8"
+            intensityThresholds={[30, 90, 180]}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+          />
+
+          <aside className="relative overflow-hidden rounded-2xl border border-white/[.08] bg-[linear-gradient(150deg,rgba(255,120,104,.1),rgba(8,13,20,.78)_55%,rgba(98,188,168,.07))] p-5">
+            <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#ffc268]/[.09] blur-3xl" />
+            <div className="relative">
+              <p className="text-[8px] font-bold uppercase tracking-[.18em] text-[#ffb1a7]">
+                Selected return
+              </p>
+              <h3 className="mt-2 text-base font-semibold text-white">
+                {selectedDate
+                  ? format(parseISO(selectedDate), "EEEE, MMM d")
+                  : "Choose a day"}
+              </h3>
+              <p className="mt-5 text-3xl font-semibold tabular-nums text-white">
+                {formatMinutes(selectedDay?.focusMinutes ?? 0)}
+              </p>
+              <p className="mt-1 text-[9px] font-bold uppercase tracking-[.15em] text-white/38">
+                Deliberate practice
+              </p>
+              {(selectedDay?.sportMinutes ?? 0) > 0 && (
+                <p className="mt-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#72c6b3]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#62bca8] shadow-[0_0_8px_rgba(98,188,168,.65)]" />
+                  Sport · {formatMinutes(selectedDay?.sportMinutes ?? 0)}
+                </p>
+              )}
+              <div className="mt-5 space-y-3 border-t border-white/[.08] pt-4 text-[9px] font-bold uppercase tracking-[.14em] text-white/34">
+                <div className="flex items-center justify-between gap-3">
+                  <span>Field coverage</span>
+                  <span className="text-white/70">
+                    {dailyEffortActiveDays} days
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span>Period peak</span>
+                  <span className="text-[#ffc268]">
+                    {formatMinutes(
+                      peakEffortDay.minutes + peakEffortDay.sportMinutes,
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
       </section>
 
       <section className="signal-surface rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-6 md:p-8">

@@ -4,12 +4,14 @@ import { cn } from "@/lib/utils";
 export interface DailyActivityPoint {
   date: string;
   minutes: number;
+  secondaryMinutes?: number;
 }
 
 interface DailyActivityChartProps {
   days: DailyActivityPoint[];
   color?: string;
   colorScale?: string[];
+  secondaryColor?: string;
   intensityThresholds?: number[];
   emptyLabel?: string;
   className?: string;
@@ -21,6 +23,7 @@ export function DailyActivityChart({
   days,
   color = "#dc2626",
   colorScale,
+  secondaryColor = "#62bca8",
   intensityThresholds = [30, 90, 180],
   emptyLabel = "No activity recorded in this period",
   className,
@@ -28,7 +31,13 @@ export function DailyActivityChart({
   onSelectDate,
 }: DailyActivityChartProps) {
   const maxMinutes = Math.max(...days.map((day) => day.minutes), 1);
-  const hasActivity = days.some((day) => day.minutes > 0);
+  const maxSecondaryMinutes = Math.max(
+    ...days.map((day) => day.secondaryMinutes ?? 0),
+    1,
+  );
+  const hasActivity = days.some(
+    (day) => day.minutes > 0 || (day.secondaryMinutes ?? 0) > 0,
+  );
   const today = new Date();
 
   return (
@@ -55,6 +64,8 @@ export function DailyActivityChart({
                 const parsedDate = parseISO(day.date);
                 const isFuture = isAfter(parsedDate, today);
                 const hasEffort = day.minutes > 0;
+                const secondaryMinutes = day.secondaryMinutes ?? 0;
+                const hasSecondaryEffort = secondaryMinutes > 0;
                 const intensity = hasEffort
                   ? 0.3 + 0.7 * Math.sqrt(day.minutes / maxMinutes)
                   : 0;
@@ -72,10 +83,10 @@ export function DailyActivityChart({
                   <button
                     type="button"
                     key={day.date}
-                    title={`${format(parsedDate, "MMMM d, yyyy")} · ${day.minutes > 0 ? `${day.minutes} min` : "no activity"}`}
-                    aria-label={`${format(parsedDate, "MMMM d, yyyy")}: ${day.minutes} minutes`}
+                    title={`${format(parsedDate, "MMMM d, yyyy")} · ${day.minutes > 0 ? `${day.minutes} min practice` : "no practice"}${hasSecondaryEffort ? ` · ${secondaryMinutes} min sport` : ""}`}
+                    aria-label={`${format(parsedDate, "MMMM d, yyyy")}: ${day.minutes} practice minutes${hasSecondaryEffort ? ` and ${secondaryMinutes} sport minutes` : ""}`}
                     className={cn(
-                      "h-5 min-w-5 rounded-[6px] border transition-all duration-200 hover:z-10 hover:scale-125",
+                      "group relative h-5 min-w-5 overflow-hidden rounded-[6px] border transition-all duration-200 hover:z-10 hover:scale-125",
                       isSameDay(parsedDate, today) &&
                         "ring-1 ring-white/80 ring-offset-2 ring-offset-[#0f0f14]",
                       selectedDate === day.date &&
@@ -102,9 +113,23 @@ export function DailyActivityChart({
                           : 0.55,
                       boxShadow: hasEffort
                         ? `0 0 ${Math.round(10 * intensity)}px ${cellColor}55`
-                        : "none",
+                        : hasSecondaryEffort
+                          ? `0 0 8px ${secondaryColor}40`
+                          : "none",
                     }}
-                  />
+                  >
+                    {hasSecondaryEffort && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute inset-x-[2px] bottom-[2px] h-px rounded-full"
+                        style={{
+                          width: `${Math.max(18, (secondaryMinutes / maxSecondaryMinutes) * 100)}%`,
+                          backgroundColor: secondaryColor,
+                          boxShadow: `0 0 6px ${secondaryColor}99`,
+                        }}
+                      />
+                    )}
+                  </button>
                 );
               })}
             </div>
@@ -144,6 +169,13 @@ export function DailyActivityChart({
           ))}
           <span>More</span>
         </div>
+        <span className="hidden items-center gap-1.5 sm:flex">
+          <span
+            className="h-px w-4 rounded-full"
+            style={{ backgroundColor: secondaryColor }}
+          />
+          Sport edge
+        </span>
       </div>
     </div>
   );
