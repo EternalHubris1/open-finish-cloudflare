@@ -92,6 +92,8 @@ const CATEGORIES = [
   "Swimming",
   "Mobility",
   "Outdoors",
+  "IT",
+  "Friction",
   "Other",
 ];
 
@@ -120,6 +122,7 @@ export default function Activities() {
     category: "Learning",
     activityType: "practice",
     color: PRESET_COLORS[0],
+    secondaryColor: null,
     icon: "target",
     targetMinutesPerDay: 30,
     purpose: null,
@@ -195,6 +198,7 @@ export default function Activities() {
       category: "Learning",
       activityType: "practice",
       color: PRESET_COLORS[0],
+      secondaryColor: null,
       icon: "target",
       targetMinutesPerDay: 30,
       purpose: null,
@@ -211,6 +215,7 @@ export default function Activities() {
       category: activity.category,
       activityType: activity.activityType,
       color: activity.color || PRESET_COLORS[0],
+      secondaryColor: activity.secondaryColor ?? null,
       icon:
         activity.icon ??
         defaultActivityIcon({
@@ -399,6 +404,10 @@ export default function Activities() {
                     Math.round((minutes / target) * 100),
                   );
                   const color = activity.color || "#ff7868";
+                  const secondaryColor = activity.secondaryColor ?? null;
+                  const iconBackground = secondaryColor
+                    ? `linear-gradient(135deg, ${color} 0 50%, ${secondaryColor} 50% 100%)`
+                    : `${color}18`;
 
                   return (
                     <Link
@@ -411,7 +420,9 @@ export default function Activities() {
                         className="absolute inset-x-0 bottom-0 h-1 origin-left bg-gradient-to-r from-transparent"
                         style={{
                           width: `${Math.max(fill, 8)}%`,
-                          backgroundColor: color,
+                          background: secondaryColor
+                            ? `linear-gradient(90deg, ${color} 0 50%, ${secondaryColor} 50% 100%)`
+                            : color,
                           boxShadow: `0 0 16px ${color}80`,
                         }}
                       />
@@ -419,9 +430,13 @@ export default function Activities() {
                         <span
                           className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border"
                           style={{
-                            color,
-                            borderColor: `${color}50`,
-                            backgroundColor: `${color}18`,
+                            color: secondaryColor
+                              ? "rgba(255,255,255,.94)"
+                              : color,
+                            borderColor: secondaryColor
+                              ? `${secondaryColor}85`
+                              : `${color}50`,
+                            background: iconBackground,
                           }}
                         >
                           <ActivityGlyph
@@ -512,6 +527,7 @@ export default function Activities() {
                     ["all", "All directions"],
                     ["practice", "Practice"],
                     ["sport", "Sport"],
+                    ["friction", "Friction"],
                   ] as const
                 ).map(([value, label]) => (
                   <button
@@ -523,7 +539,9 @@ export default function Activities() {
                       directionFilter === value
                         ? value === "sport"
                           ? "border-[#72c6b3]/35 bg-[#72c6b3]/[.1] text-[#91dac9]"
-                          : "border-[#ff8b7c]/35 bg-[#ff7868]/[.1] text-[#ffb1a7]"
+                          : value === "friction"
+                            ? "border-[#c8c4d8]/30 bg-[#c8c4d8]/[.08] text-[#d6d1e6]"
+                            : "border-[#ff8b7c]/35 bg-[#ff7868]/[.1] text-[#ffb1a7]"
                         : "border-white/[.075] bg-white/[.02] text-white/42 hover:border-white/[.16] hover:bg-white/[.055] hover:text-white/80"
                     }`}
                   >
@@ -582,6 +600,10 @@ export default function Activities() {
                   Math.round((weekMinutes / weeklyTarget) * 100),
                 );
                 const accent = activity.color || "#ff7868";
+                const secondaryColor = activity.secondaryColor ?? null;
+                const iconBackground = secondaryColor
+                  ? `linear-gradient(135deg, ${accent} 0 50%, ${secondaryColor} 50% 100%)`
+                  : `${accent}18`;
                 const thread =
                   activity.currentThread ||
                   activity.purpose ||
@@ -597,7 +619,9 @@ export default function Activities() {
                     <div
                       className="pointer-events-none absolute inset-y-0 left-0 w-1"
                       style={{
-                        backgroundColor: accent,
+                        background: secondaryColor
+                          ? `linear-gradient(180deg, ${accent} 0 50%, ${secondaryColor} 50% 100%)`
+                          : accent,
                         boxShadow: `0 0 20px ${accent}`,
                       }}
                     />
@@ -606,9 +630,13 @@ export default function Activities() {
                         <span
                           className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border"
                           style={{
-                            color: accent,
-                            borderColor: `${accent}55`,
-                            backgroundColor: `${accent}18`,
+                            color: secondaryColor
+                              ? "rgba(255,255,255,.94)"
+                              : accent,
+                            borderColor: secondaryColor
+                              ? `${secondaryColor}85`
+                              : `${accent}55`,
+                            background: iconBackground,
                           }}
                         >
                           <ActivityGlyph
@@ -627,10 +655,12 @@ export default function Activities() {
                               {activity.name}
                             </Link>
                             <span
-                              className={`rounded-full border px-2 py-1 text-[8px] font-bold uppercase tracking-[.12em] ${activity.activityType === "sport" ? "border-[#72c6b3]/24 bg-[#72c6b3]/[.08] text-[#8bd2c2]" : "border-[#ff8b7c]/22 bg-[#ff7868]/[.07] text-[#ffb1a7]"}`}
+                              className={`rounded-full border px-2 py-1 text-[8px] font-bold uppercase tracking-[.12em] ${activity.activityType === "sport" ? "border-[#72c6b3]/24 bg-[#72c6b3]/[.08] text-[#8bd2c2]" : activity.activityType === "friction" ? "border-[#c8c4d8]/24 bg-[#c8c4d8]/[.07] text-[#d6d1e6]" : "border-[#ff8b7c]/22 bg-[#ff7868]/[.07] text-[#ffb1a7]"}`}
                             >
                               {activity.activityType === "sport" ? (
                                 <Dumbbell className="mr-1 inline h-3 w-3" />
+                              ) : activity.activityType === "friction" ? (
+                                <Flame className="mr-1 inline h-3 w-3" />
                               ) : (
                                 <Target className="mr-1 inline h-3 w-3" />
                               )}
@@ -803,11 +833,12 @@ export default function Activities() {
               <Label className="text-[10px] font-bold uppercase tracking-widest text-white/40">
                 Counts as
               </Label>
-              <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/[.07] bg-white/[.025] p-1.5">
+              <div className="grid grid-cols-1 gap-2 rounded-2xl border border-white/[.07] bg-white/[.025] p-1.5 md:grid-cols-3">
                 {(
                   [
                     ["practice", Target, "Practice / work"],
                     ["sport", Dumbbell, "Sport / movement"],
+                    ["friction", Flame, "Friction / drift"],
                   ] as const
                 ).map(([value, Icon, label]) => (
                   <button
@@ -823,7 +854,9 @@ export default function Activities() {
                           formData.icon === "dumbbell"
                             ? value === "sport"
                               ? "dumbbell"
-                              : "target"
+                              : value === "friction"
+                                ? "bug"
+                                : "target"
                             : formData.icon,
                       })
                     }
@@ -831,7 +864,9 @@ export default function Activities() {
                       formData.activityType === value
                         ? value === "sport"
                           ? "bg-[#72c6b3]/12 text-[#91dac9] ring-1 ring-[#72c6b3]/25"
-                          : "bg-[#ff7868]/10 text-[#ff9b8c] ring-1 ring-[#ff7868]/20"
+                          : value === "friction"
+                            ? "bg-[#a8a4ba]/10 text-[#c8c4d8] ring-1 ring-[#c8c4d8]/20"
+                            : "bg-[#ff7868]/10 text-[#ff9b8c] ring-1 ring-[#ff7868]/20"
                         : "text-white/35 hover:bg-white/[.04] hover:text-white/60"
                     }`}
                   >
@@ -841,7 +876,9 @@ export default function Activities() {
                 ))}
               </div>
               <p className="text-[10px] leading-4 text-white/28">
-                Sport keeps its own clock and never inflates practice momentum.
+                Sport strengthens the positive day total. Friction stays visible
+                as time that reduced the clean balance without changing
+                productive goals.
               </p>
             </div>
 
@@ -974,33 +1011,108 @@ export default function Activities() {
               </div>
             </details>
 
-            <div className="space-y-3">
-              <Label className="text-[10px] uppercase tracking-widest text-white/40 font-bold">
-                Color
-              </Label>
-              <div className="grid grid-cols-8 gap-2">
-                {PRESET_COLORS.map((color) => (
-                  <button
-                    key={color}
-                    type="button"
-                    aria-label={`Use color ${color}`}
-                    aria-pressed={formData.color === color}
-                    className="aspect-square w-full rounded-full border-2 shadow-lg transition hover:scale-110"
-                    style={{
-                      backgroundColor: color,
-                      borderColor:
-                        formData.color === color ? "#ffffff" : "transparent",
-                      transform:
-                        formData.color === color ? "scale(1.2)" : "scale(1)",
-                      boxShadow:
-                        formData.color === color
-                          ? `0 0 12px ${color}70`
-                          : "none",
-                    }}
-                    onClick={() => setFormData({ ...formData, color })}
-                    data-testid={`color-${color}`}
-                  />
-                ))}
+            <div className="space-y-4 rounded-2xl border border-white/[.07] bg-white/[.02] p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+                    Icon tone
+                  </Label>
+                  <p className="mt-1 text-[10px] leading-4 text-white/28">
+                    Add a second color to split an activity&apos;s icon 50 / 50.
+                  </p>
+                </div>
+                <div
+                  className="h-9 w-14 rounded-xl border border-white/15 shadow-[0_0_20px_rgba(255,255,255,.06)]"
+                  style={{
+                    background: formData.secondaryColor
+                      ? `linear-gradient(135deg, ${formData.color} 0 50%, ${formData.secondaryColor} 50% 100%)`
+                      : formData.color,
+                  }}
+                  aria-label="Activity color preview"
+                />
+              </div>
+
+              <div>
+                <p className="mb-2 text-[9px] font-bold uppercase tracking-[.14em] text-white/34">
+                  Primary
+                </p>
+                <div className="grid grid-cols-8 gap-2">
+                  {PRESET_COLORS.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      aria-label={`Use primary color ${color}`}
+                      aria-pressed={formData.color === color}
+                      className="aspect-square w-full rounded-full border-2 shadow-lg transition hover:scale-110"
+                      style={{
+                        backgroundColor: color,
+                        borderColor:
+                          formData.color === color ? "#ffffff" : "transparent",
+                        transform:
+                          formData.color === color ? "scale(1.16)" : "scale(1)",
+                        boxShadow:
+                          formData.color === color
+                            ? `0 0 12px ${color}70`
+                            : "none",
+                      }}
+                      onClick={() => setFormData({ ...formData, color })}
+                      data-testid={`color-${color}`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <p className="text-[9px] font-bold uppercase tracking-[.14em] text-white/34">
+                    Second color · optional
+                  </p>
+                  {formData.secondaryColor && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData({ ...formData, secondaryColor: null })
+                      }
+                      className="text-[9px] font-bold uppercase tracking-[.13em] text-white/34 transition-colors hover:text-[#ffb1a7]"
+                    >
+                      Single tone
+                    </button>
+                  )}
+                </div>
+                <div className="grid grid-cols-8 gap-2">
+                  {PRESET_COLORS.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      aria-label={`Use secondary color ${color}`}
+                      aria-pressed={formData.secondaryColor === color}
+                      className="aspect-square w-full rounded-full border-2 shadow-lg transition hover:scale-110"
+                      style={{
+                        backgroundColor: color,
+                        borderColor:
+                          formData.secondaryColor === color
+                            ? "#ffffff"
+                            : "transparent",
+                        transform:
+                          formData.secondaryColor === color
+                            ? "scale(1.16)"
+                            : "scale(1)",
+                        boxShadow:
+                          formData.secondaryColor === color
+                            ? `0 0 12px ${color}70`
+                            : "none",
+                      }}
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          secondaryColor:
+                            formData.color === color ? null : color,
+                        })
+                      }
+                      data-testid={`secondary-color-${color}`}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
 

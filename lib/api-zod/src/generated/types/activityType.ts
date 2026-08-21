@@ -12,4 +12,5 @@ export type ActivityType = typeof ActivityType[keyof typeof ActivityType];
 export const ActivityType = {
   practice: 'practice',
   sport: 'sport',
+  friction: 'friction',
 } as const;

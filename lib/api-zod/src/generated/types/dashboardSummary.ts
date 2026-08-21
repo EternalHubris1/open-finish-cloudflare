@@ -13,6 +13,9 @@ export interface DashboardSummary {
   totalActivities: number;
   totalMinutesToday: number;
   sportMinutesToday: number;
+  frictionMinutesToday: number;
+  positiveMinutesToday: number;
+  cleanMinutesToday: number;
   activitiesTodayCompleted: number;
   activitiesTodayTotal: number;
   overallCurrentStreak: number;

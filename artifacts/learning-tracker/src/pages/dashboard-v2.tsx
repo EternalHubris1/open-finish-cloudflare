@@ -320,6 +320,25 @@ function Timeline({
   const [selectedDate, setSelectedDate] = useState(days.at(-1)?.date ?? "");
   const [focusedDate, setFocusedDate] = useState<string | null>(null);
   const [sportTracksReady, setSportTracksReady] = useState(false);
+  const frictionActivityIds = useMemo(
+    () =>
+      new Set(
+        activities
+          .filter((activity) => activity.activityType === "friction")
+          .map((activity) => activity.id),
+      ),
+    [activities],
+  );
+  const frictionMinutesToday = todayLogs
+    .filter((log) => frictionActivityIds.has(log.activityId))
+    .reduce((total, log) => total + log.durationMinutes, 0);
+  const positiveMinutesToday = todayLogs
+    .filter((log) => !frictionActivityIds.has(log.activityId))
+    .reduce((total, log) => total + log.durationMinutes, 0);
+  const cleanMinutesToday = Math.max(
+    0,
+    positiveMinutesToday - frictionMinutesToday,
+  );
   const selected = days.find((day) => day.date === selectedDate) ?? days.at(-1);
   const max = Math.max(60, ...days.map((day) => day.focusMinutes));
   const palette = light ? MOMENTUM_PALETTES.light : MOMENTUM_PALETTES.dark;
@@ -391,6 +410,16 @@ function Timeline({
                 Bars show practice and work. A separate sport track fills
                 beneath each day; the line follows practice continuity.
               </p>
+              {frictionMinutesToday > 0 && (
+                <p
+                  className={`mt-3 text-[10px] font-semibold uppercase tracking-[.14em] ${light ? "text-[#695f79]" : "text-[#d6d1e6]/78"}`}
+                  data-testid="friction-clean-balance"
+                >
+                  Clean balance today {minutesLabel(cleanMinutesToday)}
+                  <span className="mx-2 opacity-40">·</span>
+                  {minutesLabel(frictionMinutesToday)} drift logged
+                </p>
+              )}
               <p className="sr-only">
                 Weekly summary: {activeDays} active{" "}
                 {activeDays === 1 ? "day" : "days"} of 7,{" "}
@@ -920,7 +949,7 @@ export default function DashboardV2() {
           ? "building"
           : "holding";
   const practiceActivities = activities.filter(
-    (activity) => activity.activityType !== "sport",
+    (activity) => activity.activityType === "practice",
   );
   const automaticFocus =
     practiceActivities.find(

@@ -13,6 +13,8 @@ export interface ActivityInput {
   category: string;
   activityType?: ActivityType;
   color: string;
+  /** @nullable */
+  secondaryColor?: string | null;
   icon?: string;
   /** @minimum 1 */
   targetMinutesPerDay: number;

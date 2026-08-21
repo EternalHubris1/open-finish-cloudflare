@@ -14,6 +14,8 @@ export interface Activity {
   activityType: ActivityType;
   color: string;
   /** @nullable */
+  secondaryColor?: string | null;
+  /** @nullable */
   icon?: string | null;
   targetMinutesPerDay: number;
   /**

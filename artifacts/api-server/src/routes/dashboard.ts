@@ -48,12 +48,15 @@ router.get("/dashboard", async (req, res): Promise<void> => {
     activities.map((activity) => [activity.id, resolveActivityType(activity)]),
   );
   const practiceLogsToday = todayLogs.filter(
-    (log) => activityTypeById.get(log.activityId) !== "sport",
+    (log) => activityTypeById.get(log.activityId) === "practice",
   );
   const sportLogsToday = todayLogs.filter(
     (log) => activityTypeById.get(log.activityId) === "sport",
   );
-  const totalMinutesToday = practiceLogsToday.reduce(
+  const frictionLogsToday = todayLogs.filter(
+    (log) => activityTypeById.get(log.activityId) === "friction",
+  );
+  const practiceMinutesToday = practiceLogsToday.reduce(
     (sum, log) => sum + log.durationMinutes,
     0,
   );
@@ -61,18 +64,25 @@ router.get("/dashboard", async (req, res): Promise<void> => {
     (sum, log) => sum + log.durationMinutes,
     0,
   );
+  const frictionMinutesToday = frictionLogsToday.reduce(
+    (sum, log) => sum + log.durationMinutes,
+    0,
+  );
+  const positiveMinutesToday = practiceMinutesToday + sportMinutesToday;
+  const cleanMinutesToday = positiveMinutesToday - frictionMinutesToday;
+  const totalMinutesToday = positiveMinutesToday;
 
   const activityIdsDoneToday = new Set(
-    practiceLogsToday.map((log) => log.activityId),
+    [...practiceLogsToday, ...sportLogsToday].map((log) => log.activityId),
   );
   const activitiesTodayCompleted = activityIdsDoneToday.size;
-  const practiceActivities = activities.filter(
-    (activity) => resolveActivityType(activity) === "practice",
+  const positiveActivities = activities.filter(
+    (activity) => resolveActivityType(activity) !== "friction",
   );
 
   const overallCurrentStreak = calculateStreak(
     allLogs
-      .filter((log) => activityTypeById.get(log.activityId) !== "sport")
+      .filter((log) => activityTypeById.get(log.activityId) !== "friction")
       .map((log) => log.logDate),
     today,
   ).currentStreak;
@@ -87,8 +97,11 @@ router.get("/dashboard", async (req, res): Promise<void> => {
       totalActivities,
       totalMinutesToday,
       sportMinutesToday,
+      frictionMinutesToday,
+      positiveMinutesToday,
+      cleanMinutesToday,
       activitiesTodayCompleted,
-      activitiesTodayTotal: practiceActivities.length,
+      activitiesTodayTotal: positiveActivities.length,
       overallCurrentStreak,
       totalAchievements,
       recentAchievements: recentAchievements.map((a) => ({

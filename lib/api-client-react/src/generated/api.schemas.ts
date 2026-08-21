@@ -26,11 +26,13 @@ export interface ProfileInput {
   avatarUrl?: string;
 }
 
-export type ActivityType = (typeof ActivityType)[keyof typeof ActivityType];
+export type ActivityType = typeof ActivityType[keyof typeof ActivityType];
+
 
 export const ActivityType = {
-  practice: "practice",
-  sport: "sport",
+  practice: 'practice',
+  sport: 'sport',
+  friction: 'friction',
 } as const;
 
 export interface Activity {
@@ -40,10 +42,24 @@ export interface Activity {
   activityType: ActivityType;
   color: string;
   /** @nullable */
+  secondaryColor?: string | null;
+  /** @nullable */
   icon?: string | null;
   targetMinutesPerDay: number;
+  /**
+     * @maxLength 280
+     * @nullable
+     */
   purpose?: string | null;
+  /**
+     * @maxLength 160
+     * @nullable
+     */
   currentThread?: string | null;
+  /**
+     * @maxLength 280
+     * @nullable
+     */
   evidenceNote?: string | null;
   createdAt: string;
 }
@@ -54,11 +70,25 @@ export interface ActivityInput {
   category: string;
   activityType?: ActivityType;
   color: string;
+  /** @nullable */
+  secondaryColor?: string | null;
   icon?: string;
   /** @minimum 1 */
   targetMinutesPerDay: number;
+  /**
+     * @maxLength 280
+     * @nullable
+     */
   purpose?: string | null;
+  /**
+     * @maxLength 160
+     * @nullable
+     */
   currentThread?: string | null;
+  /**
+     * @maxLength 280
+     * @nullable
+     */
   evidenceNote?: string | null;
 }
 
@@ -68,11 +98,25 @@ export interface ActivityPatch {
   category?: string;
   activityType?: ActivityType;
   color?: string;
+  /** @nullable */
+  secondaryColor?: string | null;
   icon?: string;
   /** @minimum 1 */
   targetMinutesPerDay?: number;
+  /**
+     * @maxLength 280
+     * @nullable
+     */
   purpose?: string | null;
+  /**
+     * @maxLength 160
+     * @nullable
+     */
   currentThread?: string | null;
+  /**
+     * @maxLength 280
+     * @nullable
+     */
   evidenceNote?: string | null;
 }
 
@@ -82,9 +126,13 @@ export interface ActivityLog {
   durationMinutes: number;
   /** @nullable */
   notes?: string | null;
+  /** @nullable */
   recallNote?: string | null;
+  /** @nullable */
   whatMoved?: string | null;
+  /** @nullable */
   whatLearned?: string | null;
+  /** @nullable */
   nextContinuation?: string | null;
   logDate: string;
   createdAt: string;
@@ -94,9 +142,128 @@ export interface ActivityLogInput {
   /** @minimum 1 */
   durationMinutes: number;
   notes?: string;
+  /** @maxLength 280 */
   recallNote?: string;
   /** YYYY-MM-DD, defaults to today */
   logDate?: string;
+}
+
+export interface ActivityLogReflectionInput {
+  /**
+     * @maxLength 280
+     * @nullable
+     */
+  whatMoved?: string | null;
+  /**
+     * @maxLength 280
+     * @nullable
+     */
+  whatLearned?: string | null;
+  /**
+     * @maxLength 280
+     * @nullable
+     */
+  nextContinuation?: string | null;
+}
+
+export interface ReflectionEntry {
+  id: number;
+  activityId: number;
+  activityName: string;
+  activityColor: string;
+  durationMinutes: number;
+  /** @nullable */
+  recallNote?: string | null;
+  /** @nullable */
+  whatMoved?: string | null;
+  /** @nullable */
+  whatLearned?: string | null;
+  /** @nullable */
+  nextContinuation?: string | null;
+  logDate: string;
+  createdAt: string;
+}
+
+export interface DailyContext {
+  id: number;
+  contextDate: string;
+  /** @nullable */
+  focusActivityId: number | null;
+  /** @nullable */
+  focusActivityName: string | null;
+  /** @nullable */
+  focusActivityColor: string | null;
+  /** @nullable */
+  intention: string | null;
+  /** @nullable */
+  externalUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DailyContextInput {
+  /** @nullable */
+  focusActivityId?: number | null;
+  /**
+     * @maxLength 280
+     * @nullable
+     */
+  intention?: string | null;
+  /**
+     * @maxLength 2000
+     * @nullable
+     */
+  externalUrl?: string | null;
+}
+
+export interface EvidenceShelfInput {
+  /** @maxItems 6 */
+  activityLogIds: number[];
+}
+
+export type KeptEvidenceKind = typeof KeptEvidenceKind[keyof typeof KeptEvidenceKind];
+
+
+export const KeptEvidenceKind = {
+  Learned: 'Learned',
+  Moved: 'Moved',
+  Continuation: 'Continuation',
+  Recall: 'Recall',
+} as const;
+
+export interface KeptEvidence {
+  id: number;
+  activityId: number;
+  activityName: string;
+  activityColor: string;
+  logDate: string;
+  text: string;
+  kind: KeptEvidenceKind;
+  savedAt: string;
+}
+
+export interface WeeklyReflection {
+  id: number;
+  weekStart: string;
+  notice: string;
+  carry: string;
+  evidenceIds: string[];
+  keptEvidenceIds: number[];
+  savedAt: string;
+  updatedAt: string;
+}
+
+export interface WeeklyReflectionInput {
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  weekStart: string;
+  /** @maxLength 1200 */
+  notice: string;
+  /** @maxLength 1200 */
+  carry: string;
+  /** @maxItems 12 */
+  evidenceIds: string[];
+  /** @maxItems 6 */
+  keptEvidenceIds: number[];
 }
 
 export interface Alert {
@@ -150,10 +317,20 @@ export interface Streak {
   lastLoggedDate: string | null;
 }
 
+export interface FrequentActivity {
+  activityId: number;
+  sessionCount: number;
+  totalMinutes: number;
+  lastLoggedDate: string;
+}
+
 export interface DashboardSummary {
   totalActivities: number;
   totalMinutesToday: number;
   sportMinutesToday: number;
+  frictionMinutesToday: number;
+  positiveMinutesToday: number;
+  cleanMinutesToday: number;
   activitiesTodayCompleted: number;
   activitiesTodayTotal: number;
   overallCurrentStreak: number;
@@ -161,13 +338,6 @@ export interface DashboardSummary {
   recentAchievements: Achievement[];
   todayLogs: ActivityLog[];
   frequentActivities: FrequentActivity[];
-}
-
-export interface FrequentActivity {
-  activityId: number;
-  sessionCount: number;
-  totalMinutes: number;
-  lastLoggedDate: string;
 }
 
 export interface DayProgress {
@@ -200,13 +370,13 @@ export interface CalendarLogEntry {
 /**
  * under: below goal, met: reached goal (below the 'heavily over' threshold), over: heavily exceeded the goal
  */
-export type CalendarDayStatus =
-  (typeof CalendarDayStatus)[keyof typeof CalendarDayStatus];
+export type CalendarDayStatus = typeof CalendarDayStatus[keyof typeof CalendarDayStatus];
+
 
 export const CalendarDayStatus = {
-  under: "under",
-  met: "met",
-  over: "over",
+  under: 'under',
+  met: 'met',
+  over: 'over',
 } as const;
 
 export interface CalendarDay {
@@ -221,12 +391,12 @@ export interface CalendarDay {
 }
 
 export type GetCalendarParams = {
-  /**
-   * YYYY-MM-DD, inclusive
-   */
-  start: string;
-  /**
-   * YYYY-MM-DD, inclusive
-   */
-  end: string;
+/**
+ * YYYY-MM-DD, inclusive
+ */
+start: string;
+/**
+ * YYYY-MM-DD, inclusive
+ */
+end: string;
 };

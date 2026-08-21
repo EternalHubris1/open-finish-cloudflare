@@ -22,10 +22,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 function includesQuery(
   entry: {
     activityName: string;
-    recallNote: string | null;
-    whatMoved: string | null;
-    whatLearned: string | null;
-    nextContinuation: string | null;
+    recallNote?: string | null;
+    whatMoved?: string | null;
+    whatLearned?: string | null;
+    nextContinuation?: string | null;
   },
   query: string,
 ) {

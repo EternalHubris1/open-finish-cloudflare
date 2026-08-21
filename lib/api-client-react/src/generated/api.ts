@@ -25,18 +25,26 @@ import type {
   ActivityInput,
   ActivityLog,
   ActivityLogInput,
+  ActivityLogReflectionInput,
   ActivityPatch,
   Alert,
   AlertInput,
   AlertPatch,
   CalendarDay,
+  DailyContext,
+  DailyContextInput,
   DashboardSummary,
+  EvidenceShelfInput,
   GetCalendarParams,
   HealthStatus,
+  KeptEvidence,
   Profile,
   ProfileInput,
+  ReflectionEntry,
   Streak,
-  WeeklyProgress
+  WeeklyProgress,
+  WeeklyReflection,
+  WeeklyReflectionInput
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -808,6 +816,78 @@ export const useLogActivity = <TError = ErrorType<unknown>,
       return useMutation(getLogActivityMutationOptions(options));
     }
 
+export const getUpdateLogReflectionUrl = (id: number,) => {
+
+
+
+
+  return `/api/logs/${id}`
+}
+
+/**
+ * @summary Update only the supplied reflection fields on a log
+ */
+export const updateLogReflection = async (id: number,
+    activityLogReflectionInput: ActivityLogReflectionInput, options?: Parameters<typeof customFetch>[1]): Promise<ActivityLog> => {
+
+  return customFetch<ActivityLog>(getUpdateLogReflectionUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(activityLogReflectionInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateLogReflectionMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateLogReflection>>, TError,{id: number;data: BodyType<ActivityLogReflectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateLogReflection>>, TError,{id: number;data: BodyType<ActivityLogReflectionInput>}, TContext> => {
+
+const mutationKey = ['updateLogReflection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateLogReflection>>, {id: number;data: BodyType<ActivityLogReflectionInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateLogReflection(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateLogReflectionMutationResult = NonNullable<Awaited<ReturnType<typeof updateLogReflection>>>
+    export type UpdateLogReflectionMutationBody = BodyType<ActivityLogReflectionInput>
+    export type UpdateLogReflectionMutationError = ErrorType<void>
+
+    /**
+ * @summary Update only the supplied reflection fields on a log
+ */
+export const useUpdateLogReflection = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateLogReflection>>, TError,{id: number;data: BodyType<ActivityLogReflectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateLogReflection>>,
+        TError,
+        {id: number;data: BodyType<ActivityLogReflectionInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateLogReflectionMutationOptions(options));
+    }
+
 export const getDeleteLogUrl = (id: number,) => {
 
 
@@ -877,6 +957,527 @@ export const useDeleteLog = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getDeleteLogMutationOptions(options));
+    }
+
+export const getListReflectionsUrl = () => {
+
+
+
+
+  return `/api/reflections`
+}
+
+/**
+ * @summary List saved reflection evidence from newest to oldest
+ */
+export const listReflections = async ( options?: Parameters<typeof customFetch>[1]): Promise<ReflectionEntry[]> => {
+
+  return customFetch<ReflectionEntry[]>(getListReflectionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListReflectionsQueryKey = () => {
+    return [
+    `/api/reflections`
+    ] as const;
+    }
+
+
+export const getListReflectionsQueryOptions = <TData = Awaited<ReturnType<typeof listReflections>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listReflections>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListReflectionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listReflections>>> = ({ signal }) => listReflections({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listReflections>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListReflectionsQueryResult = NonNullable<Awaited<ReturnType<typeof listReflections>>>
+export type ListReflectionsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List saved reflection evidence from newest to oldest
+ */
+
+export function useListReflections<TData = Awaited<ReturnType<typeof listReflections>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listReflections>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListReflectionsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetTodayContextUrl = () => {
+
+
+
+
+  return `/api/context/today`
+}
+
+/**
+ * @summary Get today's optional orientation context without creating it
+ */
+export const getTodayContext = async ( options?: Parameters<typeof customFetch>[1]): Promise<DailyContext | null> => {
+
+  return customFetch<DailyContext | null>(getGetTodayContextUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTodayContextQueryKey = () => {
+    return [
+    `/api/context/today`
+    ] as const;
+    }
+
+
+export const getGetTodayContextQueryOptions = <TData = Awaited<ReturnType<typeof getTodayContext>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTodayContext>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTodayContextQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTodayContext>>> = ({ signal }) => getTodayContext({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTodayContext>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetTodayContextQueryResult = NonNullable<Awaited<ReturnType<typeof getTodayContext>>>
+export type GetTodayContextQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get today's optional orientation context without creating it
+ */
+
+export function useGetTodayContext<TData = Awaited<ReturnType<typeof getTodayContext>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTodayContext>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetTodayContextQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getPutTodayContextUrl = () => {
+
+
+
+
+  return `/api/context/today`
+}
+
+/**
+ * @summary Create or replace today's orientation context
+ */
+export const putTodayContext = async (dailyContextInput: DailyContextInput, options?: Parameters<typeof customFetch>[1]): Promise<DailyContext> => {
+
+  return customFetch<DailyContext>(getPutTodayContextUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(dailyContextInput)
+  }
+);}
+
+
+
+
+
+export const getPutTodayContextMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putTodayContext>>, TError,{data: BodyType<DailyContextInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof putTodayContext>>, TError,{data: BodyType<DailyContextInput>}, TContext> => {
+
+const mutationKey = ['putTodayContext'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putTodayContext>>, {data: BodyType<DailyContextInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  putTodayContext(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PutTodayContextMutationResult = NonNullable<Awaited<ReturnType<typeof putTodayContext>>>
+    export type PutTodayContextMutationBody = BodyType<DailyContextInput>
+    export type PutTodayContextMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Create or replace today's orientation context
+ */
+export const usePutTodayContext = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putTodayContext>>, TError,{data: BodyType<DailyContextInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof putTodayContext>>,
+        TError,
+        {data: BodyType<DailyContextInput>},
+        TContext
+      > => {
+      return useMutation(getPutTodayContextMutationOptions(options));
+    }
+
+export const getGetEvidenceShelfUrl = () => {
+
+
+
+
+  return `/api/evidence-shelf`
+}
+
+/**
+ * @summary Get the durable evidence shelf in display order
+ */
+export const getEvidenceShelf = async ( options?: Parameters<typeof customFetch>[1]): Promise<KeptEvidence[]> => {
+
+  return customFetch<KeptEvidence[]>(getGetEvidenceShelfUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEvidenceShelfQueryKey = () => {
+    return [
+    `/api/evidence-shelf`
+    ] as const;
+    }
+
+
+export const getGetEvidenceShelfQueryOptions = <TData = Awaited<ReturnType<typeof getEvidenceShelf>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEvidenceShelf>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEvidenceShelfQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEvidenceShelf>>> = ({ signal }) => getEvidenceShelf({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEvidenceShelf>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetEvidenceShelfQueryResult = NonNullable<Awaited<ReturnType<typeof getEvidenceShelf>>>
+export type GetEvidenceShelfQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get the durable evidence shelf in display order
+ */
+
+export function useGetEvidenceShelf<TData = Awaited<ReturnType<typeof getEvidenceShelf>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEvidenceShelf>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetEvidenceShelfQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getPutEvidenceShelfUrl = () => {
+
+
+
+
+  return `/api/evidence-shelf`
+}
+
+/**
+ * @summary Replace and reorder the durable evidence shelf
+ */
+export const putEvidenceShelf = async (evidenceShelfInput: EvidenceShelfInput, options?: Parameters<typeof customFetch>[1]): Promise<KeptEvidence[]> => {
+
+  return customFetch<KeptEvidence[]>(getPutEvidenceShelfUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(evidenceShelfInput)
+  }
+);}
+
+
+
+
+
+export const getPutEvidenceShelfMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putEvidenceShelf>>, TError,{data: BodyType<EvidenceShelfInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof putEvidenceShelf>>, TError,{data: BodyType<EvidenceShelfInput>}, TContext> => {
+
+const mutationKey = ['putEvidenceShelf'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putEvidenceShelf>>, {data: BodyType<EvidenceShelfInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  putEvidenceShelf(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PutEvidenceShelfMutationResult = NonNullable<Awaited<ReturnType<typeof putEvidenceShelf>>>
+    export type PutEvidenceShelfMutationBody = BodyType<EvidenceShelfInput>
+    export type PutEvidenceShelfMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Replace and reorder the durable evidence shelf
+ */
+export const usePutEvidenceShelf = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putEvidenceShelf>>, TError,{data: BodyType<EvidenceShelfInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof putEvidenceShelf>>,
+        TError,
+        {data: BodyType<EvidenceShelfInput>},
+        TContext
+      > => {
+      return useMutation(getPutEvidenceShelfMutationOptions(options));
+    }
+
+export const getListWeeklyReflectionsUrl = () => {
+
+
+
+
+  return `/api/weekly-reflections`
+}
+
+/**
+ * @summary List durable weekly reflections from newest to oldest
+ */
+export const listWeeklyReflections = async ( options?: Parameters<typeof customFetch>[1]): Promise<WeeklyReflection[]> => {
+
+  return customFetch<WeeklyReflection[]>(getListWeeklyReflectionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListWeeklyReflectionsQueryKey = () => {
+    return [
+    `/api/weekly-reflections`
+    ] as const;
+    }
+
+
+export const getListWeeklyReflectionsQueryOptions = <TData = Awaited<ReturnType<typeof listWeeklyReflections>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listWeeklyReflections>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListWeeklyReflectionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listWeeklyReflections>>> = ({ signal }) => listWeeklyReflections({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listWeeklyReflections>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListWeeklyReflectionsQueryResult = NonNullable<Awaited<ReturnType<typeof listWeeklyReflections>>>
+export type ListWeeklyReflectionsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List durable weekly reflections from newest to oldest
+ */
+
+export function useListWeeklyReflections<TData = Awaited<ReturnType<typeof listWeeklyReflections>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listWeeklyReflections>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListWeeklyReflectionsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getPutWeeklyReflectionUrl = () => {
+
+
+
+
+  return `/api/weekly-reflections`
+}
+
+/**
+ * @summary Create or replace one weekly reflection
+ */
+export const putWeeklyReflection = async (weeklyReflectionInput: WeeklyReflectionInput, options?: Parameters<typeof customFetch>[1]): Promise<WeeklyReflection> => {
+
+  return customFetch<WeeklyReflection>(getPutWeeklyReflectionUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(weeklyReflectionInput)
+  }
+);}
+
+
+
+
+
+export const getPutWeeklyReflectionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putWeeklyReflection>>, TError,{data: BodyType<WeeklyReflectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof putWeeklyReflection>>, TError,{data: BodyType<WeeklyReflectionInput>}, TContext> => {
+
+const mutationKey = ['putWeeklyReflection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putWeeklyReflection>>, {data: BodyType<WeeklyReflectionInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  putWeeklyReflection(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PutWeeklyReflectionMutationResult = NonNullable<Awaited<ReturnType<typeof putWeeklyReflection>>>
+    export type PutWeeklyReflectionMutationBody = BodyType<WeeklyReflectionInput>
+    export type PutWeeklyReflectionMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Create or replace one weekly reflection
+ */
+export const usePutWeeklyReflection = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putWeeklyReflection>>, TError,{data: BodyType<WeeklyReflectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof putWeeklyReflection>>,
+        TError,
+        {data: BodyType<WeeklyReflectionInput>},
+        TContext
+      > => {
+      return useMutation(getPutWeeklyReflectionMutationOptions(options));
     }
 
 export const getListAlertsUrl = () => {

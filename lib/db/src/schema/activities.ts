@@ -8,6 +8,7 @@ export const activitiesTable = pgTable("activities", {
   category: text("category").notNull(),
   activityType: text("activity_type"),
   color: text("color").notNull(),
+  secondaryColor: text("secondary_color"),
   icon: text("icon"),
   targetMinutesPerDay: integer("target_minutes_per_day").notNull().default(30),
   purpose: text("purpose"),

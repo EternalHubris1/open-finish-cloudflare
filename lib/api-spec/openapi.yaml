@@ -554,7 +554,7 @@ components:
 
     ActivityType:
       type: string
-      enum: [practice, sport]
+      enum: [practice, sport, friction]
 
     Activity:
       type: object
@@ -579,6 +579,8 @@ components:
           $ref: "#/components/schemas/ActivityType"
         color:
           type: string
+        secondaryColor:
+          type: ["string", "null"]
         icon:
           type: ["string", "null"]
         targetMinutesPerDay:
@@ -608,6 +610,8 @@ components:
           $ref: "#/components/schemas/ActivityType"
         color:
           type: string
+        secondaryColor:
+          type: ["string", "null"]
         icon:
           type: string
         targetMinutesPerDay:
@@ -635,6 +639,8 @@ components:
           $ref: "#/components/schemas/ActivityType"
         color:
           type: string
+        secondaryColor:
+          type: ["string", "null"]
         icon:
           type: string
         targetMinutesPerDay:
@@ -951,6 +957,9 @@ components:
           totalActivities,
           totalMinutesToday,
           sportMinutesToday,
+          frictionMinutesToday,
+          positiveMinutesToday,
+          cleanMinutesToday,
           activitiesTodayCompleted,
           activitiesTodayTotal,
           overallCurrentStreak,
@@ -965,6 +974,12 @@ components:
         totalMinutesToday:
           type: integer
         sportMinutesToday:
+          type: integer
+        frictionMinutesToday:
+          type: integer
+        positiveMinutesToday:
+          type: integer
+        cleanMinutesToday:
           type: integer
         activitiesTodayCompleted:
           type: integer
