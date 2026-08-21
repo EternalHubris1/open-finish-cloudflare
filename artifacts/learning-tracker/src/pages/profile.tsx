@@ -26,8 +26,45 @@ import {
   ShieldCheck,
   Trophy,
   Sparkles,
+  ExternalLink,
+  Link2,
+  Pin,
+  Plus,
+  Trash2,
+  X,
 } from "lucide-react";
 import { format } from "date-fns";
+
+const PINNED_LAUNCHERS_STORAGE_KEY = "open-finish:pinned-launchers";
+
+type PinnedLauncher = {
+  id: string;
+  title: string;
+  url: string;
+};
+
+function readPinnedLaunchers(): PinnedLauncher[] {
+  try {
+    const raw = window.localStorage.getItem(PINNED_LAUNCHERS_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.flatMap((item) => {
+      if (
+        !item ||
+        typeof item !== "object" ||
+        typeof (item as PinnedLauncher).id !== "string" ||
+        typeof (item as PinnedLauncher).title !== "string" ||
+        typeof (item as PinnedLauncher).url !== "string"
+      ) {
+        return [];
+      }
+      return [item as PinnedLauncher];
+    });
+  } catch {
+    return [];
+  }
+}
 
 export default function Settings() {
   const profileQuery = useGetProfile();
@@ -44,6 +81,64 @@ export default function Settings() {
   const { enabled: visualEffectsEnabled, setEnabled: setVisualEffectsEnabled } =
     useVisualEffects();
   const queryClient = useQueryClient();
+  const [pinnedLaunchers, setPinnedLaunchers] =
+    useState<PinnedLauncher[]>(readPinnedLaunchers);
+  const [launcherFormOpen, setLauncherFormOpen] = useState(false);
+  const [launcherTitle, setLauncherTitle] = useState("");
+  const [launcherUrl, setLauncherUrl] = useState("");
+
+  const persistPinnedLaunchers = (next: PinnedLauncher[]) => {
+    setPinnedLaunchers(next);
+    window.localStorage.setItem(
+      PINNED_LAUNCHERS_STORAGE_KEY,
+      JSON.stringify(next),
+    );
+  };
+
+  const addPinnedLauncher = () => {
+    const title = launcherTitle.trim();
+    const urlInput = launcherUrl.trim();
+    let url: URL;
+    try {
+      url = new URL(urlInput);
+    } catch {
+      toast({
+        title: "Add a complete web address",
+        description:
+          "Use an http or https link, for example https://stepik.org/",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (url.protocol !== "https:" && url.protocol !== "http:") {
+      toast({
+        title: "Only web links can be pinned",
+        description: "Use an http or https address.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const next = [
+      ...pinnedLaunchers,
+      {
+        id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}`,
+        title: title || url.hostname.replace(/^www\./, ""),
+        url: url.toString(),
+      },
+    ];
+    persistPinnedLaunchers(next);
+    setLauncherTitle("");
+    setLauncherUrl("");
+    setLauncherFormOpen(false);
+    toast({ title: "Quick link pinned" });
+  };
+
+  const removePinnedLauncher = (id: string) => {
+    persistPinnedLaunchers(
+      pinnedLaunchers.filter((launcher) => launcher.id !== id),
+    );
+    toast({ title: "Quick link removed" });
+  };
 
   const [isEditing, setIsEditing] = useState(false);
   const [username, setUsername] = useState("");
@@ -257,6 +352,139 @@ export default function Settings() {
             </div>
           </article>
         </div>
+
+        <section className="mt-5 overflow-hidden rounded-[1.65rem] border border-white/[.08] bg-black/[.12]">
+          <div className="flex flex-col gap-4 border-b border-white/[.07] p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-[#ffc268]/18 bg-[#ffc268]/[.07] text-[#ffd18a]">
+                <Pin className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-[.18em] text-[#ffc268]/78">
+                  Pinned launchers
+                </p>
+                <p className="mt-1 text-sm leading-5 text-white/46">
+                  Keep one useful page at hand without creating a full sync.
+                </p>
+              </div>
+            </div>
+            <Button
+              type="button"
+              onClick={() => setLauncherFormOpen((open) => !open)}
+              className="signal-button h-10 shrink-0 rounded-full bg-[#e95448] px-4 text-[9px] font-bold uppercase tracking-[.14em] text-white hover:bg-[#f26456]"
+              aria-expanded={launcherFormOpen}
+            >
+              {launcherFormOpen ? (
+                <X className="mr-2 h-3.5 w-3.5" />
+              ) : (
+                <Plus className="mr-2 h-3.5 w-3.5" />
+              )}
+              {launcherFormOpen ? "Close" : "Pin a link"}
+            </Button>
+          </div>
+
+          {launcherFormOpen && (
+            <form
+              className="grid gap-3 border-b border-white/[.07] bg-white/[.018] p-5 md:grid-cols-[minmax(10rem,.6fr)_minmax(16rem,1.4fr)_auto] md:items-end"
+              onSubmit={(event) => {
+                event.preventDefault();
+                addPinnedLauncher();
+              }}
+            >
+              <div className="space-y-2">
+                <Label
+                  htmlFor="pinned-launcher-title"
+                  className="text-[9px] font-bold uppercase tracking-[.14em] text-white/40"
+                >
+                  Name{" "}
+                  <span className="normal-case tracking-normal">
+                    (optional)
+                  </span>
+                </Label>
+                <Input
+                  id="pinned-launcher-title"
+                  value={launcherTitle}
+                  onChange={(event) => setLauncherTitle(event.target.value)}
+                  placeholder="Stepik"
+                  maxLength={48}
+                  className="h-11 rounded-xl border-white/10 bg-black/15 text-white placeholder:text-white/20"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="pinned-launcher-url"
+                  className="text-[9px] font-bold uppercase tracking-[.14em] text-white/40"
+                >
+                  Page address
+                </Label>
+                <Input
+                  id="pinned-launcher-url"
+                  type="url"
+                  value={launcherUrl}
+                  onChange={(event) => setLauncherUrl(event.target.value)}
+                  placeholder="https://stepik.org/lesson/..."
+                  required
+                  className="h-11 rounded-xl border-white/10 bg-black/15 text-white placeholder:text-white/20"
+                />
+              </div>
+              <Button
+                type="submit"
+                className="signal-button h-11 rounded-xl bg-[#ffc268] px-4 text-[9px] font-bold uppercase tracking-[.14em] text-[#251510] hover:bg-[#ffd18a]"
+              >
+                <Pin className="mr-2 h-3.5 w-3.5" /> Save
+              </Button>
+            </form>
+          )}
+
+          {pinnedLaunchers.length ? (
+            <div className="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-3">
+              {pinnedLaunchers.map((launcher) => (
+                <article
+                  key={launcher.id}
+                  className="group flex min-w-0 items-stretch overflow-hidden rounded-2xl border border-white/[.08] bg-white/[.025] transition-colors hover:border-[#ffc268]/28 hover:bg-[#ffc268]/[.045]"
+                >
+                  <a
+                    href={launcher.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="signal-button min-w-0 flex-1 px-4 py-3 text-left"
+                  >
+                    <span className="flex items-center justify-between gap-3">
+                      <span className="flex min-w-0 items-center gap-2.5">
+                        <Link2 className="h-3.5 w-3.5 shrink-0 text-[#ffd18a]" />
+                        <span className="truncate text-sm font-semibold text-white/86">
+                          {launcher.title}
+                        </span>
+                      </span>
+                      <ExternalLink className="h-3.5 w-3.5 shrink-0 text-white/35 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </span>
+                    <span className="mt-1 block truncate text-[9px] font-medium text-white/34">
+                      {launcher.url.replace(/^https?:\/\//, "")}
+                    </span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => removePinnedLauncher(launcher.id)}
+                    className="signal-button grid w-10 shrink-0 place-items-center border-l border-white/[.07] text-white/30 hover:bg-[#ff7868]/10 hover:text-[#ff9a89] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff8b7c]"
+                    aria-label={`Remove ${launcher.title} quick link`}
+                    title="Remove quick link"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 p-5 text-sm text-white/38">
+              <Link2 className="h-4 w-4 shrink-0 text-white/24" />
+              Pin a frequently used page, such as a Stepik lesson or project
+              board.
+            </div>
+          )}
+          <p className="border-t border-white/[.06] px-5 py-3 text-[9px] font-bold uppercase tracking-[.12em] text-white/24">
+            Stored in this browser · no external account connection or sync
+          </p>
+        </section>
       </section>
 
       <section aria-labelledby="personal-profile-heading">

@@ -1,6 +1,7 @@
 export const TIME_ZONE_HEADER = "x-open-finish-time-zone";
-const FALLBACK_TIME_ZONE = process.env.OPEN_FINISH_TIME_ZONE ?? "UTC";
+const FALLBACK_TIME_ZONE = process.env.OPEN_FINISH_TIME_ZONE ?? "Europe/Moscow";
 const DISPLAY_DATE_HEADER = "x-open-finish-display-date";
+const OPERATIONAL_DAY_ROLLOVER_HOUR = 5;
 
 export function isValidTimeZone(value: string): boolean {
   try {
@@ -34,18 +35,34 @@ export function todayForRequest(
   req: { get(name: string): string | undefined },
   now = new Date(),
 ): string {
-  return calendarDateAt(now, requestTimeZone(req));
+  const timeZone = requestTimeZone(req);
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(now);
+  const values = new Map(parts.map((part) => [part.type, part.value]));
+  const date = `${values.get("year")}-${values.get("month")}-${values.get("day")}`;
+  const hour = Number(values.get("hour"));
+  if (hour >= OPERATIONAL_DAY_ROLLOVER_HOUR) return date;
+  return shiftCalendarDate(date, -1);
 }
 
 function isCalendarDate(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const parsed = new Date(`${value}T00:00:00.000Z`);
-  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+  return (
+    !Number.isNaN(parsed.getTime()) &&
+    parsed.toISOString().slice(0, 10) === value
+  );
 }
 
 /**
  * Resolves a calendar date supplied by the UI for read-only dashboard views.
- * Invalid values fall back to the request's real calendar day; write routes keep
+ * Invalid values fall back to the request's operational day; write routes keep
  * using todayForRequest so this display preference never rewrites log dates.
  */
 export function displayDateForRequest(

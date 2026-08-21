@@ -2178,3 +2178,67 @@
     opacity: 0.48;
   }
 }
+
+/* Energy invested: every day yields a readable value; the latest day is the primary signal. */
+.energy-day-tooltip {
+  pointer-events: none;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.62);
+  transition:
+    opacity 160ms ease,
+    transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.energy-day-tooltip-latest > span:first-child {
+  color: #ffd18a;
+  font-size: clamp(1.15rem, 1.85vw, 1.7rem);
+  font-weight: 760;
+  letter-spacing: -0.045em;
+  text-shadow:
+    0 0 9px rgba(255, 194, 104, 0.46),
+    0 0 25px rgba(255, 139, 124, 0.18),
+    0 2px 12px rgba(0, 0, 0, 0.7);
+}
+
+.today-energy-day {
+  isolation: isolate;
+}
+
+.today-energy-day::before {
+  position: absolute;
+  inset: -1.2rem -0.75rem 1.6rem;
+  z-index: -1;
+  border-radius: 1.25rem;
+  background: radial-gradient(
+    ellipse at 50% 68%,
+    rgba(255, 189, 92, 0.12),
+    rgba(255, 120, 104, 0.035) 43%,
+    transparent 74%
+  );
+  content: "";
+  pointer-events: none;
+}
+
+.today-energy-bar {
+  border-color: rgba(255, 211, 139, 0.68) !important;
+  filter: saturate(1.14) brightness(1.07);
+}
+
+@media (max-width: 639px) {
+  .energy-day-tooltip {
+    font-size: 8px;
+  }
+
+  .energy-day-tooltip-latest > span:first-child {
+    font-size: clamp(1rem, 5.5vw, 1.3rem);
+  }
+
+  .today-energy-day::before {
+    inset: -0.9rem -0.45rem 1.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .energy-day-tooltip {
+    transition: none;
+  }
+}

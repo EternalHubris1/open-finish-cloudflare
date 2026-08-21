@@ -23,13 +23,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
 import { Sparkles } from "lucide-react";
 import {
   findNearestReflectionResonance,
   type ReflectionEvidence,
   type ReflectionResonance,
 } from "@/lib/reflection-resonance";
+import { moscowOperationalDate } from "@/lib/operational-date";
 
 interface LogActivityDialogProps {
   activity: Activity;
@@ -60,9 +60,7 @@ export function LogActivityDialog({
   const [durationMinutes, setDurationMinutes] = useState("");
   const [notes, setNotes] = useState("");
   const [recallNote, setRecallNote] = useState("");
-  const [logDate, setLogDate] = useState(() =>
-    format(new Date(), "yyyy-MM-dd"),
-  );
+  const [logDate, setLogDate] = useState(() => moscowOperationalDate());
   const [step, setStep] = useState<DialogStep>("entry");
   const [createdLogId, setCreatedLogId] = useState<number | null>(null);
   const [whatMoved, setWhatMoved] = useState("");
@@ -79,7 +77,7 @@ export function LogActivityDialog({
     setDurationMinutes("");
     setNotes("");
     setRecallNote("");
-    setLogDate(format(new Date(), "yyyy-MM-dd"));
+    setLogDate(moscowOperationalDate());
     setStep("entry");
     setCreatedLogId(null);
     setWhatMoved("");
@@ -532,7 +530,7 @@ export function LogActivityDialog({
                 <Input
                   id="log-date"
                   type="date"
-                  max={format(new Date(), "yyyy-MM-dd")}
+                  max={moscowOperationalDate()}
                   value={logDate}
                   onChange={(event) => setLogDate(event.target.value)}
                   required

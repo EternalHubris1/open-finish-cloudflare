@@ -47,6 +47,7 @@ import { LogActivityDialog } from "@/components/log-activity-dialog";
 import { TodayPlan } from "@/components/today-plan";
 import { ActivityGlyph } from "@/lib/activity-icons";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
+import { moscowOperationalDate } from "@/lib/operational-date";
 import musashi from "@assets/musashi_1785336444855.jpg";
 import {
   previewActivities,
@@ -56,26 +57,6 @@ import {
 
 const SPORT_TRACK_DAILY_CAPACITY = 90;
 const MOSCOW_TIME_ZONE = "Europe/Moscow";
-const MOSCOW_DAY_ROLLOVER_HOUR = 5;
-
-function moscowOperationalDate(now = new Date()): string {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: MOSCOW_TIME_ZONE,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(now);
-  const values = new Map(parts.map((part) => [part.type, part.value]));
-  const date = `${values.get("year")}-${values.get("month")}-${values.get("day")}`;
-  const hour = Number(values.get("hour"));
-  if (hour >= MOSCOW_DAY_ROLLOVER_HOUR) return date;
-
-  const previous = new Date(`${date}T00:00:00.000Z`);
-  previous.setUTCDate(previous.getUTCDate() - 1);
-  return previous.toISOString().slice(0, 10);
-}
 
 function useMoscowOperationalDate(): string {
   const [date, setDate] = useState(() => moscowOperationalDate());
@@ -342,13 +323,6 @@ function Timeline({
   const frictionMinutesToday = todayLogs
     .filter((log) => frictionActivityIds.has(log.activityId))
     .reduce((total, log) => total + log.durationMinutes, 0);
-  const positiveMinutesToday = todayLogs
-    .filter((log) => !frictionActivityIds.has(log.activityId))
-    .reduce((total, log) => total + log.durationMinutes, 0);
-  const cleanMinutesToday = Math.max(
-    0,
-    positiveMinutesToday - frictionMinutesToday,
-  );
   const selected = days.find((day) => day.date === selectedDate) ?? days.at(-1);
   const rhythmNow = useMemo(() => {
     const parts = new Intl.DateTimeFormat("en-US", {
@@ -452,9 +426,10 @@ function Timeline({
                   className={`mt-3 text-[10px] font-semibold uppercase tracking-[.14em] ${light ? "text-[#695f79]" : "text-[#d6d1e6]/78"}`}
                   data-testid="friction-clean-balance"
                 >
-                  Clean balance today {minutesLabel(cleanMinutesToday)}
+                  Drift recorded separately ·{" "}
+                  {minutesLabel(frictionMinutesToday)}
                   <span className="mx-2 opacity-40">·</span>
-                  {minutesLabel(frictionMinutesToday)} drift logged
+                  excluded from deliberate effort
                 </p>
               )}
               <p className="sr-only">
@@ -652,19 +627,21 @@ function Timeline({
                 />
               </svg>
               <div
-                className="relative z-10 grid h-full grid-cols-7 gap-1.5 sm:gap-4 md:gap-6"
+                className="relative z-30 grid h-full grid-cols-7 gap-1.5 sm:gap-4 md:gap-6"
                 data-focus-scope
               >
-                {days.map((day) => {
+                {days.map((day, index) => {
                   const exceptional = day.focusMinutes > 240;
+                  const isLatestDay = index === days.length - 1;
                   const selectedDay = selected?.date === day.date;
+                  const showDayValue = isLatestDay || focusedDate === day.date;
                   const color = palette[intensityIndex(day.focusMinutes)];
                   return (
                     <button
                       key={day.date}
                       type="button"
                       aria-label={`${format(new Date(`${day.date}T00:00:00`), "EEEE")}: ${day.focusMinutes} practice minutes and ${day.sportMinutes} sport minutes. Open day history.`}
-                      onMouseEnter={() => {
+                      onPointerEnter={() => {
                         setSelectedDate(day.date);
                         setFocusedDate(day.date);
                       }}
@@ -674,28 +651,43 @@ function Timeline({
                       }}
                       onBlur={() => setFocusedDate(null)}
                       onClick={() => selectDay(day)}
-                      className={`group flex h-full min-w-0 flex-col justify-end gap-2 sm:gap-3 outline-none ${pulseDate === day.date ? "session-pulse" : ""}`}
+                      title={`${format(new Date(`${day.date}T00:00:00`), "EEEE, MMM d")}: ${minutesLabel(day.focusMinutes)} deliberate work${day.sportMinutes ? ` · ${minutesLabel(day.sportMinutes)} sport` : ""}`}
+                      aria-pressed={selectedDay}
+                      className={`group relative flex h-full min-w-0 flex-col justify-end gap-2 sm:gap-3 outline-none ${isLatestDay ? "today-energy-day" : ""} ${pulseDate === day.date ? "session-pulse" : ""}`}
                       data-focus-item
                     >
                       <span className="relative flex w-full flex-1 items-end">
-                        {selectedDay && (
+                        {showDayValue && (
                           <span
-                            className={`absolute inset-x-0 z-30 text-center text-[9px] font-semibold tabular-nums sm:text-[10px] ${light ? "text-black/65" : "text-white/75"}`}
+                            className={`energy-day-tooltip absolute inset-x-[-.25rem] z-40 text-center tabular-nums ${isLatestDay ? "energy-day-tooltip-latest" : ""} ${light ? "text-black/78" : "text-white/90"}`}
                             style={{
-                              bottom: `calc(${Math.max(day.focusMinutes ? 8 : 2, (day.focusMinutes / max) * 100)}% + 12px)`,
+                              bottom: `calc(${Math.max(day.focusMinutes ? 8 : 2, (day.focusMinutes / max) * 100)}% + 13px)`,
                             }}
                           >
-                            {minutesLabel(day.focusMinutes)}
+                            <span className="block font-semibold leading-none">
+                              {minutesLabel(day.focusMinutes)}
+                            </span>
+                            <span
+                              className={`mt-1 block text-[7px] font-bold uppercase tracking-[.11em] ${light ? "text-black/42" : "text-white/42"}`}
+                            >
+                              {isLatestDay ? "today · work" : "work"}
+                            </span>
+                            {day.sportMinutes > 0 && (
+                              <span className="mt-1 block text-[7px] font-semibold leading-none text-[#8bd2c2]">
+                                + {minutesLabel(day.sportMinutes)} sport
+                              </span>
+                            )}
                           </span>
                         )}
                         <span
-                          className={`signal-bar relative block w-full rounded-t-[.65rem] border border-white/10 group-hover:brightness-110 group-focus-visible:ring-2 ${exceptional ? "exceptional-bloom" : ""}`}
+                          className={`signal-bar relative block w-full rounded-t-[.65rem] border border-white/10 group-hover:brightness-110 group-focus-visible:ring-2 ${isLatestDay ? "today-energy-bar" : ""} ${exceptional ? "exceptional-bloom" : ""}`}
                           style={{
                             height: `${Math.max(day.focusMinutes ? 8 : 2, (day.focusMinutes / max) * 100)}%`,
                             background: `linear-gradient(180deg, color-mix(in oklab, ${color} 94%, white 6%), ${color})`,
-                            boxShadow: exceptional
-                              ? `0 0 34px color-mix(in oklab, ${color} 38%, transparent), 0 14px 42px color-mix(in oklab, ${color} 24%, transparent)`
-                              : "none",
+                            boxShadow:
+                              exceptional || isLatestDay
+                                ? `0 0 ${isLatestDay ? 42 : 34}px color-mix(in oklab, ${color} ${isLatestDay ? 48 : 38}%, transparent), 0 14px 42px color-mix(in oklab, ${color} ${isLatestDay ? 32 : 24}%, transparent)`
+                                : "none",
                           }}
                         >
                           {exceptional && (
@@ -721,7 +713,9 @@ function Timeline({
                       <span
                         className={`text-[8px] font-bold uppercase tracking-[.08em] sm:text-[10px] sm:tracking-[.14em] ${selectedDay ? (light ? "text-black/75" : "text-white/80") : light ? "text-black/45" : "text-white/40"}`}
                       >
-                        {format(new Date(`${day.date}T00:00:00`), "EEE")}
+                        {isLatestDay
+                          ? "Today"
+                          : format(new Date(`${day.date}T00:00:00`), "EEE")}
                       </span>
                     </button>
                   );

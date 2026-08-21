@@ -1,6 +1,11 @@
 import * as assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { calendarDateAt, requestTimeZone, shiftCalendarDate } from "./calendar";
+import {
+  calendarDateAt,
+  requestTimeZone,
+  shiftCalendarDate,
+  todayForRequest,
+} from "./calendar";
 import { normalizeExternalHttpUrl } from "./external-url";
 import { buildReflectionUpdate } from "./reflection-update";
 import { rankFrequentActivities } from "./activity-frequency";
@@ -18,8 +23,20 @@ describe("continuity calendar model", () => {
       requestTimeZone({ get: () => "Europe/Moscow" }),
       "Europe/Moscow",
     );
-    assert.equal(requestTimeZone({ get: () => "not/a-zone" }), "UTC");
+    assert.equal(requestTimeZone({ get: () => "not/a-zone" }), "Europe/Moscow");
     assert.equal(shiftCalendarDate("2024-02-28", 1), "2024-02-29");
+  });
+
+  it("keeps the Moscow practice day open until 05:00", () => {
+    const request = { get: () => "Europe/Moscow" };
+    assert.equal(
+      todayForRequest(request, new Date("2026-08-21T00:59:00.000Z")),
+      "2026-08-20",
+    );
+    assert.equal(
+      todayForRequest(request, new Date("2026-08-21T02:00:00.000Z")),
+      "2026-08-21",
+    );
   });
 });
 
