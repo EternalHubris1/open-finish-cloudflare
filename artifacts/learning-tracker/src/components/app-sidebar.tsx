@@ -81,8 +81,8 @@ function DesktopRoute({
       className={cn(
         "sidebar-route group relative flex min-h-12 items-center gap-3 overflow-hidden rounded-2xl border px-2.5 py-2",
         active
-          ? "border-[#ff8b7c]/20 bg-[linear-gradient(100deg,rgba(255,111,97,.14),rgba(255,194,104,.035)_70%,transparent)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.035),0_12px_30px_rgba(0,0,0,.16)]"
-          : "border-transparent text-white/48 hover:border-white/[.06] hover:bg-white/[.04] hover:text-white/85",
+          ? "border-[#ff8b7c]/48 bg-[linear-gradient(100deg,rgba(255,111,97,.24),rgba(255,194,104,.08)_70%,transparent)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.08),0_14px_34px_rgba(0,0,0,.24),0_0_24px_rgba(255,111,97,.08)]"
+          : "border-white/[.055] bg-white/[.014] text-white/52 hover:border-[#ffb1a7]/25 hover:bg-white/[.06] hover:text-white/90",
       )}
       data-testid={`nav-${route.label.toLowerCase()}`}
     >
@@ -90,8 +90,8 @@ function DesktopRoute({
         className={cn(
           "relative grid h-8 w-8 shrink-0 place-items-center rounded-xl border transition-[color,background-color,border-color,box-shadow] duration-200",
           active
-            ? "border-[#ff8b7c]/25 bg-[#ff7868]/12 text-[#ff9a89] shadow-[0_0_22px_rgba(255,111,97,.12)]"
-            : "border-white/[.055] bg-white/[.025] text-white/38 group-hover:border-white/10 group-hover:bg-white/[.055] group-hover:text-white/75",
+            ? "border-[#ff7868]/45 bg-[#ff7868]/18 text-[#ffb1a7] shadow-[0_0_26px_rgba(255,111,97,.2)]"
+            : "border-white/[.08] bg-white/[.035] text-white/44 group-hover:border-[#ffb1a7]/22 group-hover:bg-white/[.075] group-hover:text-white/85",
         )}
       >
         <Icon className="h-4 w-4" />
@@ -166,8 +166,8 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
 
   return (
     <>
-      <aside className="sidebar-shell relative z-20 hidden h-dvh w-[17rem] shrink-0 flex-col overflow-hidden border-r border-white/[.07] md:flex">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_30%_0%,rgba(255,111,97,.12),transparent_62%)]" />
+      <aside className="sidebar-shell relative z-20 hidden h-dvh w-[17rem] shrink-0 flex-col overflow-hidden border-r border-[#ffb1a7]/20 md:flex">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_30%_0%,rgba(255,111,97,.2),transparent_62%)]" />
         <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-[#ff7868]/18 to-transparent" />
 
         <header className="relative border-b border-white/[.055] px-5 py-5">
@@ -221,8 +221,8 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
                     className={cn(
                       "sidebar-route group flex min-h-10 items-center justify-center gap-2 rounded-xl border px-2 py-2 text-[9px] font-bold uppercase tracking-[.12em] transition-[color,background-color,border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff8b7c]/70",
                       active
-                        ? "border-[#ff7868]/20 bg-[#ff7868]/10 text-[#ff9a89] shadow-[0_0_18px_rgba(255,111,97,.08)]"
-                        : "border-white/[.055] bg-white/[.018] text-white/32 hover:border-white/10 hover:bg-white/[.045] hover:text-white/70",
+                        ? "border-[#ff7868]/42 bg-[#ff7868]/18 text-[#ffb1a7] shadow-[0_0_24px_rgba(255,111,97,.16)]"
+                        : "border-white/[.09] bg-white/[.028] text-white/42 hover:border-[#ffb1a7]/22 hover:bg-white/[.065] hover:text-white/80",
                     )}
                     data-testid={`nav-${route.label.toLowerCase()}`}
                   >
