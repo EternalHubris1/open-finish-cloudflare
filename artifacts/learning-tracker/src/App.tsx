@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Route, Switch, Router as WouterRouter, useLocation } from "wouter";
 import { AppSidebar } from "@/components/app-sidebar";
-import musashiForeground from "@assets/musashi-foreground-upscaled.png";
+import musashiForeground from "@assets/musashi-foreground-night-gpt-refined.png";
 import inkToriiBackground from "@assets/ink-torii-night-background-v2-clean.png";
 
 const Dashboard = lazy(() => import("@/pages/dashboard-v2"));
