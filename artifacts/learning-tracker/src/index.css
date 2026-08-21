@@ -390,12 +390,53 @@
   }
 
   .samurai-status-icon {
+    --samurai-status-mist: rgba(181, 202, 211, 0.24);
+    position: relative;
     display: inline-grid;
     flex: none;
     place-items: center;
+    isolation: isolate;
+    overflow: visible;
+  }
+
+  .samurai-status-icon::before {
+    position: absolute;
+    z-index: -1;
+    right: -28%;
+    bottom: 3%;
+    left: -28%;
+    height: 72%;
+    content: "";
+    border-radius: 50%;
+    background: radial-gradient(
+      ellipse at center,
+      var(--samurai-status-mist),
+      transparent 69%
+    );
+    filter: blur(5px);
+    animation: samurai-status-mist 7.5s cubic-bezier(0.45, 0, 0.55, 1) infinite
+      alternate;
+  }
+
+  .samurai-status-focus {
+    --samurai-status-mist: rgba(224, 143, 102, 0.3);
+  }
+
+  .samurai-status-active {
+    --samurai-status-mist: rgba(237, 99, 86, 0.32);
+  }
+
+  .samurai-status-standing {
+    --samurai-status-mist: rgba(151, 190, 199, 0.27);
+  }
+
+  .samurai-status-pause {
+    --samurai-status-mist: rgba(223, 184, 119, 0.28);
   }
 
   .samurai-status-icon > img {
+    position: relative;
+    z-index: 1;
     grid-area: 1 / 1;
   }
 
@@ -407,6 +448,17 @@
     display: block;
   }
 
+  @keyframes samurai-status-mist {
+    from {
+      opacity: 0.32;
+      transform: translate3d(-4%, 3%, 0) scale(0.88);
+    }
+    to {
+      opacity: 0.78;
+      transform: translate3d(5%, -3%, 0) scale(1.08);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .samurai-status-motion {
       display: none;
@@ -414,6 +466,11 @@
 
     .samurai-status-static {
       display: block;
+    }
+
+    .samurai-status-icon::before {
+      animation: none;
+      opacity: 0.42;
     }
   }
 

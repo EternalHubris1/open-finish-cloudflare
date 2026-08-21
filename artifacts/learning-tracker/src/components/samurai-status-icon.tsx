@@ -34,7 +34,7 @@ export function SamuraiStatusIcon({
 
   return (
     <span
-      className={`samurai-status-icon ${className}`}
+      className={`samurai-status-icon samurai-status-${status} ${className}`}
       role="img"
       aria-label={label}
     >
