@@ -453,7 +453,7 @@ function Timeline({
 
   return (
     <section
-      className={`signal-surface energy-panel overflow-hidden rounded-[2rem] border ${light ? "border-black/[.08] bg-white/80" : "border-white/[.08] bg-[#0c1119]/92"}`}
+      className={`signal-surface energy-panel overflow-hidden rounded-[2rem] border ${light ? "border-black/[.08] bg-white/80" : "border-[#d99672]/[.12] bg-[#0a1018]/94"}`}
       onMouseLeave={() => setFocusedDate(null)}
     >
       <div className="grid md:grid-cols-[minmax(0,1.5fr)_minmax(15rem,.5fr)]">
@@ -472,27 +472,30 @@ function Timeline({
               </h2>
               {lastMarkedDay ? (
                 <div
-                  className={`mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-semibold leading-5 ${light ? "text-[#574e63]" : "text-white/48"}`}
+                  className={`last-marked-summary mt-3 flex flex-wrap items-center gap-2.5 ${light ? "text-[#574e63]" : "text-white/56"}`}
                   aria-label="Last marked day summary"
                 >
-                  <span className={light ? "text-[#322b39]" : "text-white/72"}>
+                  <span className="last-marked-label">Last marked</span>
+                  <span
+                    className={`last-marked-date ${light ? "text-[#322b39]" : "text-white/76"}`}
+                  >
                     {format(
                       new Date(`${lastMarkedDay.date}T00:00:00`),
                       "EEEE, d MMMM",
                     )}
                   </span>
                   {lastMarkedDay.focusMinutes > 0 && (
-                    <span>Work {minutesLabel(lastMarkedDay.focusMinutes)}</span>
+                    <span className="last-marked-token last-marked-token-work">
+                      Work {minutesLabel(lastMarkedDay.focusMinutes)}
+                    </span>
                   )}
                   {lastMarkedDay.sportMinutes > 0 && (
-                    <span className="text-[#7fcab8]">
+                    <span className="last-marked-token last-marked-token-sport">
                       Sport {minutesLabel(lastMarkedDay.sportMinutes)}
                     </span>
                   )}
                   {lastMarkedDriftMinutes > 0 && (
-                    <span
-                      className={light ? "text-[#756b81]" : "text-white/36"}
-                    >
+                    <span className="last-marked-token last-marked-token-drift">
                       Drift {minutesLabel(lastMarkedDriftMinutes)}
                     </span>
                   )}
@@ -699,7 +702,7 @@ function Timeline({
                 />
               </svg>
               <div
-                className="relative z-30 grid h-full grid-cols-7 gap-1.5 sm:gap-4 md:gap-6"
+                className="relative z-30 grid h-full grid-cols-7 gap-3 sm:gap-6 md:gap-8"
                 data-focus-scope
               >
                 {days.map((day, index) => {
@@ -730,7 +733,7 @@ function Timeline({
                       className={`group relative flex h-full min-w-0 flex-col justify-end gap-2 sm:gap-3 outline-none ${latestDayWithWork ? "today-energy-day" : ""} ${pulseDate === day.date ? "session-pulse" : ""}`}
                       data-focus-item
                     >
-                      <span className="relative flex w-full flex-1 items-end">
+                      <span className="relative flex w-full flex-1 items-end justify-center">
                         {showDayValue && (
                           <span
                             className={`energy-day-tooltip absolute inset-x-[-.25rem] z-40 text-center tabular-nums ${isLatestDay ? "energy-day-tooltip-latest" : ""} ${light ? "text-black/78" : "text-white/90"}`}
@@ -754,9 +757,10 @@ function Timeline({
                           </span>
                         )}
                         <span
-                          className={`signal-bar relative block w-full rounded-t-[.65rem] border border-white/10 group-hover:brightness-110 group-focus-visible:ring-2 ${isLatestDay ? "today-energy-bar" : ""} ${exceptional ? "exceptional-bloom" : ""}`}
+                          className={`signal-bar energy-bar-settle relative block w-[58%] min-w-[13px] max-w-10 rounded-t-md border border-white/10 group-hover:brightness-110 group-focus-visible:ring-2 sm:w-[52%] ${isLatestDay ? "today-energy-bar" : ""} ${exceptional ? "exceptional-bloom" : ""}`}
                           style={{
                             height: `${Math.max(day.focusMinutes ? 8 : 2, (day.focusMinutes / max) * 100)}%`,
+                            animationDelay: `${index * 60}ms`,
                             ...barStyle,
                           }}
                           data-effort-grade={grade?.key ?? "base"}
@@ -767,11 +771,11 @@ function Timeline({
                         </span>
                       </span>
                       <span
-                        className="flex h-7 w-full items-center sm:h-9"
+                        className="flex h-7 w-full items-center justify-center sm:h-9"
                         aria-hidden="true"
                       >
                         <span
-                          className={`block h-1.5 w-full overflow-hidden rounded-full ${light ? "bg-black/[.07]" : "bg-white/[.07]"}`}
+                          className={`block h-1.5 w-[58%] min-w-[13px] max-w-10 overflow-hidden rounded-full sm:w-[52%] ${light ? "bg-black/[.07]" : "bg-white/[.07]"}`}
                         >
                           <span
                             className="sport-track-fill block h-full rounded-full bg-gradient-to-r from-[#3c9f8d] via-[#62bca8] to-[#9ce2cf] shadow-[0_0_10px_rgba(98,188,168,.5)] transition-[width] duration-1000"

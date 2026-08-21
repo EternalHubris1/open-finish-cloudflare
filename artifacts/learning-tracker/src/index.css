@@ -2402,3 +2402,109 @@
     animation: none;
   }
 }
+
+/* Energy invested: compact evidence tokens and restrained motion. */
+.last-marked-summary {
+  min-height: 1.75rem;
+}
+
+.last-marked-label {
+  color: rgba(255, 190, 133, 0.58);
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.last-marked-date {
+  padding-right: 0.25rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.015em;
+}
+
+.last-marked-token {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.18rem 0.45rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
+.last-marked-token-work {
+  border: 1px solid rgba(216, 126, 101, 0.22);
+  background: rgba(179, 82, 73, 0.1);
+  color: #dfab8e;
+}
+
+.last-marked-token-sport {
+  border: 1px solid rgba(109, 192, 174, 0.2);
+  background: rgba(90, 176, 156, 0.08);
+  color: #98d9ca;
+}
+
+.last-marked-token-drift {
+  border: 1px solid rgba(194, 183, 203, 0.13);
+  background: rgba(185, 174, 196, 0.055);
+  color: rgba(222, 214, 230, 0.58);
+}
+
+.energy-bar-settle {
+  transform-origin: center bottom;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .energy-bar-settle {
+    animation: energy-bar-settle 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .today-energy-day::before {
+    animation: today-energy-breathe 7.5s cubic-bezier(0.45, 0, 0.55, 1) infinite
+      alternate;
+  }
+}
+
+@keyframes energy-bar-settle {
+  from {
+    opacity: 0;
+    transform: scaleY(0.45);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes today-energy-breathe {
+  from {
+    opacity: 0.35;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 0.85;
+    transform: scale(1.03);
+  }
+}
+
+@media (max-width: 639px) {
+  .last-marked-summary {
+    gap: 0.4rem 0.55rem;
+  }
+
+  .last-marked-date {
+    padding-right: 0;
+    border-right: 0;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .energy-bar-settle,
+  .today-energy-day::before {
+    animation: none;
+  }
+}
