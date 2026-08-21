@@ -33,6 +33,7 @@ import {
   Dumbbell,
   Edit2,
   Flame,
+  Orbit,
   Plus,
   Search,
   Sparkles,
@@ -302,18 +303,25 @@ export default function Activities() {
         <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#ff7868]/10 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 left-[38%] h-48 w-72 rounded-full bg-[#72c6b3]/[.06] blur-3xl" />
         <div className="relative z-10 flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-          <div className="max-w-xl">
-            <div className="mb-3 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]">
-              <Compass className="h-3.5 w-3.5" /> Practice field
+          <div className="flex max-w-2xl items-start gap-4 md:gap-5">
+            <div className="activity-field-emblem relative mt-0.5 grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-[#ff9a89]/30 bg-[linear-gradient(145deg,rgba(255,120,104,.17),rgba(255,194,104,.055))] text-[#ffb1a7] shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_0_34px_rgba(233,84,72,.16)]">
+              <Orbit className="activity-field-emblem-orbit absolute h-10 w-10 text-[#ffc268]/55" />
+              <Target className="relative z-10 h-5 w-5" />
+              <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[#ffc268] shadow-[0_0_10px_rgba(255,194,104,.9)]" />
             </div>
-            <h1 className="text-3xl font-semibold tracking-[-.035em] text-white md:text-4xl">
-              Activities, seen as a living field.
-            </h1>
-            <p className="mt-3 max-w-lg text-sm leading-6 text-white/52">
-              Each direction holds its own pace. The field below turns this
-              week&apos;s real return into a quieter view of where your time
-              went.
-            </p>
+            <div className="min-w-0">
+              <div className="mb-3 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]">
+                <Compass className="h-3.5 w-3.5" /> Practice field
+              </div>
+              <h1 className="text-3xl font-semibold tracking-[-.035em] text-white md:text-4xl">
+                Activities, seen as a living field.
+              </h1>
+              <p className="mt-3 max-w-lg text-sm leading-6 text-white/52">
+                Each direction holds its own pace. The field below turns this
+                week&apos;s real return into a quieter view of where your time
+                went.
+              </p>
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <div className="rounded-2xl border border-white/[.09] bg-black/15 px-4 py-2.5 backdrop-blur-xl">

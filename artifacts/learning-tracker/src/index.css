@@ -822,6 +822,19 @@
     );
   }
 
+  .activity-field-emblem-orbit {
+    animation: activity-emblem-orbit 8s linear infinite;
+  }
+
+  @keyframes activity-emblem-orbit {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   .activity-constellation-node {
     animation: activity-node-arrival 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
@@ -1972,6 +1985,7 @@
     .samurai-site-leaves span,
     .samurai-site-petals-deep span,
     .samurai-site-petals-near span,
+    .activity-field-emblem-orbit,
     .activity-constellation-node,
     .activity-week-bar,
     .dashboard-continue,
