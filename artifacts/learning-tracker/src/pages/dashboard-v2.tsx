@@ -108,14 +108,13 @@ type EffortGrade = {
   label: string;
   minutes: number;
   revealAt: number;
-  note: string;
 };
 
 const EFFORT_GRADES: EffortGrade[] = [
-  { key: "three", label: "3h", minutes: 180, revealAt: 120, note: "held" },
-  { key: "five", label: "5h", minutes: 300, revealAt: 240, note: "forged" },
-  { key: "six", label: "6h", minutes: 360, revealAt: 300, note: "strong" },
-  { key: "ten", label: "10h", minutes: 600, revealAt: 480, note: "rare" },
+  { key: "three", label: "3h", minutes: 180, revealAt: 120 },
+  { key: "five", label: "5h", minutes: 300, revealAt: 240 },
+  { key: "six", label: "6h", minutes: 360, revealAt: 300 },
+  { key: "ten", label: "10h", minutes: 600, revealAt: 480 },
 ];
 
 function effortGradeFor(minutes: number): EffortGrade | null {
@@ -131,37 +130,36 @@ function effortBarStyle(minutes: number): CSSProperties {
   if (grade?.key === "ten") {
     return {
       background:
-        "linear-gradient(180deg, #fff0b6 0%, #f6bd58 42%, #d5574e 100%)",
+        "linear-gradient(180deg, #f6e1aa 0%, #dba556 48%, #a4514d 100%)",
       boxShadow:
-        "0 0 12px rgba(255, 230, 155, .58), 0 0 30px rgba(245, 183, 78, .32), 0 14px 42px rgba(213, 87, 78, .22)",
+        "0 0 18px rgba(242, 196, 109, .26), 0 14px 38px rgba(183, 85, 70, .15)",
     };
   }
   if (grade?.key === "six") {
     return {
       background:
-        "linear-gradient(180deg, #ffe2a0 0%, #f2b653 55%, #d87d4d 100%)",
-      boxShadow:
-        "0 0 22px rgba(247, 191, 89, .32), 0 14px 36px rgba(230, 139, 75, .18)",
+        "linear-gradient(180deg, #e5c783 0%, #c9854e 56%, #91494a 100%)",
+      boxShadow: "0 0 14px rgba(225, 170, 84, .16)",
     };
   }
   if (grade?.key === "five") {
     return {
       background:
-        "linear-gradient(180deg, #f6cb72 0%, #eaa54e 58%, #c9734e 100%)",
-      boxShadow: "0 0 16px rgba(245, 181, 83, .2)",
+        "linear-gradient(180deg, #cc8a5d 0%, #aa604b 58%, #703a44 100%)",
+      boxShadow: "0 0 10px rgba(201, 112, 75, .12)",
     };
   }
   if (grade?.key === "three") {
     return {
       background:
-        "linear-gradient(180deg, #ec9a69 0%, #d96858 58%, #9f414a 100%)",
-      boxShadow: "0 0 12px rgba(222, 95, 82, .15)",
+        "linear-gradient(180deg, #aa5d5a 0%, #7f3f4b 60%, #432a3a 100%)",
+      boxShadow: "0 0 8px rgba(171, 83, 76, .1)",
     };
   }
   if (minutes > 0) {
     return {
       background:
-        "linear-gradient(180deg, #b95c5d 0%, #8d4552 64%, #513044 100%)",
+        "linear-gradient(180deg, #6e4049 0%, #492d3b 64%, #281d2a 100%)",
     };
   }
   return { background: "rgba(255,255,255,.045)" };
@@ -437,9 +435,6 @@ function Timeline({
   const sportWeekTotal = days.reduce((sum, day) => sum + day.sportMinutes, 0);
   const activeDays = days.filter((day) => day.focusMinutes > 0).length;
   const bestDay = Math.max(0, ...days.map((day) => day.focusMinutes));
-  const visibleEffortGrades = EFFORT_GRADES.filter(
-    (grade) => bestDay >= grade.revealAt,
-  );
 
   useEffect(() => {
     if (window.innerWidth >= 768 || !timelineScrollRef.current) return;
@@ -488,35 +483,12 @@ function Timeline({
                 Bars show practice and work. A separate sport track fills
                 beneath each day; the line follows practice continuity.
               </p>
-              {visibleEffortGrades.length > 0 && (
-                <div
-                  className="mt-4 flex flex-wrap items-center gap-2"
-                  aria-label="Visible effort grades this week"
-                >
-                  <span
-                    className={`mr-1 text-[8px] font-bold uppercase tracking-[.15em] ${light ? "text-black/38" : "text-white/32"}`}
-                  >
-                    Effort grades
-                  </span>
-                  {visibleEffortGrades.map((grade) => (
-                    <span
-                      key={grade.key}
-                      className={`effort-grade-chip effort-grade-chip-${grade.key}`}
-                    >
-                      <span>{grade.label}</span> {grade.note}
-                    </span>
-                  ))}
-                </div>
-              )}
               {frictionMinutesToday > 0 && (
                 <p
-                  className={`mt-3 text-[10px] font-semibold uppercase tracking-[.14em] ${light ? "text-[#695f79]" : "text-[#d6d1e6]/78"}`}
+                  className={`mt-3 text-[10px] font-semibold uppercase tracking-[.14em] ${light ? "text-[#695f79]" : "text-[#d6d1e6]/58"}`}
                   data-testid="friction-clean-balance"
                 >
-                  Drift recorded separately ·{" "}
-                  {minutesLabel(frictionMinutesToday)}
-                  <span className="mx-2 opacity-40">·</span>
-                  excluded from deliberate effort
+                  Drift · {minutesLabel(frictionMinutesToday)}
                 </p>
               )}
               <p className="sr-only">
@@ -611,27 +583,6 @@ function Timeline({
             className="overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             <div className="relative h-64 min-w-0 sm:h-72 sm:min-w-[560px]">
-              {visibleEffortGrades.length > 0 && (
-                <div
-                  className="pointer-events-none absolute inset-x-1 top-2 z-10 h-[220px] sm:inset-x-2 sm:h-[242px]"
-                  aria-hidden="true"
-                >
-                  {visibleEffortGrades.map((grade) => (
-                    <div
-                      key={grade.key}
-                      className={`effort-grade-guide effort-grade-guide-${grade.key}`}
-                      style={{
-                        bottom: `${Math.min(96, (grade.minutes / max) * 100)}%`,
-                      }}
-                    >
-                      <span className="effort-grade-guide-label">
-                        {grade.label}
-                      </span>
-                      <span className="effort-grade-guide-line" />
-                    </div>
-                  ))}
-                </div>
-              )}
               <svg
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-x-0 top-0 z-20 h-[232px] w-full overflow-visible"
@@ -661,12 +612,12 @@ function Timeline({
                 <polyline
                   fill="none"
                   filter={`url(#momentum-glow-${light ? "light" : "dark"})`}
-                  opacity={light ? 0.16 : 0.34}
+                  opacity={light ? 0.1 : 0.16}
                   points={points}
                   stroke={palette[4]}
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth="12"
+                  strokeWidth="8"
                   vectorEffect="non-scaling-stroke"
                 />
                 <polyline
@@ -677,7 +628,7 @@ function Timeline({
                   stroke={`url(#momentum-line-${light ? "light" : "dark"})`}
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth="2"
+                  strokeWidth="1.5"
                   vectorEffect="non-scaling-stroke"
                 />
                 <polyline
@@ -687,7 +638,7 @@ function Timeline({
                   stroke={palette[4]}
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth="4"
+                  strokeWidth="2"
                   vectorEffect="non-scaling-stroke"
                 />
                 {momentum.map((value, index) => (
@@ -708,7 +659,7 @@ function Timeline({
                         ? 0.18
                         : 1
                     }
-                    r={index === momentum.length - 1 ? 4.5 : 2.6}
+                    r={index === momentum.length - 1 ? 3.4 : 2.1}
                     style={{ transition: "opacity 180ms ease" }}
                     vectorEffect="non-scaling-stroke"
                   />
@@ -719,7 +670,7 @@ function Timeline({
                   cy={210 - (momentum.at(-1) ?? 0) * 164}
                   fill="none"
                   opacity={light ? 0.45 : 0.8}
-                  r="10"
+                  r="7"
                   stroke={palette[4]}
                   strokeWidth="1"
                   vectorEffect="non-scaling-stroke"
@@ -741,8 +692,10 @@ function Timeline({
                 {days.map((day, index) => {
                   const exceptional = day.focusMinutes > 240;
                   const isLatestDay = index === days.length - 1;
+                  const latestDayWithWork = isLatestDay && day.focusMinutes > 0;
                   const selectedDay = selected?.date === day.date;
-                  const showDayValue = isLatestDay || focusedDate === day.date;
+                  const showDayValue =
+                    latestDayWithWork || focusedDate === day.date;
                   const grade = effortGradeFor(day.focusMinutes);
                   const barStyle = effortBarStyle(day.focusMinutes);
                   return (
@@ -762,7 +715,7 @@ function Timeline({
                       onClick={() => selectDay(day)}
                       title={`${format(new Date(`${day.date}T00:00:00`), "EEEE, MMM d")}: ${minutesLabel(day.focusMinutes)} deliberate work${day.sportMinutes ? ` · ${minutesLabel(day.sportMinutes)} sport` : ""}`}
                       aria-pressed={selectedDay}
-                      className={`group relative flex h-full min-w-0 flex-col justify-end gap-2 sm:gap-3 outline-none ${isLatestDay ? "today-energy-day" : ""} ${pulseDate === day.date ? "session-pulse" : ""}`}
+                      className={`group relative flex h-full min-w-0 flex-col justify-end gap-2 sm:gap-3 outline-none ${latestDayWithWork ? "today-energy-day" : ""} ${pulseDate === day.date ? "session-pulse" : ""}`}
                       data-focus-item
                     >
                       <span className="relative flex w-full flex-1 items-end">
@@ -779,7 +732,11 @@ function Timeline({
                             <span
                               className={`mt-1 block text-[7px] font-bold uppercase tracking-[.11em] ${light ? "text-black/42" : "text-white/42"}`}
                             >
-                              {isLatestDay ? "today · work" : "work"}
+                              {isLatestDay
+                                ? "today"
+                                : grade
+                                  ? `${grade.label} grade`
+                                  : "work"}
                             </span>
                             {day.sportMinutes > 0 && (
                               <span className="mt-1 block text-[7px] font-semibold leading-none text-[#8bd2c2]">
@@ -796,10 +753,8 @@ function Timeline({
                           }}
                           data-effort-grade={grade?.key ?? "base"}
                         >
-                          {(exceptional ||
-                            grade?.key === "six" ||
-                            grade?.key === "ten") && (
-                            <span className="effort-grade-sheen absolute inset-x-1 bottom-0 h-2/3 bg-gradient-to-t from-white/18 to-transparent" />
+                          {grade?.key === "ten" && (
+                            <span className="effort-grade-sheen absolute inset-x-1 bottom-0 h-2/3 bg-gradient-to-t from-white/14 to-transparent" />
                           )}
                         </span>
                       </span>
