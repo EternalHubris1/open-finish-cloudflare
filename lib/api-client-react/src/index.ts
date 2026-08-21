@@ -7,5 +7,6 @@ export {
   usePutTodayContext,
   usePutWeeklyReflection,
 } from "./continuity-api";
+export * from "./rhythms-api";
 export { setBaseUrl, setAuthTokenGetter } from "./custom-fetch";
 export type { AuthTokenGetter } from "./custom-fetch";

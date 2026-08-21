@@ -10,6 +10,7 @@ import calendarRouter from "./calendar";
 import reflectionsRouter from "./reflections";
 import dailyContextRouter from "./daily-context";
 import continuityMemoryRouter from "./continuity-memory";
+import rhythmsRouter from "./rhythms";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(calendarRouter);
 router.use(reflectionsRouter);
 router.use(dailyContextRouter);
 router.use(continuityMemoryRouter);
+router.use(rhythmsRouter);
 
 export default router;

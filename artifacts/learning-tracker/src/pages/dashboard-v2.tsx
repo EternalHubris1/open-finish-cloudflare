@@ -14,8 +14,12 @@ import {
   useGetDashboard,
   useListActivities,
   useListActivityLogs,
+  useListAlerts,
+  useListMilestones,
   useListStreaks,
   type Activity,
+  type Alert,
+  type Milestone,
   type ActivityLog,
   type CalendarDay,
 } from "@workspace/api-client-react";
@@ -27,6 +31,8 @@ import {
   Radio,
   RefreshCw,
   Target,
+  Bell,
+  CalendarClock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -304,6 +310,8 @@ function Timeline({
   days,
   activities,
   todayLogs,
+  milestones,
+  alerts,
   light,
   preview = false,
   pulseDate,
@@ -311,6 +319,8 @@ function Timeline({
   days: CalendarDay[];
   activities: Activity[];
   todayLogs: ActivityLog[];
+  milestones: Milestone[];
+  alerts: Alert[];
   light: boolean;
   preview?: boolean;
   pulseDate?: string;
@@ -340,6 +350,33 @@ function Timeline({
     positiveMinutesToday - frictionMinutesToday,
   );
   const selected = days.find((day) => day.date === selectedDate) ?? days.at(-1);
+  const rhythmNow = useMemo(() => {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: MOSCOW_TIME_ZONE,
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    }).formatToParts(new Date());
+    const values = new Map(parts.map((part) => [part.type, part.value]));
+    const weekday = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(
+      values.get("weekday") ?? "",
+    );
+    return {
+      weekday,
+      clock: `${values.get("hour") ?? "00"}:${values.get("minute") ?? "00"}`,
+    };
+  }, []);
+  const dueReminders = alerts.filter(
+    (alert) =>
+      alert.enabled &&
+      alert.daysOfWeek.includes(rhythmNow.weekday) &&
+      alert.timeOfDay <= rhythmNow.clock,
+  );
+  const nearbyMilestones = milestones
+    .filter((milestone) => milestone.status === "open")
+    .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
+    .slice(0, 2);
   const max = Math.max(60, ...days.map((day) => day.focusMinutes));
   const palette = light ? MOMENTUM_PALETTES.light : MOMENTUM_PALETTES.dark;
   const momentum = momentumSeries(days);
@@ -731,6 +768,55 @@ function Timeline({
         <aside
           className={`relative flex min-h-[32rem] flex-col border-t p-5 md:min-h-full md:border-l md:border-t-0 md:p-6 lg:min-h-[35rem] ${light ? "border-black/[.08] bg-[#edf0f3]/60" : "border-white/[.08] bg-[#090d14]/55"}`}
         >
+          {(dueReminders.length > 0 || nearbyMilestones.length > 0) && (
+            <section
+              className={`mb-5 rounded-2xl border p-4 ${light ? "border-black/[.08] bg-black/[.025]" : "border-white/[.08] bg-white/[.025]"}`}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.16em] text-[#ffb1a7]">
+                  <CalendarClock className="h-3.5 w-3.5" /> Rhythm signal
+                </div>
+                <Link
+                  href="/alerts"
+                  className="signal-button flex items-center gap-1 text-[9px] font-bold uppercase tracking-[.13em] text-white/35 hover:text-white"
+                >
+                  Open room <ArrowUpRight className="h-3 w-3" />
+                </Link>
+              </div>
+              <div className="mt-3 space-y-2">
+                {dueReminders.slice(0, 1).map((alert) => (
+                  <p
+                    key={alert.id}
+                    className={`flex items-start gap-2 text-xs leading-5 ${light ? "text-black/55" : "text-white/58"}`}
+                  >
+                    <Bell className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#ffc268]" />
+                    <span>
+                      <span className="font-semibold">
+                        {alert.activityName}
+                      </span>{" "}
+                      · {alert.message}
+                    </span>
+                  </p>
+                ))}
+                {nearbyMilestones.map((milestone) => (
+                  <p
+                    key={milestone.id}
+                    className={`flex items-start gap-2 text-xs leading-5 ${light ? "text-black/55" : "text-white/58"}`}
+                  >
+                    <Target className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#ff8b7c]" />
+                    <span>
+                      <span className="font-semibold">{milestone.title}</span> ·
+                      due{" "}
+                      {format(
+                        new Date(`${milestone.dueDate}T00:00:00`),
+                        "MMM d",
+                      )}
+                    </span>
+                  </p>
+                ))}
+              </div>
+            </section>
+          )}
           <TodaySessionsList
             logs={todayLogs}
             activities={activities}
@@ -901,6 +987,8 @@ export default function DashboardV2() {
     },
   });
   const activitiesQuery = useListActivities();
+  const alertsQuery = useListAlerts();
+  const milestonesQuery = useListMilestones();
   const streaksQuery = useListStreaks();
   const calendarQuery = useGetCalendar(
     { start, end },
@@ -917,6 +1005,10 @@ export default function DashboardV2() {
     : Array.isArray(streaksQuery.data)
       ? streaksQuery.data
       : [];
+  const alerts =
+    preview || !Array.isArray(alertsQuery.data) ? [] : alertsQuery.data;
+  const milestones =
+    preview || !Array.isArray(milestonesQuery.data) ? [] : milestonesQuery.data;
   const calendarData = preview
     ? previewCalendar()
     : Array.isArray(calendarQuery.data)
@@ -1274,7 +1366,9 @@ export default function DashboardV2() {
         <Timeline
           days={days}
           activities={activities}
-          todayLogs={dashboard.todayLogs}
+          todayLogs={dashboard?.todayLogs ?? []}
+          milestones={milestones}
+          alerts={alerts}
           light={light}
           preview={preview}
           pulseDate={recentLog?.date}
