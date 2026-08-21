@@ -2242,3 +2242,167 @@
     transition: none;
   }
 }
+
+/* Energy invested effort grades. Guides appear only once a weekly high point approaches them. */
+.effort-grade-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  border: 1px solid rgba(229, 125, 90, 0.26);
+  border-radius: 999px;
+  background: rgba(218, 89, 74, 0.09);
+  color: rgba(255, 197, 158, 0.78);
+  padding: 0.24rem 0.55rem;
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.effort-grade-chip > span {
+  color: #ffb17f;
+  font-size: 0.65rem;
+  letter-spacing: -0.02em;
+}
+
+.effort-grade-chip-five {
+  border-color: rgba(244, 180, 83, 0.26);
+  background: rgba(241, 170, 71, 0.09);
+  color: rgba(255, 217, 150, 0.74);
+}
+
+.effort-grade-chip-five > span,
+.effort-grade-chip-six > span {
+  color: #ffd18a;
+}
+
+.effort-grade-chip-six {
+  border-color: rgba(255, 210, 123, 0.35);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 204, 105, 0.12),
+    rgba(223, 105, 74, 0.09)
+  );
+  color: rgba(255, 224, 172, 0.82);
+  box-shadow: 0 0 14px rgba(248, 183, 79, 0.11);
+}
+
+.effort-grade-chip-ten {
+  border-color: rgba(255, 238, 181, 0.55);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 237, 174, 0.18),
+    rgba(239, 165, 67, 0.16),
+    rgba(212, 82, 74, 0.12)
+  );
+  color: #fff0bf;
+  box-shadow: 0 0 22px rgba(255, 208, 106, 0.2);
+}
+
+.effort-grade-chip-ten > span {
+  color: #fff5d0;
+}
+
+.effort-grade-guide {
+  position: absolute;
+  right: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  transform: translateY(50%);
+}
+
+.effort-grade-guide-label {
+  min-width: 1.65rem;
+  color: rgba(255, 196, 128, 0.72);
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.65);
+}
+
+.effort-grade-guide-line {
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 184, 105, 0.32),
+    rgba(255, 184, 105, 0.04) 62%,
+    transparent
+  );
+}
+
+.effort-grade-guide-five .effort-grade-guide-label,
+.effort-grade-guide-six .effort-grade-guide-label {
+  color: rgba(255, 216, 144, 0.83);
+}
+
+.effort-grade-guide-six .effort-grade-guide-line {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 218, 139, 0.46),
+    rgba(245, 176, 76, 0.08) 62%,
+    transparent
+  );
+}
+
+.effort-grade-guide-ten .effort-grade-guide-label {
+  color: #fff0b9;
+}
+
+.effort-grade-guide-ten .effort-grade-guide-line {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 237, 180, 0.62),
+    rgba(246, 185, 76, 0.11) 62%,
+    transparent
+  );
+}
+
+.effort-grade-sheen {
+  opacity: 0.56;
+}
+
+[data-effort-grade="six"] .effort-grade-sheen {
+  animation: effort-grade-sheen 4.6s ease-in-out infinite;
+}
+
+[data-effort-grade="ten"] .effort-grade-sheen {
+  opacity: 0.78;
+  animation: effort-grade-sheen 3.2s ease-in-out infinite;
+}
+
+@keyframes effort-grade-sheen {
+  0%,
+  100% {
+    opacity: 0.26;
+    transform: translateY(6%) scaleY(0.9);
+  }
+  50% {
+    opacity: 0.86;
+    transform: translateY(-3%) scaleY(1.03);
+  }
+}
+
+@media (max-width: 639px) {
+  .effort-grade-guide-label {
+    min-width: 1.2rem;
+    font-size: 0.42rem;
+  }
+
+  .effort-grade-guide {
+    gap: 0.25rem;
+  }
+
+  .effort-grade-chip {
+    padding: 0.2rem 0.45rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-effort-grade="six"] .effort-grade-sheen,
+  [data-effort-grade="ten"] .effort-grade-sheen {
+    animation: none;
+  }
+}

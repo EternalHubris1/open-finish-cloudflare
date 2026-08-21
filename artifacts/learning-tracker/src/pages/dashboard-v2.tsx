@@ -103,6 +103,70 @@ function intensityIndex(minutes: number) {
   return 4;
 }
 
+type EffortGrade = {
+  key: "three" | "five" | "six" | "ten";
+  label: string;
+  minutes: number;
+  revealAt: number;
+  note: string;
+};
+
+const EFFORT_GRADES: EffortGrade[] = [
+  { key: "three", label: "3h", minutes: 180, revealAt: 120, note: "held" },
+  { key: "five", label: "5h", minutes: 300, revealAt: 240, note: "forged" },
+  { key: "six", label: "6h", minutes: 360, revealAt: 300, note: "strong" },
+  { key: "ten", label: "10h", minutes: 600, revealAt: 480, note: "rare" },
+];
+
+function effortGradeFor(minutes: number): EffortGrade | null {
+  for (let index = EFFORT_GRADES.length - 1; index >= 0; index -= 1) {
+    const grade = EFFORT_GRADES[index];
+    if (minutes >= grade.minutes) return grade;
+  }
+  return null;
+}
+
+function effortBarStyle(minutes: number): CSSProperties {
+  const grade = effortGradeFor(minutes);
+  if (grade?.key === "ten") {
+    return {
+      background:
+        "linear-gradient(180deg, #fff0b6 0%, #f6bd58 42%, #d5574e 100%)",
+      boxShadow:
+        "0 0 12px rgba(255, 230, 155, .58), 0 0 30px rgba(245, 183, 78, .32), 0 14px 42px rgba(213, 87, 78, .22)",
+    };
+  }
+  if (grade?.key === "six") {
+    return {
+      background:
+        "linear-gradient(180deg, #ffe2a0 0%, #f2b653 55%, #d87d4d 100%)",
+      boxShadow:
+        "0 0 22px rgba(247, 191, 89, .32), 0 14px 36px rgba(230, 139, 75, .18)",
+    };
+  }
+  if (grade?.key === "five") {
+    return {
+      background:
+        "linear-gradient(180deg, #f6cb72 0%, #eaa54e 58%, #c9734e 100%)",
+      boxShadow: "0 0 16px rgba(245, 181, 83, .2)",
+    };
+  }
+  if (grade?.key === "three") {
+    return {
+      background:
+        "linear-gradient(180deg, #ec9a69 0%, #d96858 58%, #9f414a 100%)",
+      boxShadow: "0 0 12px rgba(222, 95, 82, .15)",
+    };
+  }
+  if (minutes > 0) {
+    return {
+      background:
+        "linear-gradient(180deg, #b95c5d 0%, #8d4552 64%, #513044 100%)",
+    };
+  }
+  return { background: "rgba(255,255,255,.045)" };
+}
+
 function momentumSeries(days: CalendarDay[]) {
   let accumulated = 0;
   return days.map((day) => {
@@ -373,6 +437,9 @@ function Timeline({
   const sportWeekTotal = days.reduce((sum, day) => sum + day.sportMinutes, 0);
   const activeDays = days.filter((day) => day.focusMinutes > 0).length;
   const bestDay = Math.max(0, ...days.map((day) => day.focusMinutes));
+  const visibleEffortGrades = EFFORT_GRADES.filter(
+    (grade) => bestDay >= grade.revealAt,
+  );
 
   useEffect(() => {
     if (window.innerWidth >= 768 || !timelineScrollRef.current) return;
@@ -421,6 +488,26 @@ function Timeline({
                 Bars show practice and work. A separate sport track fills
                 beneath each day; the line follows practice continuity.
               </p>
+              {visibleEffortGrades.length > 0 && (
+                <div
+                  className="mt-4 flex flex-wrap items-center gap-2"
+                  aria-label="Visible effort grades this week"
+                >
+                  <span
+                    className={`mr-1 text-[8px] font-bold uppercase tracking-[.15em] ${light ? "text-black/38" : "text-white/32"}`}
+                  >
+                    Effort grades
+                  </span>
+                  {visibleEffortGrades.map((grade) => (
+                    <span
+                      key={grade.key}
+                      className={`effort-grade-chip effort-grade-chip-${grade.key}`}
+                    >
+                      <span>{grade.label}</span> {grade.note}
+                    </span>
+                  ))}
+                </div>
+              )}
               {frictionMinutesToday > 0 && (
                 <p
                   className={`mt-3 text-[10px] font-semibold uppercase tracking-[.14em] ${light ? "text-[#695f79]" : "text-[#d6d1e6]/78"}`}
@@ -524,6 +611,27 @@ function Timeline({
             className="overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             <div className="relative h-64 min-w-0 sm:h-72 sm:min-w-[560px]">
+              {visibleEffortGrades.length > 0 && (
+                <div
+                  className="pointer-events-none absolute inset-x-1 top-2 z-10 h-[220px] sm:inset-x-2 sm:h-[242px]"
+                  aria-hidden="true"
+                >
+                  {visibleEffortGrades.map((grade) => (
+                    <div
+                      key={grade.key}
+                      className={`effort-grade-guide effort-grade-guide-${grade.key}`}
+                      style={{
+                        bottom: `${Math.min(96, (grade.minutes / max) * 100)}%`,
+                      }}
+                    >
+                      <span className="effort-grade-guide-label">
+                        {grade.label}
+                      </span>
+                      <span className="effort-grade-guide-line" />
+                    </div>
+                  ))}
+                </div>
+              )}
               <svg
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-x-0 top-0 z-20 h-[232px] w-full overflow-visible"
@@ -635,7 +743,8 @@ function Timeline({
                   const isLatestDay = index === days.length - 1;
                   const selectedDay = selected?.date === day.date;
                   const showDayValue = isLatestDay || focusedDate === day.date;
-                  const color = palette[intensityIndex(day.focusMinutes)];
+                  const grade = effortGradeFor(day.focusMinutes);
+                  const barStyle = effortBarStyle(day.focusMinutes);
                   return (
                     <button
                       key={day.date}
@@ -683,15 +792,14 @@ function Timeline({
                           className={`signal-bar relative block w-full rounded-t-[.65rem] border border-white/10 group-hover:brightness-110 group-focus-visible:ring-2 ${isLatestDay ? "today-energy-bar" : ""} ${exceptional ? "exceptional-bloom" : ""}`}
                           style={{
                             height: `${Math.max(day.focusMinutes ? 8 : 2, (day.focusMinutes / max) * 100)}%`,
-                            background: `linear-gradient(180deg, color-mix(in oklab, ${color} 94%, white 6%), ${color})`,
-                            boxShadow:
-                              exceptional || isLatestDay
-                                ? `0 0 ${isLatestDay ? 42 : 34}px color-mix(in oklab, ${color} ${isLatestDay ? 48 : 38}%, transparent), 0 14px 42px color-mix(in oklab, ${color} ${isLatestDay ? 32 : 24}%, transparent)`
-                                : "none",
+                            ...barStyle,
                           }}
+                          data-effort-grade={grade?.key ?? "base"}
                         >
-                          {exceptional && (
-                            <span className="absolute inset-x-1 bottom-0 h-2/3 bg-gradient-to-t from-white/16 to-transparent" />
+                          {(exceptional ||
+                            grade?.key === "six" ||
+                            grade?.key === "ten") && (
+                            <span className="effort-grade-sheen absolute inset-x-1 bottom-0 h-2/3 bg-gradient-to-t from-white/18 to-transparent" />
                           )}
                         </span>
                       </span>
