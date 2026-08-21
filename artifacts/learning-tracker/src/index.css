@@ -420,10 +420,10 @@
   .samurai-site-musashi-fg {
     position: fixed;
     z-index: 2;
-    right: clamp(-1rem, -0.7vw, -0.25rem);
-    bottom: clamp(0.6rem, 2.5vh, 1.75rem);
-    width: clamp(15rem, 28vw, 25rem);
-    height: min(76vh, 44rem);
+    right: clamp(-4.25rem, -2.2vw, -1.25rem);
+    bottom: clamp(-1.75rem, -0.5vh, -0.4rem);
+    width: min(52vw, 47rem);
+    height: min(96vh, 55rem);
     pointer-events: none;
     isolation: isolate;
   }
@@ -439,8 +439,8 @@
     border-radius: 48% 52% 42% 58%;
     background: radial-gradient(
       ellipse at 50% 54%,
-      rgba(255, 151, 103, 0.15),
-      rgba(208, 94, 72, 0.045) 43%,
+      rgba(128, 168, 196, 0.1),
+      rgba(91, 130, 160, 0.035) 43%,
       transparent 72%
     );
     filter: blur(28px);
@@ -456,10 +456,11 @@
     height: 100%;
     object-fit: contain;
     object-position: right bottom;
-    opacity: 0.94;
-    filter: contrast(1.08) brightness(1.04)
-      drop-shadow(0 0 15px rgba(255, 149, 106, 0.15))
-      drop-shadow(-12px 18px 30px rgba(0, 0, 0, 0.48));
+    opacity: 0.64;
+    filter: grayscale(1) sepia(0.22) hue-rotate(166deg) saturate(0.56)
+      brightness(0.72) contrast(1.1)
+      drop-shadow(0 0 18px rgba(134, 178, 203, 0.09))
+      drop-shadow(-16px 22px 36px rgba(0, 0, 0, 0.5));
   }
 
   .samurai-site-musashi-haze {
@@ -472,8 +473,8 @@
     border-radius: 50%;
     background: radial-gradient(
       ellipse at center,
-      rgba(210, 220, 222, 0.12),
-      rgba(173, 191, 198, 0.04) 44%,
+      rgba(190, 207, 216, 0.095),
+      rgba(127, 158, 178, 0.032) 44%,
       transparent 73%
     );
     filter: blur(14px);
@@ -504,14 +505,14 @@
 
   @media (max-width: 760px) {
     .samurai-site-musashi-fg {
-      right: -2.2rem;
-      bottom: 0.5rem;
-      width: min(22rem, 66vw);
-      height: min(58vh, 31rem);
+      right: -4.8rem;
+      bottom: -0.8rem;
+      width: min(31rem, 86vw);
+      height: min(76vh, 41rem);
     }
 
     .samurai-site-musashi-fg > img {
-      opacity: 0.84;
+      opacity: 0.56;
     }
   }
 
