@@ -244,6 +244,146 @@
     );
   }
 
+  .daily-dojo-gate {
+    position: fixed;
+    z-index: 90;
+    display: grid;
+    inset: 0;
+    place-items: center;
+    overflow: hidden;
+    background:
+      radial-gradient(
+        circle at 50% 48%,
+        rgba(255, 120, 104, 0.1),
+        transparent 24%
+      ),
+      linear-gradient(135deg, rgba(4, 7, 12, 0.98), rgba(10, 15, 23, 0.95));
+    backdrop-filter: blur(9px);
+  }
+
+  .daily-dojo-gate-panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50.7%;
+    border-color: rgba(255, 139, 124, 0.12);
+    background:
+      repeating-linear-gradient(
+        90deg,
+        rgba(255, 194, 104, 0.028) 0,
+        rgba(255, 194, 104, 0.028) 1px,
+        transparent 1px,
+        transparent 42px
+      ),
+      linear-gradient(180deg, rgba(19, 27, 37, 0.985), rgba(5, 8, 13, 0.995));
+    box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.48);
+  }
+
+  .daily-dojo-gate-panel-left {
+    left: 0;
+    border-right: 1px solid;
+    animation: dojo-gate-left 860ms cubic-bezier(0.23, 1, 0.32, 1) 90ms both;
+  }
+
+  .daily-dojo-gate-panel-right {
+    right: 0;
+    border-left: 1px solid;
+    animation: dojo-gate-right 860ms cubic-bezier(0.23, 1, 0.32, 1) 90ms both;
+  }
+
+  .daily-dojo-gate-content {
+    position: relative;
+    z-index: 1;
+    max-width: 30rem;
+    padding: 1.5rem;
+    text-align: center;
+    animation: dojo-gate-content 620ms cubic-bezier(0.23, 1, 0.32, 1) 300ms both;
+  }
+
+  .daily-dojo-gate-emblem {
+    display: grid;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin: 0 auto 1.4rem;
+    place-items: center;
+    border: 1px solid rgba(255, 139, 124, 0.26);
+    border-radius: 1.15rem;
+    background: rgba(255, 120, 104, 0.07);
+    box-shadow: 0 0 34px rgba(255, 111, 97, 0.13);
+    color: #ffb1a7;
+    font-family: serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.14em;
+  }
+
+  .daily-dojo-gate-muted .daily-dojo-gate-panel {
+    animation: none;
+  }
+
+  .daily-dojo-gate-muted .daily-dojo-gate-panel-left {
+    transform: translateX(-68%);
+  }
+
+  .daily-dojo-gate-muted .daily-dojo-gate-panel-right {
+    transform: translateX(68%);
+  }
+
+  @keyframes dojo-gate-left {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-68%);
+    }
+  }
+
+  @keyframes dojo-gate-right {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(68%);
+    }
+  }
+
+  @keyframes dojo-gate-content {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .visual-effects-muted .samurai-site-ambient::before,
+  .visual-effects-muted .samurai-site-fog,
+  .visual-effects-muted .samurai-site-leaves span,
+  .visual-effects-muted .samurai-status-icon::before,
+  .visual-effects-muted .sidebar-emblem::before,
+  .visual-effects-muted .sidebar-route[aria-current="page"]::before,
+  .visual-effects-muted .signal-surface::after {
+    animation: none !important;
+  }
+
+  .visual-effects-muted .samurai-site-fog {
+    opacity: 0.22;
+  }
+
+  .visual-effects-muted .samurai-site-leaves {
+    display: none;
+  }
+
+  .visual-effects-muted .samurai-status-icon::before {
+    opacity: 0.14;
+  }
+
+  .visual-effects-muted .signal-surface::after {
+    opacity: 0.08;
+  }
+
   .samurai-site-mountains {
     position: fixed;
     inset: auto -5% 0;
@@ -402,10 +542,10 @@
   .samurai-status-icon::before {
     position: absolute;
     z-index: -1;
-    right: -28%;
-    bottom: 3%;
-    left: -28%;
-    height: 72%;
+    right: -34%;
+    bottom: 0;
+    left: -34%;
+    height: 80%;
     content: "";
     border-radius: 50%;
     background: radial-gradient(
@@ -413,25 +553,25 @@
       var(--samurai-status-mist),
       transparent 69%
     );
-    filter: blur(5px);
+    filter: blur(6px);
     animation: samurai-status-mist 7.5s cubic-bezier(0.45, 0, 0.55, 1) infinite
       alternate;
   }
 
   .samurai-status-focus {
-    --samurai-status-mist: rgba(224, 143, 102, 0.3);
+    --samurai-status-mist: rgba(224, 143, 102, 0.36);
   }
 
   .samurai-status-active {
-    --samurai-status-mist: rgba(237, 99, 86, 0.32);
+    --samurai-status-mist: rgba(237, 99, 86, 0.38);
   }
 
   .samurai-status-standing {
-    --samurai-status-mist: rgba(151, 190, 199, 0.27);
+    --samurai-status-mist: rgba(151, 190, 199, 0.33);
   }
 
   .samurai-status-pause {
-    --samurai-status-mist: rgba(223, 184, 119, 0.28);
+    --samurai-status-mist: rgba(223, 184, 119, 0.34);
   }
 
   .samurai-status-icon > img {
@@ -450,12 +590,12 @@
 
   @keyframes samurai-status-mist {
     from {
-      opacity: 0.32;
-      transform: translate3d(-4%, 3%, 0) scale(0.88);
+      opacity: 0.42;
+      transform: translate3d(-4%, 3%, 0) scale(0.9);
     }
     to {
-      opacity: 0.78;
-      transform: translate3d(5%, -3%, 0) scale(1.08);
+      opacity: 0.9;
+      transform: translate3d(5%, -3%, 0) scale(1.1);
     }
   }
 
@@ -627,9 +767,45 @@
   }
 
   .signal-surface {
+    position: relative;
+    isolation: isolate;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.025),
       0 24px 70px rgba(0, 0, 0, 0.18);
+  }
+
+  .signal-surface::after {
+    position: absolute;
+    z-index: 0;
+    inset: -1px;
+    padding: 1px;
+    pointer-events: none;
+    content: "";
+    border-radius: inherit;
+    opacity: 0.22;
+    background: linear-gradient(
+      130deg,
+      rgba(255, 194, 104, 0.34),
+      rgba(255, 139, 124, 0.06) 34%,
+      rgba(170, 211, 224, 0.2) 68%,
+      rgba(255, 139, 124, 0.22)
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: surface-border-breathe 9s cubic-bezier(0.45, 0, 0.55, 1) infinite
+      alternate;
+  }
+
+  @keyframes surface-border-breathe {
+    from {
+      opacity: 0.16;
+    }
+    to {
+      opacity: 0.42;
+    }
   }
 
   .signal-atmosphere {
@@ -782,12 +958,55 @@
   }
 
   .sidebar-route {
+    position: relative;
+    isolation: isolate;
     transition:
       transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
       color 180ms ease,
       background-color 180ms ease,
       border-color 180ms ease,
       box-shadow 220ms ease;
+  }
+
+  .sidebar-route::before {
+    position: absolute;
+    z-index: 0;
+    inset: -1px;
+    pointer-events: none;
+    content: "";
+    border: 1px solid rgba(255, 139, 124, 0.28);
+    border-radius: inherit;
+    opacity: 0;
+    box-shadow:
+      0 0 14px rgba(255, 111, 97, 0.16),
+      inset 0 0 12px rgba(255, 194, 104, 0.03);
+    transition:
+      opacity 220ms ease,
+      box-shadow 220ms ease;
+  }
+
+  .sidebar-route > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .sidebar-route[aria-current="page"]::before {
+    opacity: 0.48;
+    animation: sidebar-route-ember 5.5s cubic-bezier(0.45, 0, 0.55, 1) infinite
+      alternate;
+  }
+
+  @keyframes sidebar-route-ember {
+    from {
+      box-shadow:
+        0 0 10px rgba(255, 111, 97, 0.1),
+        inset 0 0 10px rgba(255, 194, 104, 0.02);
+    }
+    to {
+      box-shadow:
+        0 0 22px rgba(255, 111, 97, 0.24),
+        inset 0 0 16px rgba(255, 194, 104, 0.06);
+    }
   }
 
   .sidebar-route:active {
@@ -829,6 +1048,12 @@
     }
     .sidebar-route:hover {
       transform: translateX(2px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+    }
+
+    .sidebar-route:hover::before,
+    .sidebar-route[aria-current="page"]::before {
+      opacity: 0.55;
     }
   }
 
@@ -1514,7 +1739,11 @@
     .dashboard-hero-clouds,
     .dashboard-hero-fog,
     .dashboard-hero-orbit,
-    .dashboard-hero-title {
+    .dashboard-hero-title,
+    .daily-dojo-gate-panel,
+    .daily-dojo-gate-content,
+    .sidebar-route[aria-current="page"]::before,
+    .signal-surface::after {
       animation: none;
     }
 
@@ -1542,6 +1771,10 @@
     .dashboard-hero-title,
     .achievement-card,
     .achievement-card::after,
+    .daily-dojo-gate-panel,
+    .daily-dojo-gate-content,
+    .sidebar-route[aria-current="page"]::before,
+    .signal-surface::after,
     .signal-atmosphere,
     .signal-atmosphere::before {
       transition: none;

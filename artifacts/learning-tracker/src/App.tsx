@@ -16,6 +16,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Route, Switch, Router as WouterRouter, useLocation } from "wouter";
 import { AppSidebar } from "@/components/app-sidebar";
+import { DailyDojoGate } from "@/components/daily-dojo-gate";
+import {
+  VisualEffectsProvider,
+  useVisualEffects,
+} from "@/components/visual-effects-provider";
 import musashi from "@assets/musashi_1785336444855.jpg";
 import inkToriiBackground from "@assets/ink-torii-night-background-v2-clean.png";
 
@@ -26,7 +31,7 @@ const History = lazy(() => import("@/pages/history"));
 const Reflections = lazy(() => import("@/pages/reflections"));
 const Achievements = lazy(() => import("@/pages/achievements"));
 const Alerts = lazy(() => import("@/pages/alerts"));
-const Profile = lazy(() => import("@/pages/profile"));
+const Settings = lazy(() => import("@/pages/profile"));
 const Streaks = lazy(() => import("@/pages/streaks"));
 const DashboardExploration = lazy(
   () => import("@/pages/dashboard-exploration"),
@@ -206,9 +211,12 @@ class RouteErrorBoundary extends Component<
 
 function Router({ onLogout }: { onLogout: () => Promise<void> }) {
   const [location] = useLocation();
+  const { enabled: visualEffectsEnabled } = useVisualEffects();
 
   return (
-    <div className="samurai-site flex min-h-screen relative overflow-hidden bg-[#080b10]">
+    <div
+      className={`samurai-site flex min-h-screen relative overflow-hidden bg-[#080b10] ${visualEffectsEnabled ? "" : "visual-effects-muted"}`}
+    >
       <div
         className="samurai-site-ambient"
         aria-hidden="true"
@@ -248,7 +256,8 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
               <Route path="/streaks" component={Streaks} />
               <Route path="/achievements" component={Achievements} />
               <Route path="/alerts" component={Alerts} />
-              <Route path="/profile" component={Profile} />
+              <Route path="/settings" component={Settings} />
+              <Route path="/profile" component={Settings} />
               <Route path="/explore/dashboard-a">
                 {() => <DashboardExploration concept="a" />}
               </Route>
@@ -348,18 +357,25 @@ function AccessGate() {
     return <LoginScreen onAuthenticated={authenticate} />;
   }
 
-  return <Router onLogout={logout} />;
+  return (
+    <>
+      <DailyDojoGate />
+      <Router onLogout={logout} />
+    </>
+  );
 }
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <AccessGate />
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
+      <VisualEffectsProvider>
+        <TooltipProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <AccessGate />
+          </WouterRouter>
+          <Toaster />
+        </TooltipProvider>
+      </VisualEffectsProvider>
     </QueryClientProvider>
   );
 }

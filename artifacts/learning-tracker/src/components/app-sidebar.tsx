@@ -5,7 +5,7 @@ import {
   Target,
   Award,
   Bell,
-  User,
+  Settings2,
   CalendarDays,
   Flame,
   LogOut,
@@ -52,7 +52,12 @@ const longViewRoutes: SidebarRoute[] = [
 
 const utilityRoutes: SidebarRoute[] = [
   { path: "/alerts", label: "Alerts", cue: "Gentle reminders", icon: Bell },
-  { path: "/profile", label: "Profile", cue: "Personal settings", icon: User },
+  {
+    path: "/settings",
+    label: "Settings",
+    cue: "Dōjō controls",
+    icon: Settings2,
+  },
 ];
 
 function routeIsActive(location: string, path: string) {
@@ -169,19 +174,19 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
           <div className="flex items-center gap-3.5">
             <div className="sidebar-emblem relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#ff7868]/28 bg-[#ff7868]/[.055] shadow-[inset_0_1px_0_rgba(255,255,255,.05),0_0_26px_rgba(255,111,97,.09)]">
               <span
-                className="text-lg font-bold text-[#ff8b7c]"
+                className="text-[13px] font-bold tracking-[-.16em] text-[#ff8b7c]"
                 style={{ fontFamily: "serif" }}
               >
-                道
+                道場
               </span>
               <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full border border-[#070a0f] bg-[#ffc268] shadow-[0_0_10px_rgba(255,194,104,.75)]" />
             </div>
             <div className="min-w-0">
               <h1 className="truncate text-[15px] font-semibold tracking-[-.02em] text-white">
-                Open Finish
+                Eternal Dodjo
               </h1>
               <p className="mt-1 text-[8px] font-bold uppercase tracking-[.22em] text-[#ff9a89]/60">
-                Personal OS · live line
+                Private practice · live line
               </p>
             </div>
           </div>
@@ -189,17 +194,20 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
 
         <nav className="relative flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-3 py-4">
           <RouteSection
-            label="Orientation"
+            label="Practice"
             routes={orientationRoutes}
             location={location}
           />
           <RouteSection
-            label="Long view"
+            label="Waypoints"
             routes={longViewRoutes}
             location={location}
           />
           <div className="mt-auto border-t border-white/[.055] pt-3">
-            <div className="grid grid-cols-2 gap-2" aria-label="Secondary navigation">
+            <div
+              className="grid grid-cols-2 gap-2"
+              aria-label="Secondary navigation"
+            >
               {utilityRoutes.map((route) => {
                 const Icon = route.icon;
                 const active = routeIsActive(location, route.path);
