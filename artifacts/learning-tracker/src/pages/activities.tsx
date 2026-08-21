@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -6,6 +6,7 @@ import {
   useCreateActivity,
   useUpdateActivity,
   useDeleteActivity,
+  useGetWeeklyProgress,
   getListActivitiesQueryKey,
   getListStreaksQueryKey,
   getGetDashboardQueryKey,
@@ -26,7 +27,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit2, Trash2, Target, Dumbbell, Compass } from "lucide-react";
+import {
+  ArrowUpRight,
+  Compass,
+  Dumbbell,
+  Edit2,
+  Flame,
+  Plus,
+  Search,
+  Sparkles,
+  Target,
+  Trash2,
+} from "lucide-react";
 import {
   ACTIVITY_ICON_OPTIONS,
   ActivityGlyph,
@@ -62,6 +74,8 @@ const PRESET_COLORS = [
   "#a79578",
 ];
 
+const WEEKDAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"];
+
 const CATEGORIES = [
   "Learning",
   "Fitness",
@@ -87,7 +101,12 @@ export default function Activities() {
   const deleteActivity = useDeleteActivity();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { data: weeklyProgress = [] } = useGetWeeklyProgress();
 
+  const [directionFilter, setDirectionFilter] = useState<
+    "all" | Activity["activityType"]
+  >("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -106,6 +125,57 @@ export default function Activities() {
     currentThread: null,
     evidenceNote: null,
   });
+
+  const weeklyProgressByActivity = useMemo(
+    () =>
+      new Map(
+        weeklyProgress.map((progress) => [progress.activityId, progress]),
+      ),
+    [weeklyProgress],
+  );
+
+  const visibleActivities = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    return activities.filter((activity) => {
+      const matchesDirection =
+        directionFilter === "all" || activity.activityType === directionFilter;
+      const matchesQuery =
+        !normalizedQuery ||
+        [
+          activity.name,
+          activity.category,
+          activity.currentThread,
+          activity.purpose,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(normalizedQuery);
+
+      return matchesDirection && matchesQuery;
+    });
+  }, [activities, directionFilter, searchQuery]);
+
+  const totalWeekMinutes = weeklyProgress.reduce(
+    (sum, progress) =>
+      sum +
+      progress.days.reduce((daySum, day) => daySum + day.minutesLogged, 0),
+    0,
+  );
+  const practiceWeekMinutes = weeklyProgress
+    .filter((progress) => progress.activityType === "practice")
+    .reduce(
+      (sum, progress) =>
+        sum +
+        progress.days.reduce((daySum, day) => daySum + day.minutesLogged, 0),
+      0,
+    );
+  const sportWeekMinutes = totalWeekMinutes - practiceWeekMinutes;
+  const totalWeekTarget = activities.reduce(
+    (sum, activity) => sum + activity.targetMinutesPerDay * 7,
+    0,
+  );
 
   const refreshActivitySurfaces = () => {
     [
@@ -227,149 +297,460 @@ export default function Activities() {
   }
 
   return (
-    <div className="relative z-10 mx-auto min-h-screen max-w-6xl space-y-6 px-4 py-6 pb-28 md:p-8 md:pb-20 animate-slide-up">
-      <div className="flex items-end justify-between gap-4 border-b border-white/10 pb-5">
-        <div>
-          <div className="mb-2 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.22em] text-[#ff8b7c]">
-            <Compass className="h-3.5 w-3.5" /> Direction library
+    <div className="relative z-10 mx-auto min-h-screen max-w-7xl space-y-6 px-4 py-6 pb-28 md:p-8 md:pb-20 animate-slide-up">
+      <section className="signal-surface relative overflow-hidden rounded-[2rem] border border-white/[.11] bg-[linear-gradient(135deg,rgba(17,24,36,.94),rgba(11,17,27,.86)_52%,rgba(30,16,24,.8))] p-5 shadow-[0_28px_80px_rgba(0,0,0,.28)] md:p-7">
+        <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#ff7868]/10 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 left-[38%] h-48 w-72 rounded-full bg-[#72c6b3]/[.06] blur-3xl" />
+        <div className="relative z-10 flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+          <div className="max-w-xl">
+            <div className="mb-3 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]">
+              <Compass className="h-3.5 w-3.5" /> Practice field
+            </div>
+            <h1 className="text-3xl font-semibold tracking-[-.035em] text-white md:text-4xl">
+              Activities, seen as a living field.
+            </h1>
+            <p className="mt-3 max-w-lg text-sm leading-6 text-white/52">
+              Each direction holds its own pace. The field below turns this
+              week&apos;s real return into a quieter view of where your time
+              went.
+            </p>
           </div>
-          <h1 className="text-3xl font-semibold text-white tracking-tight md:text-4xl">
-            Activities
-          </h1>
-          <p className="mt-2 text-sm text-white/38">
-            Practice and sport stay visible without sharing the same clock.
-          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="rounded-2xl border border-white/[.09] bg-black/15 px-4 py-2.5 backdrop-blur-xl">
+              <p className="text-[8px] font-bold uppercase tracking-[.17em] text-white/38">
+                This week
+              </p>
+              <p className="mt-1 text-lg font-semibold tabular-nums text-white">
+                {totalWeekMinutes}
+                <span className="ml-1 text-xs font-medium text-white/38">
+                  min
+                </span>
+              </p>
+            </div>
+            <Button
+              onClick={openCreateDialog}
+              className="h-11 gap-2 rounded-2xl border border-[#ff9a89]/30 bg-[#e95448] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white shadow-[0_12px_34px_rgba(233,84,72,.22)]"
+              data-testid="button-create-activity"
+            >
+              <Plus className="h-4 w-4" />
+              New direction
+            </Button>
+          </div>
         </div>
-        <Button
-          onClick={openCreateDialog}
-          className="h-11 gap-2 rounded-full border-0 bg-[#e95448] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white"
-          data-testid="button-create-activity"
-        >
-          <Plus className="w-5 h-5" />
-          New Activity
-        </Button>
-      </div>
+      </section>
 
       {activities.length === 0 ? (
-        <div className="bg-[rgba(15,15,20,0.85)] backdrop-blur-xl border border-white/5 border-dashed rounded-3xl p-16 text-center shadow-2xl">
-          <Target className="w-12 h-12 text-white/20 mx-auto mb-4" />
-          <h3 className="text-lg font-bold mb-2 text-white">
-            No activities yet
-          </h3>
-          <p className="text-[11px] uppercase tracking-wider font-semibold text-white/40 mb-8">
-            Create your first activity to start tracking
+        <section className="signal-surface relative overflow-hidden rounded-[2rem] border border-dashed border-white/[.14] bg-[#0d141f]/86 px-6 py-16 text-center shadow-[0_24px_70px_rgba(0,0,0,.22)]">
+          <div className="mx-auto grid h-16 w-16 place-items-center rounded-3xl border border-[#ff8b7c]/20 bg-[#ff7868]/[.08] text-[#ff9a89] shadow-[0_0_40px_rgba(233,84,72,.1)]">
+            <Sparkles className="h-6 w-6" />
+          </div>
+          <h2 className="mt-5 text-xl font-semibold text-white">
+            Begin with one direction.
+          </h2>
+          <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-white/44">
+            A direction can be a skill, a project, a sport, or simply a place
+            you intend to return to.
           </p>
           <Button
             onClick={openCreateDialog}
-            className="rounded-2xl uppercase tracking-wider text-[11px] font-bold bg-gradient-to-r from-red-700 via-red-600 to-red-800 text-white shadow-lg hover:shadow-red-500/25 border-0 px-8 py-6 h-auto"
+            className="mt-7 h-11 rounded-2xl border border-[#ff9a89]/30 bg-[#e95448] px-6 text-[10px] font-bold uppercase tracking-[.14em] text-white"
             data-testid="button-create-first"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Activity
+            <Plus className="mr-2 h-4 w-4" />
+            Create direction
           </Button>
-        </div>
+        </section>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {activities.map((activity) => (
-            <div
-              key={activity.id}
-              className="group relative min-h-44 overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/88 p-5 backdrop-blur-xl transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-white/16 hover:shadow-[0_20px_55px_rgba(0,0,0,.22)]"
-              data-testid={`activity-item-${activity.id}`}
-            >
-              <div
-                className="absolute inset-x-0 top-0 h-0.5"
-                style={{ backgroundColor: activity.color }}
-              />
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex min-w-0 items-center gap-3">
-                  <div
-                    className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border"
-                    style={{
-                      color: activity.color,
-                      borderColor: `${activity.color}35`,
-                      backgroundColor: `${activity.color}12`,
-                    }}
-                  >
-                    <ActivityGlyph
-                      icon={activity.icon}
-                      activityType={activity.activityType}
-                      category={activity.category}
-                      className="h-4.5 w-4.5"
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <Link
-                      href={`/activities/${activity.id}`}
-                      className="block min-h-10 line-clamp-2 text-base font-semibold leading-5 text-white transition-colors hover:text-[#ff9a89]"
-                    >
-                      {activity.name}
-                    </Link>
-                    <p
-                      className="mt-1 truncate text-[8px] font-bold uppercase tracking-[.16em] text-white/28"
-                      title={activity.category}
-                    >
-                      {activity.category}
-                    </p>
-                  </div>
+        <>
+          <section className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(19rem,.8fr)]">
+            <div className="signal-surface relative overflow-hidden rounded-[2rem] border border-white/[.1] bg-[#0d1520]/88 p-5 shadow-[0_24px_70px_rgba(0,0,0,.2)] md:p-6">
+              <div className="relative z-10 flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffb1a7]">
+                    Direction constellation
+                  </p>
+                  <p className="mt-1 text-sm text-white/46">
+                    A node brightens with its real weekly return.
+                  </p>
                 </div>
-                <span
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-1 text-[8px] font-bold uppercase tracking-[.12em] ${
-                    activity.activityType === "sport"
-                      ? "border-[#72c6b3]/20 bg-[#72c6b3]/[.07] text-[#8bd2c2]"
-                      : "border-[#ff8b7c]/18 bg-[#ff7868]/[.06] text-[#ff9a89]"
-                  }`}
-                >
-                  {activity.activityType === "sport" ? (
-                    <Dumbbell className="h-3 w-3" />
-                  ) : (
-                    <Target className="h-3 w-3" />
-                  )}
-                  {activity.activityType}
+                <span className="rounded-full border border-white/[.09] bg-white/[.035] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.13em] text-white/52">
+                  {activities.length} active
                 </span>
               </div>
-              <div className="mt-5 min-h-10">
-                <p className="line-clamp-2 text-xs leading-5 text-white/38">
-                  {activity.currentThread ||
-                    activity.purpose ||
-                    "No current thread saved yet."}
-                </p>
-              </div>
-              <div className="mt-4 flex items-center justify-between border-t border-white/[.055] pt-3">
-                <p className="text-[9px] font-bold uppercase tracking-[.14em] text-white/26">
-                  <span className="mr-1.5 text-sm font-semibold tabular-nums text-white/65">
-                    {activity.targetMinutesPerDay}
-                  </span>
-                  min target
-                </p>
-                <div className="flex items-center gap-1.5 rounded-2xl border border-white/[.06] bg-black/10 p-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={`Edit ${activity.name}`}
-                    className="h-8 w-8 rounded-xl text-white/35 hover:text-white"
-                    onClick={() => openEditDialog(activity)}
-                    data-testid={`button-edit-${activity.id}`}
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={`Delete ${activity.name}`}
-                    className="ml-0.5 h-8 w-8 rounded-xl border border-red-400/10 text-white/28 hover:border-red-400/20 hover:bg-red-500/10 hover:text-red-400"
-                    onClick={() => {
-                      setDeletingActivity(activity);
-                      setDeleteDialogOpen(true);
-                    }}
-                    data-testid={`button-delete-${activity.id}`}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
+              <div className="relative z-10 mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                {activities.slice(0, 8).map((activity, index) => {
+                  const progress = weeklyProgressByActivity.get(activity.id);
+                  const minutes =
+                    progress?.days.reduce(
+                      (sum, day) => sum + day.minutesLogged,
+                      0,
+                    ) ?? 0;
+                  const target = Math.max(activity.targetMinutesPerDay * 7, 1);
+                  const fill = Math.min(
+                    100,
+                    Math.round((minutes / target) * 100),
+                  );
+                  const color = activity.color || "#ff7868";
+
+                  return (
+                    <Link
+                      key={activity.id}
+                      href={`/activities/${activity.id}`}
+                      className="activity-constellation-node group relative overflow-hidden rounded-2xl border border-white/[.07] bg-black/10 p-3.5 transition-[border-color,transform,background-color] duration-200 hover:-translate-y-0.5 hover:border-white/[.18] hover:bg-white/[.045]"
+                      style={{ animationDelay: `${index * 45}ms` }}
+                    >
+                      <div
+                        className="absolute inset-x-0 bottom-0 h-1 origin-left bg-gradient-to-r from-transparent"
+                        style={{
+                          width: `${Math.max(fill, 8)}%`,
+                          backgroundColor: color,
+                          boxShadow: `0 0 16px ${color}80`,
+                        }}
+                      />
+                      <div className="flex items-start gap-2.5">
+                        <span
+                          className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border"
+                          style={{
+                            color,
+                            borderColor: `${color}50`,
+                            backgroundColor: `${color}18`,
+                          }}
+                        >
+                          <ActivityGlyph
+                            icon={activity.icon}
+                            activityType={activity.activityType}
+                            category={activity.category}
+                            className="h-4 w-4"
+                          />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-semibold text-white">
+                            {activity.name}
+                          </span>
+                          <span className="mt-1 block text-[9px] font-bold uppercase tracking-[.13em] text-white/32">
+                            {minutes} / {target} min
+                          </span>
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
-          ))}
-        </div>
+
+            <aside className="signal-surface relative overflow-hidden rounded-[2rem] border border-white/[.1] bg-[#0d1520]/88 p-5 shadow-[0_24px_70px_rgba(0,0,0,.2)] md:p-6">
+              <div className="relative z-10 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">
+                <Flame className="h-3.5 w-3.5" /> Week at a glance
+              </div>
+              <div className="relative z-10 mt-6 grid grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-white/[.07] bg-black/12 p-3.5">
+                  <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/36">
+                    Practice
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold tabular-nums text-white">
+                    {practiceWeekMinutes}
+                  </p>
+                  <p className="mt-1 text-[9px] font-bold uppercase tracking-[.13em] text-white/30">
+                    minutes
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-[#72c6b3]/[.14] bg-[#72c6b3]/[.045] p-3.5">
+                  <p className="text-[8px] font-bold uppercase tracking-[.16em] text-[#8bd2c2]/70">
+                    Sport
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold tabular-nums text-white">
+                    {sportWeekMinutes}
+                  </p>
+                  <p className="mt-1 text-[9px] font-bold uppercase tracking-[.13em] text-white/30">
+                    minutes
+                  </p>
+                </div>
+              </div>
+              <div className="relative z-10 mt-4 border-t border-white/[.06] pt-4">
+                <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-[.15em] text-white/38">
+                  <span>Field coverage</span>
+                  <span className="text-white/72">
+                    {totalWeekTarget
+                      ? Math.min(
+                          100,
+                          Math.round(
+                            (totalWeekMinutes / totalWeekTarget) * 100,
+                          ),
+                        )
+                      : 0}
+                    %
+                  </span>
+                </div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[.07]">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-[#ff7868] via-[#ffc268] to-[#72c6b3] shadow-[0_0_16px_rgba(255,194,104,.45)] transition-[width] duration-700"
+                    style={{
+                      width: `${totalWeekTarget ? Math.min(100, Math.round((totalWeekMinutes / totalWeekTarget) * 100)) : 0}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            </aside>
+          </section>
+
+          <section className="signal-surface relative overflow-hidden rounded-[2rem] border border-white/[.1] bg-[#0d1520]/88 p-4 shadow-[0_24px_70px_rgba(0,0,0,.2)] md:p-5">
+            <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div
+                className="flex flex-wrap gap-2"
+                aria-label="Filter directions"
+              >
+                {(
+                  [
+                    ["all", "All directions"],
+                    ["practice", "Practice"],
+                    ["sport", "Sport"],
+                  ] as const
+                ).map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={directionFilter === value}
+                    onClick={() => setDirectionFilter(value)}
+                    className={`rounded-xl border px-3.5 py-2 text-[9px] font-bold uppercase tracking-[.13em] transition-[color,background-color,border-color,transform] duration-200 active:scale-95 ${
+                      directionFilter === value
+                        ? value === "sport"
+                          ? "border-[#72c6b3]/35 bg-[#72c6b3]/[.1] text-[#91dac9]"
+                          : "border-[#ff8b7c]/35 bg-[#ff7868]/[.1] text-[#ffb1a7]"
+                        : "border-white/[.075] bg-white/[.02] text-white/42 hover:border-white/[.16] hover:bg-white/[.055] hover:text-white/80"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <label className="group flex h-10 min-w-0 items-center gap-2.5 rounded-xl border border-white/[.08] bg-black/12 px-3 text-white/38 transition-colors focus-within:border-[#ffb1a7]/35 focus-within:text-[#ffb1a7] lg:w-72">
+                <Search className="h-3.5 w-3.5" />
+                <span className="sr-only">Search activities</span>
+                <input
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Find a direction"
+                  className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/26"
+                />
+              </label>
+            </div>
+          </section>
+
+          {visibleActivities.length === 0 ? (
+            <section className="rounded-[2rem] border border-dashed border-white/[.12] bg-[#0d1520]/72 px-6 py-14 text-center">
+              <Search className="mx-auto h-7 w-7 text-white/24" />
+              <h2 className="mt-3 text-lg font-semibold text-white">
+                No direction matches this view.
+              </h2>
+              <p className="mt-2 text-sm text-white/42">
+                Try a different filter or clear the search line.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setDirectionFilter("all");
+                  setSearchQuery("");
+                }}
+                className="mt-5 rounded-xl border-white/10 bg-white/[.04] text-white"
+              >
+                Clear view
+              </Button>
+            </section>
+          ) : (
+            <section className="grid gap-3 xl:grid-cols-2">
+              {visibleActivities.map((activity, index) => {
+                const progress = weeklyProgressByActivity.get(activity.id);
+                const days = progress?.days ?? [];
+                const weekMinutes = days.reduce(
+                  (sum, day) => sum + day.minutesLogged,
+                  0,
+                );
+                const weeklyTarget = Math.max(
+                  activity.targetMinutesPerDay * 7,
+                  1,
+                );
+                const completion = Math.min(
+                  100,
+                  Math.round((weekMinutes / weeklyTarget) * 100),
+                );
+                const accent = activity.color || "#ff7868";
+                const thread =
+                  activity.currentThread ||
+                  activity.purpose ||
+                  "No thread set — this direction is ready for its next deliberate return.";
+
+                return (
+                  <article
+                    key={activity.id}
+                    className="group relative overflow-hidden rounded-[1.7rem] border border-white/[.09] bg-[linear-gradient(120deg,rgba(15,23,34,.94),rgba(10,16,25,.9))] p-4 shadow-[0_16px_48px_rgba(0,0,0,.18)] transition-[border-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-white/[.19] hover:shadow-[0_24px_58px_rgba(0,0,0,.28)] md:p-5"
+                    data-testid={`activity-item-${activity.id}`}
+                    style={{ animationDelay: `${index * 45}ms` }}
+                  >
+                    <div
+                      className="pointer-events-none absolute inset-y-0 left-0 w-1"
+                      style={{
+                        backgroundColor: accent,
+                        boxShadow: `0 0 20px ${accent}`,
+                      }}
+                    />
+                    <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="flex min-w-0 gap-3.5">
+                        <span
+                          className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border"
+                          style={{
+                            color: accent,
+                            borderColor: `${accent}55`,
+                            backgroundColor: `${accent}18`,
+                          }}
+                        >
+                          <ActivityGlyph
+                            icon={activity.icon}
+                            activityType={activity.activityType}
+                            category={activity.category}
+                            className="h-5 w-5"
+                          />
+                        </span>
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Link
+                              href={`/activities/${activity.id}`}
+                              className="text-lg font-semibold tracking-[-.02em] text-white transition-colors hover:text-[#ffb1a7]"
+                            >
+                              {activity.name}
+                            </Link>
+                            <span
+                              className={`rounded-full border px-2 py-1 text-[8px] font-bold uppercase tracking-[.12em] ${activity.activityType === "sport" ? "border-[#72c6b3]/24 bg-[#72c6b3]/[.08] text-[#8bd2c2]" : "border-[#ff8b7c]/22 bg-[#ff7868]/[.07] text-[#ffb1a7]"}`}
+                            >
+                              {activity.activityType === "sport" ? (
+                                <Dumbbell className="mr-1 inline h-3 w-3" />
+                              ) : (
+                                <Target className="mr-1 inline h-3 w-3" />
+                              )}
+                              {activity.activityType}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-[9px] font-bold uppercase tracking-[.15em] text-white/33">
+                            {activity.category}
+                          </p>
+                          <p className="mt-3 max-w-xl text-sm leading-5 text-white/52">
+                            {thread}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2 sm:flex-col sm:items-end">
+                        <span className="rounded-xl border border-white/[.08] bg-black/12 px-2.5 py-2 text-right">
+                          <span className="block text-base font-semibold tabular-nums text-white">
+                            {activity.targetMinutesPerDay}
+                          </span>
+                          <span className="block text-[8px] font-bold uppercase tracking-[.14em] text-white/34">
+                            min / day
+                          </span>
+                        </span>
+                        <div className="flex items-center gap-1 rounded-xl border border-white/[.07] bg-black/12 p-1">
+                          <Button
+                            asChild
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Open ${activity.name}`}
+                            className="h-8 w-8 rounded-lg text-white/45 hover:bg-white/[.07] hover:text-white"
+                          >
+                            <Link href={`/activities/${activity.id}`}>
+                              <ArrowUpRight className="h-3.5 w-3.5" />
+                            </Link>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Edit ${activity.name}`}
+                            className="h-8 w-8 rounded-lg text-white/45 hover:bg-white/[.07] hover:text-white"
+                            onClick={() => openEditDialog(activity)}
+                            data-testid={`button-edit-${activity.id}`}
+                          >
+                            <Edit2 className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Delete ${activity.name}`}
+                            className="h-8 w-8 rounded-lg text-white/35 hover:bg-red-500/10 hover:text-red-300"
+                            onClick={() => {
+                              setDeletingActivity(activity);
+                              setDeleteDialogOpen(true);
+                            }}
+                            data-testid={`button-delete-${activity.id}`}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 rounded-2xl border border-white/[.065] bg-black/[.11] p-3.5">
+                      <div className="flex items-end justify-between gap-4">
+                        <div>
+                          <p className="text-[8px] font-bold uppercase tracking-[.15em] text-white/34">
+                            Seven-day return
+                          </p>
+                          <p className="mt-1 text-sm font-semibold tabular-nums text-white">
+                            {weekMinutes}
+                            <span className="ml-1 text-xs font-medium text-white/36">
+                              min
+                            </span>
+                          </p>
+                        </div>
+                        <span
+                          className="text-sm font-semibold tabular-nums"
+                          style={{ color: accent }}
+                        >
+                          {completion}%
+                        </span>
+                      </div>
+                      <div className="mt-3 grid grid-cols-7 gap-1.5">
+                        {Array.from({ length: 7 }, (_, dayIndex) => {
+                          const day = days[dayIndex];
+                          const ratio = Math.min(
+                            1,
+                            (day?.minutesLogged ?? 0) /
+                              Math.max(activity.targetMinutesPerDay, 1),
+                          );
+                          const height = Math.max(14, Math.round(ratio * 100));
+                          return (
+                            <div
+                              key={day?.date ?? `${activity.id}-${dayIndex}`}
+                              className="flex min-w-0 flex-col items-center gap-1.5"
+                            >
+                              <div className="flex h-10 w-full items-end rounded-md bg-white/[.045] px-0.5">
+                                <div
+                                  className="activity-week-bar w-full rounded-[3px] transition-[height] duration-700"
+                                  style={{
+                                    height: `${height}%`,
+                                    backgroundColor: day?.minutesLogged
+                                      ? accent
+                                      : "rgba(255,255,255,.1)",
+                                    boxShadow: day?.minutesLogged
+                                      ? `0 0 10px ${accent}70`
+                                      : "none",
+                                  }}
+                                />
+                              </div>
+                              <span className="text-[8px] font-bold text-white/26">
+                                {day
+                                  ? new Intl.DateTimeFormat("en-US", {
+                                      weekday: "narrow",
+                                    }).format(new Date(`${day.date}T12:00:00`))
+                                  : WEEKDAY_LABELS[dayIndex]}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </section>
+          )}
+        </>
       )}
 
       {/* Create/Edit Dialog */}

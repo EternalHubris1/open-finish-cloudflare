@@ -876,6 +876,37 @@
     );
   }
 
+  .activity-constellation-node {
+    animation: activity-node-arrival 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .activity-week-bar {
+    transform-origin: bottom;
+    animation: activity-week-bar-rise 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes activity-node-arrival {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes activity-week-bar-rise {
+    from {
+      opacity: 0.3;
+      transform: scaleY(0.08);
+    }
+    to {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+  }
+
   @keyframes samurai-leaf-drift {
     0% {
       opacity: 0;
@@ -1995,6 +2026,8 @@
     .samurai-site-leaves span,
     .samurai-site-petals-deep span,
     .samurai-site-petals-near span,
+    .activity-constellation-node,
+    .activity-week-bar,
     .dashboard-continue,
     .dashboard-hero-ink,
     .dashboard-hero-clouds,
