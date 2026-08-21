@@ -43,7 +43,7 @@ function includesQuery(
   return haystack.includes(query.trim().toLowerCase());
 }
 
-export default function Reflections() {
+export function SessionNotes({ embedded = false }: { embedded?: boolean }) {
   const reflectionsQuery = useListReflections({
     query: { queryKey: getListReflectionsQueryKey() },
   });
@@ -114,22 +114,30 @@ export default function Reflections() {
   }
 
   return (
-    <div className="mx-auto min-h-screen max-w-5xl space-y-6 p-5 pb-28 md:p-10">
-      <header className="signal-surface relative overflow-hidden rounded-[2rem] border border-white/[.08] bg-[#0c1119]/92 p-7 md:p-9">
-        <div className="absolute -right-10 -top-16 h-44 w-44 rounded-full bg-[#ff7868] blur-3xl opacity-[.07]" />
-        <div className="relative max-w-2xl">
-          <p className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">
-            <BookOpenText className="h-3.5 w-3.5" /> Session notes
-          </p>
-          <h1 className="mt-4 text-3xl font-semibold tracking-[-.04em] text-white md:text-4xl">
-            A light trail back into the work.
-          </h1>
-          <p className="mt-3 text-sm leading-7 text-white/50">
-            Optional notes from finished sessions. Use them only when a detail,
-            learning, or next step will make returning easier.
-          </p>
-        </div>
-      </header>
+    <div
+      className={
+        embedded
+          ? "space-y-6"
+          : "mx-auto min-h-screen max-w-5xl space-y-6 p-5 pb-28 md:p-10"
+      }
+    >
+      {!embedded && (
+        <header className="signal-surface relative overflow-hidden rounded-[2rem] border border-white/[.08] bg-[#0c1119]/92 p-7 md:p-9">
+          <div className="absolute -right-10 -top-16 h-44 w-44 rounded-full bg-[#ff7868] blur-3xl opacity-[.07]" />
+          <div className="relative max-w-2xl">
+            <p className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">
+              <BookOpenText className="h-3.5 w-3.5" /> Session notes
+            </p>
+            <h1 className="mt-4 text-3xl font-semibold tracking-[-.04em] text-white md:text-4xl">
+              A light trail back into the work.
+            </h1>
+            <p className="mt-3 text-sm leading-7 text-white/50">
+              Optional notes from finished sessions. Use them only when a
+              detail, learning, or next step will make returning easier.
+            </p>
+          </div>
+        </header>
+      )}
 
       <section
         className="signal-surface rounded-[2rem] border border-white/[.08] bg-[#0c1119]/92 p-5 md:p-6"
@@ -307,4 +315,8 @@ export default function Reflections() {
       )}
     </div>
   );
+}
+
+export default function Reflections() {
+  return <SessionNotes />;
 }

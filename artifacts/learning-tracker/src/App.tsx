@@ -28,9 +28,8 @@ const Dashboard = lazy(() => import("@/pages/dashboard-v2"));
 const Activities = lazy(() => import("@/pages/activities"));
 const ActivityDetail = lazy(() => import("@/pages/activity-detail"));
 const History = lazy(() => import("@/pages/history"));
-const Reflections = lazy(() => import("@/pages/reflections"));
 const Achievements = lazy(() => import("@/pages/achievements"));
-const Alerts = lazy(() => import("@/pages/alerts"));
+const Cabinet = lazy(() => import("@/pages/alerts"));
 const Settings = lazy(() => import("@/pages/profile"));
 const Streaks = lazy(() => import("@/pages/streaks"));
 const DashboardExploration = lazy(
@@ -272,10 +271,10 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
               <Route path="/activities" component={Activities} />
               <Route path="/activities/:id" component={ActivityDetail} />
               <Route path="/history" component={History} />
-              <Route path="/reflections" component={Reflections} />
+              <Route path="/reflections" component={Cabinet} />
               <Route path="/streaks" component={Streaks} />
               <Route path="/achievements" component={Achievements} />
-              <Route path="/alerts" component={Alerts} />
+              <Route path="/alerts" component={Cabinet} />
               <Route path="/settings" component={Settings} />
               <Route path="/profile" component={Settings} />
               <Route path="/explore/dashboard-a">

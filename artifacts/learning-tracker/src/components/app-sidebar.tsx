@@ -4,7 +4,6 @@ import {
   Home,
   Target,
   Award,
-  Bell,
   Settings2,
   CalendarDays,
   Flame,
@@ -34,8 +33,8 @@ const orientationRoutes: SidebarRoute[] = [
   },
   {
     path: "/reflections",
-    label: "Reflections",
-    cue: "Evidence kept",
+    label: "Cabinet",
+    cue: "Reflections & tools",
     icon: BookOpenText,
   },
 ];
@@ -51,12 +50,6 @@ const longViewRoutes: SidebarRoute[] = [
 ];
 
 const utilityRoutes: SidebarRoute[] = [
-  {
-    path: "/alerts",
-    label: "Rhythms",
-    cue: "Returns & deadlines",
-    icon: Bell,
-  },
   {
     path: "/settings",
     label: "Settings",

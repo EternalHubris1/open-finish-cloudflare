@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "wouter";
-import rhythmDojoCabinet from "../assets/rhythm-dojo-cabinet.png";
+import dojoCabinetScene from "../assets/dojo-cabinet-scene.png";
+import { SessionNotes } from "./reflections";
 import { format, isBefore, startOfDay } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -78,7 +78,7 @@ function periodLabel(period: Milestone["period"]) {
   return "Personal date";
 }
 
-export default function Alerts() {
+export default function Cabinet() {
   const { data: alerts = [], isLoading: alertsLoading } = useListAlerts();
   const { data: activities = [], isLoading: activitiesLoading } =
     useListActivities();
@@ -105,6 +105,9 @@ export default function Alerts() {
     null,
   );
   const [reflectionOpen, setReflectionOpen] = useState(false);
+  const [cabinetReflectionId, setCabinetReflectionId] = useState<number | null>(
+    null,
+  );
   const [reminderForm, setReminderForm] = useState<AlertInput>({
     activityId: 0,
     timeOfDay: "09:00",
@@ -155,7 +158,7 @@ export default function Alerts() {
     [milestones],
   );
 
-  const invalidateRhythms = () => {
+  const invalidateCabinet = () => {
     void queryClient.invalidateQueries({
       queryKey: getListMilestonesQueryKey(),
     });
@@ -217,9 +220,9 @@ export default function Alerts() {
     if (!milestoneForm.title.trim()) return;
     createMilestone.mutate(milestoneForm, {
       onSuccess: () => {
-        invalidateRhythms();
+        invalidateCabinet();
         setDialog(null);
-        toast({ title: "Deadline added to the rhythm" });
+        toast({ title: "Deadline saved" });
       },
       onError: () =>
         toast({ title: "Couldn’t save deadline", variant: "destructive" }),
@@ -232,12 +235,13 @@ export default function Alerts() {
     createCabinetItem.mutate(
       {
         ...cabinetForm,
-        periodReflectionId: selectedReflection?.id ?? null,
+        periodReflectionId:
+          cabinetReflectionId ?? selectedReflection?.id ?? null,
         position: cabinetItems.length,
       },
       {
         onSuccess: () => {
-          invalidateRhythms();
+          invalidateCabinet();
           setDialog(null);
           setCabinetForm({ title: "", url: "", note: "", kind: "link" });
           toast({ title: "Placed in the dojo cabinet" });
@@ -251,7 +255,7 @@ export default function Alerts() {
     );
   };
 
-  const saveReflection = () => {
+  const saveReflection = (openCabinetAfterSave = false) => {
     if (!activeMilestone) return;
     putReflection.mutate(
       { milestoneId: activeMilestone.id, data: reflectionDraft },
@@ -262,7 +266,11 @@ export default function Alerts() {
           });
           setReflectionOpen(false);
           toast({ title: "Period reflection saved" });
-          if (reflection.id) setActiveMilestoneId(activeMilestone.id);
+          if (reflection.id) {
+            setActiveMilestoneId(activeMilestone.id);
+            setCabinetReflectionId(reflection.id);
+            if (openCabinetAfterSave) setDialog("cabinet");
+          }
         },
         onError: () =>
           toast({ title: "Couldn’t save reflection", variant: "destructive" }),
@@ -288,7 +296,7 @@ export default function Alerts() {
         id: milestone.id,
         data: { status: milestone.status === "complete" ? "open" : "complete" },
       },
-      { onSuccess: invalidateRhythms },
+      { onSuccess: invalidateCabinet },
     );
   };
 
@@ -309,7 +317,7 @@ export default function Alerts() {
       <header className="relative isolate overflow-hidden rounded-[2rem] border border-[#ffc268]/15 bg-[radial-gradient(circle_at_72%_24%,rgba(255,194,104,.16),transparent_26%),linear-gradient(125deg,rgba(16,22,33,.98),rgba(10,15,23,.94)_58%,rgba(76,38,37,.58))] px-6 py-7 shadow-[inset_0_1px_0_rgba(255,255,255,.06),0_18px_54px_rgba(0,0,0,.24)] md:px-8 md:py-8">
         <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[linear-gradient(90deg,transparent,rgba(255,194,104,.04))]" />
         <img
-          src={rhythmDojoCabinet}
+          src={dojoCabinetScene}
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute -bottom-20 right-0 z-0 hidden h-[22rem] w-auto select-none object-contain opacity-45 mix-blend-screen md:block"
@@ -317,15 +325,15 @@ export default function Alerts() {
         <div className="relative z-10 flex flex-col gap-6 md:pr-52 lg:pr-64">
           <div>
             <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]">
-              <CalendarClock className="h-4 w-4" /> Rhythm room · private
-              practice
+              <Archive className="h-4 w-4" /> Cabinet · quiet records
             </div>
             <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
-              Rhythms
+              Cabinet
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-white/52">
-              Set one clear mark, leave a quiet return for an ordinary day, or
-              store what should still be within reach after the period ends.
+              Keep the useful traces of your practice: a period reflection, the
+              tools it revealed, and the small session notes that make return
+              easier.
             </p>
           </div>
           <div className="flex flex-wrap gap-2.5">
@@ -342,13 +350,6 @@ export default function Alerts() {
             >
               <Bell className="h-4 w-4" /> Daily reminder
             </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setDialog("cabinet")}
-              className="signal-button h-11 gap-2 rounded-2xl px-3 text-[10px] font-bold uppercase tracking-[.14em] text-[#ffe0a5] hover:bg-[#ffc268]/10 hover:text-[#fff2cb]"
-            >
-              <Archive className="h-4 w-4" /> Add to cabinet
-            </Button>
           </div>
         </div>
       </header>
@@ -358,10 +359,10 @@ export default function Alerts() {
           <div className="flex items-start justify-between gap-4 border-b border-white/[.06] p-6 md:p-7">
             <div>
               <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ff9a89]">
-                Weekly / monthly marks
+                Period markers
               </p>
               <h2 className="mt-2 text-2xl font-bold text-white">
-                Deadlines that hold a line
+                Deadlines worth reflecting on
               </h2>
               <p className="mt-2 text-sm leading-6 text-white/42">
                 A deadline is a calm checkpoint, not another scorecard. Complete
@@ -416,6 +417,7 @@ export default function Alerts() {
                           type="button"
                           onClick={() => {
                             setActiveMilestoneId(milestone.id);
+                            setCabinetReflectionId(null);
                             setReflectionOpen(true);
                           }}
                           className="signal-button flex items-center gap-1 text-white/42 transition-colors hover:text-white"
@@ -431,7 +433,7 @@ export default function Alerts() {
                         if (window.confirm("Remove this deadline?"))
                           deleteMilestone.mutate(
                             { id: milestone.id },
-                            { onSuccess: invalidateRhythms },
+                            { onSuccess: invalidateCabinet },
                           );
                       }}
                       className="self-start rounded-lg p-2 text-white/20 transition-colors hover:bg-white/5 hover:text-[#ff8b7c]"
@@ -465,7 +467,8 @@ export default function Alerts() {
           {completeMilestones.length > 0 && (
             <div className="border-t border-white/[.06] bg-[#72c6b3]/[.035] px-6 py-4 text-[10px] font-bold uppercase tracking-[.14em] text-[#72c6b3]">
               {completeMilestones.length} closed mark
-              {completeMilestones.length === 1 ? "" : "s"} kept in this rhythm
+              {completeMilestones.length === 1 ? "" : "s"} kept with your
+              records
             </div>
           )}
         </div>
@@ -553,7 +556,7 @@ export default function Alerts() {
 
           <section className="relative min-h-[18rem] overflow-hidden rounded-3xl border border-[#ffc268]/20 bg-[radial-gradient(circle_at_72%_25%,rgba(255,194,104,.17),transparent_34%),linear-gradient(145deg,rgba(59,40,32,.78),rgba(12,17,25,.98)_58%,rgba(32,55,53,.62))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] md:p-6">
             <img
-              src={rhythmDojoCabinet}
+              src={dojoCabinetScene}
               alt=""
               aria-hidden="true"
               className="pointer-events-none absolute -bottom-12 -right-8 h-[19rem] w-auto select-none object-contain opacity-45 mix-blend-screen"
@@ -573,12 +576,10 @@ export default function Alerts() {
                 Links, references, and notes can sit beside a reflection without
                 becoming a task list.
               </p>
-              <Button
-                onClick={() => setDialog("cabinet")}
-                className="signal-button mt-auto h-11 w-full gap-2 rounded-2xl bg-[#ffc268] text-[10px] font-bold uppercase tracking-[.14em] text-[#17120a] shadow-[0_10px_24px_rgba(255,194,104,.16)] hover:bg-[#ffd486]"
-              >
-                <Plus className="h-4 w-4" /> Add cabinet item
-              </Button>
+              <p className="mt-auto rounded-2xl border border-[#ffc268]/16 bg-[#080b10]/35 px-3 py-3 text-[10px] leading-5 text-[#ffe0a5]/75">
+                Add a reference from the reflection for the period that made it
+                useful.
+              </p>
             </div>
           </section>
         </aside>
@@ -588,25 +589,17 @@ export default function Alerts() {
         <div className="flex flex-col gap-4 border-b border-white/[.06] p-6 md:flex-row md:items-end md:justify-between md:p-7">
           <div>
             <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]">
-              Shelf of important things
+              Tools kept from reflection
             </p>
             <h2 className="mt-2 text-2xl font-bold text-white">Dojo cabinet</h2>
             <p className="mt-2 text-sm text-white/42">
-              A small room for the useful things you do not want to lose between
-              periods.
+              Each reference and note is kept beside the period reflection that
+              made it useful.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-white/[.08] bg-white/[.035] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.14em] text-white/42">
-              {cabinetItems.length} kept
-            </span>
-            <Button
-              onClick={() => setDialog("cabinet")}
-              className="signal-button h-10 gap-2 rounded-xl bg-[#ffc268] px-3 text-[9px] font-bold uppercase tracking-[.14em] text-[#17120a] hover:bg-[#ffd486]"
-            >
-              <Plus className="h-3.5 w-3.5" /> Add item
-            </Button>
-          </div>
+          <span className="rounded-full border border-white/[.08] bg-white/[.035] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.14em] text-white/42">
+            {cabinetItems.length} kept
+          </span>
         </div>
         <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3 md:p-7">
           {cabinetItems.length ? (
@@ -628,7 +621,7 @@ export default function Alerts() {
                       if (window.confirm("Remove this cabinet item?"))
                         deleteCabinetItem.mutate(
                           { id: item.id },
-                          { onSuccess: invalidateRhythms },
+                          { onSuccess: invalidateCabinet },
                         );
                     }}
                     className="p-1 text-white/20 opacity-0 transition-opacity group-hover:opacity-100 hover:text-[#ff8b7c]"
@@ -663,7 +656,7 @@ export default function Alerts() {
           ) : (
             <div className="col-span-full relative overflow-hidden rounded-2xl border border-dashed border-[#ffc268]/20 bg-[linear-gradient(100deg,rgba(255,194,104,.05),transparent_48%,rgba(98,188,168,.045))] px-6 py-12 text-center">
               <img
-                src={rhythmDojoCabinet}
+                src={dojoCabinetScene}
                 alt=""
                 aria-hidden="true"
                 className="pointer-events-none absolute -bottom-24 right-7 hidden h-[18rem] w-auto opacity-20 mix-blend-screen md:block"
@@ -673,19 +666,30 @@ export default function Alerts() {
                 The cabinet is empty.
               </p>
               <p className="relative mx-auto mt-1 max-w-md text-xs leading-5 text-white/36">
-                Save a useful reference, a link, or a quiet note when a period
-                teaches you something worth keeping.
+                Open a deadline’s period reflection to place a useful reference,
+                link, or quiet note beside what it taught you.
               </p>
-              <Button
-                onClick={() => setDialog("cabinet")}
-                className="signal-button relative mt-5 h-10 gap-2 rounded-xl bg-[#ffc268] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-[#17120a] hover:bg-[#ffd486]"
-              >
-                <Plus className="h-4 w-4" /> Place first item
-              </Button>
             </div>
           )}
         </div>
       </section>
+
+      <section className="signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
+        <div className="border-b border-white/[.06] p-6 md:p-7">
+          <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ff9a89]">
+            Session traces
+          </p>
+          <h2 className="mt-2 text-2xl font-bold text-white">
+            Notes that make the next return lighter
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-white/42">
+            These are optional notes from finished sessions. They stay quiet
+            until a detail, learning, or next step is worth finding again.
+          </p>
+        </div>
+      </section>
+
+      <SessionNotes embedded />
 
       <Dialog
         open={dialog === "reminder"}
@@ -842,7 +846,7 @@ export default function Alerts() {
             </label>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block space-y-2">
-                <Label>Rhythm</Label>
+                <Label>Timeframe</Label>
                 <select
                   value={milestoneForm.period}
                   onChange={(event) =>
@@ -1010,11 +1014,18 @@ export default function Alerts() {
                 type="button"
                 variant="outline"
                 onClick={() => {
-                  setDialog("cabinet");
+                  if (selectedReflection?.id) {
+                    setCabinetReflectionId(selectedReflection.id);
+                    setReflectionOpen(false);
+                    setDialog("cabinet");
+                    return;
+                  }
+                  saveReflection(true);
                 }}
+                disabled={putReflection.isPending}
                 className="signal-button gap-2 rounded-xl border-[#ffc268]/25 text-[#ffe0a5] hover:bg-[#ffc268]/10"
               >
-                <BookOpen className="h-4 w-4" /> Add cabinet item
+                <BookOpen className="h-4 w-4" /> Add tool to cabinet
               </Button>
               <div className="flex gap-2">
                 <Button
@@ -1027,7 +1038,7 @@ export default function Alerts() {
                 </Button>
                 <Button
                   type="button"
-                  onClick={saveReflection}
+                  onClick={() => saveReflection()}
                   disabled={putReflection.isPending}
                   className="signal-button bg-[#e95448] text-white hover:bg-[#f26456]"
                 >

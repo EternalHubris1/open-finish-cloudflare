@@ -774,13 +774,13 @@ function Timeline({
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.16em] text-[#ffb1a7]">
-                  <CalendarClock className="h-3.5 w-3.5" /> Rhythm signal
+                  <CalendarClock className="h-3.5 w-3.5" /> Deadline signal
                 </div>
                 <Link
-                  href="/alerts"
+                  href="/reflections"
                   className="signal-button flex items-center gap-1 text-[9px] font-bold uppercase tracking-[.13em] text-white/35 hover:text-white"
                 >
-                  Open room <ArrowUpRight className="h-3 w-3" />
+                  Open cabinet <ArrowUpRight className="h-3 w-3" />
                 </Link>
               </div>
               <div className="mt-3 space-y-2">
