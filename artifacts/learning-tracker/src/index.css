@@ -839,60 +839,98 @@
     animation: activity-node-arrival 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  .activity-field-armor {
+  .activity-field-armor-hero {
+    right: clamp(-2.9rem, -1vw, -0.75rem);
+    bottom: clamp(-4.15rem, -2.3vw, -2.3rem);
+    z-index: 0;
+    width: clamp(12.5rem, 25vw, 19.5rem);
+    aspect-ratio: 1;
     isolation: isolate;
-    overflow: hidden;
   }
 
-  .activity-field-armor::before {
+  .activity-field-armor-hero-aura {
     position: absolute;
+    inset: 11%;
     z-index: -1;
-    inset: 13%;
-    content: "";
     border-radius: 50%;
     background: radial-gradient(
-      circle,
-      rgba(255, 185, 117, 0.32) 0%,
-      rgba(255, 120, 104, 0.1) 48%,
-      transparent 74%
+      circle at 48% 54%,
+      rgba(255, 188, 121, 0.32) 0%,
+      rgba(255, 120, 104, 0.13) 39%,
+      rgba(115, 194, 182, 0.08) 58%,
+      transparent 76%
     );
-    filter: blur(5px);
+    filter: blur(15px);
   }
 
-  .activity-field-armor-art {
-    width: 112%;
-    height: 112%;
+  .activity-field-armor-hero-art {
+    display: block;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
-    opacity: 0.8;
+    opacity: 0.88;
     mix-blend-mode: screen;
-    filter: grayscale(1) invert(0.9) sepia(0.24) saturate(0.88)
-      hue-rotate(334deg) contrast(1.24) brightness(1.12)
-      drop-shadow(0 0 6px rgba(255, 174, 111, 0.38));
+    filter: grayscale(1) invert(0.92) sepia(0.28) saturate(0.92)
+      hue-rotate(334deg) contrast(1.32) brightness(1.13)
+      drop-shadow(0 0 12px rgba(255, 176, 111, 0.42))
+      drop-shadow(0 0 30px rgba(133, 199, 199, 0.18));
     transform-origin: 50% 88%;
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .activity-field-armor-art {
-      animation: activity-field-armor-watch 5.8s cubic-bezier(0.45, 0, 0.55, 1)
+    .activity-field-armor-hero-art {
+      animation: activity-field-armor-watch 7.2s cubic-bezier(0.45, 0, 0.55, 1)
         infinite;
+    }
+
+    .activity-field-armor-hero-aura {
+      animation: activity-field-armor-aura 6.4s cubic-bezier(0.45, 0, 0.55, 1)
+        infinite alternate;
     }
   }
 
   @keyframes activity-field-armor-watch {
     0%,
     100% {
-      opacity: 0.68;
-      transform: translate3d(0, 1px, 0) scale(0.97);
+      opacity: 0.76;
+      transform: translate3d(0, 4px, 0) scale(0.985);
     }
     50% {
-      opacity: 0.9;
-      transform: translate3d(0, -2px, 0) scale(1.035);
+      opacity: 0.96;
+      transform: translate3d(0, -5px, 0) scale(1.02);
     }
   }
 
-  .visual-effects-muted .activity-field-armor-art {
+  @keyframes activity-field-armor-aura {
+    from {
+      opacity: 0.52;
+      transform: scale(0.93);
+    }
+    to {
+      opacity: 0.96;
+      transform: scale(1.08);
+    }
+  }
+
+  .visual-effects-muted .activity-field-armor-hero-art,
+  .visual-effects-muted .activity-field-armor-hero-aura {
     animation: none;
-    opacity: 0.68;
+  }
+
+  .visual-effects-muted .activity-field-armor-hero-art {
+    opacity: 0.7;
+  }
+
+  @media (max-width: 640px) {
+    .activity-field-armor-hero {
+      right: -3.65rem;
+      bottom: -3.85rem;
+      width: 13.75rem;
+    }
+
+    .activity-field-armor-hero-art {
+      opacity: 0.76;
+    }
   }
 
   .activity-week-bar {

@@ -304,20 +304,22 @@ export default function Activities() {
 
   return (
     <div className="relative z-10 mx-auto min-h-screen max-w-7xl space-y-6 px-4 py-6 pb-28 md:p-8 md:pb-20 animate-slide-up">
-      <section className="signal-surface relative overflow-hidden rounded-[2rem] border border-white/[.11] bg-[linear-gradient(135deg,rgba(17,24,36,.94),rgba(11,17,27,.86)_52%,rgba(30,16,24,.8))] p-5 shadow-[0_28px_80px_rgba(0,0,0,.28)] md:p-7">
+      <section className="signal-surface relative min-h-[14.5rem] overflow-hidden rounded-[2rem] border border-white/[.11] bg-[linear-gradient(135deg,rgba(17,24,36,.94),rgba(11,17,27,.86)_52%,rgba(30,16,24,.8))] p-5 shadow-[0_28px_80px_rgba(0,0,0,.28)] md:p-7">
         <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#ff7868]/10 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 left-[38%] h-48 w-72 rounded-full bg-[#72c6b3]/[.06] blur-3xl" />
-        <div className="relative z-10 flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-          <div className="flex max-w-2xl items-start gap-4 md:gap-5">
-            <div className="activity-field-armor relative mt-0.5 grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-[#ff9a89]/30 bg-[linear-gradient(145deg,rgba(255,120,104,.17),rgba(255,194,104,.055))] shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_0_34px_rgba(233,84,72,.16)]">
-              <img
-                src={samuraiArmor}
-                alt=""
-                aria-hidden="true"
-                className="activity-field-armor-art"
-              />
-              <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[#ffc268] shadow-[0_0_10px_rgba(255,194,104,.9)]" />
-            </div>
+        <div
+          className="activity-field-armor-hero pointer-events-none absolute"
+          aria-hidden="true"
+        >
+          <span className="activity-field-armor-hero-aura" />
+          <img
+            src={samuraiArmor}
+            alt=""
+            className="activity-field-armor-hero-art"
+          />
+        </div>
+        <div className="relative z-10 flex flex-col gap-6 pr-20 sm:pr-28 xl:pr-[clamp(10rem,19vw,18rem)] xl:flex-row xl:items-end xl:justify-between">
+          <div className="max-w-2xl">
             <div className="min-w-0">
               <div className="mb-3 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]">
                 <Compass className="h-3.5 w-3.5" /> Practice field
