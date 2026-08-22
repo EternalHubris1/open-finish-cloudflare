@@ -15,6 +15,7 @@ import {
 } from "@workspace/api-client-react";
 import { Activity, ActivityInput } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
+import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 import {
   Dialog,
   DialogContent,
@@ -29,11 +30,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import {
   ArrowUpRight,
-  Compass,
   Dumbbell,
   Edit2,
   Flame,
-  Orbit,
   Plus,
   Search,
   Sparkles,
@@ -342,14 +341,12 @@ export default function Activities() {
           <div className="max-w-2xl">
             <div className="min-w-0">
               <div className="mb-3 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]">
-                <span
-                  className="activity-field-emblem relative grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-[#ff9a89]/30 bg-[linear-gradient(145deg,rgba(255,120,104,.15),rgba(255,194,104,.045))] text-[#ffb1a7] shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_0_18px_rgba(233,84,72,.12)]"
-                  role="img"
-                  aria-label="Practice field signal"
-                >
-                  <Orbit className="activity-field-emblem-orbit absolute h-6 w-6 text-[#ffc268]/62" />
-                  <Compass className="relative z-10 h-3.5 w-3.5" />
-                </span>
+                <SamuraiStatusIcon
+                  status="active"
+                  label="Practice field active"
+                  className="h-8 w-8 shrink-0 opacity-90"
+                  animate={false}
+                />
                 <span>Practice field</span>
               </div>
               <h1 className="text-3xl font-semibold tracking-[-.035em] text-white md:text-4xl">
