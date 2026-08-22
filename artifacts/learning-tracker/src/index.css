@@ -2650,3 +2650,139 @@
     animation: none;
   }
 }
+
+/* Page-specific Eternal Dodjo environments. One ambient scene per route. */
+.dojo-environment-threshold .samurai-site-ambient {
+  filter: brightness(1.04) contrast(1.1) saturate(1.03);
+}
+
+.dojo-environment-threshold .samurai-site-ambient::before {
+  opacity: 0.66;
+  background:
+    radial-gradient(
+      ellipse 38% 28% at 50% 52%,
+      rgba(242, 174, 116, 0.12),
+      transparent 74%
+    ),
+    radial-gradient(
+      ellipse 28% 20% at 82% 16%,
+      rgba(93, 126, 146, 0.14),
+      transparent 75%
+    );
+}
+
+.dojo-environment-threshold .samurai-site-ambient::after {
+  opacity: 0.17;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 56px,
+      rgba(240, 225, 202, 0.026) 57px 58px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 56px,
+      rgba(240, 225, 202, 0.018) 57px 58px
+    );
+}
+
+.dojo-environment-practice-hall .samurai-site-ambient {
+  filter: brightness(0.98) contrast(1.09) saturate(0.96);
+}
+
+.dojo-environment-practice-hall .samurai-site-ambient::before {
+  opacity: 0.74;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(4, 7, 11, 0.24),
+      transparent 46%,
+      rgba(5, 8, 12, 0.2)
+    ),
+    radial-gradient(
+      ellipse 24% 26% at 83% 58%,
+      rgba(230, 150, 90, 0.13),
+      transparent 72%
+    );
+}
+
+.dojo-environment-zen-garden .samurai-site-ambient {
+  filter: brightness(0.98) contrast(1.08) saturate(0.9);
+}
+
+.dojo-environment-zen-garden .samurai-site-ambient::before {
+  opacity: 0.72;
+  background:
+    linear-gradient(
+      100deg,
+      rgba(5, 8, 13, 0.18),
+      transparent 43%,
+      rgba(5, 8, 13, 0.42)
+    ),
+    radial-gradient(
+      ellipse 32% 22% at 62% 72%,
+      rgba(206, 87, 78, 0.1),
+      transparent 74%
+    );
+}
+
+.dojo-environment-armory .samurai-site-ambient {
+  filter: brightness(0.92) contrast(1.12) saturate(0.9);
+}
+
+.dojo-environment-armory .samurai-site-ambient::before {
+  opacity: 0.78;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(4, 7, 11, 0.48),
+      transparent 44%,
+      rgba(4, 7, 11, 0.22)
+    ),
+    radial-gradient(
+      ellipse 20% 28% at 18% 64%,
+      rgba(237, 173, 103, 0.16),
+      transparent 76%
+    );
+}
+
+.dojo-environment-temple-path .samurai-site-ambient {
+  filter: brightness(0.95) contrast(1.1) saturate(0.96);
+}
+
+.dojo-environment-temple-path .samurai-site-ambient::before {
+  opacity: 0.72;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(4, 7, 11, 0.18),
+      transparent 45%,
+      rgba(4, 7, 11, 0.4)
+    ),
+    radial-gradient(
+      ellipse 28% 22% at 30% 64%,
+      rgba(231, 152, 89, 0.13),
+      transparent 74%
+    );
+}
+
+.dojo-environment-armory .samurai-site-musashi,
+.dojo-environment-zen-garden .samurai-site-musashi,
+.dojo-environment-temple-path .samurai-site-musashi {
+  opacity: 0.2;
+}
+
+@media (max-width: 767px) {
+  .samurai-site-ambient {
+    background-position: center center !important;
+    filter: brightness(0.82) contrast(1.08) saturate(0.9) !important;
+  }
+
+  .samurai-site-ambient::before {
+    opacity: 0.82 !important;
+  }
+
+  .samurai-site-musashi {
+    opacity: 0.12 !important;
+  }
+}

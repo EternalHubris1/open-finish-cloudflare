@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import dojoCabinetScene from "../assets/dojo-cabinet-scene.png";
 import cabinetArchive from "@/assets/neotrad/cabinet-archive.png";
 import { SessionNotes } from "./reflections";
 import { format, isBefore, startOfDay } from "date-fns";
@@ -322,12 +321,6 @@ export default function Cabinet() {
     <div className="page-arrival relative z-10 mx-auto min-h-screen max-w-6xl space-y-8 px-4 py-6 pb-28 md:p-8 md:pb-20">
       <header className="relative isolate overflow-hidden rounded-[2rem] border border-[#ffc268]/15 bg-[radial-gradient(circle_at_72%_24%,rgba(255,194,104,.16),transparent_26%),linear-gradient(125deg,rgba(16,22,33,.98),rgba(10,15,23,.94)_58%,rgba(76,38,37,.58))] px-6 py-7 shadow-[inset_0_1px_0_rgba(255,255,255,.06),0_18px_54px_rgba(0,0,0,.24)] md:px-8 md:py-8">
         <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[linear-gradient(90deg,transparent,rgba(255,194,104,.04))]" />
-        <img
-          src={dojoCabinetScene}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-20 right-0 z-0 hidden h-[22rem] w-auto select-none object-contain opacity-45 mix-blend-screen md:block"
-        />
         <div className="relative z-10 flex flex-col gap-6 md:pr-52 lg:pr-64">
           <div>
             <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]">
@@ -576,12 +569,6 @@ export default function Cabinet() {
           </section>
 
           <section className="relative min-h-[18rem] overflow-hidden rounded-3xl border border-[#ffc268]/20 bg-[radial-gradient(circle_at_72%_25%,rgba(255,194,104,.17),transparent_34%),linear-gradient(145deg,rgba(59,40,32,.78),rgba(12,17,25,.98)_58%,rgba(32,55,53,.62))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] md:p-6">
-            <img
-              src={dojoCabinetScene}
-              alt=""
-              aria-hidden="true"
-              className="pointer-events-none absolute -bottom-12 -right-8 h-[19rem] w-auto select-none object-contain opacity-45 mix-blend-screen"
-            />
             <div className="pointer-events-none absolute -right-9 -top-9 h-32 w-32 rounded-full bg-[#ffc268]/[.16] blur-3xl" />
             <div className="relative z-10 flex h-full max-w-[13rem] flex-col">
               <div className="flex items-center gap-2 text-[#ffe0a5]">
@@ -687,12 +674,6 @@ export default function Cabinet() {
             ))
           ) : (
             <div className="col-span-full relative overflow-hidden rounded-2xl border border-dashed border-[#ffc268]/20 bg-[linear-gradient(100deg,rgba(255,194,104,.05),transparent_48%,rgba(98,188,168,.045))] px-6 py-12 text-center">
-              <img
-                src={dojoCabinetScene}
-                alt=""
-                aria-hidden="true"
-                className="pointer-events-none absolute -bottom-24 right-7 hidden h-[18rem] w-auto opacity-20 mix-blend-screen md:block"
-              />
               <Archive className="relative mx-auto h-9 w-9 text-[#ffc268]/48" />
               <p className="relative mt-4 text-base font-semibold text-white/68">
                 The cabinet is empty.

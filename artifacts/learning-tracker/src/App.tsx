@@ -22,7 +22,11 @@ import {
   useVisualEffects,
 } from "@/components/visual-effects-provider";
 import musashi from "@assets/musashi_1785336444855.jpg";
-import inkToriiBackground from "@assets/ink-torii-night-background-v2-clean.png";
+import dashboardThreshold from "@/assets/environments/optimized/dashboard-threshold.webp";
+import activitiesPracticeHall from "@/assets/environments/optimized/activities-practice-hall.webp";
+import historyZenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
+import cabinetArmoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
+import streaksTemplePath from "@/assets/environments/optimized/streaks-temple-path.webp";
 
 const Dashboard = lazy(() => import("@/pages/dashboard-v2"));
 const Activities = lazy(() => import("@/pages/activities"));
@@ -41,6 +45,54 @@ type SessionStatus = {
   passwordEnabled: boolean;
   authenticated: boolean;
 };
+
+type DojoEnvironment = {
+  key: "threshold" | "practice-hall" | "zen-garden" | "armory" | "temple-path";
+  image: string;
+  position: string;
+};
+
+const DOJO_ENVIRONMENTS: Record<DojoEnvironment["key"], DojoEnvironment> = {
+  threshold: {
+    key: "threshold",
+    image: dashboardThreshold,
+    position: "center center",
+  },
+  "practice-hall": {
+    key: "practice-hall",
+    image: activitiesPracticeHall,
+    position: "center center",
+  },
+  "zen-garden": {
+    key: "zen-garden",
+    image: historyZenGarden,
+    position: "center center",
+  },
+  armory: {
+    key: "armory",
+    image: cabinetArmoryRoom,
+    position: "center center",
+  },
+  "temple-path": {
+    key: "temple-path",
+    image: streaksTemplePath,
+    position: "center center",
+  },
+};
+
+function environmentForLocation(location: string): DojoEnvironment {
+  if (location === "/") return DOJO_ENVIRONMENTS.threshold;
+  if (location.startsWith("/activities"))
+    return DOJO_ENVIRONMENTS["practice-hall"];
+  if (location.startsWith("/history")) return DOJO_ENVIRONMENTS["zen-garden"];
+  if (location.startsWith("/reflections") || location.startsWith("/alerts")) {
+    return DOJO_ENVIRONMENTS.armory;
+  }
+  if (location.startsWith("/streaks")) return DOJO_ENVIRONMENTS["temple-path"];
+  if (location.startsWith("/achievements"))
+    return DOJO_ENVIRONMENTS["zen-garden"];
+  return DOJO_ENVIRONMENTS["practice-hall"];
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -211,16 +263,19 @@ class RouteErrorBoundary extends Component<
 function Router({ onLogout }: { onLogout: () => Promise<void> }) {
   const [location] = useLocation();
   const { enabled: visualEffectsEnabled } = useVisualEffects();
+  const environment = environmentForLocation(location);
 
   return (
     <div
-      className={`samurai-site flex min-h-screen relative overflow-hidden bg-[#080b10] ${visualEffectsEnabled ? "" : "visual-effects-muted"}`}
+      className={`samurai-site dojo-environment-${environment.key} relative flex min-h-screen overflow-hidden bg-[#080b10] ${visualEffectsEnabled ? "" : "visual-effects-muted"}`}
+      data-environment={environment.key}
     >
       <div
         className="samurai-site-ambient"
         aria-hidden="true"
         style={{
-          backgroundImage: `linear-gradient(138deg, rgba(5, 8, 13, 0.62) 0%, rgba(10, 16, 25, 0.5) 44%, rgba(8, 11, 18, 0.72) 100%), url(${inkToriiBackground})`,
+          backgroundImage: `linear-gradient(138deg, rgba(5, 8, 13, 0.66) 0%, rgba(10, 16, 25, 0.5) 48%, rgba(6, 9, 14, 0.76) 100%), url(${environment.image})`,
+          backgroundPosition: environment.position,
         }}
       />
       <div className="samurai-site-fog" aria-hidden="true" />
