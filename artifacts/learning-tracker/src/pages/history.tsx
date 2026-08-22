@@ -189,6 +189,7 @@ function SummaryCard({
           filter: "brightness(.92) contrast(.96) saturate(.88)",
           objectPosition: scenePosition,
           transform: `scale(${sceneScale})`,
+          transformOrigin: scenePosition,
         }}
       />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.84)_0%,rgba(8,13,20,.5)_53%,rgba(8,13,20,.18)_100%)]" />
@@ -684,22 +685,22 @@ export default function History() {
             label={`${metricConfig.label} logged`}
             value={formatMinutes(metricTotal)}
             icon={Clock3}
-            scenePosition="6% 66%"
-            sceneScale={1.3}
+            scenePosition="0% 54%"
+            sceneScale={1.72}
           />
           <SummaryCard
             label={`Days with ${metricConfig.label.toLowerCase()}`}
             value={`${metricActiveDays} / ${periodDayCount}`}
             icon={CalendarDays}
-            scenePosition="48% 12%"
-            sceneScale={1.3}
+            scenePosition="50% 0%"
+            sceneScale={1.58}
           />
           <SummaryCard
             label="Avg. per active day"
             value={formatMinutes(metricAverageReturn)}
             icon={ActivityIcon}
-            scenePosition="52% 84%"
-            sceneScale={1.3}
+            scenePosition="52% 78%"
+            sceneScale={1.62}
           />
           <SummaryCard
             label="Change vs prior period"
@@ -709,8 +710,8 @@ export default function History() {
                 : "New"
             }
             icon={RefreshCw}
-            scenePosition="94% 48%"
-            sceneScale={1.3}
+            scenePosition="100% 48%"
+            sceneScale={1.7}
           />
         </div>
 
