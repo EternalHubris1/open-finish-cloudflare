@@ -486,7 +486,7 @@ function Timeline({
                   </span>
                   {lastMarkedDay.focusMinutes > 0 && (
                     <span className="last-marked-token last-marked-token-work">
-                      {minutesLabel(lastMarkedDay.focusMinutes)}
+                      Work {minutesLabel(lastMarkedDay.focusMinutes)}
                     </span>
                   )}
                   {lastMarkedDay.sportMinutes > 0 && (
@@ -702,7 +702,7 @@ function Timeline({
                 />
               </svg>
               <div
-                className="relative z-30 grid h-full grid-cols-7 gap-2 sm:gap-4 md:gap-6"
+                className="relative z-30 grid h-full grid-cols-7 gap-2 pt-10 sm:gap-4 md:gap-6"
                 data-focus-scope
               >
                 {days.map((day, index) => {
@@ -714,6 +714,11 @@ function Timeline({
                     latestDayWithWork || focusedDate === day.date;
                   const grade = effortGradeFor(day.focusMinutes);
                   const barStyle = effortBarStyle(day.focusMinutes);
+                  const effortHeight = Math.max(
+                    day.focusMinutes ? 8 : 2,
+                    (day.focusMinutes / max) * 100,
+                  );
+                  const tooltipHeight = Math.min(effortHeight, 76);
                   return (
                     <button
                       key={day.date}
@@ -738,17 +743,19 @@ function Timeline({
                           <span
                             className={`energy-day-tooltip absolute inset-x-[-.25rem] z-40 text-center tabular-nums ${isLatestDay ? "energy-day-tooltip-latest" : ""} ${light ? "text-black/78" : "text-white/90"}`}
                             style={{
-                              bottom: `calc(${Math.max(day.focusMinutes ? 8 : 2, (day.focusMinutes / max) * 100)}% + 13px)`,
+                              bottom: `calc(${tooltipHeight}% + 13px)`,
                             }}
                           >
                             <span className="block font-semibold leading-none">
                               {minutesLabel(day.focusMinutes)}
                             </span>
-                            <span
-                              className={`mt-1 block text-[7px] font-bold uppercase tracking-[.11em] ${light ? "text-black/42" : "text-white/42"}`}
-                            >
-                              {isLatestDay ? "today" : "work"}
-                            </span>
+                            {isLatestDay && (
+                              <span
+                                className={`mt-1 block text-[7px] font-bold uppercase tracking-[.11em] ${light ? "text-black/42" : "text-white/42"}`}
+                              >
+                                today
+                              </span>
+                            )}
                             {day.sportMinutes > 0 && (
                               <span className="mt-1 block text-[7px] font-semibold leading-none text-[#8bd2c2]">
                                 + {minutesLabel(day.sportMinutes)} sport
@@ -759,7 +766,7 @@ function Timeline({
                         <span
                           className={`signal-bar energy-bar-settle relative block w-[90%] min-w-[22px] max-w-none rounded-t-[.65rem] border border-white/10 group-hover:brightness-110 group-focus-visible:ring-2 sm:w-[88%] ${isLatestDay ? "today-energy-bar" : ""} ${exceptional ? "exceptional-bloom" : ""}`}
                           style={{
-                            height: `${Math.max(day.focusMinutes ? 8 : 2, (day.focusMinutes / max) * 100)}%`,
+                            height: `${effortHeight}%`,
                             animationDelay: `${index * 60}ms`,
                             ...barStyle,
                           }}
