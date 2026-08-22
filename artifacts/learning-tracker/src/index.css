@@ -2745,3 +2745,53 @@
   70% { opacity: 0; }
   to { transform: translateX(590%); opacity: 0; }
 }
+
+/* Original pattern scans are kept intact; multiply composition suppresses their paper/checkerboard field on dark panels. */
+.panel-pattern-scroll {
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+  top: -18%;
+  right: 1rem;
+  bottom: -18%;
+  width: 5.75rem;
+  user-select: none;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.68;
+  mix-blend-mode: multiply;
+  filter: contrast(1.22) saturate(0.88) brightness(1.04);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 15%, #000 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 15%, #000 85%, transparent 100%);
+}
+
+.panel-pattern-bamboo {
+  right: 0.65rem;
+  width: 5.25rem;
+  opacity: 0.54;
+  object-position: 50% center;
+}
+
+.panel-pattern-chrysanthemum {
+  right: -0.2rem;
+  width: 6.5rem;
+  opacity: 0.62;
+  object-position: 52% center;
+}
+
+.panel-pattern-maple {
+  right: 4.5rem;
+  width: 5.5rem;
+  opacity: 0.48;
+  object-position: 50% center;
+}
+
+@media (max-width: 639px) {
+  .panel-pattern-scroll {
+    opacity: 0.38;
+  }
+
+  .panel-pattern-maple {
+    right: 1.5rem;
+  }
+}

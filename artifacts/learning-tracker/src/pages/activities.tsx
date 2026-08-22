@@ -46,6 +46,7 @@ import {
 } from "@/lib/activity-icons";
 import samuraiArmor from "@assets/samurai-weapons-armor/samurai-armor.png";
 import practiceHall from "@/assets/environments/optimized/activities-practice-hall.webp";
+import bambooScroll from "@/assets/patterns/bamboo-scroll-source.png";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -488,6 +489,12 @@ export default function Activities() {
             </div>
 
             <aside className="signal-surface relative overflow-hidden rounded-[2rem] border border-white/[.1] bg-[#0d1520]/88 p-5 shadow-[0_24px_70px_rgba(0,0,0,.2)] md:p-6">
+              <img
+                src={bambooScroll}
+                alt=""
+                aria-hidden="true"
+                className="panel-pattern-scroll panel-pattern-bamboo"
+              />
               <div className="relative z-10 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">
                 <Flame className="h-3.5 w-3.5" /> Week at a glance
               </div>

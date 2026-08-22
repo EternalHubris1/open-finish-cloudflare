@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useVisualEffects } from "@/components/visual-effects-provider";
+import mapleCloudScroll from "@/assets/patterns/maple-cloud-scroll-source.png";
 import {
   AlertTriangle,
   Calendar,
@@ -244,8 +245,14 @@ export default function Settings() {
         aria-labelledby="visual-effects-heading"
         className="signal-surface relative overflow-hidden rounded-[2rem] border border-[#ff8b7c]/15 bg-[#0c1119]/88 p-5 shadow-[0_20px_60px_rgba(0,0,0,.18)] md:p-6"
       >
+        <img
+          src={mapleCloudScroll}
+          alt=""
+          aria-hidden="true"
+          className="panel-pattern-scroll panel-pattern-maple"
+        />
         <div className="pointer-events-none absolute -right-12 -top-14 h-36 w-36 rounded-full bg-[#ff7868]/10 blur-3xl" />
-        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-start gap-4">
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#ff8b7c]/20 bg-[#ff7868]/10 text-[#ff9a89] shadow-[0_0_26px_rgba(255,111,97,.1)]">
               <Sparkles className="h-5 w-5" />

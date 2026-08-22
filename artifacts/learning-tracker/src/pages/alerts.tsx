@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import readingRoom from "@/assets/environments/optimized/cabinet-reading-room.webp";
+import chrysanthemumScroll from "@/assets/patterns/chrysanthemum-scroll-source.png";
 import { SessionNotes } from "./reflections";
 import { format, isBefore, startOfDay } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
@@ -568,6 +569,12 @@ export default function Cabinet() {
           </section>
 
           <section className="relative min-h-[18rem] overflow-hidden rounded-3xl border border-[#ffc268]/20 bg-[radial-gradient(circle_at_72%_25%,rgba(255,194,104,.17),transparent_34%),linear-gradient(145deg,rgba(59,40,32,.78),rgba(12,17,25,.98)_58%,rgba(32,55,53,.62))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] md:p-6">
+            <img
+              src={chrysanthemumScroll}
+              alt=""
+              aria-hidden="true"
+              className="panel-pattern-scroll panel-pattern-chrysanthemum"
+            />
             <div className="pointer-events-none absolute -right-9 -top-9 h-32 w-32 rounded-full bg-[#ffc268]/[.16] blur-3xl" />
             <div className="relative z-10 flex h-full max-w-[13rem] flex-col">
               <div className="flex items-center gap-2 text-[#ffe0a5]">
