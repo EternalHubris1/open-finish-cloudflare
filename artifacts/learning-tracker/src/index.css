@@ -1564,10 +1564,10 @@
 
   .dashboard-hero-musashi {
     position: absolute;
-    right: -1.5rem;
+    right: -2.75rem;
     top: 0.6rem;
     bottom: -1.4rem;
-    width: min(48%, 31rem);
+    width: min(57%, 36rem);
     pointer-events: none;
     opacity: 0.38;
     background-repeat: no-repeat;
@@ -1578,15 +1578,32 @@
     mask-image: linear-gradient(
       to left,
       rgba(0, 0, 0, 0.9),
-      rgba(0, 0, 0, 0.52) 56%,
+      rgba(0, 0, 0, 0.72) 28%,
+      rgba(0, 0, 0, 0.34) 58%,
       transparent 100%
     );
     -webkit-mask-image: linear-gradient(
       to left,
       rgba(0, 0, 0, 0.9),
-      rgba(0, 0, 0, 0.52) 56%,
+      rgba(0, 0, 0, 0.72) 28%,
+      rgba(0, 0, 0, 0.34) 58%,
       transparent 100%
     );
+  }
+
+  .dashboard-hero-portrait-seam {
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    bottom: 0;
+    left: 35%;
+    width: 35%;
+    pointer-events: none;
+    opacity: 0.8;
+    background:
+      linear-gradient(90deg, rgba(12, 17, 25, 0.36), transparent 46%),
+      linear-gradient(112deg, transparent 0%, rgba(255, 170, 136, 0.055) 48%, transparent 78%);
+    filter: blur(0.2px);
   }
 
   .dashboard-hero-breath {

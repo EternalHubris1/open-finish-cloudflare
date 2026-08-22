@@ -1352,6 +1352,7 @@ export default function DashboardV2() {
             aria-hidden="true"
             style={{ backgroundImage: `url(${musashi})` }}
           />
+          <div className="dashboard-hero-portrait-seam" aria-hidden="true" />
           <div className="dashboard-hero-breath" aria-hidden="true" />
           <div className="dashboard-hero-wind" aria-hidden="true" />
           <div
