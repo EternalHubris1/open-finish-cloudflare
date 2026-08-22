@@ -118,14 +118,14 @@ function DesktopRoute({
             alt=""
             aria-hidden="true"
             className={cn(
-              "pointer-events-none absolute inset-0 h-full w-full object-cover object-center transition-[opacity,transform] duration-300",
+              "pointer-events-none absolute inset-y-1 right-1 h-[calc(100%-0.5rem)] w-14 rounded-xl object-cover object-center transition-[opacity,transform] duration-300",
               active
-                ? "scale-[1.03] opacity-[.42]"
-                : "scale-100 opacity-[.18] group-hover:scale-[1.025] group-hover:opacity-[.3]",
+                ? "scale-[1.03] opacity-[.6]"
+                : "scale-100 opacity-0 group-hover:scale-[1.025] group-hover:opacity-[.34]",
             )}
           />
           <span
-            className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(7,10,15,.9)_0%,rgba(7,10,15,.72)_52%,rgba(7,10,15,.2)_100%)]"
+            className="pointer-events-none absolute inset-y-1 right-1 w-16 rounded-xl bg-[linear-gradient(90deg,rgba(8,12,18,.08),rgba(8,12,18,.58))]"
             aria-hidden="true"
           />
         </>
@@ -307,23 +307,6 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
                   : "border-transparent text-white/32",
               )}
             >
-              {route.scene && (
-                <>
-                  <img
-                    src={route.scene}
-                    alt=""
-                    aria-hidden="true"
-                    className={cn(
-                      "pointer-events-none absolute inset-0 h-full w-full object-cover object-center",
-                      active ? "opacity-[.34]" : "opacity-[.12]",
-                    )}
-                  />
-                  <span
-                    className="pointer-events-none absolute inset-0 bg-[#070a0f]/68"
-                    aria-hidden="true"
-                  />
-                </>
-              )}
               <Icon className="relative z-10 h-5 w-5" />
               <span className="relative z-10 max-w-full truncate">{route.label}</span>
               {active && (
@@ -366,31 +349,13 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
                   key={route.path}
                   href={route.path}
                   aria-current={active ? "page" : undefined}
-                                      className={cn(
-                      "sidebar-route relative isolate overflow-hidden flex items-center gap-3 rounded-2xl border px-3 py-2.5",
-
+                  className={cn(
+                      "sidebar-route flex items-center gap-3 rounded-2xl border px-3 py-2.5",
                     active
                       ? "border-[#ff7868]/16 bg-[#ff7868]/10 text-[#ff9a89]"
                       : "border-transparent text-white/55 hover:border-white/[.06] hover:bg-white/[.04] hover:text-white",
                   )}
                 >
-                  {route.scene && (
-                    <>
-                      <img
-                        src={route.scene}
-                        alt=""
-                        aria-hidden="true"
-                        className={cn(
-                          "pointer-events-none absolute inset-0 h-full w-full object-cover object-center",
-                          active ? "opacity-[.3]" : "opacity-[.14]",
-                        )}
-                      />
-                      <span
-                        className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(7,10,15,.86),rgba(7,10,15,.36))]"
-                        aria-hidden="true"
-                      />
-                    </>
-                  )}
                   <Icon className="relative z-10 h-4 w-4 shrink-0" />
                   <span className="relative z-10 min-w-0 flex-1">
                     <span className="block text-sm font-semibold">

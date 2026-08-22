@@ -430,9 +430,9 @@ export default function History() {
           src={zenGarden}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-30"
+          className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-48"
         />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.94),rgba(8,13,20,.7)_54%,rgba(8,13,20,.26))]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.88),rgba(8,13,20,.54)_54%,rgba(8,13,20,.12))]" />
         <div className="relative z-10">
           <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#ff8b7c]">
             <img

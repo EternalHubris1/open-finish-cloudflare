@@ -308,7 +308,7 @@ export default function Activities() {
       <section
         className="signal-surface relative min-h-[14.5rem] overflow-hidden rounded-[2rem] border border-white/[.11] p-5 shadow-[0_28px_80px_rgba(0,0,0,.28)] md:p-7"
         style={{
-          backgroundImage: `linear-gradient(100deg,rgba(10,16,26,.97)_0%,rgba(10,16,26,.9)_46%,rgba(20,14,23,.54)_100%), url(${practiceHall})`,
+          backgroundImage: `linear-gradient(100deg,rgba(10,16,26,.92)_0%,rgba(10,16,26,.76)_46%,rgba(20,14,23,.3)_100%), url(${practiceHall})`,
           backgroundPosition: "center",
           backgroundSize: "cover",
         }}
@@ -354,10 +354,9 @@ export default function Activities() {
                 This week
               </p>
               <p className="mt-1 text-lg font-semibold tabular-nums text-white">
-                {totalWeekMinutes}
-                <span className="ml-1 text-xs font-medium text-white/38">
-                  min
-                </span>
+                {totalWeekMinutes >= 60
+                  ? `${Math.floor(totalWeekMinutes / 60)}h ${totalWeekMinutes % 60}m`
+                  : `${totalWeekMinutes}m`}
               </p>
             </div>
             <Button
