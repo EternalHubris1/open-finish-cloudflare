@@ -1589,6 +1589,81 @@
     );
   }
 
+  .dashboard-hero-breath {
+    position: absolute;
+    right: -8%;
+    top: 6%;
+    bottom: 12%;
+    width: 53%;
+    pointer-events: none;
+    opacity: 0.54;
+    background:
+      radial-gradient(ellipse 38% 44% at 54% 47%, rgba(255, 146, 110, 0.16), transparent 72%),
+      radial-gradient(ellipse 48% 30% at 67% 72%, rgba(103, 190, 171, 0.08), transparent 76%);
+    filter: blur(18px);
+    animation: dashboard-hero-breath 9s ease-in-out infinite alternate;
+  }
+
+  .dashboard-hero-wind {
+    position: absolute;
+    right: -7%;
+    top: 12%;
+    bottom: 18%;
+    width: 56%;
+    pointer-events: none;
+    opacity: 0.28;
+    background: repeating-linear-gradient(
+      166deg,
+      transparent 0,
+      transparent 24px,
+      rgba(255, 220, 184, 0.08) 25px,
+      transparent 27px,
+      transparent 58px
+    );
+    filter: blur(0.4px);
+    mask-image: radial-gradient(ellipse 55% 62% at 62% 50%, black, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse 55% 62% at 62% 50%, black, transparent 78%);
+    animation: dashboard-hero-wind-pass 16s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate;
+  }
+
+  .dashboard-movement-orbit {
+    isolation: isolate;
+  }
+
+  .dashboard-movement-marks {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+  }
+
+  .dashboard-movement-mark {
+    position: absolute;
+    width: 0.38rem;
+    height: 0.38rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transform: translate(-50%, -50%);
+    transition: background-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+  }
+
+  .dashboard-movement-mark.is-active {
+    background: #ff8b7c;
+    border-color: rgba(255, 211, 201, 0.78);
+    box-shadow: 0 0 10px rgba(255, 120, 104, 0.7);
+  }
+
+  .dashboard-movement-mark.is-current {
+    transform: translate(-50%, -50%) scale(1.38);
+    box-shadow:
+      0 0 0 3px rgba(255, 139, 124, 0.16),
+      0 0 14px rgba(255, 120, 104, 0.85);
+  }
+
+  .dashboard-quick-returns {
+    animation: quiet-reveal 560ms 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
   .dashboard-hero-mountains {
     position: absolute;
     inset: auto -2% -1px;
@@ -1755,6 +1830,28 @@
 
   .dashboard-hero-focus {
     text-shadow: 0 0 30px rgba(255, 139, 124, 0.08);
+  }
+
+  @keyframes dashboard-hero-breath {
+    from {
+      opacity: 0.34;
+      transform: translate3d(-1.4%, 1%, 0) scale(0.98);
+    }
+    to {
+      opacity: 0.68;
+      transform: translate3d(1.8%, -1.2%, 0) scale(1.06);
+    }
+  }
+
+  @keyframes dashboard-hero-wind-pass {
+    from {
+      opacity: 0.12;
+      transform: translate3d(-3%, 1%, 0);
+    }
+    to {
+      opacity: 0.36;
+      transform: translate3d(3.2%, -1.4%, 0);
+    }
   }
 
   @keyframes samurai-clouds-drift {
@@ -2069,6 +2166,9 @@
     .dashboard-hero-ink,
     .dashboard-hero-clouds,
     .dashboard-hero-fog,
+    .dashboard-hero-breath,
+    .dashboard-hero-wind,
+    .dashboard-quick-returns,
     .dashboard-hero-orbit,
     .dashboard-hero-title,
     .daily-dojo-gate-panel,
