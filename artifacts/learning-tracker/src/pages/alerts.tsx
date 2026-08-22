@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import readingRoom from "@/assets/environments/optimized/cabinet-reading-room.webp";
 import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
 import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
+import seatedSamuraiSignal from "@/assets/icons/seated-samurai-signal.png";
 import { SessionNotes } from "./reflections";
 import { SessionRecordsPanel } from "@/components/session-records-panel";
 import { format, isBefore, startOfDay } from "date-fns";
@@ -331,13 +332,21 @@ export default function Cabinet() {
           alt=""
           aria-hidden="true"
           className="room-motif-image pointer-events-none absolute inset-y-0 right-0 hidden h-full w-[48%] select-none object-cover object-center md:block"
-          style={{ opacity: 0.72, filter: "brightness(1.18) contrast(0.98) saturate(0.94)" }}
+          style={{
+            opacity: 0.72,
+            filter: "brightness(1.18) contrast(0.98) saturate(0.94)",
+          }}
         />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.72)_0%,rgba(8,13,20,.28)_54%,rgba(8,13,20,.04)_100%)]" />
         <div className="relative z-10 flex flex-col gap-6 md:pr-52 lg:pr-64">
           <div>
             <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]">
-              <ScrollText className="h-4 w-4" aria-hidden="true" />
+              <img
+                src={seatedSamuraiSignal}
+                alt=""
+                aria-hidden="true"
+                className="h-8 w-8 shrink-0 object-contain opacity-88 grayscale brightness-[2.1] contrast-[.72] drop-shadow-[0_0_10px_rgba(255,177,167,.14)]"
+              />
               Cabinet · quiet records
             </div>
             <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
@@ -372,10 +381,9 @@ export default function Cabinet() {
             </Button>
           </div>
         </div>
-            </header>
+      </header>
 
       <section className="grid gap-5 lg:grid-cols-[minmax(0,1.42fr)_minmax(18rem,.78fr)]">
-
         <div className="signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
           <div className="relative isolate overflow-hidden flex items-start justify-between gap-4 border-b border-white/[.06] p-6 md:p-7">
             <div className="relative z-10">
@@ -603,8 +611,12 @@ export default function Cabinet() {
                     const content = (
                       <>
                         <Link2 className="h-3.5 w-3.5 shrink-0 text-[#ffe0a5]/75" />
-                        <span className="min-w-0 flex-1 truncate">{item.title}</span>
-                        {item.url && <ExternalLink className="h-3 w-3 shrink-0 opacity-55" />}
+                        <span className="min-w-0 flex-1 truncate">
+                          {item.title}
+                        </span>
+                        {item.url && (
+                          <ExternalLink className="h-3 w-3 shrink-0 opacity-55" />
+                        )}
                       </>
                     );
                     return item.url ? (
@@ -629,8 +641,8 @@ export default function Cabinet() {
                 </div>
               ) : (
                 <p className="mt-3 text-xs leading-5 text-white/52">
-                  Save an important link, reference, or quiet note without turning
-                  it into a task.
+                  Save an important link, reference, or quiet note without
+                  turning it into a task.
                 </p>
               )}
               <Button
@@ -756,8 +768,6 @@ export default function Cabinet() {
         </div>
       </section>
 
-      <SessionRecordsPanel />
-
       <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
         <img
           src={verticalOrnament}
@@ -780,6 +790,8 @@ export default function Cabinet() {
       </section>
 
       <SessionNotes embedded />
+
+      <SessionRecordsPanel />
 
       <Dialog
         open={dialog === "reminder"}

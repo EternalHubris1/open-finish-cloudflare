@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import templePath from "@/assets/environments/optimized/streaks-temple-path.webp";
+import katanaVerticalSignal from "@/assets/icons/katana-vertical-signal.png";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DailyActivityChart,
@@ -147,7 +148,13 @@ export default function Streaks() {
         <div className="room-motif-overlay pointer-events-none absolute inset-0" />
         <div className="relative z-10">
           <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-red-400">
-            <Flame className="h-4 w-4" /> Independent momentum
+            <img
+              src={katanaVerticalSignal}
+              alt=""
+              aria-hidden="true"
+              className="h-8 w-8 shrink-0 object-contain opacity-90 grayscale brightness-[1.8] contrast-[.72] drop-shadow-[0_0_10px_rgba(255,139,124,.16)]"
+            />
+            Independent momentum
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
             Streaks
@@ -232,14 +239,19 @@ export default function Streaks() {
                 return week.filter((day) => day.minutes > 0).length;
               },
             );
-            const activeWeeks = weeklyRhythm.filter((count) => count > 0).length;
+            const activeWeeks = weeklyRhythm.filter(
+              (count) => count > 0,
+            ).length;
             const lastReturn = [...days]
               .reverse()
               .find((day) => day.minutes > 0);
             const returnGap = lastReturn
               ? Math.max(
                   0,
-                  differenceInCalendarDays(new Date(), parseISO(lastReturn.date)),
+                  differenceInCalendarDays(
+                    new Date(),
+                    parseISO(lastReturn.date),
+                  ),
                 )
               : null;
             const returnLabel =
@@ -384,7 +396,10 @@ export default function Streaks() {
                       </div>
 
                       <div className="mt-4 rounded-2xl border border-white/[.06] bg-black/[.1] p-3.5 sm:p-4">
-                        <DailyActivityChart days={days} color={activity.color} />
+                        <DailyActivityChart
+                          days={days}
+                          color={activity.color}
+                        />
                       </div>
 
                       <div className="mt-3 flex justify-end">

@@ -35,7 +35,15 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarDays, Clock3, Pencil, Search, Trash2 } from "lucide-react";
+import {
+  CalendarDays,
+  ChevronDown,
+  Clock3,
+  Pencil,
+  Search,
+  Trash2,
+} from "lucide-react";
+import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
 import { moscowOperationalDate } from "@/lib/operational-date";
 
 type RecordFilter = "all" | "practice" | "sport" | "friction";
@@ -60,7 +68,12 @@ function recordDate(logDate: string) {
 }
 
 export function SessionRecordsPanel() {
-  const { data: records = [], isLoading, isError, refetch } = useListLogRecords();
+  const {
+    data: records = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useListLogRecords();
   const updateRecord = useUpdateLogRecord();
   const deleteLog = useDeleteLog();
   const queryClient = useQueryClient();
@@ -70,6 +83,7 @@ export function SessionRecordsPanel() {
   const [filter, setFilter] = useState<RecordFilter>("all");
   const [editing, setEditing] = useState<CalendarLogEntry | null>(null);
   const [deleting, setDeleting] = useState<CalendarLogEntry | null>(null);
+  const [expandedRecordId, setExpandedRecordId] = useState<number | null>(null);
   const [durationMinutes, setDurationMinutes] = useState("");
   const [logDate, setLogDate] = useState("");
   const [notes, setNotes] = useState("");
@@ -88,11 +102,15 @@ export function SessionRecordsPanel() {
   }, [filter, records, search]);
 
   const invalidateSessionViews = () => {
-    void queryClient.invalidateQueries({ queryKey: getListLogRecordsQueryKey() });
+    void queryClient.invalidateQueries({
+      queryKey: getListLogRecordsQueryKey(),
+    });
     void queryClient.invalidateQueries({ queryKey: getGetDashboardQueryKey() });
     void queryClient.invalidateQueries({ queryKey: getGetCalendarQueryKey() });
     void queryClient.invalidateQueries({ queryKey: getListStreaksQueryKey() });
-    void queryClient.invalidateQueries({ queryKey: getGetWeeklyProgressQueryKey() });
+    void queryClient.invalidateQueries({
+      queryKey: getGetWeeklyProgressQueryKey(),
+    });
   };
 
   const openEditor = (record: CalendarLogEntry) => {
@@ -171,141 +189,225 @@ export function SessionRecordsPanel() {
   };
 
   return (
-    <section className="signal-surface rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-5 shadow-[0_18px_55px_rgba(0,0,0,.18)] md:p-7">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">
-            Record stewardship
-          </p>
-          <h2 className="mt-2 text-2xl font-bold text-white">Session records</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-white/42">
-            Correct an accidental duration, date, or note. Deleting stays behind a
-            confirmation so an old return is never removed by a stray click.
-          </p>
-        </div>
-        <span className="rounded-full border border-white/[.08] bg-white/[.035] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.14em] text-white/42">
-          {filteredRecords.length} shown
-        </span>
-      </div>
-
-      <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-white/[.07] bg-black/[.14] p-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-wrap gap-2" aria-label="Filter session records">
-          {FILTERS.map((item) => (
-            <button
-              key={item.value}
-              type="button"
-              onClick={() => setFilter(item.value)}
-              className={`signal-button rounded-xl border px-3 py-2 text-[9px] font-bold uppercase tracking-[.13em] transition-colors ${
-                filter === item.value
-                  ? "border-[#72c6b3]/35 bg-[#72c6b3]/[.11] text-[#a9ead8]"
-                  : "border-white/[.07] bg-white/[.02] text-white/42 hover:border-white/[.16] hover:text-white/75"
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-        <label className="flex h-10 min-w-0 items-center gap-2 rounded-xl border border-white/[.08] bg-[#090d14]/85 px-3 text-white/45 lg:w-72">
-          <Search className="h-4 w-4 shrink-0" aria-hidden="true" />
-          <Input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Find a record"
-            className="h-auto border-0 bg-transparent p-0 text-xs text-white placeholder:text-white/28 focus-visible:ring-0"
-          />
-        </label>
-      </div>
-
-      <div className="mt-4 space-y-2">
-        {isLoading ? (
-          Array.from({ length: 4 }, (_, index) => (
-            <Skeleton key={index} className="h-20 rounded-2xl bg-white/[.045]" />
-          ))
-        ) : isError ? (
-          <div className="rounded-2xl border border-[#ff8b7c]/20 bg-[#ff8b7c]/[.05] px-4 py-5 text-center">
-            <p className="text-sm font-medium text-white/76">Records could not be opened.</p>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => void refetch()}
-              className="mt-3 rounded-xl border-white/[.12] text-[9px] font-bold uppercase tracking-[.14em] text-white/72 hover:bg-white/[.06]"
-            >
-              Try again
-            </Button>
+    <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-5 shadow-[0_18px_55px_rgba(0,0,0,.18)] md:p-7">
+      <img
+        src={verticalOrnament}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute right-14 top-1/2 h-[28rem] max-h-[118%] w-auto -translate-y-1/2 select-none opacity-[.3] brightness-[1.14] saturate-[.82]"
+      />
+      <div className="relative z-10">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">
+              Record stewardship
+            </p>
+            <h2 className="mt-2 text-2xl font-bold text-white">
+              Session records
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/42">
+              Correct an accidental duration, date, or note. Deleting stays
+              behind a confirmation so an old return is never removed by a stray
+              click.
+            </p>
           </div>
-        ) : filteredRecords.length ? (
-          filteredRecords.map((record) => (
-            <article
-              key={record.id}
-              className="group flex flex-col gap-3 rounded-2xl border border-white/[.07] bg-white/[.018] p-4 transition-colors hover:border-white/[.14] hover:bg-white/[.03] md:flex-row md:items-center"
-            >
-              <span
-                className="h-9 w-1 shrink-0 rounded-full"
-                style={{ backgroundColor: record.activityColor }}
-                aria-hidden="true"
+          <span className="rounded-full border border-white/[.08] bg-white/[.035] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.14em] text-white/42">
+            {filteredRecords.length} shown
+          </span>
+        </div>
+
+        <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-white/[.07] bg-black/[.14] p-3 lg:flex-row lg:items-center lg:justify-between">
+          <div
+            className="flex flex-wrap gap-2"
+            aria-label="Filter session records"
+          >
+            {FILTERS.map((item) => (
+              <button
+                key={item.value}
+                type="button"
+                onClick={() => setFilter(item.value)}
+                className={`signal-button rounded-xl border px-3 py-2 text-[9px] font-bold uppercase tracking-[.13em] transition-colors ${
+                  filter === item.value
+                    ? "border-[#72c6b3]/35 bg-[#72c6b3]/[.11] text-[#a9ead8]"
+                    : "border-white/[.07] bg-white/[.02] text-white/42 hover:border-white/[.16] hover:text-white/75"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+          <label className="flex h-10 min-w-0 items-center gap-2 rounded-xl border border-white/[.08] bg-[#090d14]/85 px-3 text-white/45 lg:w-72">
+            <Search className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Find a record"
+              className="h-auto border-0 bg-transparent p-0 text-xs text-white placeholder:text-white/28 focus-visible:ring-0"
+            />
+          </label>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          {isLoading ? (
+            Array.from({ length: 4 }, (_, index) => (
+              <Skeleton
+                key={index}
+                className="h-20 rounded-2xl bg-white/[.045]"
               />
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <p className="truncate text-sm font-semibold text-white">{record.activityName}</p>
-                  <span className="text-[9px] font-bold uppercase tracking-[.13em] text-white/35">
-                    {record.activityType}
-                  </span>
-                </div>
-                <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-medium text-white/45">
-                  <span className="inline-flex items-center gap-1.5">
-                    <CalendarDays className="h-3.5 w-3.5" /> {recordDate(record.logDate)}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Clock3 className="h-3.5 w-3.5" /> {formatDuration(record.durationMinutes)}
-                  </span>
-                </div>
-                {record.notes && (
-                  <p className="mt-2 line-clamp-1 text-xs leading-5 text-white/38">{record.notes}</p>
-                )}
-              </div>
-              <div className="flex shrink-0 items-center gap-2 self-end md:self-auto">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => openEditor(record)}
-                  className="signal-button h-9 gap-1.5 rounded-xl border-white/[.1] bg-white/[.025] px-3 text-[9px] font-bold uppercase tracking-[.12em] text-white/68 hover:border-[#72c6b3]/30 hover:bg-[#72c6b3]/[.08] hover:text-[#b8f2df]"
+            ))
+          ) : isError ? (
+            <div className="rounded-2xl border border-[#ff8b7c]/20 bg-[#ff8b7c]/[.05] px-4 py-5 text-center">
+              <p className="text-sm font-medium text-white/76">
+                Records could not be opened.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => void refetch()}
+                className="mt-3 rounded-xl border-white/[.12] text-[9px] font-bold uppercase tracking-[.14em] text-white/72 hover:bg-white/[.06]"
+              >
+                Try again
+              </Button>
+            </div>
+          ) : filteredRecords.length ? (
+            filteredRecords.map((record) => {
+              const isExpanded = expandedRecordId === record.id;
+              const detailId = `session-record-${record.id}`;
+
+              return (
+                <article
+                  key={record.id}
+                  className="overflow-hidden rounded-2xl border border-white/[.07] bg-white/[.018] transition-[border-color,background-color] duration-150 hover:border-white/[.14] hover:bg-white/[.03]"
                 >
-                  <Pencil className="h-3.5 w-3.5" /> Edit
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setDeleting(record)}
-                  className="signal-button h-9 w-9 rounded-xl text-white/32 hover:bg-[#ff8b7c]/[.08] hover:text-[#ff9a89]"
-                  aria-label={`Delete ${record.activityName} record from ${recordDate(record.logDate)}`}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </article>
-          ))
-        ) : (
-          <div className="rounded-2xl border border-dashed border-white/[.1] bg-white/[.018] px-5 py-9 text-center">
-            <p className="text-sm font-medium text-white/66">No session records match this view.</p>
-            <p className="mt-2 text-xs text-white/36">Try another filter or search term.</p>
-          </div>
-        )}
+                  <button
+                    type="button"
+                    aria-expanded={isExpanded}
+                    aria-controls={detailId}
+                    onClick={() =>
+                      setExpandedRecordId((current) =>
+                        current === record.id ? null : record.id,
+                      )
+                    }
+                    className="group flex w-full items-center gap-3 p-3.5 text-left transition-colors duration-150 hover:bg-white/[.025] active:scale-[.995] sm:p-4"
+                  >
+                    <span
+                      className="h-10 w-1 shrink-0 rounded-full shadow-[0_0_12px_currentColor]"
+                      style={{
+                        backgroundColor: record.activityColor,
+                        color: record.activityColor,
+                      }}
+                      aria-hidden="true"
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span className="truncate text-sm font-semibold text-white">
+                          {record.activityName}
+                        </span>
+                        <span className="text-[8px] font-bold uppercase tracking-[.13em] text-white/35">
+                          {record.activityType}
+                        </span>
+                      </span>
+                      <span className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-medium text-white/45">
+                        <span className="inline-flex items-center gap-1.5">
+                          <CalendarDays className="h-3.5 w-3.5" />{" "}
+                          {recordDate(record.logDate)}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 sm:hidden">
+                          <Clock3 className="h-3.5 w-3.5" />{" "}
+                          {formatDuration(record.durationMinutes)}
+                        </span>
+                      </span>
+                    </span>
+                    <span className="flex shrink-0 items-center gap-2">
+                      <strong className="hidden text-sm font-semibold tabular-nums text-white/85 sm:block">
+                        {formatDuration(record.durationMinutes)}
+                      </strong>
+                      <span className="grid h-8 w-8 place-items-center rounded-xl border border-white/[.08] bg-white/[.025] text-white/42 transition-[background-color,transform,color] duration-150 group-hover:bg-white/[.08] group-hover:text-white/82">
+                        <ChevronDown
+                          className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                        />
+                      </span>
+                    </span>
+                  </button>
+
+                  <div
+                    id={detailId}
+                    aria-hidden={!isExpanded}
+                    className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out ${isExpanded ? "grid-rows-[1fr] opacity-100" : "pointer-events-none grid-rows-[0fr] opacity-0"}`}
+                  >
+                    <div className="min-h-0 overflow-hidden">
+                      <div className="flex flex-col gap-4 border-t border-white/[.07] bg-black/[.1] px-4 py-4 sm:flex-row sm:items-end sm:justify-between">
+                        <div className="min-w-0">
+                          <p className="text-[8px] font-bold uppercase tracking-[.15em] text-[#72c6b3]/72">
+                            Session note
+                          </p>
+                          <p className="mt-1.5 max-w-2xl text-xs leading-5 text-white/48">
+                            {record.notes || "No note stored for this return."}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openEditor(record)}
+                            className="signal-button h-9 gap-1.5 rounded-xl border-white/[.1] bg-white/[.025] px-3 text-[9px] font-bold uppercase tracking-[.12em] text-white/68 hover:border-[#72c6b3]/30 hover:bg-[#72c6b3]/[.08] hover:text-[#b8f2df]"
+                          >
+                            <Pencil className="h-3.5 w-3.5" /> Edit
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeleting(record)}
+                            className="signal-button h-9 w-9 rounded-xl text-white/32 hover:bg-[#ff8b7c]/[.08] hover:text-[#ff9a89]"
+                            aria-label={`Delete ${record.activityName} record from ${recordDate(record.logDate)}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              );
+            })
+          ) : (
+            <div className="rounded-2xl border border-dashed border-white/[.1] bg-white/[.018] px-5 py-9 text-center">
+              <p className="text-sm font-medium text-white/66">
+                No session records match this view.
+              </p>
+              <p className="mt-2 text-xs text-white/36">
+                Try another filter or search term.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
-      <Dialog open={Boolean(editing)} onOpenChange={(open) => !open && setEditing(null)}>
+      <Dialog
+        open={Boolean(editing)}
+        onOpenChange={(open) => !open && setEditing(null)}
+      >
         <DialogContent className="max-w-xl rounded-3xl border-white/10 bg-[#090d14] p-7 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-white">Edit session record</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-white">
+              Edit session record
+            </DialogTitle>
             <DialogDescription className="text-sm leading-6 text-white/42">
-              Update the factual record only. Reflections attached to the session stay intact.
+              Update the factual record only. Reflections attached to the
+              session stay intact.
             </DialogDescription>
           </DialogHeader>
           <form className="mt-6 space-y-5" onSubmit={saveRecord}>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="record-duration" className="text-xs text-white/68">Duration in minutes</Label>
+                <Label
+                  htmlFor="record-duration"
+                  className="text-xs text-white/68"
+                >
+                  Duration in minutes
+                </Label>
                 <Input
                   id="record-duration"
                   type="number"
@@ -316,7 +418,9 @@ export function SessionRecordsPanel() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="record-date" className="text-xs text-white/68">Operational date</Label>
+                <Label htmlFor="record-date" className="text-xs text-white/68">
+                  Operational date
+                </Label>
                 <Input
                   id="record-date"
                   type="date"
@@ -328,7 +432,9 @@ export function SessionRecordsPanel() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="record-notes" className="text-xs text-white/68">Session note</Label>
+              <Label htmlFor="record-notes" className="text-xs text-white/68">
+                Session note
+              </Label>
               <Textarea
                 id="record-notes"
                 value={notes}
@@ -358,10 +464,15 @@ export function SessionRecordsPanel() {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={Boolean(deleting)} onOpenChange={(open) => !open && setDeleting(null)}>
+      <AlertDialog
+        open={Boolean(deleting)}
+        onOpenChange={(open) => !open && setDeleting(null)}
+      >
         <AlertDialogContent className="rounded-3xl border-white/10 bg-[#090d14] p-7 shadow-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-2xl font-bold text-[#ff9a89]">Delete session record?</AlertDialogTitle>
+            <AlertDialogTitle className="text-2xl font-bold text-[#ff9a89]">
+              Delete session record?
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-sm leading-6 text-white/45">
               {deleting
                 ? `${deleting.activityName} · ${recordDate(deleting.logDate)} · ${formatDuration(deleting.durationMinutes)} will be removed permanently.`
