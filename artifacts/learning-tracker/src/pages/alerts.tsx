@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import readingRoom from "@/assets/environments/optimized/cabinet-reading-room.webp";
 import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
+import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
 import { SessionNotes } from "./reflections";
 import { format, isBefore, startOfDay } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
@@ -748,8 +749,14 @@ export default function Cabinet() {
         </div>
       </section>
 
-      <section className="signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
-        <div className="border-b border-white/[.06] p-6 md:p-7">
+      <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
+        <img
+          src={verticalOrnament}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-7 top-1/2 h-[15rem] max-h-[170%] w-auto -translate-y-1/2 select-none opacity-[.16] brightness-[1.12] saturate-[.72]"
+        />
+        <div className="relative z-10 border-b border-white/[.06] p-6 md:p-7">
           <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ff9a89]">
             Session traces
           </p>

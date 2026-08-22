@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
 
 function includesQuery(
   entry: {
@@ -293,12 +294,18 @@ export function SessionNotes({ embedded = false }: { embedded?: boolean }) {
           ))}
         </div>
       ) : (
-        <section className="signal-surface rounded-[2rem] border border-dashed border-white/15 bg-[#0c1119]/80 p-12 text-center">
-          <BookOpenText className="mx-auto h-9 w-9 text-white/20" />
-          <h2 className="mt-4 text-xl font-semibold text-white">
+        <section className="signal-surface relative isolate overflow-hidden rounded-[2rem] border border-dashed border-white/15 bg-[#0c1119]/80 p-12 text-center">
+          <img
+            src={verticalOrnament}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-8 top-1/2 h-[19rem] max-h-[145%] w-auto -translate-y-1/2 select-none opacity-[.15] brightness-[1.1] saturate-[.72]"
+          />
+          <BookOpenText className="relative z-10 mx-auto h-9 w-9 text-white/20" />
+          <h2 className="relative z-10 mt-4 text-xl font-semibold text-white">
             {hasFilters ? "No notes match this view" : "No session notes yet"}
           </h2>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-white/45">
+          <p className="relative z-10 mx-auto mt-3 max-w-md text-sm leading-7 text-white/45">
             {hasFilters
               ? "Try clearing the search or direction filter."
               : "After a session, leave a short note only when it will make the next return lighter."}
@@ -306,7 +313,7 @@ export function SessionNotes({ embedded = false }: { embedded?: boolean }) {
           {!hasFilters && (
             <Link
               href="/"
-              className="mt-6 inline-flex h-10 items-center gap-2 rounded-full bg-[#e95448] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white transition-colors hover:bg-[#f26456]"
+              className="relative z-10 mt-6 inline-flex h-10 items-center gap-2 rounded-full bg-[#e95448] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white transition-colors hover:bg-[#f26456]"
             >
               Open dashboard <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
