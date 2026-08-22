@@ -1352,12 +1352,7 @@ export default function DashboardV2() {
           <div className="relative z-10 grid items-center gap-7 sm:gap-10 lg:grid-cols-[1fr_.58fr]">
             <div>
               <div
-                className={`mb-6 flex items-center gap-3 pr-28 text-[10px] font-bold uppercase tracking-[.26em] ${light ? "text-[#91463f]" : "text-[#ff9a89]"}`}
-              >
-                <Radio className="h-3.5 w-3.5" /> {momentumStatus(momentum)}
-              </div>
-              <p
-                className={`mb-3 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.2em] ${light ? "text-black/40" : "text-white/35"}`}
+                className={`mb-5 flex items-center gap-3 pr-28 text-[10px] font-bold uppercase tracking-[.22em] ${light ? "text-[#91463f]" : "text-[#ff9a89]"}`}
               >
                 <img
                   src={samuraiArmorEmblem}
@@ -1365,8 +1360,12 @@ export default function DashboardV2() {
                   aria-hidden="true"
                   className="h-7 w-7 shrink-0 object-contain opacity-80 grayscale brightness-[1.9] contrast-[.72] drop-shadow-[0_0_9px_rgba(255,139,124,.16)]"
                 />
-                <Target className="h-3 w-3" /> Your working line
-              </p>
+                <span>{momentumStatus(momentum)}</span>
+                <span className={light ? "text-black/28" : "text-white/24"}>·</span>
+                <span className={light ? "text-black/40" : "text-white/35"}>
+                  Your working line
+                </span>
+              </div>
               <h1
                 className={`dashboard-hero-title max-w-3xl text-[2.45rem] font-semibold leading-[.98] tracking-[-.045em] sm:text-6xl lg:text-7xl ${light ? "text-[#181719]" : "text-white"}`}
               >
