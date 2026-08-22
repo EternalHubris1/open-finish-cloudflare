@@ -2671,3 +2671,24 @@
     opacity: 0.16;
   }
 }
+
+/* Shared room-motif treatment: one calibrated contrast range across page surfaces. */
+.room-motif-image {
+  opacity: 0.42;
+  filter: brightness(0.98) contrast(0.88) saturate(0.78);
+}
+
+.room-motif-overlay {
+  background: linear-gradient(
+    90deg,
+    rgba(8, 13, 20, 0.86) 0%,
+    rgba(8, 13, 20, 0.5) 54%,
+    rgba(8, 13, 20, 0.14) 100%
+  );
+}
+
+@media (max-width: 639px) {
+  .room-motif-image {
+    opacity: 0.3;
+  }
+}

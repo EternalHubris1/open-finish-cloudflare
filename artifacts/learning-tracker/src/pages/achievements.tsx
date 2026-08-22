@@ -398,9 +398,9 @@ export default function Achievements() {
           src={zenGarden}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-[.24]"
+          className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center"
         />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(12,17,25,.84),rgba(12,17,25,.46),rgba(12,17,25,.78))]" />
+        <div className="room-motif-overlay pointer-events-none absolute inset-0" />
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between relative z-10">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-widest text-white/45">

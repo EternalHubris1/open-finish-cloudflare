@@ -305,14 +305,14 @@ export default function Activities() {
 
   return (
     <div className="relative z-10 mx-auto min-h-screen max-w-7xl space-y-6 px-4 py-6 pb-28 md:p-8 md:pb-20 animate-slide-up">
-      <section
-        className="signal-surface relative min-h-[14.5rem] overflow-hidden rounded-[2rem] border border-white/[.11] p-5 shadow-[0_28px_80px_rgba(0,0,0,.28)] md:p-7"
-        style={{
-          backgroundImage: `linear-gradient(100deg,rgba(10,16,26,.92)_0%,rgba(10,16,26,.76)_46%,rgba(20,14,23,.3)_100%), url(${practiceHall})`,
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-        }}
-      >
+      <section className="signal-surface relative min-h-[14.5rem] overflow-hidden rounded-[2rem] border border-white/[.11] bg-[#0a1019]/92 p-5 shadow-[0_28px_80px_rgba(0,0,0,.28)] md:p-7">
+        <img
+          src={practiceHall}
+          alt=""
+          aria-hidden="true"
+          className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center"
+        />
+        <div className="room-motif-overlay pointer-events-none absolute inset-0" />
         <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#ff7868]/10 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 left-[38%] h-48 w-72 rounded-full bg-[#72c6b3]/[.06] blur-3xl" />
         <div
@@ -396,6 +396,13 @@ export default function Activities() {
         <>
           <section className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(19rem,.8fr)]">
             <div className="signal-surface relative overflow-hidden rounded-[2rem] border border-white/[.1] bg-[#0d1520]/88 p-5 shadow-[0_24px_70px_rgba(0,0,0,.2)] md:p-6">
+              <img
+                src={practiceHall}
+                alt=""
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-right opacity-[.14]"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(13,21,32,.92),rgba(13,21,32,.68),rgba(13,21,32,.86))]" />
               <div className="relative z-10 flex items-center justify-between gap-4">
                 <div>
                   <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffb1a7]">

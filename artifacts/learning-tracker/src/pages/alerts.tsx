@@ -324,9 +324,9 @@ export default function Cabinet() {
           src={armoryRoom}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-0 hidden h-full w-[48%] select-none object-cover object-left opacity-42 md:block"
+          className="room-motif-image pointer-events-none absolute inset-y-0 right-0 hidden h-full w-[48%] select-none object-cover object-left md:block"
         />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-[62%] bg-[linear-gradient(90deg,rgba(10,15,23,.1),rgba(10,15,23,.54))]" />
+        <div className="room-motif-overlay pointer-events-none absolute inset-0" />
         <div className="relative z-10 flex flex-col gap-6 md:pr-52 lg:pr-64">
           <div>
             <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]">

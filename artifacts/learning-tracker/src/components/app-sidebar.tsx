@@ -111,33 +111,38 @@ function DesktopRoute({
       )}
       data-testid={`nav-${route.label.toLowerCase()}`}
     >
-      {route.scene && (
-        <>
+      {route.scene ? (
+        <span
+          className={cn(
+            "relative z-10 h-9 w-12 shrink-0 overflow-hidden rounded-xl border transition-[border-color,box-shadow] duration-200",
+            active
+              ? "border-[#ff8b7c]/42 shadow-[0_0_18px_rgba(255,111,97,.16)]"
+              : "border-white/[.09] group-hover:border-[#ffb1a7]/26",
+          )}
+        >
           <img
             src={route.scene}
             alt=""
             aria-hidden="true"
-            className={cn(
-              "pointer-events-none absolute inset-y-1 right-1 h-[calc(100%-0.5rem)] w-14 rounded-xl object-cover object-center transition-[opacity,transform] duration-300",
-              active
-                ? "scale-[1.03] opacity-[.6]"
-                : "scale-100 opacity-0 group-hover:scale-[1.025] group-hover:opacity-[.34]",
-            )}
+            className="h-full w-full object-cover object-center opacity-82"
           />
           <span
-            className="pointer-events-none absolute inset-y-1 right-1 w-16 rounded-xl bg-[linear-gradient(90deg,rgba(8,12,18,.08),rgba(8,12,18,.58))]"
+            className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(7,10,15,.08),rgba(7,10,15,.58))]"
             aria-hidden="true"
           />
-        </>
+        </span>
+      ) : (
+        <span
+          className={cn(
+            "relative z-10 grid h-8 w-8 shrink-0 place-items-center rounded-xl border transition-[color,background-color,border-color] duration-200",
+            active
+              ? "border-[#ff7868]/45 bg-[#ff7868]/18 text-[#ffb1a7]"
+              : "border-white/[.08] bg-white/[.035] text-white/48 group-hover:border-[#ffb1a7]/22 group-hover:text-white/85",
+          )}
+        >
+          <Icon className="h-4 w-4" />
+        </span>
       )}
-      <span
-        className={cn(
-          "relative z-10 grid h-7 w-7 shrink-0 place-items-center transition-colors duration-200",
-          active ? "text-[#ffb1a7]" : "text-white/48 group-hover:text-white/85",
-        )}
-      >
-        <Icon className="h-4 w-4" />
-      </span>
       <span className="relative z-10 min-w-0 flex-1">
         <span className="block truncate text-[13px] font-semibold tracking-[-.01em]">
           {route.label}
