@@ -58,7 +58,7 @@ The command serves the SPA and the API on one local URL. The unauthenticated end
 
 ## First Cloudflare deployment
 
-Configure the three production secrets in the Cloudflare Worker dashboard. `ADMIN_USERNAME` is optional and defaults to `Admin` through `wrangler.jsonc`. For `DATABASE_URL`, use Neon's pooled connection string for `open_finish_recovery`; `SESSION_SECRET` should be independent and high-entropy. Do **not** put any secret in the repository.
+Configure the three production secrets in the Cloudflare Worker dashboard. The application uses a password-only private workspace gate; no `ADMIN_USERNAME` variable is required. For `DATABASE_URL`, use Neon's pooled connection string for the intended production database; `SESSION_SECRET` should be independent and high-entropy. Do **not** put any secret in the repository.
 
 ```bash
 npx wrangler secret put ADMIN_PASSWORD
@@ -102,10 +102,10 @@ Use [`docs/operations/release-runbook.md`](docs/operations/release-runbook.md) f
 
 ## Important operational notes
 
-The `HYPERDRIVE` binding must be attached before protected API routes can access data. Each Worker request receives a Drizzle client backed by Hyperdrive, while the existing Node-oriented migration scripts continue to use `DATABASE_URL` when explicitly run outside Workers.
+Protected API routes use a request-scoped Neon serverless connection derived from the `DATABASE_URL` Worker secret. No Hyperdrive binding is required by the current Worker runtime; existing Node-oriented migration scripts also use `DATABASE_URL` when explicitly run outside Workers.
 
 The original app used Pino HTTP logging, which is not compatible with the Workers runtime in this dependency combination. The API therefore writes structured, cookie-free request logs through the Workers console. Authentication cookies remain `httpOnly`, `secure` in production, and `sameSite=strict`.
 
 ## References
 
-The implementation follows Cloudflare's official guidance for [Express on Workers](https://developers.cloudflare.com/workers/tutorials/deploy-an-express-app/), [Drizzle ORM with Hyperdrive](https://developers.cloudflare.com/hyperdrive/examples/connect-to-postgres/postgres-drivers-and-libraries/drizzle-orm/), [Worker static assets](https://developers.cloudflare.com/workers/static-assets/), and [Worker environment variables and secrets](https://developers.cloudflare.com/workers/configuration/environment-variables/).
+The implementation follows Cloudflare's official guidance for [Express on Workers](https://developers.cloudflare.com/workers/tutorials/deploy-an-express-app/), [Worker static assets](https://developers.cloudflare.com/workers/static-assets/), and [Worker environment variables and secrets](https://developers.cloudflare.com/workers/configuration/environment-variables/).

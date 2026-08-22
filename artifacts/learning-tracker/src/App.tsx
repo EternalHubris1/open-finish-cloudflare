@@ -31,9 +31,6 @@ const History = lazy(() => import("@/pages/history"));
 const Cabinet = lazy(() => import("@/pages/alerts"));
 const Settings = lazy(() => import("@/pages/profile"));
 const Streaks = lazy(() => import("@/pages/streaks"));
-const DashboardExploration = lazy(
-  () => import("@/pages/dashboard-exploration"),
-);
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 type SessionStatus = {
@@ -93,7 +90,7 @@ function LoginScreen({ onAuthenticated }: { onAuthenticated: () => void }) {
           <LockKeyhole className="h-5 w-5" />
         </div>
         <p className="mt-7 text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">
-          Open Finish · private workspace
+          Eternal Dodjo · private workspace
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-[-.04em] text-white">
           Continue your line.
@@ -276,21 +273,6 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
               <Route path="/alerts" component={Cabinet} />
               <Route path="/settings" component={Settings} />
               <Route path="/profile" component={Settings} />
-              <Route path="/explore/dashboard-a">
-                {() => <DashboardExploration concept="a" />}
-              </Route>
-              <Route path="/explore/dashboard-b">
-                {() => <DashboardExploration concept="b" />}
-              </Route>
-              <Route path="/explore/dashboard-c">
-                {() => <DashboardExploration concept="c" />}
-              </Route>
-              <Route path="/explore/dashboard-d">
-                {() => <DashboardExploration concept="d" />}
-              </Route>
-              <Route path="/explore/dashboard-e">
-                {() => <DashboardExploration concept="e" />}
-              </Route>
               <Route component={NotFound} />
             </Switch>
           </Suspense>
