@@ -25,6 +25,7 @@ import {
   Trophy,
 } from "lucide-react";
 import {
+  differenceInCalendarDays,
   eachDayOfInterval,
   format,
   parseISO,
@@ -147,25 +148,37 @@ function SummaryCard({
   label,
   value,
   icon: Icon,
+  scenePosition,
 }: {
   label: string;
   value: string;
   icon: typeof Clock3;
+  scenePosition: string;
 }) {
   return (
-    <div className="signal-surface rounded-3xl border border-white/[.08] bg-[#0c1119]/88 p-5">
-      <div className="mb-4 flex min-h-8 items-start gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/30">
-        <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#ff8b7c]" />
-        <span className="line-clamp-2" title={label}>
-          {label}
-        </span>
+    <div className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/88 p-5 shadow-[0_14px_32px_rgba(0,0,0,.14)]">
+      <img
+        src={zenGarden}
+        alt=""
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-0 h-full w-full select-none object-cover ${scenePosition}`}
+        style={{ opacity: 0.15, filter: "brightness(.56) contrast(.88) saturate(.72)" }}
+      />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.92),rgba(8,13,20,.76)_60%,rgba(8,13,20,.57))]" />
+      <div className="relative z-10">
+        <div className="mb-4 flex min-h-8 items-start gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/34">
+          <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#ff8b7c]" />
+          <span className="line-clamp-2" title={label}>
+            {label}
+          </span>
+        </div>
+        <p
+          className="line-clamp-2 text-2xl font-semibold text-white"
+          title={value}
+        >
+          {value}
+        </p>
       </div>
-      <p
-        className="line-clamp-2 text-2xl font-semibold text-white"
-        title={value}
-      >
-        {value}
-      </p>
     </div>
   );
 }
@@ -192,16 +205,26 @@ export default function History() {
   const range = useMemo(() => getRange(period), [period]);
   const start = format(range.start, "yyyy-MM-dd");
   const end = format(range.end, "yyyy-MM-dd");
+  const comparisonStart = format(
+    subDays(
+      range.start,
+      differenceInCalendarDays(range.end, range.start) + 1,
+    ),
+    "yyyy-MM-dd",
+  );
 
   const activitiesQuery = useListActivities({
     query: { enabled: !preview, queryKey: getListActivitiesQueryKey() },
   });
   const calendarQuery = useGetCalendar(
-    { start, end },
+    { start: comparisonStart, end },
     {
       query: {
         enabled: !preview,
-        queryKey: getGetCalendarQueryKey({ start, end }),
+        queryKey: getGetCalendarQueryKey({
+          start: comparisonStart,
+          end,
+        }),
       },
     },
   );
@@ -210,14 +233,22 @@ export default function History() {
     : Array.isArray(activitiesQuery.data)
       ? activitiesQuery.data
       : [];
-  const calendarDays = useMemo(
+  const allCalendarDays = useMemo(
     () =>
       preview
-        ? previewCalendar(start, end)
+        ? previewCalendar(comparisonStart, end)
         : Array.isArray(calendarQuery.data)
           ? calendarQuery.data
           : [],
-    [calendarQuery.data, end, preview, start],
+    [calendarQuery.data, comparisonStart, end, preview],
+  );
+  const calendarDays = useMemo(
+    () => allCalendarDays.filter((day) => day.date >= start),
+    [allCalendarDays, start],
+  );
+  const previousCalendarDays = useMemo(
+    () => allCalendarDays.filter((day) => day.date < start),
+    [allCalendarDays, start],
   );
   const isLoading =
     !preview && (activitiesQuery.isLoading || calendarQuery.isLoading);
@@ -304,6 +335,36 @@ export default function History() {
       day.logs.map((log) => log.durationMinutes),
     ),
   );
+  const previousFocusMinutes = previousCalendarDays.reduce(
+    (sum, day) => sum + day.focusMinutes,
+    0,
+  );
+  const previousActiveDays = previousCalendarDays.filter(
+    (day) => day.focusMinutes > 0,
+  ).length;
+  const focusDeltaMinutes = focusMinutes - previousFocusMinutes;
+  const focusDeltaPercent = previousFocusMinutes
+    ? Math.round((focusDeltaMinutes / previousFocusMinutes) * 100)
+    : null;
+  const periodDayCount = Math.max(chartDays.length, 1);
+  const weeklyPracticePace = Math.round((focusMinutes / periodDayCount) * 7);
+  const averageActiveReturn = activeDays
+    ? Math.round(focusMinutes / activeDays)
+    : 0;
+  const consistencyRate = Math.round((activeDays / periodDayCount) * 100);
+  const peakPracticeDay = chartDays.reduce(
+    (peak, day) => (day.minutes > peak.minutes ? day : peak),
+    chartDays[0] ?? { date: end, minutes: 0, sportMinutes: 0 },
+  );
+  const practiceDistribution = activities
+    .filter((activity) => activity.activityType === "practice")
+    .map((activity) => ({
+      activity,
+      minutes: activityTotals.get(activity.id) ?? 0,
+    }))
+    .filter((item) => item.minutes > 0)
+    .sort((a, b) => b.minutes - a.minutes)
+    .slice(0, 4);
   const topActivity = activities
     .filter((activity) => activity.activityType === "practice")
     .reduce<Activity | null>((top, activity) => {
@@ -314,10 +375,6 @@ export default function History() {
         : top;
     }, null);
   const maxDailyMinutes = Math.max(60, ...chartDays.map((day) => day.minutes));
-  const maxSportMinutes = Math.max(
-    30,
-    ...chartDays.map((day) => day.sportMinutes),
-  );
   const chartWidth = Math.max(
     720,
     chartDays.length * (period === "12weeks" ? 26 : 42),
@@ -478,16 +535,19 @@ export default function History() {
           label="Practice time"
           value={formatMinutes(focusMinutes)}
           icon={Clock3}
+          scenePosition="object-left"
         />
         <SummaryCard
           label="Sport · separate"
           value={formatMinutes(sportMinutes)}
           icon={ActivityIcon}
+          scenePosition="object-[38%_center]"
         />
         <SummaryCard
           label="Active days"
           value={String(activeDays)}
           icon={CalendarDays}
+          scenePosition="object-[62%_center]"
         />
         <SummaryCard
           label="Most active"
@@ -497,7 +557,142 @@ export default function History() {
               : "—"
           }
           icon={Trophy}
+          scenePosition="object-right"
         />
+      </section>
+
+      <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-5 shadow-[0_18px_46px_rgba(0,0,0,.16)] md:p-6">
+        <div className="relative z-10 flex flex-col gap-2 border-b border-white/[.06] pb-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]">
+              Period read
+            </p>
+            <h2 className="mt-1 text-xl font-semibold text-white">
+              What this period actually says.
+            </h2>
+          </div>
+          <p className="text-[9px] font-bold uppercase tracking-[.14em] text-white/32">
+            Practice only · sport stays separate
+          </p>
+        </div>
+
+        <div className="relative z-10 mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-2xl border border-white/[.07] bg-black/[.13] p-4">
+            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/36">
+              Weekly pace
+            </p>
+            <strong className="mt-2 block text-xl font-semibold tabular-nums text-white">
+              {formatMinutes(weeklyPracticePace)}
+            </strong>
+            <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/32">
+              average per week
+            </span>
+          </div>
+          <div className="rounded-2xl border border-white/[.07] bg-black/[.13] p-4">
+            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/36">
+              Return average
+            </p>
+            <strong className="mt-2 block text-xl font-semibold tabular-nums text-white">
+              {formatMinutes(averageActiveReturn)}
+            </strong>
+            <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/32">
+              per active day
+            </span>
+          </div>
+          <div className="rounded-2xl border border-white/[.07] bg-black/[.13] p-4">
+            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/36">
+              Consistency
+            </p>
+            <strong className="mt-2 block text-xl font-semibold tabular-nums text-white">
+              {consistencyRate}%
+            </strong>
+            <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/32">
+              {activeDays} of {periodDayCount} days active
+            </span>
+          </div>
+          <div className="rounded-2xl border border-[#ff9b84]/16 bg-[#ff7868]/[.055] p-4">
+            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-[#ffb1a7]/68">
+              Period change
+            </p>
+            <strong className="mt-2 block text-xl font-semibold tabular-nums text-white">
+              {previousFocusMinutes
+                ? `${focusDeltaMinutes >= 0 ? "+" : "−"}${formatMinutes(Math.abs(focusDeltaMinutes))}`
+                : "New"}
+            </strong>
+            <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/38">
+              {previousFocusMinutes
+                ? `${focusDeltaPercent && focusDeltaPercent > 0 ? "+" : ""}${focusDeltaPercent ?? 0}% vs prior · ${previousActiveDays} active`
+                : "no prior period logged"}
+            </span>
+          </div>
+        </div>
+
+        <div className="relative z-10 mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_15rem]">
+          <div className="rounded-2xl border border-white/[.07] bg-black/[.11] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
+                Direction distribution
+              </p>
+              <span className="text-[9px] font-semibold tabular-nums text-white/46">
+                {formatMinutes(focusMinutes)} total
+              </span>
+            </div>
+            {practiceDistribution.length ? (
+              <div className="mt-4 space-y-3">
+                {practiceDistribution.map(({ activity, minutes }) => {
+                  const share = focusMinutes
+                    ? Math.round((minutes / focusMinutes) * 100)
+                    : 0;
+                  return (
+                    <div key={activity.id}>
+                      <div className="flex items-center justify-between gap-3 text-[10px]">
+                        <span className="min-w-0 truncate font-medium text-white/70">
+                          {activity.name}
+                        </span>
+                        <span className="shrink-0 tabular-nums text-white/42">
+                          {formatMinutes(minutes)} · {share}%
+                        </span>
+                      </div>
+                      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[.07]">
+                        <div
+                          className="h-full rounded-full transition-[width] duration-700"
+                          style={{
+                            width: `${share}%`,
+                            backgroundColor: activityColors.get(activity.id),
+                            boxShadow: `0 0 12px ${activityColors.get(activity.id)}80`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-white/34">
+                Log a practice return to build the distribution.
+              </p>
+            )}
+          </div>
+          <aside className="rounded-2xl border border-[#ffc268]/16 bg-[linear-gradient(155deg,rgba(255,194,104,.08),rgba(8,13,20,.68))] p-4">
+            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-[#ffe0a5]/72">
+              Peak read
+            </p>
+            <strong className="mt-2 block text-lg font-semibold tabular-nums text-white">
+              {formatMinutes(peakPracticeDay.minutes)}
+            </strong>
+            <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/38">
+              {format(parseISO(peakPracticeDay.date), "EEE, MMM d")}
+            </span>
+            <div className="mt-4 border-t border-white/[.08] pt-3">
+              <span className="text-[8px] font-bold uppercase tracking-[.14em] text-white/34">
+                Longest session
+              </span>
+              <strong className="mt-1 block text-sm font-semibold tabular-nums text-white/82">
+                {formatMinutes(longestSession)}
+              </strong>
+            </div>
+          </aside>
+        </div>
       </section>
 
       <section className="signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
@@ -590,38 +785,6 @@ export default function History() {
                   ))}
               </BarChart>
             </ResponsiveContainer>
-          </div>
-          <div
-            className="mt-4 border-t border-white/[.06] pt-3"
-            style={{ width: `${chartWidth}px` }}
-          >
-            <div
-              className="grid gap-1"
-              style={{
-                gridTemplateColumns: `repeat(${chartDays.length}, minmax(0, 1fr))`,
-              }}
-            >
-              {chartDays.map((day) => (
-                <button
-                  key={day.date}
-                  type="button"
-                  onClick={() => setSelectedDate(day.date)}
-                  title={`${format(parseISO(day.date), "MMM d")}: ${formatMinutes(day.sportMinutes)} sport`}
-                  aria-label={`${format(parseISO(day.date), "MMMM d")}: ${day.sportMinutes} sport minutes`}
-                  className="flex h-8 items-center rounded-sm bg-white/[.025] px-0.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#72c6b3]"
-                >
-                  <span
-                    className="block h-1.5 rounded-full bg-[#62bca8] shadow-[0_0_7px_rgba(98,188,168,.3)]"
-                    style={{
-                      width: `${(day.sportMinutes / maxSportMinutes) * 100}%`,
-                    }}
-                  />
-                </button>
-              ))}
-            </div>
-            <p className="mt-1 text-[8px] font-bold uppercase tracking-[.16em] text-[#72c6b3]/70">
-              Sport · separate time lane
-            </p>
           </div>
         </div>
 
