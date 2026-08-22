@@ -14,8 +14,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import DojoScenePanel from "@/components/dojo-scene-panel";
+import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
-import achievementsMon from "@/assets/neotrad/achievements-mon.png";
 
 function achievementDate(value: string, pattern: string) {
   const date = new Date(value);
@@ -329,15 +330,7 @@ export default function Achievements() {
       <div className="flex flex-col gap-5 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">
-            <span className="grid h-6 w-6 place-items-center rounded-lg border border-[#ffc268]/20 bg-[#ffc268]/[.04]">
-              <img
-                src={achievementsMon}
-                alt=""
-                aria-hidden="true"
-                className="h-4 w-4 object-contain"
-              />
-            </span>
-            Living marks
+            <Sparkles className="h-3.5 w-3.5" /> Living marks
           </p>
           <h1 className="mt-3 text-4xl font-bold tracking-tight text-white md:text-5xl">
             Achievements
@@ -361,6 +354,12 @@ export default function Achievements() {
           {reconciling ? "Reviewing" : "Review journey"}
         </Button>
       </div>
+
+      <DojoScenePanel
+        image={zenGarden}
+        eyebrow="Room 06 · marks kept"
+        context="Journey archive · verified progress"
+      />
 
       {isError && hasCachedData && (
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-[#ffc268]/20 bg-[#ffc268]/[.07] px-5 py-4 text-sm text-[#ffe0a5]">

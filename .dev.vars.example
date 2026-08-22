@@ -1,5 +1,7 @@
 # Copy this file to .dev.vars for local Worker development. Never commit .dev.vars.
 ADMIN_PASSWORD="replace-with-a-strong-local-password"
+# Optional but recommended for release: use a separate high-entropy secret for signed sessions.
+SESSION_SECRET="replace-with-a-separate-high-entropy-session-secret"
 ADMIN_USERNAME="Admin"
 LOG_LEVEL="debug"
 # Use the pooled Neon connection string only in an untracked local .dev.vars file.

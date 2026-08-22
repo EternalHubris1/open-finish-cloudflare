@@ -14,59 +14,38 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import dashboardBeacon from "@/assets/neotrad/dashboard-beacon.png";
-import cabinetArchive from "@/assets/neotrad/cabinet-archive.png";
-import historyLedger from "@/assets/neotrad/history-ledger.png";
-import streakLanternPath from "@/assets/neotrad/streak-lantern-path.png";
-import achievementsMon from "@/assets/neotrad/achievements-mon.png";
 
 type SidebarRoute = {
   path: string;
   label: string;
   cue: string;
   icon: ComponentType<{ className?: string }>;
-  sectionMark?: string;
 };
 
 const orientationRoutes: SidebarRoute[] = [
-  {
-    path: "/",
-    label: "Dashboard",
-    cue: "Current signal",
-    icon: Home,
-    sectionMark: dashboardBeacon,
-  },
+  { path: "/", label: "Dashboard", cue: "Current signal", icon: Home },
   { path: "/activities", label: "Activities", cue: "Directions", icon: Target },
   {
     path: "/history",
     label: "History",
     cue: "Patterns over time",
     icon: CalendarDays,
-    sectionMark: historyLedger,
   },
   {
     path: "/reflections",
     label: "Cabinet",
     cue: "Reflections & tools",
     icon: BookOpenText,
-    sectionMark: cabinetArchive,
   },
 ];
 
 const longViewRoutes: SidebarRoute[] = [
-  {
-    path: "/streaks",
-    label: "Streaks",
-    cue: "Return rhythm",
-    icon: Flame,
-    sectionMark: streakLanternPath,
-  },
+  { path: "/streaks", label: "Streaks", cue: "Return rhythm", icon: Flame },
   {
     path: "/achievements",
     label: "Achievements",
     cue: "Rare milestones",
     icon: Award,
-    sectionMark: achievementsMon,
   },
 ];
 
@@ -85,28 +64,6 @@ function routeIsActive(location: string, path: string) {
     : location === path || location.startsWith(`${path}/`);
 }
 
-function RouteMark({
-  route,
-  className,
-}: {
-  route: SidebarRoute;
-  className?: string;
-}) {
-  if (route.sectionMark) {
-    return (
-      <img
-        src={route.sectionMark}
-        alt=""
-        aria-hidden="true"
-        className={cn("pointer-events-none object-contain", className)}
-      />
-    );
-  }
-
-  const Icon = route.icon;
-  return <Icon className={className} />;
-}
-
 function DesktopRoute({
   route,
   active,
@@ -114,6 +71,7 @@ function DesktopRoute({
   route: SidebarRoute;
   active: boolean;
 }) {
+  const Icon = route.icon;
   return (
     <Link
       href={route.path}
@@ -134,7 +92,7 @@ function DesktopRoute({
             : "border-white/[.08] bg-white/[.035] text-white/44 group-hover:border-[#ffb1a7]/22 group-hover:bg-white/[.075] group-hover:text-white/85",
         )}
       >
-        <RouteMark route={route} className="h-[1.35rem] w-[1.35rem]" />
+        <Icon className="h-4 w-4" />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[13px] font-semibold tracking-[-.01em]">
@@ -249,6 +207,7 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
               aria-label="Secondary navigation"
             >
               {utilityRoutes.map((route) => {
+                const Icon = route.icon;
                 const active = routeIsActive(location, route.path);
                 return (
                   <Link
@@ -265,7 +224,7 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
                     )}
                     data-testid={`nav-${route.label.toLowerCase()}`}
                   >
-                    <RouteMark route={route} className="h-3.5 w-3.5" />
+                    <Icon className="h-3.5 w-3.5" />
                     <span>{route.label}</span>
                   </Link>
                 );
@@ -290,6 +249,7 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
         aria-label="Primary navigation"
       >
         {mobilePrimaryRoutes.map((route) => {
+          const Icon = route.icon;
           const active = routeIsActive(location, route.path);
           return (
             <Link
@@ -303,7 +263,7 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
                   : "border-transparent text-white/32",
               )}
             >
-              <RouteMark route={route} className="h-5 w-5" />
+              <Icon className="h-5 w-5" />
               <span className="max-w-full truncate">{route.label}</span>
               {active && (
                 <span className="absolute top-0 h-0.5 w-5 rounded-full bg-[#ff8b7c]" />
@@ -338,6 +298,7 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
               Long view & system
             </p>
             {mobileMoreRoutes.map((route) => {
+              const Icon = route.icon;
               const active = routeIsActive(location, route.path);
               return (
                 <Link
@@ -352,7 +313,7 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
                   )}
                 >
                   <span className="grid h-8 w-8 place-items-center rounded-xl border border-white/[.06] bg-white/[.03]">
-                    <RouteMark route={route} className="h-4 w-4" />
+                    <Icon className="h-4 w-4" />
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-semibold">

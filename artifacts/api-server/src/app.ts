@@ -6,8 +6,10 @@ import { createAuth } from "./auth";
 interface AppOptions {
   databaseUrl?: string;
   adminPassword?: string;
+  sessionSecret?: string;
   getDatabaseUrl?: () => string | undefined;
   getAdminPassword?: () => string | undefined;
+  getSessionSecret?: () => string | undefined;
 }
 
 const API_SECURITY_HEADERS = {
@@ -56,7 +58,9 @@ export function createApp(options: AppOptions = {}): Express {
 
   const auth = createAuth({
     password: options.adminPassword,
+    sessionSecret: options.sessionSecret,
     getPassword: options.getAdminPassword,
+    getSessionSecret: options.getSessionSecret,
   });
   app.use("/api", auth.router);
   app.use("/api", auth.requirePassword);

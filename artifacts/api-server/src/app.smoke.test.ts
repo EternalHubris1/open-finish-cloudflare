@@ -92,4 +92,23 @@ describe("private API smoke flow", () => {
     assert.equal(logout.status, 204);
     assert.match(logout.headers.get("set-cookie") ?? "", /Max-Age=0/);
   });
+
+  it("temporarily limits repeated failed password attempts", async () => {
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      const rejected = await fetch(`${origin}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: `incorrect-${attempt}` }),
+      });
+      assert.equal(rejected.status, 401);
+    }
+
+    const limited = await fetch(`${origin}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: TEST_PASSWORD }),
+    });
+    assert.equal(limited.status, 429);
+    assert.match(limited.headers.get("retry-after") ?? "", /^\d+$/);
+  });
 });

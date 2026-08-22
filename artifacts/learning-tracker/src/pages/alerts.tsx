@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import cabinetArchive from "@/assets/neotrad/cabinet-archive.png";
+import DojoScenePanel from "@/components/dojo-scene-panel";
+import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
+import crossedKatanas from "@assets/samurai-site-assets/weapons-armor/crossed-katanas.png";
 import { SessionNotes } from "./reflections";
 import { format, isBefore, startOfDay } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
@@ -54,7 +56,6 @@ import {
   Link2,
   Plus,
   ScrollText,
-  Swords,
   Trash2,
 } from "lucide-react";
 
@@ -324,15 +325,7 @@ export default function Cabinet() {
         <div className="relative z-10 flex flex-col gap-6 md:pr-52 lg:pr-64">
           <div>
             <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]">
-              <span className="grid h-6 w-6 place-items-center rounded-lg border border-[#ffc268]/20 bg-[#ffc268]/[.04]">
-                <img
-                  src={cabinetArchive}
-                  alt=""
-                  aria-hidden="true"
-                  className="h-4 w-4 object-contain"
-                />
-              </span>
-              Cabinet · quiet records
+              <Archive className="h-4 w-4" /> Cabinet · quiet records
             </div>
             <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
               Cabinet
@@ -366,9 +359,16 @@ export default function Cabinet() {
             </Button>
           </div>
         </div>
-      </header>
+            </header>
+
+      <DojoScenePanel
+        image={armoryRoom}
+        eyebrow="Room 04 · quiet archive"
+        context="Cabinet archive · private shelf"
+      />
 
       <section className="grid gap-5 lg:grid-cols-[minmax(0,1.42fr)_minmax(18rem,.78fr)]">
+
         <div className="signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
           <div className="flex items-start justify-between gap-4 border-b border-white/[.06] p-6 md:p-7">
             <div>
@@ -569,10 +569,21 @@ export default function Cabinet() {
           </section>
 
           <section className="relative min-h-[18rem] overflow-hidden rounded-3xl border border-[#ffc268]/20 bg-[radial-gradient(circle_at_72%_25%,rgba(255,194,104,.17),transparent_34%),linear-gradient(145deg,rgba(59,40,32,.78),rgba(12,17,25,.98)_58%,rgba(32,55,53,.62))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] md:p-6">
+            <img
+              src={armoryRoom}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute -bottom-12 -right-8 h-[19rem] w-auto select-none object-contain opacity-45 mix-blend-screen"
+            />
             <div className="pointer-events-none absolute -right-9 -top-9 h-32 w-32 rounded-full bg-[#ffc268]/[.16] blur-3xl" />
             <div className="relative z-10 flex h-full max-w-[13rem] flex-col">
               <div className="flex items-center gap-2 text-[#ffe0a5]">
-                <Swords className="h-4 w-4" />
+                <img
+                  src={crossedKatanas}
+                  alt=""
+                  aria-hidden="true"
+                  className="h-6 w-6 shrink-0 object-contain opacity-85 drop-shadow-[0_0_10px_rgba(255,194,104,.18)]"
+                />
                 <p className="text-[9px] font-bold uppercase tracking-[.2em]">
                   Dojo cabinet
                 </p>
@@ -674,6 +685,12 @@ export default function Cabinet() {
             ))
           ) : (
             <div className="col-span-full relative overflow-hidden rounded-2xl border border-dashed border-[#ffc268]/20 bg-[linear-gradient(100deg,rgba(255,194,104,.05),transparent_48%,rgba(98,188,168,.045))] px-6 py-12 text-center">
+              <img
+                src={armoryRoom}
+                alt=""
+                aria-hidden="true"
+                className="pointer-events-none absolute -bottom-24 right-7 hidden h-[18rem] w-auto opacity-20 mix-blend-screen md:block"
+              />
               <Archive className="relative mx-auto h-9 w-9 text-[#ffc268]/48" />
               <p className="relative mt-4 text-base font-semibold text-white/68">
                 The cabinet is empty.

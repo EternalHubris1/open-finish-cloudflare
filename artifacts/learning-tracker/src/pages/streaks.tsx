@@ -10,8 +10,9 @@ import { addDays, format, startOfWeek, subWeeks } from "date-fns";
 import { Activity, CalendarDay } from "@workspace/api-client-react";
 import { Flame, Plus, RefreshCw, Target, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import DojoScenePanel from "@/components/dojo-scene-panel";
+import templePath from "@/assets/environments/optimized/streaks-temple-path.webp";
 import { Skeleton } from "@/components/ui/skeleton";
-import streakLanternPath from "@/assets/neotrad/streak-lantern-path.png";
 import {
   DailyActivityChart,
   DailyActivityPoint,
@@ -111,15 +112,7 @@ export default function Streaks() {
     <div className="relative z-10 mx-auto min-h-screen max-w-6xl space-y-8 px-4 py-6 pb-28 md:p-8 md:pb-20">
       <div className="border-b border-white/10 pb-6">
         <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-red-400">
-          <span className="grid h-6 w-6 place-items-center rounded-lg border border-[#62bca8]/20 bg-[#62bca8]/[.04]">
-            <img
-              src={streakLanternPath}
-              alt=""
-              aria-hidden="true"
-              className="h-4 w-4 object-contain"
-            />
-          </span>
-          Independent momentum
+          <Flame className="h-4 w-4" /> Independent momentum
         </div>
         <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
           Streaks
@@ -128,9 +121,16 @@ export default function Streaks() {
           Each activity has its own rhythm. A day counts when you log anything
           for that activity — you never have to finish everything at once.
         </p>
-      </div>
+            </div>
+
+      <DojoScenePanel
+        image={templePath}
+        eyebrow="Room 05 · independent rhythm"
+        context="Twelve-week cadence · individual lines"
+      />
 
       {activities.length === 0 ? (
+
         <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.025] p-12 text-center">
           <Target className="mx-auto mb-4 h-10 w-10 text-white/20" />
           <h2 className="mb-2 text-xl font-bold text-white">

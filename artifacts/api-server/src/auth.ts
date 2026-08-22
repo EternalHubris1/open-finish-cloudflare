@@ -1,12 +1,23 @@
-import { Router, type RequestHandler } from "express";
+import { Router, type Request, type RequestHandler } from "express";
 
 type AuthOptions = {
   password?: string;
+  sessionSecret?: string;
   getPassword?: () => string | undefined;
+  getSessionSecret?: () => string | undefined;
+};
+
+type LoginAttempt = {
+  failures: number;
+  windowStartedAt: number;
+  lockedUntil: number | null;
 };
 
 const COOKIE_NAME = "open_finish_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 14;
+const LOGIN_WINDOW_MS = 10 * 60 * 1000;
+const LOGIN_LOCK_MS = 10 * 60 * 1000;
+const MAX_LOGIN_FAILURES = 8;
 const encoder = new TextEncoder();
 
 function readCookie(header: string | undefined, name: string) {
@@ -77,13 +88,55 @@ function sessionCookie(value: string, maxAge: number) {
   return `${COOKIE_NAME}=${value}; Path=/; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Strict`;
 }
 
+function clientKey(req: Request) {
+  const cloudflareIp = req.headers["cf-connecting-ip"];
+  if (typeof cloudflareIp === "string" && cloudflareIp.trim()) {
+    return cloudflareIp.trim();
+  }
+  return req.ip || "unknown";
+}
+
+/**
+ * A lightweight per-isolate limiter. Cloudflare WAF/Rate Limiting should remain
+ * the outer, distributed control for a public domain; this protects the app
+ * itself as a safe fallback and does not persist credentials or attempt values.
+ */
+function recordFailure(
+  attempts: Map<string, LoginAttempt>,
+  key: string,
+  now: number,
+) {
+  const current = attempts.get(key);
+  const inWindow = current && now - current.windowStartedAt < LOGIN_WINDOW_MS;
+  const failures = (inWindow ? current.failures : 0) + 1;
+  attempts.set(key, {
+    failures,
+    windowStartedAt: inWindow ? current.windowStartedAt : now,
+    lockedUntil: failures >= MAX_LOGIN_FAILURES ? now + LOGIN_LOCK_MS : null,
+  });
+}
+
+function retryAfterSeconds(attempt: LoginAttempt, now: number) {
+  if (!attempt.lockedUntil) return null;
+  const remaining = attempt.lockedUntil - now;
+  return remaining > 0 ? Math.max(1, Math.ceil(remaining / 1000)) : null;
+}
+
 export function createAuth(options: AuthOptions) {
   const router = Router();
-  const getPassword = () => options.getPassword?.()?.trim() || options.password?.trim() || null;
+  const attempts = new Map<string, LoginAttempt>();
+  const getPassword = () =>
+    options.getPassword?.()?.trim() || options.password?.trim() || null;
+  const getSessionSecret = () =>
+    options.getSessionSecret?.()?.trim() ||
+    options.sessionSecret?.trim() ||
+    // Backward-compatible fallback for production before SESSION_SECRET is set.
+    getPassword();
 
   router.get("/auth/session", async (req, res): Promise<void> => {
     const password = getPassword();
-    if (!password) {
+    const sessionSecret = getSessionSecret();
+    if (!password || !sessionSecret) {
       res.status(503).json({
         passwordEnabled: false,
         authenticated: false,
@@ -94,24 +147,41 @@ export function createAuth(options: AuthOptions) {
 
     const authenticated = await isValidSession(
       readCookie(req.headers.cookie, COOKIE_NAME),
-      password,
+      sessionSecret,
     );
     res.json({ passwordEnabled: true, authenticated });
   });
 
   router.post("/auth/login", async (req, res): Promise<void> => {
     const password = getPassword();
-    if (!password) {
+    const sessionSecret = getSessionSecret();
+    if (!password || !sessionSecret) {
       res.status(503).json({ error: "Password access has not been configured" });
       return;
     }
+
+    const key = clientKey(req);
+    const now = Date.now();
+    const existingAttempt = attempts.get(key);
+    const retryAfter = existingAttempt && retryAfterSeconds(existingAttempt, now);
+    if (retryAfter) {
+      res.setHeader("Retry-After", String(retryAfter));
+      res.status(429).json({ error: "Too many attempts. Try again later." });
+      return;
+    }
+    if (existingAttempt && now - existingAttempt.windowStartedAt >= LOGIN_WINDOW_MS) {
+      attempts.delete(key);
+    }
+
     const candidate = req.body?.password;
     if (typeof candidate !== "string" || !constantTimeEqual(candidate, password)) {
+      recordFailure(attempts, key, now);
       res.status(401).json({ error: "Incorrect password" });
       return;
     }
 
-    const session = await createSession(password);
+    attempts.delete(key);
+    const session = await createSession(sessionSecret);
     res.setHeader("Set-Cookie", sessionCookie(session, SESSION_TTL_SECONDS));
     res.status(204).end();
   });
@@ -123,13 +193,14 @@ export function createAuth(options: AuthOptions) {
 
   const requirePassword: RequestHandler = async (req, res, next) => {
     const password = getPassword();
-    if (!password) {
+    const sessionSecret = getSessionSecret();
+    if (!password || !sessionSecret) {
       res.status(503).json({ error: "Password access has not been configured" });
       return;
     }
     const authenticated = await isValidSession(
       readCookie(req.headers.cookie, COOKIE_NAME),
-      password,
+      sessionSecret,
     );
     if (!authenticated) {
       res.status(401).json({ error: "Authentication required" });

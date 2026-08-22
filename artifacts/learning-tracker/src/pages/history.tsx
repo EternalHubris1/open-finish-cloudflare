@@ -34,10 +34,11 @@ import {
   subWeeks,
 } from "date-fns";
 import { Button } from "@/components/ui/button";
+import DojoScenePanel from "@/components/dojo-scene-panel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DailyActivityChart } from "@/components/daily-activity-chart";
 import { previewActivities } from "@/pages/dashboard-exploration";
-import historyLedger from "@/assets/neotrad/history-ledger.png";
+import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
 
 type Period = "week" | "month" | "12weeks";
 
@@ -427,15 +428,7 @@ export default function History() {
       <header className="flex flex-col gap-5 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between">
         <div>
           <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#ff8b7c]">
-            <span className="grid h-6 w-6 place-items-center rounded-lg border border-[#ff8b7c]/20 bg-[#ff8b7c]/[.04]">
-              <img
-                src={historyLedger}
-                alt=""
-                aria-hidden="true"
-                className="h-4 w-4 object-contain"
-              />
-            </span>
-            Activity analytics
+            <Sparkles className="h-4 w-4" /> Activity analytics
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
             History
@@ -457,6 +450,12 @@ export default function History() {
           ))}
         </div>
       </header>
+
+      <DojoScenePanel
+        image={zenGarden}
+        eyebrow="Room 03 · measured return"
+        context="History archive · selected period"
+      />
 
       {isError && hasCachedData && (
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-[#ffc268]/20 bg-[#ffc268]/[.07] px-5 py-4 text-sm text-[#ffe0a5]">

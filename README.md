@@ -14,7 +14,7 @@ This repository is an independently deployable migration of the original Open Fi
 | API | Express 5 via Cloudflare's Node HTTP adapter | Handles `/api/*` on the same origin as the client. |
 | Data | Drizzle ORM, Neon serverless driver, PostgreSQL | Uses a request-scoped Neon WebSocket client from `DATABASE_URL`. |
 | Hosting | Cloudflare Workers and Wrangler | Publishes client assets and API as one deployment. |
-| Secrets | Cloudflare Worker secrets | Stores `ADMIN_PASSWORD` and `DATABASE_URL`; neither is committed to the repository. |
+| Secrets | Cloudflare Worker secrets | Stores `ADMIN_PASSWORD`, `SESSION_SECRET`, and `DATABASE_URL`; none is committed to the repository. |
 
 The Worker static-assets configuration sends `/api/*` to Express first and returns `index.html` for other SPA routes. The frontend continues to call relative `/api/*` URLs, so no CORS or API base URL change is required.
 
@@ -46,7 +46,7 @@ cp .dev.vars.example .dev.vars
 pnpm run build
 ```
 
-Set `ADMIN_PASSWORD` to a strong local value and set `DATABASE_URL` to the pooled Neon connection string for `open_finish_recovery` in the untracked `.dev.vars` file. Never commit either value.
+Set `ADMIN_PASSWORD` to a strong local value, set a separate high-entropy `SESSION_SECRET`, and set `DATABASE_URL` to the pooled Neon connection string for `open_finish_recovery` in the untracked `.dev.vars` file. Never commit any of these values.
 
 Start the Worker runtime with:
 
@@ -58,10 +58,11 @@ The command serves the SPA and the API on one local URL. The unauthenticated end
 
 ## First Cloudflare deployment
 
-Configure the two production secrets in the Cloudflare Worker dashboard. `ADMIN_USERNAME` is optional and defaults to `Admin` through `wrangler.jsonc`. For `DATABASE_URL`, use Neon's pooled connection string for `open_finish_recovery`; do **not** put either secret in the repository.
+Configure the three production secrets in the Cloudflare Worker dashboard. `ADMIN_USERNAME` is optional and defaults to `Admin` through `wrangler.jsonc`. For `DATABASE_URL`, use Neon's pooled connection string for `open_finish_recovery`; `SESSION_SECRET` should be independent and high-entropy. Do **not** put any secret in the repository.
 
 ```bash
 npx wrangler secret put ADMIN_PASSWORD
+npx wrangler secret put SESSION_SECRET
 npx wrangler secret put DATABASE_URL
 ```
 
@@ -80,7 +81,7 @@ After the first publication, Cloudflare Workers Builds can deploy from GitHub. C
 | Deploy command | `pnpm exec wrangler deploy` |
 | Production branch | `main` |
 
-The Worker configuration and asset directory are kept in `wrangler.jsonc`. Configure `ADMIN_PASSWORD` and `DATABASE_URL` as Cloudflare secrets in the Worker dashboard; never add either value to `vars` or commit `.dev.vars`.
+The Worker configuration and asset directory are kept in `wrangler.jsonc`. Configure `ADMIN_PASSWORD`, `SESSION_SECRET`, and `DATABASE_URL` as Cloudflare secrets in the Worker dashboard; never add their values to `vars` or commit `.dev.vars`.
 
 ## Commands
 
@@ -91,8 +92,13 @@ The Worker configuration and asset directory are kept in `wrangler.jsonc`. Confi
 | `pnpm run deploy` | Build and publish the Worker and static assets. |
 | `pnpm run cf-typegen` | Generate Worker binding types after updating `wrangler.jsonc`. |
 | `pnpm run typecheck` | Typecheck libraries, frontend, and API. |
+| `pnpm --filter @workspace/api-server test` | Run API security and functional regression tests. |
 | `pnpm --filter @workspace/api-spec run codegen` | Regenerate API hooks and Zod schemas from OpenAPI. |
 | `pnpm --filter @workspace/db run migrate` | Run existing PostgreSQL migrations from a Node environment with `DATABASE_URL`. |
+
+## Release operations
+
+Use [`docs/operations/release-runbook.md`](docs/operations/release-runbook.md) for the pre-deploy checklist, production smoke check, rollback path, and custom-domain readiness.
 
 ## Important operational notes
 

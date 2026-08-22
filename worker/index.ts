@@ -4,6 +4,7 @@ import { createApp } from "../artifacts/api-server/src/app";
 
 interface Env {
   ADMIN_PASSWORD?: string;
+  SESSION_SECRET?: string;
   DATABASE_URL?: string;
 }
 
@@ -18,6 +19,8 @@ const app = createApp({
   getDatabaseUrl: () => runtimeEnv?.DATABASE_URL ?? cloudflareEnv.DATABASE_URL,
   getAdminPassword: () =>
     runtimeEnv?.ADMIN_PASSWORD ?? cloudflareEnv.ADMIN_PASSWORD,
+  getSessionSecret: () =>
+    runtimeEnv?.SESSION_SECRET ?? cloudflareEnv.SESSION_SECRET,
 });
 
 app.listen(3000);
