@@ -49,6 +49,7 @@ import { ActivityGlyph } from "@/lib/activity-icons";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 import { moscowOperationalDate } from "@/lib/operational-date";
 import musashi from "@assets/musashi_1785336444855.jpg";
+import greatWaveScroll from "@/assets/patterns/great-wave-scroll-source.png";
 import {
   previewActivities,
   previewDashboard,
@@ -1345,6 +1346,12 @@ export default function DashboardV2() {
           />
           <div className="dashboard-hero-clouds" aria-hidden="true" />
           <div className="dashboard-hero-fog" aria-hidden="true" />
+          <img
+            src={greatWaveScroll}
+            alt=""
+            aria-hidden="true"
+            className="dashboard-wave-scroll"
+          />
           <div className="relative z-10 grid items-center gap-7 sm:gap-10 lg:grid-cols-[1fr_.58fr]">
             <div>
               <div

@@ -44,7 +44,6 @@ import {
   ActivityGlyph,
   defaultActivityIcon,
 } from "@/lib/activity-icons";
-import samuraiArmor from "@assets/samurai-weapons-armor/samurai-armor.png";
 import practiceHall from "@/assets/environments/optimized/activities-practice-hall.webp";
 import bambooScroll from "@/assets/patterns/bamboo-scroll-source.png";
 import {
@@ -78,6 +77,13 @@ const PRESET_COLORS = [
 ];
 
 const WEEKDAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"];
+
+function compactDuration(minutes: number) {
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  const remainder = minutes % 60;
+  return remainder ? `${hours}h ${remainder}m` : `${hours}h`;
+}
 
 const CATEGORIES = [
   "Learning",
@@ -182,6 +188,21 @@ export default function Activities() {
     (sum, activity) => sum + activity.targetMinutesPerDay * 7,
     0,
   );
+  const weeklyDirectionReturns = weeklyProgress.map((progress) => ({
+    activityId: progress.activityId,
+    minutes: progress.days.reduce(
+      (sum, day) => sum + day.minutesLogged,
+      0,
+    ),
+  }));
+  const activeDirectionsThisWeek = weeklyDirectionReturns.filter(
+    (direction) => direction.minutes > 0,
+  ).length;
+  const peakWeeklyReturn = weeklyDirectionReturns.reduce(
+    (peak, direction) => Math.max(peak, direction.minutes),
+    0,
+  );
+  const dailyPracticePace = Math.round(practiceWeekMinutes / 7);
 
   const refreshActivitySurfaces = () => {
     [
@@ -317,17 +338,6 @@ export default function Activities() {
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.84)_0%,rgba(8,13,20,.46)_54%,rgba(8,13,20,.06)_100%)]" />
         <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#ff7868]/10 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 left-[38%] h-48 w-72 rounded-full bg-[#72c6b3]/[.06] blur-3xl" />
-        <div
-          className="activity-field-armor-hero pointer-events-none absolute"
-          aria-hidden="true"
-        >
-          <span className="activity-field-armor-hero-aura" />
-          <img
-            src={samuraiArmor}
-            alt=""
-            className="activity-field-armor-hero-art"
-          />
-        </div>
         <div className="relative z-10 flex flex-col gap-6 pr-20 sm:pr-28 xl:pr-[clamp(10rem,19vw,18rem)] xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-2xl">
             <div className="min-w-0">
@@ -545,6 +555,38 @@ export default function Activities() {
                       width: `${totalWeekTarget ? Math.min(100, Math.round((totalWeekMinutes / totalWeekTarget) * 100)) : 0}%`,
                     }}
                   />
+                </div>
+              </div>
+              <div className="relative z-10 mt-4 border-t border-white/[.06] pt-4">
+                <div className="mb-2 flex items-center justify-between text-[8px] font-bold uppercase tracking-[.16em] text-white/34">
+                  <span>Weekly read</span>
+                  <span className="text-[#8bd2c2]/70">Aggregate</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="rounded-xl border border-white/[.06] bg-black/[.12] px-2.5 py-2">
+                    <span className="block text-[7px] font-bold uppercase tracking-[.12em] text-white/32">
+                      Active
+                    </span>
+                    <strong className="mt-1 block text-sm font-semibold tabular-nums text-white/90">
+                      {activeDirectionsThisWeek}
+                    </strong>
+                  </div>
+                  <div className="rounded-xl border border-white/[.06] bg-black/[.12] px-2.5 py-2">
+                    <span className="block text-[7px] font-bold uppercase tracking-[.12em] text-white/32">
+                      Pace
+                    </span>
+                    <strong className="mt-1 block text-sm font-semibold tabular-nums text-white/90">
+                      {compactDuration(dailyPracticePace)}
+                    </strong>
+                  </div>
+                  <div className="rounded-xl border border-white/[.06] bg-black/[.12] px-2.5 py-2">
+                    <span className="block text-[7px] font-bold uppercase tracking-[.12em] text-white/32">
+                      Peak
+                    </span>
+                    <strong className="mt-1 block text-sm font-semibold tabular-nums text-white/90">
+                      {compactDuration(peakWeeklyReturn)}
+                    </strong>
+                  </div>
                 </div>
               </div>
               <Link

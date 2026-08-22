@@ -17,7 +17,6 @@ import { cn } from "@/lib/utils";
 import dashboardThreshold from "@/assets/environments/optimized/dashboard-threshold.webp";
 import practiceHall from "@/assets/environments/optimized/activities-practice-hall.webp";
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
-import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
 import readingRoom from "@/assets/environments/optimized/cabinet-reading-room.webp";
 import templePath from "@/assets/environments/optimized/streaks-temple-path.webp";
 
@@ -72,14 +71,6 @@ const longViewRoutes: SidebarRoute[] = [
     cue: "Return rhythm",
     icon: Flame,
     scene: templePath,
-    scenePosition: "object-center",
-  },
-  {
-    path: "/achievements",
-    label: "Achievements",
-    cue: "Rare milestones",
-    icon: Award,
-    scene: armoryRoom,
     scenePosition: "object-center",
   },
 ];

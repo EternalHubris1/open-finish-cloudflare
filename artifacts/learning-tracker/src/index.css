@@ -2758,9 +2758,9 @@
   user-select: none;
   object-fit: cover;
   object-position: center;
-  opacity: 0.68;
-  mix-blend-mode: multiply;
-  filter: contrast(1.22) saturate(0.88) brightness(1.04);
+  opacity: 0.62;
+  mix-blend-mode: screen;
+  filter: invert(1) contrast(2.65) saturate(0.72) brightness(0.7);
   mask-image: linear-gradient(to bottom, transparent 0%, #000 15%, #000 85%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 15%, #000 85%, transparent 100%);
 }
@@ -2768,30 +2768,63 @@
 .panel-pattern-bamboo {
   right: 0.65rem;
   width: 5.25rem;
-  opacity: 0.54;
+  opacity: 0.66;
   object-position: 50% center;
 }
 
 .panel-pattern-chrysanthemum {
   right: -0.2rem;
   width: 6.5rem;
-  opacity: 0.62;
+  opacity: 0.7;
   object-position: 52% center;
 }
 
 .panel-pattern-maple {
   right: 4.5rem;
   width: 5.5rem;
-  opacity: 0.48;
+  opacity: 0.58;
   object-position: 50% center;
 }
 
 @media (max-width: 639px) {
   .panel-pattern-scroll {
-    opacity: 0.38;
+    opacity: 0.48;
   }
 
   .panel-pattern-maple {
     right: 1.5rem;
+  }
+}
+
+/* One ornamental anchor for the minimal Dashboard hero. */
+.dashboard-wave-scroll {
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+  top: -7%;
+  right: 2.2rem;
+  bottom: -7%;
+  width: 5.25rem;
+  user-select: none;
+  object-fit: cover;
+  object-position: 50% center;
+  opacity: 0.46;
+  mix-blend-mode: screen;
+  filter: invert(1) contrast(2.55) saturate(0.72) brightness(0.7);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%);
+}
+
+@media (max-width: 1023px) {
+  .dashboard-wave-scroll {
+    right: 1.25rem;
+    width: 4rem;
+    opacity: 0.3;
+  }
+}
+
+@media (max-width: 639px) {
+  .dashboard-wave-scroll {
+    display: none;
   }
 }
