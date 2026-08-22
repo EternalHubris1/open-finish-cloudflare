@@ -329,8 +329,9 @@ export default function Cabinet() {
           alt=""
           aria-hidden="true"
           className="room-motif-image pointer-events-none absolute inset-y-0 right-0 hidden h-full w-[48%] select-none object-cover object-center md:block"
+          style={{ opacity: 0.72, filter: "brightness(1.18) contrast(0.98) saturate(0.94)" }}
         />
-        <div className="room-motif-overlay pointer-events-none absolute inset-0" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.72)_0%,rgba(8,13,20,.28)_54%,rgba(8,13,20,.04)_100%)]" />
         <div className="relative z-10 flex flex-col gap-6 md:pr-52 lg:pr-64">
           <div>
             <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]">
@@ -577,9 +578,9 @@ export default function Cabinet() {
               src={armoryRoom}
               alt=""
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-[64%_center] opacity-[.62] [filter:brightness(.84)_contrast(1.06)_saturate(.84)]"
+              className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-[64%_center] opacity-[.78] [filter:brightness(.98)_contrast(1.03)_saturate(.9)]"
             />
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.88)_0%,rgba(8,13,20,.74)_42%,rgba(8,13,20,.42)_68%,rgba(8,13,20,.28)_100%),linear-gradient(0deg,rgba(8,13,20,.42),transparent_58%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.76)_0%,rgba(8,13,20,.56)_42%,rgba(8,13,20,.26)_68%,rgba(8,13,20,.12)_100%),linear-gradient(0deg,rgba(8,13,20,.28),transparent_58%)]" />
             <div className="pointer-events-none absolute -right-9 -top-9 h-32 w-32 rounded-full bg-[#ffc268]/[.16] blur-3xl" />
             <div className="relative z-10 flex h-full max-w-[15rem] flex-col">
               <div className="flex items-center gap-2 text-[#ffe0a5]">
@@ -724,9 +725,9 @@ export default function Cabinet() {
                 src={armoryRoom}
                 alt=""
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-[.64] [filter:brightness(.82)_contrast(1.05)_saturate(.82)]"
+                className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-[.78] [filter:brightness(.98)_contrast(1.03)_saturate(.88)]"
               />
-              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(7,12,18,.76),rgba(7,12,18,.52)_50%,rgba(7,12,18,.66)),linear-gradient(0deg,rgba(7,12,18,.62),transparent_58%)]" />
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(7,12,18,.64),rgba(7,12,18,.34)_50%,rgba(7,12,18,.5)),linear-gradient(0deg,rgba(7,12,18,.4),transparent_58%)]" />
               <Archive className="relative z-10 mx-auto h-9 w-9 text-[#ffc268]/72" />
               <p className="relative z-10 mt-4 text-base font-semibold text-white/82">
                 The cabinet is empty.

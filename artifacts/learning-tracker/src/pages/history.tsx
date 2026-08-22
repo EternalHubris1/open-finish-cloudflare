@@ -39,10 +39,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DailyActivityChart } from "@/components/daily-activity-chart";
 import { previewActivities } from "@/pages/dashboard-exploration";
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
+import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 
 type Period = "week" | "month" | "12weeks";
 type AggregationMetric = "practice" | "sport" | "combined";
+
+type TimelineActivity = {
+  id: number;
+  name: string;
+  color: string | null;
+  activityType: "practice";
+};
 
 const AGGREGATION_METRICS: Record<
   AggregationMetric,
@@ -307,6 +315,56 @@ export default function History() {
     [dayMap, range],
   );
 
+  const timelineActivities = useMemo<TimelineActivity[]>(() => {
+    const currentPracticeDirections = activities
+      .filter((activity) => activity.activityType === "practice")
+      .map((activity) => ({
+        id: activity.id,
+        name: activity.name,
+        color: activity.color,
+        activityType: "practice" as const,
+      }));
+    const knownIds = new Set(currentPracticeDirections.map((activity) => activity.id));
+    const carriedDirections: TimelineActivity[] = [];
+
+    calendarDays.forEach((day) =>
+      day.logs.forEach((log) => {
+        if (log.activityType !== "practice" || knownIds.has(log.activityId)) return;
+        knownIds.add(log.activityId);
+        carriedDirections.push({
+          id: log.activityId,
+          name: log.activityName,
+          color: log.activityColor,
+          activityType: "practice",
+        });
+      }),
+    );
+
+    return [...currentPracticeDirections, ...carriedDirections];
+  }, [activities, calendarDays]);
+
+  const timelineActivityColors = useMemo(
+    () =>
+      new Map(
+        timelineActivities.map((activity, index) => [
+          activity.id,
+          activity.color || ACTIVITY_SIGNAL_COLORS[index % ACTIVITY_SIGNAL_COLORS.length],
+        ]),
+      ),
+    [timelineActivities],
+  );
+
+  const timelineActivityTotals = useMemo(() => {
+    const totals = new Map(timelineActivities.map((activity) => [activity.id, 0]));
+    calendarDays.forEach((day) =>
+      day.logs.forEach((log) => {
+        if (!totals.has(log.activityId)) return;
+        totals.set(log.activityId, (totals.get(log.activityId) ?? 0) + log.durationMinutes);
+      }),
+    );
+    return totals;
+  }, [calendarDays, timelineActivities]);
+
   const stackedData = useMemo(
     () =>
       chartDays.map((day) => {
@@ -315,17 +373,15 @@ export default function History() {
           date: day.date,
           totalMinutes: day.minutes,
         };
-        activities
-          .filter((activity) => activity.activityType === "practice")
-          .forEach((activity) => {
-            row[activityKey(activity.id)] =
-              calendarDay?.logs
-                .filter((log) => log.activityId === activity.id)
-                .reduce((sum, log) => sum + log.durationMinutes, 0) ?? 0;
-          });
+        timelineActivities.forEach((activity) => {
+          row[activityKey(activity.id)] =
+            calendarDay?.logs
+              .filter((log) => log.activityId === activity.id)
+              .reduce((sum, log) => sum + log.durationMinutes, 0) ?? 0;
+        });
         return row;
       }),
-    [activities, chartDays, dayMap],
+    [chartDays, dayMap, timelineActivities],
   );
 
   const activityTotals = useMemo(() => {
@@ -815,7 +871,7 @@ export default function History() {
                     const id = Number(String(name).replace("activity_", ""));
                     return [
                       formatMinutes(Number(value)),
-                      activities.find((activity) => activity.id === id)?.name ??
+                      timelineActivities.find((activity) => activity.id === id)?.name ??
                         "Activity",
                     ];
                   }}
@@ -827,17 +883,14 @@ export default function History() {
                     boxShadow: "0 18px 50px rgba(0,0,0,.32)",
                   }}
                 />
-                {activities
-                  .filter((activity) => activity.activityType === "practice")
-                  .filter(
-                    (activity) => !hiddenActivityIds.includes(activity.id),
-                  )
+                {timelineActivities
+                  .filter((activity) => !hiddenActivityIds.includes(activity.id))
                   .map((activity) => (
                     <Bar
                       key={activity.id}
                       dataKey={activityKey(activity.id)}
                       stackId="activities"
-                      fill={activityColors.get(activity.id)}
+                      fill={timelineActivityColors.get(activity.id)}
                       isAnimationActive={!reducedMotion}
                       maxBarSize={30}
                       radius={[3, 3, 0, 0]}
@@ -850,9 +903,7 @@ export default function History() {
 
         <div className="max-h-36 overflow-y-auto border-t border-white/5 px-6 py-5 md:px-8">
           <div className="flex flex-wrap gap-2">
-            {activities
-              .filter((activity) => activity.activityType === "practice")
-              .map((activity) => {
+            {timelineActivities.map((activity) => {
                 const isVisible = !hiddenActivityIds.includes(activity.id);
                 return (
                   <button
@@ -865,22 +916,14 @@ export default function History() {
                     <span
                       className="h-2.5 w-2.5 rounded-sm"
                       style={{
-                        backgroundColor: activityColors.get(activity.id),
+                        backgroundColor: timelineActivityColors.get(activity.id),
                         opacity: isVisible ? 1 : 0.25,
                       }}
                     />
                     {activity.name}
-                    <span
-                      className={
-                        activity.activityType === "sport"
-                          ? "text-[#72c6b3]/70"
-                          : "text-white/20"
-                      }
-                    >
-                      {activity.activityType}
-                    </span>
+                    <span className="text-white/20">practice</span>
                     <span className="text-white/25">
-                      {formatMinutes(activityTotals.get(activity.id) ?? 0)}
+                      {formatMinutes(timelineActivityTotals.get(activity.id) ?? 0)}
                     </span>
                   </button>
                 );
@@ -926,7 +969,13 @@ export default function History() {
 
           <aside className="relative overflow-hidden rounded-2xl border border-white/[.08] bg-[linear-gradient(150deg,rgba(255,120,104,.1),rgba(8,13,20,.78)_55%,rgba(98,188,168,.07))] p-5">
             <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#ffc268]/[.09] blur-3xl" />
-            <div className="relative">
+            <img
+              src={verticalOrnament}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-7 top-1/2 h-[18rem] max-h-[92%] w-auto -translate-y-1/2 select-none opacity-[.16] brightness-[1.1] saturate-[.72]"
+            />
+            <div className="relative z-10">
               <p className="text-[8px] font-bold uppercase tracking-[.18em] text-[#ffb1a7]">
                 Selected return
               </p>
