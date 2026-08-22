@@ -572,14 +572,14 @@ export default function Cabinet() {
             </div>
           </section>
 
-          <section className="relative min-h-[18rem] overflow-hidden rounded-3xl border border-[#ffc268]/20 bg-[radial-gradient(circle_at_72%_25%,rgba(255,194,104,.17),transparent_34%),linear-gradient(145deg,rgba(59,40,32,.78),rgba(12,17,25,.98)_58%,rgba(32,55,53,.62))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] md:p-6">
+          <section className="relative min-h-[18rem] isolate overflow-hidden rounded-3xl border border-[#ffc268]/20 bg-[#0c1119] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] md:p-6">
             <img
               src={armoryRoom}
               alt=""
               aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 right-0 h-full w-[58%] select-none object-cover object-right opacity-[.28]"
+              className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-[64%_center] opacity-[.62] [filter:brightness(.84)_contrast(1.06)_saturate(.84)]"
             />
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(29,24,25,.88),rgba(15,20,27,.68)_57%,rgba(15,20,27,.24))]" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.88)_0%,rgba(8,13,20,.74)_42%,rgba(8,13,20,.42)_68%,rgba(8,13,20,.28)_100%),linear-gradient(0deg,rgba(8,13,20,.42),transparent_58%)]" />
             <div className="pointer-events-none absolute -right-9 -top-9 h-32 w-32 rounded-full bg-[#ffc268]/[.16] blur-3xl" />
             <div className="relative z-10 flex h-full max-w-[15rem] flex-col">
               <div className="flex items-center gap-2 text-[#ffe0a5]">
