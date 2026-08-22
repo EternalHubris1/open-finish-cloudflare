@@ -8,8 +8,6 @@ import {
 } from "@workspace/api-client-react";
 import type { Activity, CalendarDay } from "@workspace/api-client-react";
 import {
-  Area,
-  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
@@ -43,18 +41,6 @@ import { previewActivities } from "@/pages/dashboard-exploration";
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
 
 type Period = "week" | "month" | "12weeks";
-type ConsoleMetric = "practice" | "sport" | "total" | "active";
-type ConsoleScope = "all" | number;
-
-const CONSOLE_METRICS: Record<
-  ConsoleMetric,
-  { label: string; accent: string; unit: "minutes" | "days" }
-> = {
-  practice: { label: "Practice", accent: "#ff7868", unit: "minutes" },
-  sport: { label: "Sport", accent: "#72c6b3", unit: "minutes" },
-  total: { label: "All logged", accent: "#ffc268", unit: "minutes" },
-  active: { label: "Active days", accent: "#9fa9ff", unit: "days" },
-};
 
 const PERIOD_LABELS: Record<Period, string> = {
   week: "Week",
@@ -212,9 +198,6 @@ export default function History() {
     };
   }, []);
   const [period, setPeriod] = useState<Period>("month");
-  const [consoleMetric, setConsoleMetric] =
-    useState<ConsoleMetric>("practice");
-  const [consoleScope, setConsoleScope] = useState<ConsoleScope>("all");
   const [hiddenActivityIds, setHiddenActivityIds] = useState<number[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(() =>
     new URLSearchParams(window.location.search).get("date"),
@@ -382,89 +365,6 @@ export default function History() {
     .filter((item) => item.minutes > 0)
     .sort((a, b) => b.minutes - a.minutes)
     .slice(0, 4);
-  const previousDayMap = useMemo(
-    () => new Map(previousCalendarDays.map((day) => [day.date, day])),
-    [previousCalendarDays],
-  );
-  const consoleScopeActivities = useMemo(
-    () =>
-      activities.filter((activity) => {
-        if (activity.activityType === "friction") return false;
-        if (consoleMetric === "practice")
-          return activity.activityType === "practice";
-        if (consoleMetric === "sport") return activity.activityType === "sport";
-        return true;
-      }),
-    [activities, consoleMetric],
-  );
-  const selectedConsoleActivity =
-    typeof consoleScope === "number"
-      ? activities.find((activity) => activity.id === consoleScope) ?? null
-      : null;
-  const readConsoleValue = (day: CalendarDay | undefined) => {
-    if (!day) return 0;
-    if (typeof consoleScope === "number") {
-      const minutes = day.logs
-        .filter((log) => log.activityId === consoleScope)
-        .reduce((sum, log) => sum + log.durationMinutes, 0);
-      return consoleMetric === "active" ? Number(minutes > 0) : minutes;
-    }
-    if (consoleMetric === "practice") return day.focusMinutes;
-    if (consoleMetric === "sport") return day.sportMinutes;
-    if (consoleMetric === "total") return day.focusMinutes + day.sportMinutes;
-    return Number(day.focusMinutes > 0 || day.sportMinutes > 0);
-  };
-  const consoleSeries = useMemo(
-    () =>
-      chartDays.map((day) => {
-        const previousDate = format(
-          subDays(parseISO(day.date), periodDayCount),
-          "yyyy-MM-dd",
-        );
-        return {
-          date: day.date,
-          current: readConsoleValue(dayMap.get(day.date)),
-          previous: readConsoleValue(previousDayMap.get(previousDate)),
-        };
-      }),
-    [
-      chartDays,
-      consoleMetric,
-      consoleScope,
-      dayMap,
-      periodDayCount,
-      previousDayMap,
-    ],
-  );
-  const consoleCurrentTotal = consoleSeries.reduce(
-    (sum, point) => sum + point.current,
-    0,
-  );
-  const consoleActivePoints = consoleSeries.filter(
-    (point) => point.current > 0,
-  ).length;
-  const consolePreviousTotal = consoleSeries.reduce(
-    (sum, point) => sum + point.previous,
-    0,
-  );
-  const consoleDelta = consoleCurrentTotal - consolePreviousTotal;
-  const consoleDeltaPercent = consolePreviousTotal
-    ? Math.round((consoleDelta / consolePreviousTotal) * 100)
-    : null;
-  const consoleMetricMeta = CONSOLE_METRICS[consoleMetric];
-  const consoleValueLabel =
-    consoleMetricMeta.unit === "days"
-      ? String(consoleCurrentTotal)
-      : formatMinutes(consoleCurrentTotal);
-  const consolePreviousLabel =
-    consoleMetricMeta.unit === "days"
-      ? String(consolePreviousTotal)
-      : formatMinutes(consolePreviousTotal);
-  const consoleDeltaLabel =
-    consolePreviousTotal === 0
-      ? "No prior read"
-      : `${consoleDelta >= 0 ? "+" : "−"}${consoleMetricMeta.unit === "days" ? Math.abs(consoleDelta) : formatMinutes(Math.abs(consoleDelta))}`;
-  const consoleScopeLabel = selectedConsoleActivity?.name ?? "All directions";
   const topActivity = activities
     .filter((activity) => activity.activityType === "practice")
     .reduce<Activity | null>((top, activity) => {
@@ -661,180 +561,137 @@ export default function History() {
         />
       </section>
 
-      <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-[#ffb1a7]/14 bg-[radial-gradient(circle_at_84%_0%,rgba(255,120,104,.11),transparent_29%),linear-gradient(140deg,rgba(12,20,30,.97),rgba(7,12,19,.98))] shadow-[0_22px_56px_rgba(0,0,0,.22)]">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#ffc268]/55 to-transparent" />
-        <div className="relative z-10 flex flex-col gap-4 border-b border-white/[.07] p-5 md:flex-row md:items-end md:justify-between md:p-6">
+      <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-5 shadow-[0_18px_46px_rgba(0,0,0,.16)] md:p-6">
+        <div className="relative z-10 flex flex-col gap-2 border-b border-white/[.06] pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-[.22em] text-[#ffc268]">
-              Analysis console
+            <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]">
+              Period read
             </p>
             <h2 className="mt-1 text-xl font-semibold text-white">
-              Inspect the field, not a fixed summary.
+              What this period actually says.
             </h2>
-            <p className="mt-2 text-sm text-white/40">
-              Pick a metric and a direction. The live trace and comparison below use the same recorded logs as the timeline.
-            </p>
           </div>
-          <div className="flex flex-wrap gap-1.5 rounded-2xl border border-white/[.08] bg-black/[.15] p-1.5">
-            {(Object.keys(CONSOLE_METRICS) as ConsoleMetric[]).map((metric) => {
-              const selected = consoleMetric === metric;
-              return (
-                <button
-                  key={metric}
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => {
-                    setConsoleMetric(metric);
-                    setConsoleScope("all");
-                  }}
-                  className={`signal-button rounded-xl px-3 py-2 text-[9px] font-bold uppercase tracking-[.13em] transition-[color,background-color,box-shadow] ${selected ? "bg-white/[.1] text-white shadow-[0_0_18px_rgba(255,194,104,.08)]" : "text-white/32 hover:bg-white/[.05] hover:text-white/78"}`}
-                  style={selected ? { boxShadow: `inset 0 -1px 0 ${CONSOLE_METRICS[metric].accent}88, 0 0 18px ${CONSOLE_METRICS[metric].accent}18` } : undefined}
-                >
-                  {CONSOLE_METRICS[metric].label}
-                </button>
-              );
-            })}
+          <p className="text-[9px] font-bold uppercase tracking-[.14em] text-white/32">
+            Practice only · sport stays separate
+          </p>
+        </div>
+
+        <div className="relative z-10 mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-2xl border border-white/[.07] bg-black/[.13] p-4">
+            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/36">
+              Weekly pace
+            </p>
+            <strong className="mt-2 block text-xl font-semibold tabular-nums text-white">
+              {formatMinutes(weeklyPracticePace)}
+            </strong>
+            <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/32">
+              average per week
+            </span>
+          </div>
+          <div className="rounded-2xl border border-white/[.07] bg-black/[.13] p-4">
+            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/36">
+              Return average
+            </p>
+            <strong className="mt-2 block text-xl font-semibold tabular-nums text-white">
+              {formatMinutes(averageActiveReturn)}
+            </strong>
+            <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/32">
+              per active day
+            </span>
+          </div>
+          <div className="rounded-2xl border border-white/[.07] bg-black/[.13] p-4">
+            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/36">
+              Consistency
+            </p>
+            <strong className="mt-2 block text-xl font-semibold tabular-nums text-white">
+              {consistencyRate}%
+            </strong>
+            <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/32">
+              {activeDays} of {periodDayCount} days active
+            </span>
+          </div>
+          <div className="rounded-2xl border border-[#ff9b84]/16 bg-[#ff7868]/[.055] p-4">
+            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-[#ffb1a7]/68">
+              Period change
+            </p>
+            <strong className="mt-2 block text-xl font-semibold tabular-nums text-white">
+              {previousFocusMinutes
+                ? `${focusDeltaMinutes >= 0 ? "+" : "−"}${formatMinutes(Math.abs(focusDeltaMinutes))}`
+                : "New"}
+            </strong>
+            <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/38">
+              {previousFocusMinutes
+                ? `${focusDeltaPercent && focusDeltaPercent > 0 ? "+" : ""}${focusDeltaPercent ?? 0}% vs prior · ${previousActiveDays} active`
+                : "no prior period logged"}
+            </span>
           </div>
         </div>
 
-        <div className="relative z-10 p-5 md:p-6">
-          <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
-            <button
-              type="button"
-              aria-pressed={consoleScope === "all"}
-              onClick={() => setConsoleScope("all")}
-              className={`signal-button shrink-0 rounded-xl border px-3 py-2 text-[9px] font-bold uppercase tracking-[.13em] ${consoleScope === "all" ? "border-white/[.22] bg-white/[.09] text-white" : "border-white/[.07] bg-black/[.1] text-white/36 hover:border-white/[.16] hover:text-white/78"}`}
-            >
-              All directions
-            </button>
-            {consoleScopeActivities.map((activity) => {
-              const selected = consoleScope === activity.id;
-              return (
-                <button
-                  key={activity.id}
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => setConsoleScope(activity.id)}
-                  className={`signal-button shrink-0 rounded-xl border px-3 py-2 text-[9px] font-bold uppercase tracking-[.13em] transition-[color,background-color,border-color] ${selected ? "text-white" : "border-white/[.07] bg-black/[.1] text-white/36 hover:border-white/[.16] hover:text-white/78"}`}
-                  style={
-                    selected
-                      ? {
-                          borderColor: `${activityColors.get(activity.id)}a8`,
-                          backgroundColor: `${activityColors.get(activity.id)}22`,
-                          boxShadow: `0 0 16px ${activityColors.get(activity.id)}18`,
-                        }
-                      : undefined
-                  }
-                >
-                  {activity.name}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_15rem]">
-            <div className="relative overflow-hidden rounded-2xl border border-white/[.08] bg-[#070c13]/[.68] p-3.5 sm:p-4">
-              <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-                <div>
-                  <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/36">
-                    {consoleMetricMeta.label} trace · {consoleScopeLabel}
-                  </p>
-                  <p className="mt-1 text-sm text-white/48">
-                    Solid line: current period · dashed line: matched prior period
-                  </p>
-                </div>
-                <span className="rounded-lg border border-white/[.08] bg-white/[.035] px-2.5 py-1.5 text-[8px] font-bold uppercase tracking-[.13em] text-white/42">
-                  Click trace to open day
-                </span>
-              </div>
-              <div className="h-64 sm:h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={consoleSeries}
-                    margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
-                    onClick={(state) => {
-                      if (state?.activeLabel) setSelectedDate(String(state.activeLabel));
-                    }}
-                  >
-                    <defs>
-                      <linearGradient id="history-console-current" x1="0" x2="0" y1="0" y2="1">
-                        <stop offset="0%" stopColor={consoleMetricMeta.accent} stopOpacity={0.42} />
-                        <stop offset="100%" stopColor={consoleMetricMeta.accent} stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 4" stroke="rgba(255,255,255,.06)" vertical={false} />
-                    <XAxis
-                      dataKey="date"
-                      tickFormatter={(date) => format(parseISO(String(date)), period === "week" ? "EEE" : "d MMM")}
-                      tick={{ fill: "rgba(255,255,255,.36)", fontSize: 9, fontWeight: 700 }}
-                      axisLine={false}
-                      tickLine={false}
-                      minTickGap={18}
-                    />
-                    <YAxis
-                      tickFormatter={(value) => consoleMetricMeta.unit === "days" ? String(value) : formatMinutes(Number(value))}
-                      tick={{ fill: "rgba(255,255,255,.3)", fontSize: 9 }}
-                      axisLine={false}
-                      tickLine={false}
-                      width={44}
-                    />
-                    <Tooltip
-                      labelFormatter={(date) => format(parseISO(String(date)), "EEEE, MMM d")}
-                      formatter={(value, name) => [
-                        consoleMetricMeta.unit === "days" ? `${Number(value)} active` : formatMinutes(Number(value)),
-                        name === "current" ? "This period" : "Previous period",
-                      ]}
-                      contentStyle={{ backgroundColor: "#080d14", border: "1px solid rgba(255,194,104,.2)", borderRadius: "1rem", color: "#fff", boxShadow: "0 18px 50px rgba(0,0,0,.4)" }}
-                      cursor={{ stroke: "rgba(255,255,255,.18)", strokeWidth: 1 }}
-                    />
-                    <Area type="monotone" dataKey="previous" stroke="rgba(255,255,255,.32)" strokeDasharray="5 6" fill="transparent" strokeWidth={1.5} isAnimationActive={!reducedMotion} />
-                    <Area type="monotone" dataKey="current" stroke={consoleMetricMeta.accent} fill="url(#history-console-current)" strokeWidth={2.5} activeDot={{ r: 4, fill: consoleMetricMeta.accent, stroke: "#0b1018", strokeWidth: 2 }} isAnimationActive={!reducedMotion} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+        <div className="relative z-10 mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_15rem]">
+          <div className="rounded-2xl border border-white/[.07] bg-black/[.11] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
+                Direction distribution
+              </p>
+              <span className="text-[9px] font-semibold tabular-nums text-white/46">
+                {formatMinutes(focusMinutes)} total
+              </span>
             </div>
-
-            <aside className="relative overflow-hidden rounded-2xl border border-white/[.08] bg-[linear-gradient(155deg,rgba(255,194,104,.09),rgba(8,13,20,.82)_56%,rgba(114,198,179,.06))] p-4">
-              <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#ffc268]/[.1] blur-3xl" />
-              <div className="relative">
-                <p className="text-[8px] font-bold uppercase tracking-[.16em] text-[#ffe0a5]/72">
-                  Current signal
-                </p>
-                <p className="mt-2 text-[10px] font-bold uppercase tracking-[.14em] text-white/42">
-                  {consoleScopeLabel}
-                </p>
-                <strong className="mt-2 block text-3xl font-semibold tabular-nums tracking-[-.04em] text-white">
-                  {consoleValueLabel}
-                </strong>
-                <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/38">
-                  {consoleMetricMeta.label} · selected range
-                </span>
-                <div className="mt-5 border-t border-white/[.08] pt-4">
-                  <span className="text-[8px] font-bold uppercase tracking-[.14em] text-white/34">
-                    Versus prior
-                  </span>
-                  <strong className="mt-1 block text-lg font-semibold tabular-nums" style={{ color: consoleDelta >= 0 ? consoleMetricMeta.accent : "#ff9b84" }}>
-                    {consoleDeltaLabel}
-                  </strong>
-                  <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/38">
-                    {consolePreviousTotal
-                      ? `${consoleDeltaPercent && consoleDeltaPercent > 0 ? "+" : ""}${consoleDeltaPercent ?? 0}% · prior ${consolePreviousLabel}`
-                      : "No matching prior record"}
-                  </span>
-                </div>
-                <div className="mt-5 grid grid-cols-2 gap-2 border-t border-white/[.08] pt-4">
-                  <div>
-                    <span className="block text-[7px] font-bold uppercase tracking-[.12em] text-white/30">Coverage</span>
-                    <strong className="mt-1 block text-sm font-semibold tabular-nums text-white/84">{consoleActivePoints}/{periodDayCount}</strong>
-                  </div>
-                  <div>
-                    <span className="block text-[7px] font-bold uppercase tracking-[.12em] text-white/30">Selection</span>
-                    <strong className="mt-1 block truncate text-sm font-semibold text-white/84">{consoleMetricMeta.label}</strong>
-                  </div>
-                </div>
+            {practiceDistribution.length ? (
+              <div className="mt-4 space-y-3">
+                {practiceDistribution.map(({ activity, minutes }) => {
+                  const share = focusMinutes
+                    ? Math.round((minutes / focusMinutes) * 100)
+                    : 0;
+                  return (
+                    <div key={activity.id}>
+                      <div className="flex items-center justify-between gap-3 text-[10px]">
+                        <span className="min-w-0 truncate font-medium text-white/70">
+                          {activity.name}
+                        </span>
+                        <span className="shrink-0 tabular-nums text-white/42">
+                          {formatMinutes(minutes)} · {share}%
+                        </span>
+                      </div>
+                      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[.07]">
+                        <div
+                          className="h-full rounded-full transition-[width] duration-700"
+                          style={{
+                            width: `${share}%`,
+                            backgroundColor: activityColors.get(activity.id),
+                            boxShadow: `0 0 12px ${activityColors.get(activity.id)}80`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </aside>
+            ) : (
+              <p className="mt-4 text-sm text-white/34">
+                Log a practice return to build the distribution.
+              </p>
+            )}
           </div>
+          <aside className="rounded-2xl border border-[#ffc268]/16 bg-[linear-gradient(155deg,rgba(255,194,104,.08),rgba(8,13,20,.68))] p-4">
+            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-[#ffe0a5]/72">
+              Peak read
+            </p>
+            <strong className="mt-2 block text-lg font-semibold tabular-nums text-white">
+              {formatMinutes(peakPracticeDay.minutes)}
+            </strong>
+            <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/38">
+              {format(parseISO(peakPracticeDay.date), "EEE, MMM d")}
+            </span>
+            <div className="mt-4 border-t border-white/[.08] pt-3">
+              <span className="text-[8px] font-bold uppercase tracking-[.14em] text-white/34">
+                Longest session
+              </span>
+              <strong className="mt-1 block text-sm font-semibold tabular-nums text-white/82">
+                {formatMinutes(longestSession)}
+              </strong>
+            </div>
+          </aside>
         </div>
       </section>
 

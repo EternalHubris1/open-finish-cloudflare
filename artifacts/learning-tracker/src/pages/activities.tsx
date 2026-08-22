@@ -360,24 +360,17 @@ export default function Activities() {
             </div>
           </div>
           <div className="w-full max-w-52 space-y-2 sm:w-52">
-            <div className="relative overflow-hidden rounded-2xl border border-white/[.12] bg-[#101923]/[.88] px-4 py-3 shadow-[0_14px_32px_rgba(0,0,0,.18)] backdrop-blur-xl">
-              <div className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-[#ff7868] via-[#ffc268] to-[#72c6b3]" />
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-[8px] font-bold uppercase tracking-[.17em] text-white/45">
-                  This week
-                </p>
-                <span className="flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-[.12em] text-[#8bd2c2]/75">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#72c6b3] shadow-[0_0_10px_rgba(114,198,179,.9)]" /> Live
-                </span>
-              </div>
+            <div className="relative overflow-hidden rounded-2xl border border-white/[.1] bg-[#071019]/[.3] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,.05)] backdrop-blur-sm">
+              <div className="pointer-events-none absolute inset-y-3 left-0 w-px bg-gradient-to-b from-[#ff7868] via-[#ffc268] to-[#72c6b3] shadow-[0_0_9px_rgba(255,194,104,.55)]" />
+              <p className="text-[8px] font-bold uppercase tracking-[.17em] text-white/52">
+                This week
+              </p>
               <p className="mt-1.5 text-[1.35rem] font-semibold leading-none tabular-nums tracking-[-.04em] text-white">
-                {totalWeekMinutes >= 60
-                  ? `${Math.floor(totalWeekMinutes / 60)}h ${totalWeekMinutes % 60}m`
-                  : `${totalWeekMinutes}m`}
+                {compactDuration(totalWeekMinutes)}
               </p>
               <div className="mt-3 h-px overflow-hidden bg-white/[.08]">
                 <div
-                  className="h-full bg-gradient-to-r from-[#ff7868] via-[#ffc268] to-[#72c6b3] shadow-[0_0_10px_rgba(255,194,104,.75)] transition-[width] duration-700"
+                  className="h-full bg-gradient-to-r from-[#ff7868] via-[#ffc268] to-[#72c6b3] shadow-[0_0_10px_rgba(255,194,104,.65)] transition-[width] duration-700"
                   style={{
                     width: `${totalWeekTarget ? Math.min(100, Math.round((totalWeekMinutes / totalWeekTarget) * 100)) : 0}%`,
                   }}
@@ -427,8 +420,8 @@ export default function Activities() {
               className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-right opacity-[.34]"
             />
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(10,16,25,.82),rgba(10,16,25,.52),rgba(10,16,25,.72))]" />
-            <div className="relative z-10 grid gap-2 xl:grid-cols-[minmax(0,1.45fr)_minmax(19rem,.8fr)]">
-              <div className="relative overflow-hidden rounded-[1.75rem] border border-white/[.09] bg-[#0d1520]/[.79] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.04)] backdrop-blur-[2px] md:p-6">
+            <div className="relative z-10 grid items-start gap-2 xl:grid-cols-[minmax(0,1.45fr)_minmax(19rem,.8fr)]">
+              <div className="relative self-start overflow-hidden rounded-[1.75rem] border border-white/[.09] bg-[#0d1520]/[.57] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.04)] backdrop-blur-[1px] md:p-6">
               <div className="relative z-10 flex items-center justify-between gap-4">
                 <div>
                   <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffb1a7]">
@@ -503,7 +496,7 @@ export default function Activities() {
                             {activity.name}
                           </span>
                           <span className="mt-1 block text-[9px] font-bold uppercase tracking-[.13em] text-white/32">
-                            {minutes} / {target} min
+                            {compactDuration(minutes)} / {compactDuration(target)}
                           </span>
                         </span>
                       </div>
@@ -523,10 +516,7 @@ export default function Activities() {
                     Practice
                   </p>
                   <p className="mt-2 text-2xl font-semibold tabular-nums text-white">
-                    {practiceWeekMinutes}
-                  </p>
-                  <p className="mt-1 text-[9px] font-bold uppercase tracking-[.13em] text-white/30">
-                    minutes
+                    {compactDuration(practiceWeekMinutes)}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-[#72c6b3]/[.14] bg-[#72c6b3]/[.045] p-3.5">
@@ -534,10 +524,7 @@ export default function Activities() {
                     Sport
                   </p>
                   <p className="mt-2 text-2xl font-semibold tabular-nums text-white">
-                    {sportWeekMinutes}
-                  </p>
-                  <p className="mt-1 text-[9px] font-bold uppercase tracking-[.13em] text-white/30">
-                    minutes
+                    {compactDuration(sportWeekMinutes)}
                   </p>
                 </div>
               </div>
