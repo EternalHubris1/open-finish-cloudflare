@@ -34,6 +34,7 @@ import {
   X,
 } from "lucide-react";
 import { format } from "date-fns";
+import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
 
 const PINNED_LAUNCHERS_STORAGE_KEY = "open-finish:pinned-launchers";
 
@@ -244,6 +245,13 @@ export default function Settings() {
         aria-labelledby="visual-effects-heading"
         className="signal-surface relative overflow-hidden rounded-[2rem] border border-[#ff8b7c]/15 bg-[#0c1119]/88 p-5 shadow-[0_20px_60px_rgba(0,0,0,.18)] md:p-6"
       >
+        <img
+          src={verticalOrnament}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-3 -bottom-20 h-[20rem] w-auto opacity-[.3] saturate-[.76] brightness-[.82]"
+        />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-[48%] bg-gradient-to-l from-[#0c1119]/10 to-transparent" aria-hidden="true" />
         <div className="pointer-events-none absolute -right-12 -top-14 h-36 w-36 rounded-full bg-[#ff7868]/10 blur-3xl" />
         <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-start gap-4">
