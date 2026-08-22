@@ -2845,3 +2845,135 @@
   70% { opacity: 0; }
   to { transform: translateX(590%); opacity: 0; }
 }
+
+/* History telemetry console: data-first hi-tech treatment without obscuring the garden material layer. */
+.history-telemetry-console {
+  --history-activity-ratio: 0%;
+  border-color: rgba(190, 214, 225, 0.13);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.045),
+    inset 0 -1px 0 rgba(255, 139, 124, 0.05),
+    0 22px 58px rgba(0, 0, 0, 0.22);
+}
+
+.history-telemetry-console::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  opacity: 0.36;
+  background-image:
+    linear-gradient(rgba(190, 214, 225, 0.038) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(190, 214, 225, 0.038) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 139, 124, 0.08), transparent 36%);
+  background-size: 24px 24px, 24px 24px, 100% 100%;
+  mask-image: linear-gradient(145deg, rgba(0, 0, 0, 0.86), transparent 78%);
+  -webkit-mask-image: linear-gradient(145deg, rgba(0, 0, 0, 0.86), transparent 78%);
+}
+
+.history-telemetry-console::after {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 8%;
+  width: min(var(--history-activity-ratio), 84%);
+  height: 2px;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(90deg, #ff8b7c, #ffc268 72%, transparent);
+  box-shadow: 0 0 14px rgba(255, 139, 124, 0.48);
+}
+
+.history-telemetry-cell,
+.history-telemetry-volume,
+.history-telemetry-selected,
+.history-telemetry-distribution {
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(222, 239, 246, 0.035);
+}
+
+.history-telemetry-cell::after,
+.history-telemetry-volume::after,
+.history-telemetry-selected::after,
+.history-telemetry-distribution::after {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  width: 0.34rem;
+  height: 0.34rem;
+  content: "";
+  border-top: 1px solid rgba(255, 194, 104, 0.52);
+  border-right: 1px solid rgba(255, 194, 104, 0.52);
+  opacity: 0.7;
+}
+
+.history-telemetry-volume {
+  background:
+    linear-gradient(125deg, rgba(104, 193, 175, 0.075), rgba(8, 13, 20, 0.48) 44%, rgba(255, 139, 124, 0.045)) !important;
+}
+
+.history-telemetry-volume > *,
+.history-telemetry-selected > *,
+.history-telemetry-distribution > * {
+  position: relative;
+  z-index: 1;
+}
+
+.history-telemetry-selected {
+  background:
+    linear-gradient(145deg, rgba(255, 194, 104, 0.11), rgba(8, 13, 20, 0.78) 64%) !important;
+}
+
+.history-telemetry-distribution {
+  background:
+    linear-gradient(110deg, rgba(190, 214, 225, 0.045), rgba(8, 13, 20, 0.42) 46%, rgba(255, 139, 124, 0.035)) !important;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .history-telemetry-console::after {
+    animation: history-telemetry-scan 5.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
+
+  .history-telemetry-volume::before {
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    bottom: 0;
+    left: -20%;
+    width: 16%;
+    content: "";
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(90deg, transparent, rgba(156, 226, 207, 0.14), transparent);
+    animation: history-volume-sweep 7.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
+}
+
+@keyframes history-telemetry-scan {
+  0%, 72%, 100% {
+    opacity: 0.48;
+    transform: scaleX(0.92);
+    transform-origin: left;
+  }
+  86% {
+    opacity: 1;
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+@keyframes history-volume-sweep {
+  0%, 30% { opacity: 0; transform: translateX(0); }
+  42% { opacity: 0.78; }
+  70% { opacity: 0.18; }
+  82%, 100% { opacity: 0; transform: translateX(760%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .history-telemetry-console::after,
+  .history-telemetry-volume::before {
+    animation: none;
+  }
+}

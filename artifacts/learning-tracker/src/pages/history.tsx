@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Link } from "wouter";
 import {
   getGetCalendarQueryKey,
@@ -39,6 +39,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DailyActivityChart } from "@/components/daily-activity-chart";
 import { previewActivities } from "@/pages/dashboard-exploration";
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
+import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 
 type Period = "week" | "month" | "12weeks";
 type AggregationMetric = "practice" | "sport" | "combined";
@@ -168,7 +169,7 @@ function SummaryCard({
   sceneScale: number;
 }) {
   return (
-    <div className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.1] bg-[#0c1119]/74 p-5 shadow-[0_14px_32px_rgba(0,0,0,.14)]">
+    <div className="history-telemetry-cell signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.1] bg-[#0c1119]/74 p-5 shadow-[0_14px_32px_rgba(0,0,0,.14)]">
       <img
         src={zenGarden}
         alt=""
@@ -540,7 +541,12 @@ export default function History() {
         <div className="room-motif-overlay pointer-events-none absolute inset-0" />
         <div className="relative z-10">
           <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#ff8b7c]">
-            <ActivityIcon className="h-4 w-4" aria-hidden="true" />
+            <SamuraiStatusIcon
+              status="active"
+              label="Activity analytics signal"
+              className="h-7 w-7 shrink-0"
+              animate={!reducedMotion}
+            />
             Activity analytics
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
@@ -578,18 +584,21 @@ export default function History() {
         </div>
       )}
 
-      <section className="signal-surface relative isolate overflow-hidden rounded-[2rem] border border-white/[.08] bg-[#0c1119]/92 p-5 shadow-[0_18px_46px_rgba(0,0,0,.16)] md:p-6">
+      <section
+        className="history-telemetry-console signal-surface relative isolate overflow-hidden rounded-[2rem] border border-white/[.08] bg-[#0c1119]/92 p-5 shadow-[0_18px_46px_rgba(0,0,0,.16)] md:p-6"
+        style={{ "--history-activity-ratio": `${(metricActiveDays / periodDayCount) * 100}%` } as CSSProperties}
+      >
         <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#ff8b7c]/45 to-transparent" />
         <div className="relative z-10 flex flex-col gap-4 border-b border-white/[.06] pb-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]">
-              Aggregation dashboard
+              Period telemetry
             </p>
             <h2 className="mt-1 text-xl font-semibold text-white">
-              One period, one readable signal.
+              Recorded effort, read as one system.
             </h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-white/42">
-              Switch the measure, inspect the period, then select a day to open its actual sessions below.
+              Switch the measure, compare it with the prior period, then open any recorded day below.
             </p>
           </div>
           <div className="flex w-full rounded-2xl border border-white/[.1] bg-black/[.16] p-1 lg:w-auto">
@@ -613,28 +622,28 @@ export default function History() {
 
         <div className="relative z-10 mt-5 grid grid-cols-2 gap-3 xl:grid-cols-4">
           <SummaryCard
-            label={`${metricConfig.label} total`}
+            label={`${metricConfig.label} logged`}
             value={formatMinutes(metricTotal)}
             icon={Clock3}
             scenePosition="8% 18%"
             sceneScale={1.42}
           />
           <SummaryCard
-            label="Active days"
+            label={`Days with ${metricConfig.label.toLowerCase()}`}
             value={`${metricActiveDays} / ${periodDayCount}`}
             icon={CalendarDays}
             scenePosition="82% 14%"
             sceneScale={1.42}
           />
           <SummaryCard
-            label="Average return"
+            label="Avg. per active day"
             value={formatMinutes(metricAverageReturn)}
             icon={ActivityIcon}
             scenePosition="15% 82%"
             sceneScale={1.42}
           />
           <SummaryCard
-            label="Period change"
+            label="Change vs prior period"
             value={
               previousMetricTotal
                 ? `${metricDeltaMinutes >= 0 ? "+" : "−"}${formatMinutes(Math.abs(metricDeltaMinutes))}`
@@ -647,14 +656,14 @@ export default function History() {
         </div>
 
         <div className="relative z-10 mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,.72fr)]">
-          <div className="rounded-2xl border border-white/[.07] bg-black/[.12] p-4">
+          <div className="history-telemetry-volume rounded-2xl border border-white/[.07] bg-black/[.12] p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
-                  Daily signal
+                  Daily volume
                 </p>
                 <p className="mt-1 text-xs text-white/48">
-                  Select a day to inspect its return below.
+                  Select any bar to inspect that recorded day below.
                 </p>
               </div>
               <span className="rounded-full border border-white/[.08] bg-white/[.03] px-2.5 py-1 text-[8px] font-bold uppercase tracking-[.12em] text-white/42">
@@ -688,9 +697,9 @@ export default function History() {
             </div>
           </div>
 
-          <aside className="rounded-2xl border border-[#ffc268]/16 bg-[linear-gradient(155deg,rgba(255,194,104,.08),rgba(8,13,20,.68))] p-4">
+          <aside className="history-telemetry-selected rounded-2xl border border-[#ffc268]/16 bg-[linear-gradient(155deg,rgba(255,194,104,.08),rgba(8,13,20,.68))] p-4">
             <p className="text-[8px] font-bold uppercase tracking-[.16em] text-[#ffe0a5]/72">
-              Selected read
+              Selected day
             </p>
             <strong className="mt-2 block text-lg font-semibold tabular-nums text-white">
               {selectedMetricDay ? formatMinutes(selectedMetricDay.value) : "0m"}
@@ -700,21 +709,21 @@ export default function History() {
             </span>
             <div className="mt-4 grid grid-cols-2 gap-3 border-t border-white/[.08] pt-3">
               <div>
-                <span className="text-[8px] font-bold uppercase tracking-[.12em] text-white/34">Peak day</span>
+                <span className="text-[8px] font-bold uppercase tracking-[.12em] text-white/34">Highest-volume day</span>
                 <strong className="mt-1 block text-sm font-semibold tabular-nums text-white/82">{formatMinutes(metricPeakDay.value)}</strong>
               </div>
               <div>
-                <span className="text-[8px] font-bold uppercase tracking-[.12em] text-white/34">Longest session</span>
+                <span className="text-[8px] font-bold uppercase tracking-[.12em] text-white/34">Longest single session</span>
                 <strong className="mt-1 block text-sm font-semibold tabular-nums text-white/82">{formatMinutes(longestSession)}</strong>
               </div>
             </div>
           </aside>
         </div>
 
-        <div className="relative z-10 mt-3 rounded-2xl border border-white/[.07] bg-black/[.11] p-4">
+        <div className="history-telemetry-distribution relative z-10 mt-3 rounded-2xl border border-white/[.07] bg-black/[.11] p-4">
           <div className="flex items-center justify-between gap-3">
             <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
-              {metricConfig.label} distribution
+              {metricConfig.label} by direction
             </p>
             <span className="text-[9px] font-semibold tabular-nums text-white/46">
               {formatMinutes(metricTotal)} total
