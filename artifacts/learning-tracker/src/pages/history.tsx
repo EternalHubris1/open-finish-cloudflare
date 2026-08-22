@@ -39,7 +39,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DailyActivityChart } from "@/components/daily-activity-chart";
 import { previewActivities } from "@/pages/dashboard-exploration";
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
-import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 
 type Period = "week" | "month" | "12weeks";
@@ -162,14 +161,12 @@ function SummaryCard({
   icon: Icon,
   scenePosition,
   sceneScale,
-  showOrnament = false,
 }: {
   label: string;
   value: string;
   icon: typeof Clock3;
   scenePosition: string;
   sceneScale: number;
-  showOrnament?: boolean;
 }) {
   return (
     <div className="history-telemetry-cell signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.1] bg-[#0c1119]/74 p-5 shadow-[0_14px_32px_rgba(0,0,0,.14)]">
@@ -186,14 +183,6 @@ function SummaryCard({
         }}
       />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.84)_0%,rgba(8,13,20,.5)_53%,rgba(8,13,20,.18)_100%)]" />
-      {showOrnament && (
-        <img
-          src={verticalOrnament}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-5 -top-8 h-[15rem] w-auto select-none opacity-[.22] brightness-[1.16] saturate-[.76]"
-        />
-      )}
       <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-[#ff8b7c]/45 via-white/[.14] to-transparent" />
       <div className="relative z-10">
         <div className="mb-4 flex min-h-8 items-start gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/34">
@@ -645,7 +634,6 @@ export default function History() {
             icon={CalendarDays}
             scenePosition="48% 12%"
             sceneScale={1.3}
-            showOrnament
           />
           <SummaryCard
             label="Avg. per active day"
@@ -653,7 +641,6 @@ export default function History() {
             icon={ActivityIcon}
             scenePosition="52% 84%"
             sceneScale={1.3}
-            showOrnament
           />
           <SummaryCard
             label="Change vs prior period"
@@ -665,7 +652,6 @@ export default function History() {
             icon={RefreshCw}
             scenePosition="94% 48%"
             sceneScale={1.3}
-            showOrnament
           />
         </div>
 
