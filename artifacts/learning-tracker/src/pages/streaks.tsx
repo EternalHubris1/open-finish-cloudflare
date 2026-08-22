@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import templePath from "@/assets/environments/optimized/streaks-temple-path.webp";
-import katanaVerticalSignal from "@/assets/icons/katana-vertical-signal.png";
+import prayingSamuraiSignal from "@/assets/icons/praying-samurai-signal.png";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DailyActivityChart,
@@ -149,10 +149,10 @@ export default function Streaks() {
         <div className="relative z-10">
           <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-red-400">
             <img
-              src={katanaVerticalSignal}
+              src={prayingSamuraiSignal}
               alt=""
               aria-hidden="true"
-              className="h-8 w-8 shrink-0 object-contain opacity-90 grayscale brightness-[1.8] contrast-[.72] drop-shadow-[0_0_10px_rgba(255,139,124,.16)]"
+              className="h-8 w-8 shrink-0 object-contain opacity-88 grayscale brightness-[1.85] contrast-[.74] drop-shadow-[0_0_10px_rgba(255,139,124,.16)]"
             />
             Independent momentum
           </div>
