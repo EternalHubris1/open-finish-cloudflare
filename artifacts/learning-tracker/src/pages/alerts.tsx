@@ -156,6 +156,10 @@ export default function Cabinet() {
     () => milestones.filter((milestone) => milestone.status === "complete"),
     [milestones],
   );
+  const recentCabinetItems = useMemo(
+    () => cabinetItems.slice(-2).reverse(),
+    [cabinetItems],
+  );
 
   const invalidateCabinet = () => {
     void queryClient.invalidateQueries({
@@ -568,8 +572,15 @@ export default function Cabinet() {
           </section>
 
           <section className="relative min-h-[18rem] overflow-hidden rounded-3xl border border-[#ffc268]/20 bg-[radial-gradient(circle_at_72%_25%,rgba(255,194,104,.17),transparent_34%),linear-gradient(145deg,rgba(59,40,32,.78),rgba(12,17,25,.98)_58%,rgba(32,55,53,.62))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] md:p-6">
+            <img
+              src={readingRoom}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 right-0 h-full w-[58%] select-none object-cover object-right opacity-[.28]"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(29,24,25,.88),rgba(15,20,27,.68)_57%,rgba(15,20,27,.24))]" />
             <div className="pointer-events-none absolute -right-9 -top-9 h-32 w-32 rounded-full bg-[#ffc268]/[.16] blur-3xl" />
-            <div className="relative z-10 flex h-full max-w-[13rem] flex-col">
+            <div className="relative z-10 flex h-full max-w-[15rem] flex-col">
               <div className="flex items-center gap-2 text-[#ffe0a5]">
                 <ScrollText
                   className="h-5 w-5 shrink-0 opacity-85 drop-shadow-[0_0_10px_rgba(255,194,104,.18)]"
@@ -582,10 +593,42 @@ export default function Cabinet() {
               <h2 className="mt-3 text-xl font-bold leading-tight text-white">
                 Keep the tools that matter.
               </h2>
-              <p className="mt-3 text-xs leading-5 text-white/52">
-                Save an important link, reference, or quiet note without turning
-                it into a task.
-              </p>
+              {recentCabinetItems.length ? (
+                <div className="mt-4 space-y-2">
+                  {recentCabinetItems.map((item) => {
+                    const content = (
+                      <>
+                        <Link2 className="h-3.5 w-3.5 shrink-0 text-[#ffe0a5]/75" />
+                        <span className="min-w-0 flex-1 truncate">{item.title}</span>
+                        {item.url && <ExternalLink className="h-3 w-3 shrink-0 opacity-55" />}
+                      </>
+                    );
+                    return item.url ? (
+                      <a
+                        key={item.id}
+                        href={item.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="signal-button flex items-center gap-2 rounded-xl border border-white/[.1] bg-black/[.2] px-3 py-2 text-[10px] font-semibold text-white/82 transition-colors hover:border-[#ffc268]/38 hover:bg-white/[.07] hover:text-white"
+                      >
+                        {content}
+                      </a>
+                    ) : (
+                      <div
+                        key={item.id}
+                        className="flex items-center gap-2 rounded-xl border border-white/[.08] bg-black/[.16] px-3 py-2 text-[10px] font-semibold text-white/70"
+                      >
+                        {content}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="mt-3 text-xs leading-5 text-white/52">
+                  Save an important link, reference, or quiet note without turning
+                  it into a task.
+                </p>
+              )}
               <Button
                 onClick={() => openCabinetDialog()}
                 className="signal-button mt-auto h-11 w-full gap-2 rounded-2xl bg-[#ffc268] text-[10px] font-bold uppercase tracking-[.14em] text-[#17120a] shadow-[0_10px_24px_rgba(255,194,104,.16)] hover:bg-[#ffd486]"
