@@ -3248,3 +3248,108 @@
     animation: none;
   }
 }
+
+/* Selected History page signal: monochrome orbit beacon. */
+.history-orbit-beacon {
+  position: relative;
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  border-radius: 50%;
+  background: rgba(8, 13, 20, 0.48);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 0 16px rgba(224, 234, 240, 0.08);
+}
+
+.history-orbit-beacon::before,
+.history-orbit-beacon::after {
+  position: absolute;
+  content: "";
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.history-orbit-beacon::before {
+  width: 1px;
+  height: 1.36rem;
+}
+
+.history-orbit-beacon::after {
+  width: 1.36rem;
+  height: 1px;
+}
+
+.history-orbit-beacon-orbit {
+  position: absolute;
+  inset: 0.26rem;
+  border: 1px dashed rgba(255, 255, 255, 0.46);
+  border-radius: 50%;
+}
+
+.history-orbit-beacon-marker {
+  position: absolute;
+  top: -0.2rem;
+  left: 50%;
+  width: 0.34rem;
+  height: 0.34rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.72);
+  transform: translateX(-50%);
+}
+
+.history-orbit-beacon-needle {
+  position: absolute;
+  top: 0.4rem;
+  left: 50%;
+  width: 1px;
+  height: 1rem;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.96) 0 54%,
+    rgba(255, 255, 255, 0.2) 54% 100%
+  );
+  transform: rotate(-27deg);
+  transform-origin: 50% 1rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .history-orbit-beacon-orbit {
+    animation: history-orbit-beacon-orbit 10s linear infinite;
+  }
+
+  .history-orbit-beacon-needle {
+    animation: history-orbit-beacon-needle 7.2s cubic-bezier(0.45, 0, 0.55, 1)
+      infinite;
+  }
+}
+
+@keyframes history-orbit-beacon-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes history-orbit-beacon-needle {
+  0%,
+  68%,
+  100% {
+    opacity: 0.62;
+    transform: rotate(-27deg);
+  }
+  80% {
+    opacity: 1;
+    transform: rotate(14deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .history-orbit-beacon-orbit,
+  .history-orbit-beacon-needle {
+    animation: none;
+  }
+}
