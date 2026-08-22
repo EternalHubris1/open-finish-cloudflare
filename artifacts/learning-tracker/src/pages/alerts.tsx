@@ -344,21 +344,21 @@ export default function Cabinet() {
           <div className="flex flex-wrap gap-2.5">
             <Button
               onClick={() => setDialog("milestone")}
-              className="signal-button h-11 gap-2 rounded-2xl bg-[#e95448] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-white shadow-[0_10px_24px_rgba(233,84,72,.22)] hover:bg-[#f26456]"
+              className="signal-button h-11 gap-2 rounded-2xl border border-[#ff9a89]/30 bg-[#e95448] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-white shadow-[0_10px_24px_rgba(233,84,72,.22)] hover:bg-[#f26456]"
             >
               <Plus className="h-4 w-4" /> Set deadline
             </Button>
             <Button
               variant="outline"
               onClick={() => openReminderDialog()}
-              className="signal-button h-11 gap-2 rounded-2xl border-white/[.14] bg-white/[.055] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-white/80 hover:border-[#ffc268]/45 hover:bg-[#ffc268]/10 hover:text-white"
+              className="signal-button h-11 gap-2 rounded-2xl border border-white/[.14] bg-white/[.055] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-white/80 hover:border-[#ffc268]/45 hover:bg-[#ffc268]/10 hover:text-white"
             >
               <Bell className="h-4 w-4" /> Daily reminder
             </Button>
             <Button
               variant="ghost"
               onClick={() => openCabinetDialog()}
-              className="signal-button h-11 gap-2 rounded-2xl px-3 text-[10px] font-bold uppercase tracking-[.14em] text-[#ffe0a5] hover:bg-[#ffc268]/10 hover:text-[#fff2cb]"
+              className="signal-button h-11 gap-2 rounded-2xl border border-transparent bg-transparent px-4 text-[10px] font-bold uppercase tracking-[.14em] text-[#ffe0a5] hover:border-[#ffc268]/24 hover:bg-[#ffc268]/10 hover:text-[#fff2cb]"
             >
               <Archive className="h-4 w-4" /> Add tool
             </Button>
