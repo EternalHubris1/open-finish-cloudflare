@@ -269,7 +269,6 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
               <Route path="/history" component={History} />
               <Route path="/reflections" component={Cabinet} />
               <Route path="/streaks" component={Streaks} />
-              <Route path="/achievements" component={Streaks} />
               <Route path="/alerts" component={Cabinet} />
               <Route path="/settings" component={Settings} />
               <Route path="/profile" component={Settings} />

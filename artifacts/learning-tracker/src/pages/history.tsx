@@ -19,7 +19,6 @@ import {
 import {
   Activity as ActivityIcon,
   CalendarDays,
-  Clock3,
   Compass,
   Orbit,
   RefreshCw,
@@ -178,54 +177,6 @@ function previewCalendar(start: string, end: string): CalendarDay[] {
   );
 }
 
-function SummaryCard({
-  label,
-  value,
-  icon: Icon,
-  scenePosition,
-  sceneScale,
-}: {
-  label: string;
-  value: string;
-  icon: typeof Clock3;
-  scenePosition: string;
-  sceneScale: number;
-}) {
-  return (
-    <div className="history-telemetry-cell signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.1] bg-[#0c1119]/74 p-5 shadow-[0_14px_32px_rgba(0,0,0,.14)]">
-      <img
-        src={zenGarden}
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
-        style={{
-          opacity: 0.58,
-          filter: "brightness(.92) contrast(.96) saturate(.88)",
-          objectPosition: scenePosition,
-          transform: `scale(${sceneScale})`,
-          transformOrigin: scenePosition,
-        }}
-      />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.84)_0%,rgba(8,13,20,.5)_53%,rgba(8,13,20,.18)_100%)]" />
-      <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-[#ff8b7c]/45 via-white/[.14] to-transparent" />
-      <div className="relative z-10">
-        <div className="mb-4 flex min-h-8 items-start gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/34">
-          <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#ff8b7c]" />
-          <span className="line-clamp-2" title={label}>
-            {label}
-          </span>
-        </div>
-        <p
-          className="line-clamp-2 text-2xl font-semibold text-white"
-          title={value}
-        >
-          {value}
-        </p>
-      </div>
-    </div>
-  );
-}
-
 export default function History() {
   const preview =
     import.meta.env.DEV &&
@@ -252,10 +203,7 @@ export default function History() {
   const start = format(range.start, "yyyy-MM-dd");
   const end = format(range.end, "yyyy-MM-dd");
   const comparisonStart = format(
-    subDays(
-      range.start,
-      differenceInCalendarDays(range.end, range.start) + 1,
-    ),
+    subDays(range.start, differenceInCalendarDays(range.end, range.start) + 1),
     "yyyy-MM-dd",
   );
 
@@ -412,7 +360,9 @@ export default function History() {
   const metricMedianReturn = sortedActiveVolumes.length
     ? sortedActiveVolumes[Math.floor(sortedActiveVolumes.length / 2)]
     : 0;
-  const metricConsistency = Math.round((metricActiveDays / periodDayCount) * 100);
+  const metricConsistency = Math.round(
+    (metricActiveDays / periodDayCount) * 100,
+  );
   const longestQuietRun = telemetryDays.reduce(
     (state, day) => {
       const current = day.volume > 0 ? 0 : state.current + 1;
@@ -422,8 +372,7 @@ export default function History() {
   ).longest;
   const telemetryConfig = TELEMETRY_SLICES[telemetrySlice];
   const telemetryPeak = telemetryDays.reduce(
-    (peak, day) =>
-      day[telemetrySlice] > peak[telemetrySlice] ? day : peak,
+    (peak, day) => (day[telemetrySlice] > peak[telemetrySlice] ? day : peak),
     telemetryDays[0] ?? { date: end, volume: 0, sessions: 0, longest: 0 },
   );
   const telemetryMax = Math.max(
@@ -603,225 +552,278 @@ export default function History() {
         </div>
       )}
 
-      <section
-        className="history-telemetry-console signal-surface relative isolate overflow-hidden rounded-[2rem] border border-white/[.08] bg-[#0c1119]/92 p-5 shadow-[0_18px_46px_rgba(0,0,0,.16)] md:p-6"
-        style={{ "--history-activity-ratio": `${(metricActiveDays / periodDayCount) * 100}%` } as CSSProperties}
+      <details
+        className="history-telemetry-console signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-4 shadow-[0_18px_46px_rgba(0,0,0,.16)] md:p-5"
+        style={
+          {
+            "--history-activity-ratio": `${(metricActiveDays / periodDayCount) * 100}%`,
+          } as CSSProperties
+        }
       >
         <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#ff8b7c]/45 to-transparent" />
-        <div className="relative z-10 flex flex-col gap-4 border-b border-white/[.06] pb-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]">
-              Period telemetry
-            </p>
-            <h2 className="mt-1 text-xl font-semibold text-white">
-              Recorded effort, read as one system.
-            </h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-white/42">
-              Switch the measure, compare it with the prior period, then open any recorded day below.
-            </p>
-          </div>
-          <div className="flex w-full rounded-2xl border border-white/[.1] bg-black/[.16] p-1 lg:w-auto">
-            {(Object.keys(AGGREGATION_METRICS) as AggregationMetric[]).map((value) => {
-              const option = AGGREGATION_METRICS[value];
-              const active = aggregationMetric === value;
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setAggregationMetric(value)}
-                  className={`signal-button min-w-0 flex-1 rounded-xl px-3 py-2 text-[9px] font-bold uppercase tracking-[.13em] transition-[color,background-color,box-shadow] duration-150 lg:flex-none ${active ? "text-[#071019] shadow-[0_8px_20px_rgba(0,0,0,.2)]" : "text-white/38 hover:bg-white/[.05] hover:text-white"}`}
-                  style={active ? { backgroundColor: option.color } : undefined}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <summary className="relative z-10 flex cursor-pointer list-none items-center justify-between gap-4 rounded-2xl px-2 py-1.5 [&::-webkit-details-marker]:hidden">
+          <span>
+            <span className="block text-[8px] font-bold uppercase tracking-[.18em] text-[#ffc268]">
+              Period analytics
+            </span>
+            <span className="mt-1 block text-base font-semibold text-white">
+              {metricConfig.label} · {formatMinutes(metricTotal)}
+            </span>
+          </span>
+          <span className="rounded-full border border-white/[.08] bg-white/[.035] px-2.5 py-1 text-[8px] font-bold uppercase tracking-[.12em] text-white/42">
+            {metricActiveDays} active days · open
+          </span>
+        </summary>
 
-        <div className="relative z-10 mt-5 grid grid-cols-2 gap-3 xl:grid-cols-4">
-          <SummaryCard
-            label={`${metricConfig.label} total`}
-            value={formatMinutes(metricTotal)}
-            icon={Clock3}
-            scenePosition="0% 54%"
-            sceneScale={1.72}
-          />
-          <SummaryCard
-            label="Consistency"
-            value={`${metricConsistency}%`}
-            icon={CalendarDays}
-            scenePosition="50% 0%"
-            sceneScale={1.58}
-          />
-          <SummaryCard
-            label="Median active return"
-            value={formatMinutes(metricMedianReturn)}
-            icon={ActivityIcon}
-            scenePosition="52% 78%"
-            sceneScale={1.62}
-          />
-          <SummaryCard
-            label="Prior-period delta"
-            value={
-              previousMetricTotal
-                ? `${metricDeltaPercent && metricDeltaPercent >= 0 ? "+" : ""}${metricDeltaPercent ?? 0}%`
-                : "New"
-            }
-            icon={RefreshCw}
-            scenePosition="100% 48%"
-            sceneScale={1.7}
-          />
-        </div>
+        <div className="relative z-10 mt-4 border-t border-white/[.06] pt-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]">
+                Period analytics
+              </p>
+              <p className="mt-1 max-w-xl text-sm leading-6 text-white/42">
+                Switch the measure, compare it with the prior period, then open
+                any recorded day below.
+              </p>
+            </div>
+            <div className="flex w-full rounded-2xl border border-white/[.1] bg-black/[.16] p-1 lg:w-auto">
+              {(Object.keys(AGGREGATION_METRICS) as AggregationMetric[]).map(
+                (value) => {
+                  const option = AGGREGATION_METRICS[value];
+                  const active = aggregationMetric === value;
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setAggregationMetric(value)}
+                      className={`signal-button min-w-0 flex-1 rounded-xl px-3 py-2 text-[9px] font-bold uppercase tracking-[.13em] transition-[color,background-color,box-shadow] duration-150 lg:flex-none ${active ? "text-[#071019] shadow-[0_8px_20px_rgba(0,0,0,.2)]" : "text-white/38 hover:bg-white/[.05] hover:text-white"}`}
+                      style={
+                        active ? { backgroundColor: option.color } : undefined
+                      }
+                    >
+                      {option.label}
+                    </button>
+                  );
+                },
+              )}
+            </div>
+          </div>
 
-        <div className="relative z-10 mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(18rem,.8fr)]">
-          <section className="history-telemetry-volume rounded-2xl border border-white/[.07] bg-black/[.12] p-4">
-            <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="relative z-10 mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(18rem,.8fr)]">
+            <section className="history-telemetry-volume rounded-2xl border border-white/[.07] bg-black/[.12] p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
+                    Instrument readout
+                  </p>
+                  <p className="mt-1 text-xs text-white/48">
+                    Distinct statistical cuts for the selected measure — not
+                    another total.
+                  </p>
+                </div>
+                <span className="rounded-full border border-white/[.08] bg-white/[.03] px-2.5 py-1 text-[8px] font-bold uppercase tracking-[.12em] text-white/42">
+                  {metricActiveDays} active days
+                </span>
+              </div>
+              <dl className="mt-5 grid gap-px overflow-hidden rounded-xl border border-white/[.07] bg-white/[.07] sm:grid-cols-2">
+                <div className="bg-[#0b111a]/92 p-4">
+                  <dt className="text-[8px] font-bold uppercase tracking-[.14em] text-white/34">
+                    Avg. active day
+                  </dt>
+                  <dd className="mt-2 text-lg font-semibold tabular-nums text-white">
+                    {formatMinutes(metricAverageReturn)}
+                  </dd>
+                </div>
+                <div className="bg-[#0b111a]/92 p-4">
+                  <dt className="text-[8px] font-bold uppercase tracking-[.14em] text-white/34">
+                    Longest quiet run
+                  </dt>
+                  <dd className="mt-2 text-lg font-semibold tabular-nums text-white">
+                    {longestQuietRun}d
+                  </dd>
+                </div>
+                <div className="bg-[#0b111a]/92 p-4">
+                  <dt className="text-[8px] font-bold uppercase tracking-[.14em] text-white/34">
+                    Highest-volume day
+                  </dt>
+                  <dd className="mt-2 text-lg font-semibold tabular-nums text-[#ffc268]">
+                    {formatMinutes(metricPeakDay.volume)}
+                  </dd>
+                </div>
+                <div className="bg-[#0b111a]/92 p-4">
+                  <dt className="text-[8px] font-bold uppercase tracking-[.14em] text-white/34">
+                    Longest single session
+                  </dt>
+                  <dd className="mt-2 text-lg font-semibold tabular-nums text-white">
+                    {formatMinutes(longestSession)}
+                  </dd>
+                </div>
+              </dl>
+            </section>
+
+            <aside className="history-telemetry-selected rounded-2xl border border-[#ffc268]/16 bg-[linear-gradient(155deg,rgba(255,194,104,.08),rgba(8,13,20,.68))] p-4">
+              <p className="text-[8px] font-bold uppercase tracking-[.16em] text-[#ffe0a5]/72">
+                Selected signal
+              </p>
+              <strong className="mt-2 block text-2xl font-semibold tabular-nums text-white">
+                {telemetryConfig.unit === "minutes"
+                  ? formatMinutes(selectedTelemetry?.[telemetrySlice] ?? 0)
+                  : `${selectedTelemetry?.[telemetrySlice] ?? 0}`}
+              </strong>
+              <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/38">
+                {telemetryConfig.unit === "count"
+                  ? "sessions"
+                  : telemetryConfig.label}
+              </span>
+              <p className="mt-3 text-xs leading-5 text-white/45">
+                {selectedDate
+                  ? format(parseISO(selectedDate), "EEEE, MMM d")
+                  : "No day selected"}
+              </p>
+              <div className="mt-5 space-y-3 border-t border-white/[.08] pt-4 text-[9px] font-bold uppercase tracking-[.14em] text-white/34">
+                <div className="flex items-center justify-between gap-3">
+                  <span>Trace peak</span>
+                  <span className="text-white/72">
+                    {telemetryConfig.unit === "minutes"
+                      ? formatMinutes(telemetryPeak[telemetrySlice])
+                      : `${telemetryPeak[telemetrySlice]} sessions`}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span>Prior delta</span>
+                  <span
+                    className={
+                      metricDeltaMinutes >= 0
+                        ? "text-[#72c6b3]"
+                        : "text-[#ff9a89]"
+                    }
+                  >
+                    {previousMetricTotal
+                      ? `${metricDeltaMinutes >= 0 ? "+" : "−"}${formatMinutes(Math.abs(metricDeltaMinutes))}`
+                      : "new baseline"}
+                  </span>
+                </div>
+              </div>
+            </aside>
+          </div>
+
+          <div className="history-telemetry-distribution relative z-10 mt-3 rounded-2xl border border-white/[.07] bg-black/[.11] p-4">
+            <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
-                  Instrument readout
+                  Direction matrix
                 </p>
-                <p className="mt-1 text-xs text-white/48">
-                  Distinct statistical cuts for the selected measure — not another total.
+                <p className="mt-1 text-xs text-white/42">
+                  Share of the selected measure by active direction.
                 </p>
               </div>
-              <span className="rounded-full border border-white/[.08] bg-white/[.03] px-2.5 py-1 text-[8px] font-bold uppercase tracking-[.12em] text-white/42">
-                {metricActiveDays} active days
+              <span className="text-[9px] font-semibold tabular-nums text-white/46">
+                {formatMinutes(metricTotal)} total
               </span>
             </div>
-            <dl className="mt-5 grid gap-px overflow-hidden rounded-xl border border-white/[.07] bg-white/[.07] sm:grid-cols-2">
-              <div className="bg-[#0b111a]/92 p-4">
-                <dt className="text-[8px] font-bold uppercase tracking-[.14em] text-white/34">Avg. active day</dt>
-                <dd className="mt-2 text-lg font-semibold tabular-nums text-white">{formatMinutes(metricAverageReturn)}</dd>
+            {metricDistribution.length ? (
+              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {metricDistribution.map(({ activity, minutes }, index) => {
+                  const share = metricTotal
+                    ? Math.round((minutes / metricTotal) * 100)
+                    : 0;
+                  const cells = Math.max(1, Math.round(share / 10));
+                  const color = activityColors.get(activity.id) ?? "#ff8b7c";
+                  return (
+                    <article
+                      key={activity.id}
+                      className="rounded-xl border border-white/[.07] bg-[#0b111a]/86 p-3"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-[10px] font-semibold text-white/76">
+                            {activity.name}
+                          </p>
+                          <p className="mt-1 text-[8px] font-bold uppercase tracking-[.13em] text-white/32">
+                            channel {String(index + 1).padStart(2, "0")}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-semibold tabular-nums text-white">
+                            {formatMinutes(minutes)}
+                          </p>
+                          <p className="text-[8px] font-bold uppercase tracking-[.12em] text-white/36">
+                            {share}%
+                          </p>
+                        </div>
+                      </div>
+                      <div
+                        className="mt-3 grid grid-cols-10 gap-1"
+                        aria-label={`${activity.name} share ${share}%`}
+                      >
+                        {Array.from({ length: 10 }, (_, cell) => (
+                          <span
+                            key={cell}
+                            className="h-1.5 rounded-sm"
+                            style={{
+                              backgroundColor:
+                                cell < cells ? color : "rgba(255,255,255,.07)",
+                              boxShadow:
+                                cell < cells ? `0 0 8px ${color}55` : undefined,
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
-              <div className="bg-[#0b111a]/92 p-4">
-                <dt className="text-[8px] font-bold uppercase tracking-[.14em] text-white/34">Longest quiet run</dt>
-                <dd className="mt-2 text-lg font-semibold tabular-nums text-white">{longestQuietRun}d</dd>
-              </div>
-              <div className="bg-[#0b111a]/92 p-4">
-                <dt className="text-[8px] font-bold uppercase tracking-[.14em] text-white/34">Highest-volume day</dt>
-                <dd className="mt-2 text-lg font-semibold tabular-nums text-[#ffc268]">{formatMinutes(metricPeakDay.volume)}</dd>
-              </div>
-              <div className="bg-[#0b111a]/92 p-4">
-                <dt className="text-[8px] font-bold uppercase tracking-[.14em] text-white/34">Longest single session</dt>
-                <dd className="mt-2 text-lg font-semibold tabular-nums text-white">{formatMinutes(longestSession)}</dd>
-              </div>
-            </dl>
-          </section>
-
-          <aside className="history-telemetry-selected rounded-2xl border border-[#ffc268]/16 bg-[linear-gradient(155deg,rgba(255,194,104,.08),rgba(8,13,20,.68))] p-4">
-            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-[#ffe0a5]/72">
-              Selected signal
-            </p>
-            <strong className="mt-2 block text-2xl font-semibold tabular-nums text-white">
-              {telemetryConfig.unit === "minutes"
-                ? formatMinutes(selectedTelemetry?.[telemetrySlice] ?? 0)
-                : `${selectedTelemetry?.[telemetrySlice] ?? 0}`}
-            </strong>
-            <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/38">
-              {telemetryConfig.unit === "count" ? "sessions" : telemetryConfig.label}
-            </span>
-            <p className="mt-3 text-xs leading-5 text-white/45">
-              {selectedDate ? format(parseISO(selectedDate), "EEEE, MMM d") : "No day selected"}
-            </p>
-            <div className="mt-5 space-y-3 border-t border-white/[.08] pt-4 text-[9px] font-bold uppercase tracking-[.14em] text-white/34">
-              <div className="flex items-center justify-between gap-3">
-                <span>Trace peak</span>
-                <span className="text-white/72">
-                  {telemetryConfig.unit === "minutes"
-                    ? formatMinutes(telemetryPeak[telemetrySlice])
-                    : `${telemetryPeak[telemetrySlice]} sessions`}
-                </span>
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <span>Prior delta</span>
-                <span className={metricDeltaMinutes >= 0 ? "text-[#72c6b3]" : "text-[#ff9a89]"}>
-                  {previousMetricTotal
-                    ? `${metricDeltaMinutes >= 0 ? "+" : "−"}${formatMinutes(Math.abs(metricDeltaMinutes))}`
-                    : "new baseline"}
-                </span>
-              </div>
-            </div>
-          </aside>
-        </div>
-
-        <div className="history-telemetry-distribution relative z-10 mt-3 rounded-2xl border border-white/[.07] bg-black/[.11] p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
-                Direction matrix
+            ) : (
+              <p className="mt-4 text-sm text-white/34">
+                Log a return to build this direction matrix.
               </p>
-              <p className="mt-1 text-xs text-white/42">Share of the selected measure by active direction.</p>
-            </div>
-            <span className="text-[9px] font-semibold tabular-nums text-white/46">
-              {formatMinutes(metricTotal)} total
-            </span>
+            )}
           </div>
-          {metricDistribution.length ? (
-            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {metricDistribution.map(({ activity, minutes }, index) => {
-                const share = metricTotal ? Math.round((minutes / metricTotal) * 100) : 0;
-                const cells = Math.max(1, Math.round(share / 10));
-                const color = activityColors.get(activity.id) ?? "#ff8b7c";
-                return (
-                  <article key={activity.id} className="rounded-xl border border-white/[.07] bg-[#0b111a]/86 p-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-[10px] font-semibold text-white/76">{activity.name}</p>
-                        <p className="mt-1 text-[8px] font-bold uppercase tracking-[.13em] text-white/32">channel {String(index + 1).padStart(2, "0")}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-semibold tabular-nums text-white">{formatMinutes(minutes)}</p>
-                        <p className="text-[8px] font-bold uppercase tracking-[.12em] text-white/36">{share}%</p>
-                      </div>
-                    </div>
-                    <div className="mt-3 grid grid-cols-10 gap-1" aria-label={`${activity.name} share ${share}%`}>
-                      {Array.from({ length: 10 }, (_, cell) => (
-                        <span
-                          key={cell}
-                          className="h-1.5 rounded-sm"
-                          style={{ backgroundColor: cell < cells ? color : "rgba(255,255,255,.07)", boxShadow: cell < cells ? `0 0 8px ${color}55` : undefined }}
-                        />
-                      ))}
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="mt-4 text-sm text-white/34">Log a return to build this direction matrix.</p>
-          )}
         </div>
-      </section>
+      </details>
 
       <section className="signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
         <div className="flex flex-col gap-4 border-b border-white/5 p-6 md:flex-row md:items-end md:justify-between md:p-8">
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">Signal trace</p>
-            <h2 className="mt-2 text-2xl font-bold text-white">Daily change, not another bar chart.</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/42">Choose the analytical slice, then select any node to inspect its recorded day.</p>
+            <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">
+              Signal trace
+            </p>
+            <h2 className="mt-2 text-2xl font-bold text-white">
+              Daily change, not another bar chart.
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/42">
+              Choose the analytical slice, then select any node to inspect its
+              recorded day.
+            </p>
           </div>
           <div className="flex rounded-2xl border border-white/[.1] bg-black/[.16] p-1">
-            {(Object.keys(TELEMETRY_SLICES) as TelemetrySlice[]).map((slice) => {
-              const active = telemetrySlice === slice;
-              return (
-                <button
-                  key={slice}
-                  type="button"
-                  onClick={() => setTelemetrySlice(slice)}
-                  className={`signal-button rounded-xl px-3 py-2 text-[9px] font-bold uppercase tracking-[.13em] ${active ? "bg-[#72c6b3] text-[#07120f] shadow-[0_8px_20px_rgba(98,188,168,.16)]" : "text-white/38 hover:bg-white/[.05] hover:text-white"}`}
-                >
-                  {TELEMETRY_SLICES[slice].label}
-                </button>
-              );
-            })}
+            {(Object.keys(TELEMETRY_SLICES) as TelemetrySlice[]).map(
+              (slice) => {
+                const active = telemetrySlice === slice;
+                return (
+                  <button
+                    key={slice}
+                    type="button"
+                    onClick={() => setTelemetrySlice(slice)}
+                    className={`signal-button rounded-xl px-3 py-2 text-[9px] font-bold uppercase tracking-[.13em] ${active ? "bg-[#72c6b3] text-[#07120f] shadow-[0_8px_20px_rgba(98,188,168,.16)]" : "text-white/38 hover:bg-white/[.05] hover:text-white"}`}
+                  >
+                    {TELEMETRY_SLICES[slice].label}
+                  </button>
+                );
+              },
+            )}
           </div>
         </div>
 
         <div className="px-4 py-6 md:px-8">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-[9px] font-bold uppercase tracking-[.14em] text-white/36">
             <span>{telemetryConfig.description}</span>
-            <span>peak {telemetryConfig.unit === "minutes" ? formatMinutes(telemetryPeak[telemetrySlice]) : `${telemetryPeak[telemetrySlice]} sessions`}</span>
+            <span>
+              peak{" "}
+              {telemetryConfig.unit === "minutes"
+                ? formatMinutes(telemetryPeak[telemetrySlice])
+                : `${telemetryPeak[telemetrySlice]} sessions`}
+            </span>
           </div>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -829,27 +831,59 @@ export default function History() {
                 data={telemetryDays}
                 margin={{ top: 12, right: 14, left: 0, bottom: 0 }}
                 onClick={(state) => {
-                  if (state?.activeLabel) setSelectedDate(String(state.activeLabel));
+                  if (state?.activeLabel)
+                    setSelectedDate(String(state.activeLabel));
                 }}
               >
                 <defs>
-                  <linearGradient id="history-signal-fill" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor={metricConfig.color} stopOpacity={0.48} />
-                    <stop offset="88%" stopColor={metricConfig.color} stopOpacity={0.02} />
+                  <linearGradient
+                    id="history-signal-fill"
+                    x1="0"
+                    x2="0"
+                    y1="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="0%"
+                      stopColor={metricConfig.color}
+                      stopOpacity={0.48}
+                    />
+                    <stop
+                      offset="88%"
+                      stopColor={metricConfig.color}
+                      stopOpacity={0.02}
+                    />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="2 5" stroke="rgba(255,255,255,0.08)" vertical={false} />
+                <CartesianGrid
+                  strokeDasharray="2 5"
+                  stroke="rgba(255,255,255,0.08)"
+                  vertical={false}
+                />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={(date) => format(parseISO(String(date)), period === "week" ? "EEE" : "d MMM")}
-                  tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 10, fontWeight: 700 }}
+                  tickFormatter={(date) =>
+                    format(
+                      parseISO(String(date)),
+                      period === "week" ? "EEE" : "d MMM",
+                    )
+                  }
+                  tick={{
+                    fill: "rgba(255,255,255,0.35)",
+                    fontSize: 10,
+                    fontWeight: 700,
+                  }}
                   axisLine={{ stroke: "rgba(255,255,255,0.1)" }}
                   tickLine={false}
                   minTickGap={18}
                 />
                 <YAxis
                   domain={[0, telemetryMax]}
-                  tickFormatter={(value) => telemetryConfig.unit === "minutes" ? formatMinutes(Number(value)) : String(value)}
+                  tickFormatter={(value) =>
+                    telemetryConfig.unit === "minutes"
+                      ? formatMinutes(Number(value))
+                      : String(value)
+                  }
                   tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
                   axisLine={false}
                   tickLine={false}
@@ -857,9 +891,22 @@ export default function History() {
                 />
                 <Tooltip
                   cursor={{ stroke: "rgba(255,194,104,0.5)", strokeWidth: 1 }}
-                  labelFormatter={(date) => format(parseISO(String(date)), "EEEE, MMMM d")}
-                  formatter={(value) => [telemetryConfig.unit === "minutes" ? formatMinutes(Number(value)) : `${value} sessions`, telemetryConfig.label]}
-                  contentStyle={{ backgroundColor: "#090d14", border: "1px solid rgba(255,194,104,0.18)", borderRadius: "1rem", color: "#fff", boxShadow: "0 18px 50px rgba(0,0,0,.32)" }}
+                  labelFormatter={(date) =>
+                    format(parseISO(String(date)), "EEEE, MMMM d")
+                  }
+                  formatter={(value) => [
+                    telemetryConfig.unit === "minutes"
+                      ? formatMinutes(Number(value))
+                      : `${value} sessions`,
+                    telemetryConfig.label,
+                  ]}
+                  contentStyle={{
+                    backgroundColor: "#090d14",
+                    border: "1px solid rgba(255,194,104,0.18)",
+                    borderRadius: "1rem",
+                    color: "#fff",
+                    boxShadow: "0 18px 50px rgba(0,0,0,.32)",
+                  }}
                 />
                 <Area
                   type="monotone"
@@ -867,7 +914,12 @@ export default function History() {
                   stroke={metricConfig.color}
                   strokeWidth={2.5}
                   fill="url(#history-signal-fill)"
-                  activeDot={{ r: 5, strokeWidth: 2, stroke: "#090d14", fill: metricConfig.color }}
+                  activeDot={{
+                    r: 5,
+                    strokeWidth: 2,
+                    stroke: "#090d14",
+                    fill: metricConfig.color,
+                  }}
                   dot={{ r: 2.5, strokeWidth: 0, fill: metricConfig.color }}
                   isAnimationActive={!reducedMotion}
                 />

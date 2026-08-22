@@ -210,7 +210,6 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
   const [location] = useLocation();
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const mobilePrimaryRoutes = orientationRoutes;
-  const mobileMoreRoutes = [...longViewRoutes, ...utilityRoutes];
   useEffect(() => setMobileMoreOpen(false), [location]);
 
   return (
@@ -315,7 +314,9 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
               )}
             >
               <Icon className="relative z-10 h-5 w-5" />
-              <span className="relative z-10 max-w-full truncate">{route.label}</span>
+              <span className="relative z-10 max-w-full truncate">
+                {route.label}
+              </span>
               {active && (
                 <span className="absolute z-10 top-0 h-0.5 w-5 rounded-full bg-[#ff8b7c]" />
               )}
@@ -346,9 +347,9 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
         {mobileMoreOpen && (
           <div className="quiet-reveal absolute bottom-[calc(100%+.65rem)] right-2 w-64 overflow-hidden rounded-3xl border border-white/10 bg-[#0b0e14]/97 p-2 shadow-[0_24px_80px_rgba(0,0,0,.55)] backdrop-blur-2xl">
             <p className="px-3 pb-2 pt-1 text-[8px] font-bold uppercase tracking-[.22em] text-white/22">
-              Long view & system
+              Waypoints
             </p>
-            {mobileMoreRoutes.map((route) => {
+            {longViewRoutes.map((route) => {
               const Icon = route.icon;
               const active = routeIsActive(location, route.path);
               return (
@@ -357,7 +358,38 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
                   href={route.path}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                      "sidebar-route flex items-center gap-3 rounded-2xl border px-3 py-2.5",
+                    "sidebar-route flex items-center gap-3 rounded-2xl border px-3 py-2.5",
+                    active
+                      ? "border-[#ff7868]/16 bg-[#ff7868]/10 text-[#ff9a89]"
+                      : "border-transparent text-white/55 hover:border-white/[.06] hover:bg-white/[.04] hover:text-white",
+                  )}
+                >
+                  <Icon className="relative z-10 h-4 w-4 shrink-0" />
+                  <span className="relative z-10 min-w-0 flex-1">
+                    <span className="block text-sm font-semibold">
+                      {route.label}
+                    </span>
+                    <span className="mt-0.5 block text-[9px] text-white/28">
+                      {route.cue}
+                    </span>
+                  </span>
+                </Link>
+              );
+            })}
+            <div className="mx-2 my-2 h-px bg-white/[.055]" />
+            <p className="px-3 pb-2 text-[8px] font-bold uppercase tracking-[.22em] text-white/22">
+              System
+            </p>
+            {utilityRoutes.map((route) => {
+              const Icon = route.icon;
+              const active = routeIsActive(location, route.path);
+              return (
+                <Link
+                  key={route.path}
+                  href={route.path}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "sidebar-route flex items-center gap-3 rounded-2xl border px-3 py-2.5",
                     active
                       ? "border-[#ff7868]/16 bg-[#ff7868]/10 text-[#ff9a89]"
                       : "border-transparent text-white/55 hover:border-white/[.06] hover:bg-white/[.04] hover:text-white",

@@ -345,7 +345,7 @@ export default function Cabinet() {
                 src={seatedSamuraiSignal}
                 alt=""
                 aria-hidden="true"
-                className="h-8 w-8 shrink-0 object-contain opacity-88 grayscale brightness-[2.1] contrast-[.72] drop-shadow-[0_0_10px_rgba(255,177,167,.14)]"
+                className="h-8 w-8 shrink-0 object-contain opacity-80 grayscale brightness-[1.8] contrast-[.76] drop-shadow-[0_0_8px_rgba(255,177,167,.11)]"
               />
               Cabinet · quiet records
             </div>
