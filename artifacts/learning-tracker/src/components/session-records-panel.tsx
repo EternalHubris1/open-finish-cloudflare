@@ -195,7 +195,7 @@ export function SessionRecordsPanel() {
         src={verticalOrnament}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute right-14 top-1/2 h-[28rem] max-h-[118%] w-auto -translate-y-1/2 select-none opacity-[.3] brightness-[1.14] saturate-[.82]"
+        className="pointer-events-none absolute right-14 top-1/2 h-[20rem] max-h-none w-auto -translate-y-1/2 select-none opacity-[.34] brightness-[1.14] saturate-[.82]"
       />
       <div className="relative z-10">
         <button
