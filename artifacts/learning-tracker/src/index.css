@@ -1647,40 +1647,6 @@
     isolation: isolate;
   }
 
-  .dashboard-movement-marks {
-    position: absolute;
-    inset: 0;
-    z-index: 5;
-  }
-
-  .dashboard-movement-mark {
-    position: absolute;
-    width: 0.38rem;
-    height: 0.38rem;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.14);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transform: translate(-50%, -50%);
-    transition: background-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
-  }
-
-  .dashboard-movement-mark.is-active {
-    background: #ff8b7c;
-    border-color: rgba(255, 211, 201, 0.78);
-    box-shadow: 0 0 10px rgba(255, 120, 104, 0.7);
-  }
-
-  .dashboard-movement-mark.is-current {
-    transform: translate(-50%, -50%) scale(1.38);
-    box-shadow:
-      0 0 0 3px rgba(255, 139, 124, 0.16),
-      0 0 14px rgba(255, 120, 104, 0.85);
-  }
-
-  .dashboard-quick-returns {
-    animation: quiet-reveal 560ms 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
   .dashboard-hero-mountains {
     position: absolute;
     inset: auto -2% -1px;
@@ -2185,7 +2151,6 @@
     .dashboard-hero-fog,
     .dashboard-hero-breath,
     .dashboard-hero-wind,
-    .dashboard-quick-returns,
     .dashboard-hero-orbit,
     .dashboard-hero-title,
     .daily-dojo-gate-panel,

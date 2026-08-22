@@ -1144,13 +1144,6 @@ export default function DashboardV2() {
       }
     );
   });
-  const heroMovementDays = days.map((day) => ({
-    date: day.date,
-    focusMinutes: day.focusMinutes,
-    active: day.focusMinutes > 0,
-    current: day.date === displayDate,
-    label: `${format(new Date(`${day.date}T00:00:00`), "EEE")} · ${minutesLabel(day.focusMinutes)}`,
-  }));
   const momentum = momentumSeries(days);
   const momentumStrength = momentum.at(-1) ?? 0;
   const exceptionalWeek = days.some((day) => day.focusMinutes > 240);
@@ -1224,16 +1217,6 @@ export default function DashboardV2() {
       entry.sessionCount,
     ]) ?? [],
   );
-  const quickContinueActivities = [
-    ...frequentActivityIds
-      .map((activityId) =>
-        activities.find((activity) => activity.id === activityId),
-      )
-      .filter((activity): activity is Activity => Boolean(activity)),
-    ...activities.filter(
-      (activity) => !frequentActivityIds.includes(activity.id),
-    ),
-  ].slice(0, 3);
   const loading =
     !preview &&
     (dashboardQuery.isLoading ||
@@ -1443,60 +1426,15 @@ export default function DashboardV2() {
                   <p
                     className={`hidden max-w-sm text-xs leading-6 sm:block ${light ? "text-black/40" : "text-white/35"}`}
                   >
-                    Choose any direction as before, or take one of the recent returns below straight into a session.
+                    Choose a direction, then enter the session with fresh intent.
                   </p>
                 </div>
-                {quickContinueActivities.length > 0 && (
-                  <div className="dashboard-quick-returns mt-4 flex flex-wrap items-center gap-2" role="list" aria-label="Quick directions to continue">
-                    <span className={`mr-1 text-[8px] font-bold uppercase tracking-[.16em] ${light ? "text-black/35" : "text-white/30"}`}>
-                      Quick return
-                    </span>
-                    {quickContinueActivities.map((activity) => (
-                      <button
-                        key={activity.id}
-                        type="button"
-                        onClick={() => setSelectedActivity(activity)}
-                        className={`signal-button flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-[9px] font-bold tracking-[.08em] transition-[transform,background-color,border-color] duration-150 hover:-translate-y-px active:scale-[.97] ${light ? "border-black/[.1] bg-white/65 text-black/60 hover:border-[#e95448]/40" : "border-white/[.1] bg-white/[.045] text-white/60 hover:border-[#ff8b7c]/42 hover:bg-[#ff7868]/[.08]"}`}
-                        role="listitem"
-                        data-testid={`button-quick-continue-${activity.id}`}
-                      >
-                        <ActivityGlyph
-                          icon={activity.icon}
-                          activityType={activity.activityType}
-                          category={activity.category}
-                          className="h-3 w-3"
-                          style={{ color: activity.color || "#ff8b7c" }}
-                        />
-                        <span className="max-w-24 truncate">{activity.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
             </div>
             <div className="grid w-full gap-5 sm:gap-6 lg:justify-items-end">
               <div className="flex items-center justify-center gap-5 sm:gap-7 lg:justify-end">
                 <div className="dashboard-movement-orbit relative flex h-28 w-28 items-center justify-center rounded-full border border-[#ff7868]/18 sm:h-44 sm:w-44 md:h-52 md:w-52">
                   <span className="absolute inset-3 rounded-full border border-white/5" />
-                  <div className="dashboard-movement-marks" role="list" aria-label="Seven day movement signal">
-                    {heroMovementDays.map((day, index) => {
-                      const angle = -90 + (index * 360) / heroMovementDays.length;
-                      const radians = (angle * Math.PI) / 180;
-                      return (
-                        <span
-                          key={day.date}
-                          role="listitem"
-                          title={day.label}
-                          aria-label={day.label}
-                          className={`dashboard-movement-mark ${day.active ? "is-active" : ""} ${day.current ? "is-current" : ""}`}
-                          style={{
-                            left: `${50 + Math.cos(radians) * 43}%`,
-                            top: `${50 + Math.sin(radians) * 43}%`,
-                          }}
-                        />
-                      );
-                    })}
-                  </div>
                   <div className="relative z-10 text-center">
                     <Flame
                       className={`mx-auto mb-2 h-5 w-5 ${light ? "text-[#9c4d44]" : "text-[#ff8b7c]"}`}
