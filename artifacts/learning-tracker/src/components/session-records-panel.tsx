@@ -191,12 +191,18 @@ export function SessionRecordsPanel() {
 
   return (
     <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-5 shadow-[0_18px_55px_rgba(0,0,0,.18)] md:p-7">
-      <img
-        src={verticalOrnament}
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute right-14 top-1/2 h-[20rem] max-h-none w-auto -translate-y-1/2 select-none opacity-[.34] brightness-[1.14] saturate-[.82]"
-      />
+      {recordsOpen && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute right-14 top-0 h-28 w-14 overflow-hidden"
+        >
+          <img
+            src={verticalOrnament}
+            alt=""
+            className="absolute right-0 top-[-3.5rem] h-[15rem] w-auto select-none opacity-[.25] brightness-[1.08] saturate-[.8]"
+          />
+        </div>
+      )}
       <div className="relative z-10">
         <button
           type="button"
