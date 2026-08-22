@@ -103,44 +103,48 @@ function DesktopRoute({
       href={route.path}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "sidebar-route group relative flex min-h-[4.25rem] items-center gap-3 overflow-hidden rounded-2xl border px-3 py-2.5 transition-[border-color,background-color,box-shadow,transform] duration-200 active:scale-[.98]",
+        "sidebar-route group relative flex min-h-12 items-center gap-3 overflow-hidden rounded-2xl border px-2.5 py-2",
         active
-          ? "border-[#ff8b7c]/48 bg-[#ff7868]/[.12] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.08),0_14px_34px_rgba(0,0,0,.24),0_0_24px_rgba(255,111,97,.08)]"
+          ? "border-[#ff8b7c]/48 bg-[linear-gradient(100deg,rgba(255,111,97,.24),rgba(255,194,104,.08)_70%,transparent)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.08),0_14px_34px_rgba(0,0,0,.24),0_0_24px_rgba(255,111,97,.08)]"
           : "border-white/[.055] bg-white/[.014] text-white/52 hover:border-[#ffb1a7]/25 hover:bg-white/[.06] hover:text-white/90",
       )}
       data-testid={`nav-${route.label.toLowerCase()}`}
     >
-      {route.scene && (
-        <>
+      {route.scene ? (
+        <span
+          className={cn(
+            "relative z-10 h-10 w-[3.75rem] shrink-0 overflow-hidden rounded-xl border transition-[border-color,box-shadow] duration-200",
+            active
+              ? "border-[#ff8b7c]/42 shadow-[0_0_18px_rgba(255,111,97,.16)]"
+              : "border-white/[.09] group-hover:border-[#ffb1a7]/26",
+          )}
+        >
           <img
             src={route.scene}
             alt=""
             aria-hidden="true"
             className={cn(
-              "pointer-events-none absolute inset-0 h-full w-full select-none object-cover opacity-[.18] brightness-[.58] contrast-90 saturate-[.72] transition-[opacity,transform,filter] duration-300 group-hover:scale-[1.025] group-hover:opacity-[.28]",
-              active && "opacity-[.34] brightness-[.7] contrast-95 saturate-[.82]",
+              "h-full w-full object-cover opacity-88 brightness-[.82] contrast-90 saturate-[.78] transition-transform duration-300 group-hover:scale-[1.04]",
               route.scenePosition ?? "object-center",
             )}
           />
           <span
-            className={cn(
-              "pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,12,18,.94)_0%,rgba(8,12,18,.78)_55%,rgba(8,12,18,.5)_100%)]",
-              active && "bg-[linear-gradient(90deg,rgba(37,18,22,.9)_0%,rgba(22,19,24,.76)_58%,rgba(12,16,22,.42)_100%)]",
-            )}
+            className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(7,10,15,.08),rgba(7,10,15,.58))]"
             aria-hidden="true"
           />
-        </>
+        </span>
+      ) : (
+        <span
+          className={cn(
+            "relative z-10 grid h-8 w-8 shrink-0 place-items-center rounded-xl border transition-[color,background-color,border-color] duration-200",
+            active
+              ? "border-[#ff7868]/45 bg-[#ff7868]/18 text-[#ffb1a7]"
+              : "border-white/[.08] bg-white/[.035] text-white/48 group-hover:border-[#ffb1a7]/22 group-hover:text-white/85",
+          )}
+        >
+          <Icon className="h-4 w-4" />
+        </span>
       )}
-      <span
-        className={cn(
-          "relative z-10 grid h-9 w-9 shrink-0 place-items-center rounded-xl border transition-[color,background-color,border-color,box-shadow] duration-200",
-          active
-            ? "border-[#ff7868]/45 bg-[#ff7868]/18 text-[#ffb1a7] shadow-[0_0_18px_rgba(255,111,97,.12)]"
-            : "border-white/[.08] bg-[#070b10]/[.54] text-white/52 group-hover:border-[#ffb1a7]/22 group-hover:bg-[#101720]/[.7] group-hover:text-white/88",
-        )}
-      >
-        <Icon className="h-4 w-4" />
-      </span>
       <span className="relative z-10 min-w-0 flex-1">
         <span className="block truncate text-[13px] font-semibold tracking-[-.01em]">
           {route.label}
