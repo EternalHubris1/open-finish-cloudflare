@@ -45,7 +45,6 @@ import {
   defaultActivityIcon,
 } from "@/lib/activity-icons";
 import practiceHall from "@/assets/environments/optimized/activities-practice-hall.webp";
-import bambooScroll from "@/assets/patterns/bamboo-scroll-source.png";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -360,20 +359,34 @@ export default function Activities() {
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="w-52 rounded-2xl border border-white/[.09] bg-black/15 px-4 py-2.5 backdrop-blur-xl">
-              <p className="text-[8px] font-bold uppercase tracking-[.17em] text-white/38">
-                This week
-              </p>
-              <p className="mt-1 text-lg font-semibold tabular-nums text-white">
+          <div className="w-full max-w-52 space-y-2 sm:w-52">
+            <div className="relative overflow-hidden rounded-2xl border border-white/[.12] bg-[#101923]/[.88] px-4 py-3 shadow-[0_14px_32px_rgba(0,0,0,.18)] backdrop-blur-xl">
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-[#ff7868] via-[#ffc268] to-[#72c6b3]" />
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[8px] font-bold uppercase tracking-[.17em] text-white/45">
+                  This week
+                </p>
+                <span className="flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-[.12em] text-[#8bd2c2]/75">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#72c6b3] shadow-[0_0_10px_rgba(114,198,179,.9)]" /> Live
+                </span>
+              </div>
+              <p className="mt-1.5 text-[1.35rem] font-semibold leading-none tabular-nums tracking-[-.04em] text-white">
                 {totalWeekMinutes >= 60
                   ? `${Math.floor(totalWeekMinutes / 60)}h ${totalWeekMinutes % 60}m`
                   : `${totalWeekMinutes}m`}
               </p>
+              <div className="mt-3 h-px overflow-hidden bg-white/[.08]">
+                <div
+                  className="h-full bg-gradient-to-r from-[#ff7868] via-[#ffc268] to-[#72c6b3] shadow-[0_0_10px_rgba(255,194,104,.75)] transition-[width] duration-700"
+                  style={{
+                    width: `${totalWeekTarget ? Math.min(100, Math.round((totalWeekMinutes / totalWeekTarget) * 100)) : 0}%`,
+                  }}
+                />
+              </div>
             </div>
             <Button
               onClick={openCreateDialog}
-              className="h-11 w-52 justify-center gap-2 rounded-2xl border border-[#ff9a89]/30 bg-[#e95448] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white shadow-[0_12px_34px_rgba(233,84,72,.22)]"
+              className="h-11 w-full justify-center gap-2 rounded-2xl border border-[#ff9a89]/35 bg-[#d94a41] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white shadow-[0_10px_26px_rgba(217,74,65,.22)] transition-[transform,background-color,box-shadow] duration-150 hover:bg-[#ed5d53] hover:shadow-[0_14px_32px_rgba(233,84,72,.32)] active:scale-[.97]"
               data-testid="button-create-activity"
             >
               <Plus className="h-4 w-4" />
@@ -406,15 +419,16 @@ export default function Activities() {
         </section>
       ) : (
         <>
-          <section className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(19rem,.8fr)]">
-            <div className="signal-surface relative overflow-hidden rounded-[2rem] border border-white/[.1] bg-[#0d1520]/88 p-5 shadow-[0_24px_70px_rgba(0,0,0,.2)] md:p-6">
-              <img
-                src={practiceHall}
-                alt=""
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-right opacity-[.28]"
-              />
-              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(13,21,32,.78),rgba(13,21,32,.48),rgba(13,21,32,.68))]" />
+          <section className="signal-surface relative isolate overflow-hidden rounded-[2.25rem] border border-white/[.1] bg-[#0a1019]/88 p-2 shadow-[0_24px_70px_rgba(0,0,0,.22)]">
+            <img
+              src={practiceHall}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-right opacity-[.34]"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(10,16,25,.82),rgba(10,16,25,.52),rgba(10,16,25,.72))]" />
+            <div className="relative z-10 grid gap-2 xl:grid-cols-[minmax(0,1.45fr)_minmax(19rem,.8fr)]">
+              <div className="relative overflow-hidden rounded-[1.75rem] border border-white/[.09] bg-[#0d1520]/[.79] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.04)] backdrop-blur-[2px] md:p-6">
               <div className="relative z-10 flex items-center justify-between gap-4">
                 <div>
                   <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffb1a7]">
@@ -499,13 +513,7 @@ export default function Activities() {
               </div>
             </div>
 
-            <aside className="signal-surface relative overflow-hidden rounded-[2rem] border border-white/[.1] bg-[#0d1520]/88 p-5 shadow-[0_24px_70px_rgba(0,0,0,.2)] md:p-6">
-              <img
-                src={bambooScroll}
-                alt=""
-                aria-hidden="true"
-                className="panel-pattern-scroll panel-pattern-bamboo"
-              />
+            <aside className="relative overflow-hidden rounded-[1.75rem] border border-white/[.09] bg-[#0d1520]/[.79] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.04)] backdrop-blur-[2px] md:p-6">
               <div className="relative z-10 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">
                 <Flame className="h-3.5 w-3.5" /> Week at a glance
               </div>
@@ -600,6 +608,7 @@ export default function Activities() {
                 <ArrowUpRight className="relative z-10 h-4 w-4" />
               </Link>
             </aside>
+            </div>
           </section>
 
           <section className="signal-surface relative overflow-hidden rounded-[2rem] border border-white/[.1] bg-[#0d1520]/88 p-4 shadow-[0_24px_70px_rgba(0,0,0,.2)] md:p-5">

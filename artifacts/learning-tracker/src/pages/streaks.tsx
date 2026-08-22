@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import {
   getGetCalendarQueryKey,
@@ -15,11 +15,16 @@ import {
   subWeeks,
 } from "date-fns";
 import { Activity, CalendarDay } from "@workspace/api-client-react";
-import { Flame, Plus, RefreshCw, Target, Trophy } from "lucide-react";
+import {
+  ChevronDown,
+  Flame,
+  Plus,
+  RefreshCw,
+  Target,
+  Trophy,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import templePath from "@/assets/environments/optimized/streaks-temple-path.webp";
-import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
-import samuraiArmor from "@assets/samurai-weapons-armor/samurai-armor.png";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DailyActivityChart,
@@ -48,9 +53,14 @@ function buildDays(
 }
 
 export default function Streaks() {
+  const [expandedActivityId, setExpandedActivityId] = useState<number | null>(
+    null,
+  );
   const rangeStart = useMemo(
     () =>
-      startOfWeek(subWeeks(new Date(), WEEKS_TO_SHOW - 1), { weekStartsOn: 1 }),
+      startOfWeek(subWeeks(new Date(), WEEKS_TO_SHOW - 1), {
+        weekStartsOn: 1,
+      }),
     [],
   );
   const rangeEnd = useMemo(
@@ -89,9 +99,9 @@ export default function Streaks() {
   if (isLoading) {
     return (
       <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 md:p-8">
-        <Skeleton className="h-14 w-64 rounded-3xl bg-white/5" />
+        <Skeleton className="h-52 rounded-[1.75rem] bg-white/5" />
         {[0, 1, 2].map((item) => (
-          <Skeleton key={item} className="h-72 rounded-3xl bg-white/5" />
+          <Skeleton key={item} className="h-24 rounded-3xl bg-white/5" />
         ))}
       </div>
     );
@@ -126,8 +136,8 @@ export default function Streaks() {
   }
 
   return (
-    <div className="relative z-10 mx-auto min-h-screen max-w-6xl space-y-8 px-4 py-6 pb-28 md:p-8 md:pb-20">
-      <div className="relative isolate overflow-hidden rounded-[1.75rem] border border-white/[.08] bg-[#0a1019]/86 px-5 py-6 shadow-[0_18px_46px_rgba(0,0,0,.18)] md:px-7">
+    <div className="relative z-10 mx-auto min-h-screen max-w-6xl space-y-5 px-4 py-6 pb-28 md:p-8 md:pb-20">
+      <section className="relative isolate overflow-hidden rounded-[1.75rem] border border-white/[.08] bg-[#0a1019]/86 px-5 py-6 shadow-[0_18px_46px_rgba(0,0,0,.18)] md:px-7">
         <img
           src={templePath}
           alt=""
@@ -137,65 +147,48 @@ export default function Streaks() {
         <div className="room-motif-overlay pointer-events-none absolute inset-0" />
         <div className="relative z-10">
           <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-red-400">
-          <Flame className="h-4 w-4" /> Independent momentum
-        </div>
-        <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
-          Streaks
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/45">
-          Each activity has its own rhythm. A day counts when you log anything
-          for that activity — you never have to finish everything at once.
-                  </p>
-        </div>
-      </div>
-      {activities.length > 0 && (
-        <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 px-5 py-5 shadow-[0_18px_46px_rgba(0,0,0,.18)] md:px-7 md:py-6">
-          <img
-            src={armoryRoom}
-            alt=""
-            aria-hidden="true"
-            className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center"
-            style={{ opacity: 0.42 }}
-          />
-          <div className="room-motif-overlay pointer-events-none absolute inset-0" />
-          <img
-            src={samuraiArmor}
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none absolute -bottom-10 right-10 hidden h-48 w-auto select-none object-contain opacity-[.3] mix-blend-screen grayscale md:block"
-          />
-          <div className="relative z-10 grid gap-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
-            <div>
-              <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]">
-                <Trophy className="h-3.5 w-3.5" /> Rhythm overview
-              </div>
-              <h2 className="mt-2 text-xl font-semibold text-white">
-                Keep the line visible, not perfect.
-              </h2>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-white/48">
-                This is the shared record of returns across directions. The individual maps below keep the detail.
-              </p>
-            </div>
-            <div className="grid grid-cols-3 gap-2.5 md:min-w-[22rem]">
-              <div className="rounded-2xl border border-white/[.08] bg-black/[.16] px-3 py-3 text-center">
-                <span className="text-[8px] font-bold uppercase tracking-[.14em] text-white/36">Open lines</span>
-                <strong className="mt-1 block text-2xl font-semibold tabular-nums text-white">{openLines}</strong>
-              </div>
-              <div className="rounded-2xl border border-[#ff9b84]/18 bg-[#ff7868]/[.06] px-3 py-3 text-center">
-                <span className="text-[8px] font-bold uppercase tracking-[.14em] text-[#ffb1a7]/65">Strongest</span>
-                <strong className="mt-1 block text-2xl font-semibold tabular-nums text-white">{strongestCurrentLine}d</strong>
-              </div>
-              <div className="rounded-2xl border border-[#ffc268]/18 bg-[#ffc268]/[.06] px-3 py-3 text-center">
-                <span className="text-[8px] font-bold uppercase tracking-[.14em] text-[#ffe0a5]/65">Best record</span>
-                <strong className="mt-1 block text-2xl font-semibold tabular-nums text-white">{longestRecordedLine}d</strong>
-              </div>
-            </div>
+            <Flame className="h-4 w-4" /> Independent momentum
           </div>
-        </section>
-      )}
+          <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
+            Streaks
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/48">
+            Each direction has its own rhythm. Open a line to read its recent
+            returns, then close it again when you only need the current state.
+          </p>
+
+          {activities.length > 0 && (
+            <div className="mt-6 grid max-w-2xl grid-cols-3 gap-2.5 sm:gap-3">
+              <div className="rounded-2xl border border-white/[.09] bg-black/[.16] px-3 py-3 backdrop-blur-sm">
+                <span className="block text-[8px] font-bold uppercase tracking-[.14em] text-white/38">
+                  Open lines
+                </span>
+                <strong className="mt-1.5 block text-xl font-semibold tabular-nums text-white">
+                  {openLines}
+                </strong>
+              </div>
+              <div className="rounded-2xl border border-[#ff9b84]/18 bg-[#ff7868]/[.06] px-3 py-3 backdrop-blur-sm">
+                <span className="block text-[8px] font-bold uppercase tracking-[.14em] text-[#ffb1a7]/70">
+                  Strongest
+                </span>
+                <strong className="mt-1.5 block text-xl font-semibold tabular-nums text-white">
+                  {strongestCurrentLine}d
+                </strong>
+              </div>
+              <div className="rounded-2xl border border-[#ffc268]/18 bg-[#ffc268]/[.06] px-3 py-3 backdrop-blur-sm">
+                <span className="block text-[8px] font-bold uppercase tracking-[.14em] text-[#ffe0a5]/70">
+                  Best record
+                </span>
+                <strong className="mt-1.5 block text-xl font-semibold tabular-nums text-white">
+                  {longestRecordedLine}d
+                </strong>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
       {activities.length === 0 ? (
-
-
         <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.025] p-12 text-center">
           <Target className="mx-auto mb-4 h-10 w-10 text-white/20" />
           <h2 className="mb-2 text-xl font-bold text-white">
@@ -211,7 +204,21 @@ export default function Streaks() {
           </Link>
         </div>
       ) : (
-        <div className="space-y-6">
+        <section aria-label="Activity rhythms" className="space-y-3">
+          <div className="flex items-end justify-between gap-4 px-1 pb-1">
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]">
+                Activity lines
+              </p>
+              <p className="mt-1 text-sm text-white/42">
+                Open any direction for its twelve-week path and day-level read.
+              </p>
+            </div>
+            <span className="hidden text-[9px] font-bold uppercase tracking-[.14em] text-white/30 sm:block">
+              {activities.length} directions
+            </span>
+          </div>
+
           {activities.map((activity) => {
             const streak = streaks.find(
               (item) => item.activityId === activity.id,
@@ -243,120 +250,158 @@ export default function Streaks() {
                   : returnGap === 1
                     ? "Last return yesterday"
                     : `Last return ${returnGap}d ago`;
+            const isExpanded = expandedActivityId === activity.id;
+            const detailId = `streak-detail-${activity.id}`;
 
             return (
               <section
                 key={activity.id}
-                className="overflow-hidden rounded-3xl border border-white/10 bg-[rgba(15,15,20,0.88)] shadow-2xl backdrop-blur-xl"
+                className="overflow-hidden rounded-3xl border border-white/[.09] bg-[#0d141f]/[.84] shadow-[0_16px_38px_rgba(0,0,0,.15)] backdrop-blur-xl transition-[border-color,box-shadow] duration-200 hover:border-white/[.15]"
               >
-                <div className="flex flex-col gap-5 border-b border-white/5 p-6 md:flex-row md:items-center md:justify-between md:p-8">
-                  <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  aria-expanded={isExpanded}
+                  aria-controls={detailId}
+                  onClick={() =>
+                    setExpandedActivityId((current) =>
+                      current === activity.id ? null : activity.id,
+                    )
+                  }
+                  className="group flex w-full flex-col gap-4 p-4 text-left transition-colors duration-150 hover:bg-white/[.025] active:scale-[.995] sm:p-5 lg:flex-row lg:items-center lg:justify-between"
+                >
+                  <span className="flex min-w-0 items-center gap-3.5">
                     <span
-                      className="h-12 w-1.5 rounded-full"
-                      style={{ backgroundColor: activity.color }}
+                      className="h-11 w-1.5 shrink-0 rounded-full shadow-[0_0_16px_currentColor]"
+                      style={{
+                        backgroundColor: activity.color,
+                        color: activity.color,
+                      }}
                     />
-                    <div>
-                      <Link
-                        href={`/activities/${activity.id}`}
-                        className="text-2xl font-bold text-white transition-colors hover:text-red-400"
-                      >
+                    <span className="min-w-0">
+                      <span className="block truncate text-lg font-semibold text-white sm:text-xl">
                         {activity.name}
-                      </Link>
-                      <p className="mt-1 text-[9px] font-bold uppercase tracking-widest text-white/30">
-                        {activity.category}
+                      </span>
+                      <span className="mt-1 flex flex-wrap items-center gap-2 text-[9px] font-bold uppercase tracking-[.13em] text-white/34">
+                        <span>{activity.category}</span>
                         <span
                           className={
                             activity.activityType === "sport"
-                              ? "ml-2 text-[#72c6b3]"
-                              : "ml-2 text-white/20"
+                              ? "text-[#8bd2c2]/75"
+                              : "text-white/24"
                           }
                         >
                           {activity.activityType}
                         </span>
-                      </p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 md:flex">
-                    <div className="rounded-2xl border border-orange-500/20 bg-orange-500/10 px-4 py-3 text-center md:min-w-28">
-                      <div className="flex items-center justify-center gap-1 text-orange-400">
-                        <Flame className="h-4 w-4" />
-                        <span className="text-2xl font-bold">
-                          {streak?.currentStreak ?? 0}
-                        </span>
-                      </div>
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-white/30">
-                        current
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-center md:min-w-28">
-                      <div className="flex items-center justify-center gap-1 text-white/80">
-                        <Trophy className="h-4 w-4" />
-                        <span className="text-2xl font-bold">
-                          {streak?.longestStreak ?? 0}
-                        </span>
-                      </div>
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-white/30">
-                        best
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-center md:min-w-28">
-                      <p className="text-2xl font-bold text-white/80">
-                        {activeDays}
-                      </p>
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-white/30">
-                        active days
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-6 md:p-8">
-                  <div className="mb-6 grid gap-3 lg:grid-cols-[minmax(0,1fr)_13rem]">
-                    <div className="rounded-2xl border border-white/[.07] bg-black/[.13] px-4 py-3.5">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
-                          Path signal · 12 weeks
-                        </span>
-                        <span className="text-[9px] font-semibold tabular-nums text-white/62">
-                          {activeWeeks}/{WEEKS_TO_SHOW} active
-                        </span>
-                      </div>
-                      <div className="mt-3 grid grid-cols-12 gap-1.5">
-                        {weeklyRhythm.map((count, weekIndex) => (
-                          <span
-                            key={`${activity.id}-${weekIndex}`}
-                            title={`Week ${weekIndex + 1}: ${count} active day${count === 1 ? "" : "s"}`}
-                            className="h-3 rounded-sm border border-white/[.06] transition-transform duration-200 hover:scale-y-125"
-                            style={{
-                              backgroundColor: activity.color,
-                              opacity: count ? 0.26 + (count / 7) * 0.74 : 0.12,
-                              boxShadow: count
-                                ? `0 0 ${Math.round(5 + count)}px ${activity.color}55`
-                                : "none",
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <div className="rounded-2xl border border-white/[.07] bg-white/[.025] px-4 py-3.5">
-                      <span className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
-                        Return signal
+                        <span className="text-[#ffc268]/68">{returnLabel}</span>
                       </span>
-                      <strong className="mt-2 block text-sm font-semibold text-white/88">
-                        {returnLabel}
-                      </strong>
-                      <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-[#ffc268]/75">
-                        {streak?.currentStreak
-                          ? `${streak.currentStreak} day line open`
-                          : "Next return opens the line"}
+                    </span>
+                  </span>
+
+                  <span className="flex items-center justify-between gap-2 sm:justify-end">
+                    <span className="grid grid-cols-3 gap-1.5 sm:gap-2">
+                      <span className="min-w-[4.5rem] rounded-xl border border-[#ff9b84]/18 bg-[#ff7868]/[.07] px-2.5 py-2 text-center">
+                        <span className="block text-[7px] font-bold uppercase tracking-[.12em] text-[#ffb1a7]/68">
+                          current
+                        </span>
+                        <strong className="mt-0.5 block text-base font-semibold tabular-nums text-white">
+                          {streak?.currentStreak ?? 0}d
+                        </strong>
                       </span>
+                      <span className="min-w-[4.5rem] rounded-xl border border-white/[.07] bg-black/[.12] px-2.5 py-2 text-center">
+                        <span className="block text-[7px] font-bold uppercase tracking-[.12em] text-white/34">
+                          best
+                        </span>
+                        <strong className="mt-0.5 block text-base font-semibold tabular-nums text-white">
+                          {streak?.longestStreak ?? 0}d
+                        </strong>
+                      </span>
+                      <span className="min-w-[4.5rem] rounded-xl border border-white/[.07] bg-black/[.12] px-2.5 py-2 text-center">
+                        <span className="block text-[7px] font-bold uppercase tracking-[.12em] text-white/34">
+                          active
+                        </span>
+                        <strong className="mt-0.5 block text-base font-semibold tabular-nums text-white">
+                          {activeDays}
+                        </strong>
+                      </span>
+                    </span>
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/[.08] bg-white/[.035] text-white/45 transition-[background-color,transform,color] duration-200 group-hover:bg-white/[.08] group-hover:text-white/82">
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                      />
+                    </span>
+                  </span>
+                </button>
+
+                <div
+                  id={detailId}
+                  aria-hidden={!isExpanded}
+                  className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out ${isExpanded ? "grid-rows-[1fr] opacity-100" : "pointer-events-none grid-rows-[0fr] opacity-0"}`}
+                >
+                  <div className="min-h-0 overflow-hidden">
+                    <div className="border-t border-white/[.07] bg-black/[.07] p-4 sm:p-5">
+                      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_13rem]">
+                        <div className="rounded-2xl border border-white/[.07] bg-black/[.13] px-4 py-3.5">
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
+                              Path signal · 12 weeks
+                            </span>
+                            <span className="text-[9px] font-semibold tabular-nums text-white/62">
+                              {activeWeeks}/{WEEKS_TO_SHOW} active
+                            </span>
+                          </div>
+                          <div className="mt-3 grid grid-cols-12 gap-1.5">
+                            {weeklyRhythm.map((count, weekIndex) => (
+                              <span
+                                key={`${activity.id}-${weekIndex}`}
+                                title={`Week ${weekIndex + 1}: ${count} active day${count === 1 ? "" : "s"}`}
+                                className="h-3 rounded-sm border border-white/[.06] transition-transform duration-200 hover:scale-y-125"
+                                style={{
+                                  backgroundColor: activity.color,
+                                  opacity: count
+                                    ? 0.26 + (count / 7) * 0.74
+                                    : 0.12,
+                                  boxShadow: count
+                                    ? `0 0 ${Math.round(5 + count)}px ${activity.color}55`
+                                    : "none",
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <div className="rounded-2xl border border-white/[.07] bg-white/[.025] px-4 py-3.5">
+                          <span className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
+                            Return signal
+                          </span>
+                          <strong className="mt-2 block text-sm font-semibold text-white/88">
+                            {returnLabel}
+                          </strong>
+                          <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-[#ffc268]/75">
+                            {streak?.currentStreak
+                              ? `${streak.currentStreak} day line open`
+                              : "Next return opens the line"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 rounded-2xl border border-white/[.06] bg-black/[.1] p-3.5 sm:p-4">
+                        <DailyActivityChart days={days} color={activity.color} />
+                      </div>
+
+                      <div className="mt-3 flex justify-end">
+                        <Link
+                          href={`/activities/${activity.id}`}
+                          className="rounded-xl px-3 py-2 text-[9px] font-bold uppercase tracking-[.13em] text-white/45 transition-colors hover:bg-white/[.06] hover:text-white"
+                        >
+                          Open direction
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                  <DailyActivityChart days={days} color={activity.color} />
                 </div>
               </section>
             );
           })}
-        </div>
+        </section>
       )}
     </div>
   );
