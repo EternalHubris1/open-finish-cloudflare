@@ -1,0 +1,51 @@
+{
+  "name": "@eternal-dodjo/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Eternal Dodjo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EternalHubris1/open-finish-cloudflare.git"
+  },
+  "description": "Eternal Dodjo desktop shell with a safe remote API boundary",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "pnpm run build:renderer && pnpm run build:electron",
+    "build:renderer": "vite build",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.electron.json --noEmit",
+    "package:dir": "pnpm run build && electron-builder --dir",
+    "package:linux": "pnpm run build && electron-builder --linux AppImage"
+  },
+  "dependencies": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.3",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "electron": "35.7.5",
+    "electron-builder": "26.15.3",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.2"
+  },
+  "build": {
+    "appId": "ru.dgt.eternaldodjo.desktop",
+    "productName": "Eternal Dodjo",
+    "asar": true,
+    "files": [
+      "dist/**",
+      "dist-electron/**",
+      "package.json"
+    ],
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Utility"
+    }
+  }
+}
