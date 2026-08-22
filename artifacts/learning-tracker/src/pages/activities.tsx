@@ -400,9 +400,9 @@ export default function Activities() {
                 src={practiceHall}
                 alt=""
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-right opacity-[.14]"
+                className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-right opacity-[.28]"
               />
-              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(13,21,32,.92),rgba(13,21,32,.68),rgba(13,21,32,.86))]" />
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(13,21,32,.78),rgba(13,21,32,.48),rgba(13,21,32,.68))]" />
               <div className="relative z-10 flex items-center justify-between gap-4">
                 <div>
                   <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffb1a7]">
