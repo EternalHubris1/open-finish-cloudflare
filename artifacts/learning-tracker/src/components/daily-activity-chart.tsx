@@ -39,27 +39,47 @@ export function DailyActivityChart({
     (day) => day.minutes > 0 || (day.secondaryMinutes ?? 0) > 0,
   );
   const today = new Date();
+  const isShortRange = days.length <= 7;
 
   return (
     <div className={cn("space-y-5", className)}>
       <div className="overflow-x-auto pb-2 scrollbar-thin">
-        <div className="min-w-[820px]">
-          <div className="mb-3 ml-10 grid grid-flow-col grid-rows-1 gap-2 text-[9px] font-bold uppercase tracking-[.16em] text-white/30">
-            {days
-              .filter((_, index) => index % 7 === 0)
-              .map((day) => (
-                <span key={day.date}>{format(parseISO(day.date), "MMM")}</span>
-              ))}
-          </div>
-          <div className="flex gap-2.5">
-            <div className="grid grid-rows-7 gap-2 pr-1 text-[9px] font-bold uppercase text-white/30">
-              {["M", "", "W", "", "F", "", "S"].map((label, index) => (
-                <span key={index} className="flex h-8 items-center">
-                  {label}
-                </span>
+        <div className={cn(isShortRange ? "max-w-[26rem]" : "min-w-[820px]")}>
+          {isShortRange ? (
+            <div className="mb-2 grid grid-cols-7 gap-2 text-center text-[9px] font-bold uppercase tracking-[.12em] text-white/30">
+              {days.map((day) => (
+                <span key={day.date}>{format(parseISO(day.date), "EEE")}</span>
               ))}
             </div>
-            <div className="grid flex-1 grid-flow-col grid-rows-7 gap-2">
+          ) : (
+            <div className="mb-3 ml-10 grid grid-flow-col grid-rows-1 gap-2 text-[9px] font-bold uppercase tracking-[.16em] text-white/30">
+              {days
+                .filter((_, index) => index % 7 === 0)
+                .map((day) => (
+                  <span key={day.date}>
+                    {format(parseISO(day.date), "MMM")}
+                  </span>
+                ))}
+            </div>
+          )}
+          <div className="flex gap-2.5">
+            {!isShortRange && (
+              <div className="grid grid-rows-7 gap-2 pr-1 text-[9px] font-bold uppercase text-white/30">
+                {["M", "", "W", "", "F", "", "S"].map((label, index) => (
+                  <span key={index} className="flex h-8 items-center">
+                    {label}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div
+              className={cn(
+                "grid flex-1 gap-2",
+                isShortRange
+                  ? "grid-cols-7 grid-rows-1"
+                  : "grid-flow-col grid-rows-7",
+              )}
+            >
               {days.map((day) => {
                 const parsedDate = parseISO(day.date);
                 const isFuture = isAfter(parsedDate, today);
@@ -86,7 +106,8 @@ export function DailyActivityChart({
                     title={`${format(parsedDate, "MMMM d, yyyy")} · ${day.minutes > 0 ? `${day.minutes} min practice` : "no practice"}${hasSecondaryEffort ? ` · ${secondaryMinutes} min sport` : ""}`}
                     aria-label={`${format(parsedDate, "MMMM d, yyyy")}: ${day.minutes} practice minutes${hasSecondaryEffort ? ` and ${secondaryMinutes} sport minutes` : ""}`}
                     className={cn(
-                      "group relative flex h-8 min-w-8 items-start justify-start overflow-hidden rounded-[9px] border px-1.5 pt-1 transition-[transform,box-shadow,border-color] duration-200 hover:z-10 hover:scale-[1.08] focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffc268] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f0f14]",
+                      "group relative flex items-start justify-start overflow-hidden rounded-[9px] border px-1.5 pt-1 transition-[transform,box-shadow,border-color] duration-200 hover:z-10 hover:scale-[1.08] focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffc268] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f0f14]",
+                      isShortRange ? "aspect-square min-w-0" : "h-8 min-w-8",
                       isSameDay(parsedDate, today) &&
                         "ring-1 ring-[#ffc268]/85 ring-offset-2 ring-offset-[#0f0f14]",
                       selectedDate === day.date &&

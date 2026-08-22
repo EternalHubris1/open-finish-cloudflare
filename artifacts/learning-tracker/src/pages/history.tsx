@@ -780,154 +780,154 @@ export default function History() {
             )}
           </div>
         </div>
+
+        <section className="mt-3 overflow-hidden rounded-2xl border border-white/[.07] bg-black/[.12]">
+          <div className="flex flex-col gap-4 border-b border-white/[.06] p-4 md:flex-row md:items-end md:justify-between md:p-5">
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">
+                Signal trace
+              </p>
+              <h2 className="mt-2 text-2xl font-bold text-white">
+                Daily change, not another bar chart.
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/42">
+                Choose the analytical slice, then select any node to inspect its
+                recorded day.
+              </p>
+            </div>
+            <div className="flex rounded-2xl border border-white/[.1] bg-black/[.16] p-1">
+              {(Object.keys(TELEMETRY_SLICES) as TelemetrySlice[]).map(
+                (slice) => {
+                  const active = telemetrySlice === slice;
+                  return (
+                    <button
+                      key={slice}
+                      type="button"
+                      onClick={() => setTelemetrySlice(slice)}
+                      className={`signal-button rounded-xl px-3 py-2 text-[9px] font-bold uppercase tracking-[.13em] ${active ? "bg-[#72c6b3] text-[#07120f] shadow-[0_8px_20px_rgba(98,188,168,.16)]" : "text-white/38 hover:bg-white/[.05] hover:text-white"}`}
+                    >
+                      {TELEMETRY_SLICES[slice].label}
+                    </button>
+                  );
+                },
+              )}
+            </div>
+          </div>
+
+          <div className="px-4 py-5 md:px-5">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-[9px] font-bold uppercase tracking-[.14em] text-white/36">
+              <span>{telemetryConfig.description}</span>
+              <span>
+                peak{" "}
+                {telemetryConfig.unit === "minutes"
+                  ? formatMinutes(telemetryPeak[telemetrySlice])
+                  : `${telemetryPeak[telemetrySlice]} sessions`}
+              </span>
+            </div>
+            <div className="h-60">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={telemetryDays}
+                  margin={{ top: 12, right: 14, left: 0, bottom: 0 }}
+                  onClick={(state) => {
+                    if (state?.activeLabel)
+                      setSelectedDate(String(state.activeLabel));
+                  }}
+                >
+                  <defs>
+                    <linearGradient
+                      id="history-signal-fill"
+                      x1="0"
+                      x2="0"
+                      y1="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="0%"
+                        stopColor={metricConfig.color}
+                        stopOpacity={0.48}
+                      />
+                      <stop
+                        offset="88%"
+                        stopColor={metricConfig.color}
+                        stopOpacity={0.02}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    strokeDasharray="2 5"
+                    stroke="rgba(255,255,255,0.08)"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={(date) =>
+                      format(
+                        parseISO(String(date)),
+                        period === "week" ? "EEE" : "d MMM",
+                      )
+                    }
+                    tick={{
+                      fill: "rgba(255,255,255,0.35)",
+                      fontSize: 10,
+                      fontWeight: 700,
+                    }}
+                    axisLine={{ stroke: "rgba(255,255,255,0.1)" }}
+                    tickLine={false}
+                    minTickGap={18}
+                  />
+                  <YAxis
+                    domain={[0, telemetryMax]}
+                    tickFormatter={(value) =>
+                      telemetryConfig.unit === "minutes"
+                        ? formatMinutes(Number(value))
+                        : String(value)
+                    }
+                    tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={42}
+                  />
+                  <Tooltip
+                    cursor={{ stroke: "rgba(255,194,104,0.5)", strokeWidth: 1 }}
+                    labelFormatter={(date) =>
+                      format(parseISO(String(date)), "EEEE, MMMM d")
+                    }
+                    formatter={(value) => [
+                      telemetryConfig.unit === "minutes"
+                        ? formatMinutes(Number(value))
+                        : `${value} sessions`,
+                      telemetryConfig.label,
+                    ]}
+                    contentStyle={{
+                      backgroundColor: "#090d14",
+                      border: "1px solid rgba(255,194,104,0.18)",
+                      borderRadius: "1rem",
+                      color: "#fff",
+                      boxShadow: "0 18px 50px rgba(0,0,0,.32)",
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey={telemetrySlice}
+                    stroke={metricConfig.color}
+                    strokeWidth={2.5}
+                    fill="url(#history-signal-fill)"
+                    activeDot={{
+                      r: 5,
+                      strokeWidth: 2,
+                      stroke: "#090d14",
+                      fill: metricConfig.color,
+                    }}
+                    dot={{ r: 2.5, strokeWidth: 0, fill: metricConfig.color }}
+                    isAnimationActive={!reducedMotion}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </section>
       </details>
-
-      <section className="signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
-        <div className="flex flex-col gap-4 border-b border-white/5 p-6 md:flex-row md:items-end md:justify-between md:p-8">
-          <div>
-            <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">
-              Signal trace
-            </p>
-            <h2 className="mt-2 text-2xl font-bold text-white">
-              Daily change, not another bar chart.
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/42">
-              Choose the analytical slice, then select any node to inspect its
-              recorded day.
-            </p>
-          </div>
-          <div className="flex rounded-2xl border border-white/[.1] bg-black/[.16] p-1">
-            {(Object.keys(TELEMETRY_SLICES) as TelemetrySlice[]).map(
-              (slice) => {
-                const active = telemetrySlice === slice;
-                return (
-                  <button
-                    key={slice}
-                    type="button"
-                    onClick={() => setTelemetrySlice(slice)}
-                    className={`signal-button rounded-xl px-3 py-2 text-[9px] font-bold uppercase tracking-[.13em] ${active ? "bg-[#72c6b3] text-[#07120f] shadow-[0_8px_20px_rgba(98,188,168,.16)]" : "text-white/38 hover:bg-white/[.05] hover:text-white"}`}
-                  >
-                    {TELEMETRY_SLICES[slice].label}
-                  </button>
-                );
-              },
-            )}
-          </div>
-        </div>
-
-        <div className="px-4 py-6 md:px-8">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-[9px] font-bold uppercase tracking-[.14em] text-white/36">
-            <span>{telemetryConfig.description}</span>
-            <span>
-              peak{" "}
-              {telemetryConfig.unit === "minutes"
-                ? formatMinutes(telemetryPeak[telemetrySlice])
-                : `${telemetryPeak[telemetrySlice]} sessions`}
-            </span>
-          </div>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={telemetryDays}
-                margin={{ top: 12, right: 14, left: 0, bottom: 0 }}
-                onClick={(state) => {
-                  if (state?.activeLabel)
-                    setSelectedDate(String(state.activeLabel));
-                }}
-              >
-                <defs>
-                  <linearGradient
-                    id="history-signal-fill"
-                    x1="0"
-                    x2="0"
-                    y1="0"
-                    y2="1"
-                  >
-                    <stop
-                      offset="0%"
-                      stopColor={metricConfig.color}
-                      stopOpacity={0.48}
-                    />
-                    <stop
-                      offset="88%"
-                      stopColor={metricConfig.color}
-                      stopOpacity={0.02}
-                    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="2 5"
-                  stroke="rgba(255,255,255,0.08)"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={(date) =>
-                    format(
-                      parseISO(String(date)),
-                      period === "week" ? "EEE" : "d MMM",
-                    )
-                  }
-                  tick={{
-                    fill: "rgba(255,255,255,0.35)",
-                    fontSize: 10,
-                    fontWeight: 700,
-                  }}
-                  axisLine={{ stroke: "rgba(255,255,255,0.1)" }}
-                  tickLine={false}
-                  minTickGap={18}
-                />
-                <YAxis
-                  domain={[0, telemetryMax]}
-                  tickFormatter={(value) =>
-                    telemetryConfig.unit === "minutes"
-                      ? formatMinutes(Number(value))
-                      : String(value)
-                  }
-                  tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={42}
-                />
-                <Tooltip
-                  cursor={{ stroke: "rgba(255,194,104,0.5)", strokeWidth: 1 }}
-                  labelFormatter={(date) =>
-                    format(parseISO(String(date)), "EEEE, MMMM d")
-                  }
-                  formatter={(value) => [
-                    telemetryConfig.unit === "minutes"
-                      ? formatMinutes(Number(value))
-                      : `${value} sessions`,
-                    telemetryConfig.label,
-                  ]}
-                  contentStyle={{
-                    backgroundColor: "#090d14",
-                    border: "1px solid rgba(255,194,104,0.18)",
-                    borderRadius: "1rem",
-                    color: "#fff",
-                    boxShadow: "0 18px 50px rgba(0,0,0,.32)",
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey={telemetrySlice}
-                  stroke={metricConfig.color}
-                  strokeWidth={2.5}
-                  fill="url(#history-signal-fill)"
-                  activeDot={{
-                    r: 5,
-                    strokeWidth: 2,
-                    stroke: "#090d14",
-                    fill: metricConfig.color,
-                  }}
-                  dot={{ r: 2.5, strokeWidth: 0, fill: metricConfig.color }}
-                  isAnimationActive={!reducedMotion}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </section>
 
       <section
         id="selected-day"
