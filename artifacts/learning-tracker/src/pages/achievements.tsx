@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
+import achievementsMon from "@/assets/neotrad/achievements-mon.png";
 
 function achievementDate(value: string, pattern: string) {
   const date = new Date(value);
@@ -328,7 +329,15 @@ export default function Achievements() {
       <div className="flex flex-col gap-5 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">
-            <Sparkles className="h-3.5 w-3.5" /> Living marks
+            <span className="grid h-6 w-6 place-items-center rounded-lg border border-[#ffc268]/20 bg-[#ffc268]/[.04]">
+              <img
+                src={achievementsMon}
+                alt=""
+                aria-hidden="true"
+                className="h-4 w-4 object-contain"
+              />
+            </span>
+            Living marks
           </p>
           <h1 className="mt-3 text-4xl font-bold tracking-tight text-white md:text-5xl">
             Achievements

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import dojoCabinetScene from "../assets/dojo-cabinet-scene.png";
+import cabinetArchive from "@/assets/neotrad/cabinet-archive.png";
 import { SessionNotes } from "./reflections";
 import { format, isBefore, startOfDay } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
@@ -330,7 +331,15 @@ export default function Cabinet() {
         <div className="relative z-10 flex flex-col gap-6 md:pr-52 lg:pr-64">
           <div>
             <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]">
-              <Archive className="h-4 w-4" /> Cabinet · quiet records
+              <span className="grid h-6 w-6 place-items-center rounded-lg border border-[#ffc268]/20 bg-[#ffc268]/[.04]">
+                <img
+                  src={cabinetArchive}
+                  alt=""
+                  aria-hidden="true"
+                  className="h-4 w-4 object-contain"
+                />
+              </span>
+              Cabinet · quiet records
             </div>
             <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
               Cabinet

@@ -37,6 +37,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DailyActivityChart } from "@/components/daily-activity-chart";
 import { previewActivities } from "@/pages/dashboard-exploration";
+import historyLedger from "@/assets/neotrad/history-ledger.png";
 
 type Period = "week" | "month" | "12weeks";
 
@@ -426,7 +427,15 @@ export default function History() {
       <header className="flex flex-col gap-5 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between">
         <div>
           <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#ff8b7c]">
-            <Sparkles className="h-4 w-4" /> Activity analytics
+            <span className="grid h-6 w-6 place-items-center rounded-lg border border-[#ff8b7c]/20 bg-[#ff8b7c]/[.04]">
+              <img
+                src={historyLedger}
+                alt=""
+                aria-hidden="true"
+                className="h-4 w-4 object-contain"
+              />
+            </span>
+            Activity analytics
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
             History

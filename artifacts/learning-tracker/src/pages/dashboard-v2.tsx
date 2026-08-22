@@ -49,6 +49,7 @@ import { ActivityGlyph } from "@/lib/activity-icons";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 import { moscowOperationalDate } from "@/lib/operational-date";
 import musashi from "@assets/musashi_1785336444855.jpg";
+import dashboardBeacon from "@/assets/neotrad/dashboard-beacon.png";
 import {
   previewActivities,
   previewDashboard,
@@ -459,61 +460,73 @@ function Timeline({
       <div className="grid md:grid-cols-[minmax(0,1.5fr)_minmax(15rem,.5fr)]">
         <div className="min-w-0 p-6 md:p-9">
           <div className="mb-5 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-            <div>
-              <p
-                className={`text-[9px] font-bold uppercase tracking-[.28em] ${light ? "text-[#91463f]" : "text-[#ff8b7c]"}`}
+            <div className="flex items-start gap-3.5">
+              <span
+                className={`energy-section-mark grid h-10 w-10 shrink-0 place-items-center rounded-xl border ${light ? "border-black/[.08] bg-black/[.025]" : "border-[#e2b579]/[.16] bg-[#e2b579]/[.035]"}`}
+                aria-hidden="true"
               >
-                Energy invested
-              </p>
-              <h2
-                className={`mt-2 text-xl font-semibold sm:text-2xl md:text-3xl ${light ? "text-[#181719]" : "text-white"}`}
-              >
-                Time invested
-              </h2>
-              {lastMarkedDay ? (
-                <div
-                  className={`last-marked-summary mt-3 flex flex-wrap items-center gap-2.5 ${light ? "text-[#574e63]" : "text-white/56"}`}
-                  aria-label="Last marked day summary"
-                >
-                  <span className="last-marked-label">Last marked</span>
-                  <span
-                    className={`last-marked-date ${light ? "text-[#322b39]" : "text-white/76"}`}
-                  >
-                    {format(
-                      new Date(`${lastMarkedDay.date}T00:00:00`),
-                      "EEEE, d MMMM",
-                    )}
-                  </span>
-                  {lastMarkedDay.focusMinutes > 0 && (
-                    <span className="last-marked-token last-marked-token-work">
-                      {minutesLabel(lastMarkedDay.focusMinutes)}
-                    </span>
-                  )}
-                  {lastMarkedDay.sportMinutes > 0 && (
-                    <span className="last-marked-token last-marked-token-sport">
-                      Sport {minutesLabel(lastMarkedDay.sportMinutes)}
-                    </span>
-                  )}
-                  {lastMarkedDriftMinutes > 0 && (
-                    <span className="last-marked-token last-marked-token-drift">
-                      Drift {minutesLabel(lastMarkedDriftMinutes)}
-                    </span>
-                  )}
-                </div>
-              ) : (
+                <img
+                  src={dashboardBeacon}
+                  alt=""
+                  className="h-7 w-7 object-contain"
+                />
+              </span>
+              <div>
                 <p
-                  className={`mt-3 text-[10px] font-semibold ${light ? "text-black/38" : "text-white/32"}`}
+                  className={`text-[9px] font-bold uppercase tracking-[.28em] ${light ? "text-[#91463f]" : "text-[#ff8b7c]"}`}
                 >
-                  No marked work this week
+                  Energy invested
                 </p>
-              )}
-              <p className="sr-only">
-                Weekly summary: {activeDays} active{" "}
-                {activeDays === 1 ? "day" : "days"} of 7,{" "}
-                {minutesLabel(weekTotal)} total time logged, and{" "}
-                {minutesLabel(bestDay)} on the most active day. Sport is tracked
-                separately at {minutesLabel(sportWeekTotal)}.
-              </p>
+                <h2
+                  className={`mt-2 text-xl font-semibold sm:text-2xl md:text-3xl ${light ? "text-[#181719]" : "text-white"}`}
+                >
+                  Time invested
+                </h2>
+                {lastMarkedDay ? (
+                  <div
+                    className={`last-marked-summary mt-3 flex flex-wrap items-center gap-2.5 ${light ? "text-[#574e63]" : "text-white/56"}`}
+                    aria-label="Last marked day summary"
+                  >
+                    <span className="last-marked-label">Last marked</span>
+                    <span
+                      className={`last-marked-date ${light ? "text-[#322b39]" : "text-white/76"}`}
+                    >
+                      {format(
+                        new Date(`${lastMarkedDay.date}T00:00:00`),
+                        "EEEE, d MMMM",
+                      )}
+                    </span>
+                    {lastMarkedDay.focusMinutes > 0 && (
+                      <span className="last-marked-token last-marked-token-work">
+                        {minutesLabel(lastMarkedDay.focusMinutes)}
+                      </span>
+                    )}
+                    {lastMarkedDay.sportMinutes > 0 && (
+                      <span className="last-marked-token last-marked-token-sport">
+                        Sport {minutesLabel(lastMarkedDay.sportMinutes)}
+                      </span>
+                    )}
+                    {lastMarkedDriftMinutes > 0 && (
+                      <span className="last-marked-token last-marked-token-drift">
+                        Drift {minutesLabel(lastMarkedDriftMinutes)}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <p
+                    className={`mt-3 text-[10px] font-semibold ${light ? "text-black/38" : "text-white/32"}`}
+                  >
+                    No marked work this week
+                  </p>
+                )}
+                <p className="sr-only">
+                  Weekly summary: {activeDays} active{" "}
+                  {activeDays === 1 ? "day" : "days"} of 7,{" "}
+                  {minutesLabel(weekTotal)} total time logged, and{" "}
+                  {minutesLabel(bestDay)} on the most active day. Sport is
+                  tracked separately at {minutesLabel(sportWeekTotal)}.
+                </p>
+              </div>
             </div>
             <div
               className={`energy-metrics hidden min-w-[284px] overflow-hidden rounded-2xl border text-center lg:grid lg:grid-cols-[1.14fr_.78fr_1.14fr] ${light ? "border-black/[.08] bg-black/[.025] text-black/45" : "border-white/[.08] bg-black/10 text-white/35"}`}
