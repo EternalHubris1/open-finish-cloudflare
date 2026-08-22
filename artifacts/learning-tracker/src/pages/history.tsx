@@ -176,13 +176,13 @@ function SummaryCard({
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
         style={{
-          opacity: 0.46,
-          filter: "brightness(.78) contrast(.94) saturate(.82)",
+          opacity: 0.58,
+          filter: "brightness(.92) contrast(.96) saturate(.88)",
           objectPosition: scenePosition,
           transform: `scale(${sceneScale})`,
         }}
       />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.9)_0%,rgba(8,13,20,.62)_53%,rgba(8,13,20,.24)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.84)_0%,rgba(8,13,20,.5)_53%,rgba(8,13,20,.18)_100%)]" />
       <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-[#ff8b7c]/45 via-white/[.14] to-transparent" />
       <div className="relative z-10">
         <div className="mb-4 flex min-h-8 items-start gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/34">
@@ -625,22 +625,22 @@ export default function History() {
             label={`${metricConfig.label} logged`}
             value={formatMinutes(metricTotal)}
             icon={Clock3}
-            scenePosition="8% 18%"
-            sceneScale={1.42}
+            scenePosition="6% 66%"
+            sceneScale={1.3}
           />
           <SummaryCard
             label={`Days with ${metricConfig.label.toLowerCase()}`}
             value={`${metricActiveDays} / ${periodDayCount}`}
             icon={CalendarDays}
-            scenePosition="82% 14%"
-            sceneScale={1.42}
+            scenePosition="48% 12%"
+            sceneScale={1.3}
           />
           <SummaryCard
             label="Avg. per active day"
             value={formatMinutes(metricAverageReturn)}
             icon={ActivityIcon}
-            scenePosition="15% 82%"
-            sceneScale={1.42}
+            scenePosition="52% 84%"
+            sceneScale={1.3}
           />
           <SummaryCard
             label="Change vs prior period"
@@ -650,8 +650,8 @@ export default function History() {
                 : "New"
             }
             icon={RefreshCw}
-            scenePosition="86% 80%"
-            sceneScale={1.42}
+            scenePosition="94% 48%"
+            sceneScale={1.3}
           />
         </div>
 
