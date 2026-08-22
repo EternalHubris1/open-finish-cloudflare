@@ -643,8 +643,14 @@ export default function Cabinet() {
         </aside>
       </section>
 
-      <section className="signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
-        <div className="flex flex-col gap-4 border-b border-white/[.06] p-6 md:flex-row md:items-end md:justify-between md:p-7">
+      <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
+        <img
+          src={verticalOrnament}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute right-14 top-1/2 h-[28rem] max-h-[138%] w-auto -translate-y-1/2 select-none opacity-[.34] brightness-[1.14] saturate-[.82]"
+        />
+        <div className="relative z-10 flex flex-col gap-4 border-b border-white/[.06] p-6 md:flex-row md:items-end md:justify-between md:p-7">
           <div>
             <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]">
               Tools kept
@@ -668,7 +674,7 @@ export default function Cabinet() {
             </Button>
           </div>
         </div>
-        <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3 md:p-7">
+        <div className="relative z-10 grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3 md:p-7">
           {cabinetItems.length ? (
             cabinetItems.map((item: DojoCabinetItem) => (
               <article
@@ -754,7 +760,7 @@ export default function Cabinet() {
           src={verticalOrnament}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute -right-3 top-1/2 h-[17rem] max-h-[180%] w-auto -translate-y-1/2 select-none opacity-[.28] brightness-[1.18] saturate-[.78]"
+          className="pointer-events-none absolute right-14 top-1/2 h-[20rem] max-h-[190%] w-auto -translate-y-1/2 select-none opacity-[.34] brightness-[1.14] saturate-[.82]"
         />
         <div className="relative z-10 border-b border-white/[.06] p-6 md:p-7">
           <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ff9a89]">

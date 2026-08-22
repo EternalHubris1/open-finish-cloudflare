@@ -295,12 +295,14 @@ export function SessionNotes({ embedded = false }: { embedded?: boolean }) {
         </div>
       ) : (
         <section className="signal-surface relative isolate overflow-hidden rounded-[2rem] border border-dashed border-white/15 bg-[#0c1119]/80 p-12 text-center">
-          <img
-            src={verticalOrnament}
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-3 top-1/2 h-[20rem] max-h-[150%] w-auto -translate-y-1/2 select-none opacity-[.28] brightness-[1.18] saturate-[.78]"
-          />
+          {embedded && (
+            <img
+              src={verticalOrnament}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute right-14 top-1/2 h-[20rem] max-h-[150%] w-auto -translate-y-1/2 select-none opacity-[.34] brightness-[1.14] saturate-[.82]"
+            />
+          )}
           <BookOpenText className="relative z-10 mx-auto h-9 w-9 text-white/20" />
           <h2 className="relative z-10 mt-4 text-xl font-semibold text-white">
             {hasFilters ? "No notes match this view" : "No session notes yet"}

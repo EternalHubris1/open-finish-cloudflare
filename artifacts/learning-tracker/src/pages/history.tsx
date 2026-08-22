@@ -41,7 +41,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DailyActivityChart } from "@/components/daily-activity-chart";
 import { previewActivities } from "@/pages/dashboard-exploration";
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
-import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
 
 type Period = "week" | "month" | "12weeks";
 type AggregationMetric = "practice" | "sport" | "combined";
@@ -973,12 +972,6 @@ export default function History() {
 
           <aside className="relative overflow-hidden rounded-2xl border border-white/[.08] bg-[linear-gradient(150deg,rgba(255,120,104,.1),rgba(8,13,20,.78)_55%,rgba(98,188,168,.07))] p-5">
             <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#ffc268]/[.09] blur-3xl" />
-            <img
-              src={verticalOrnament}
-              alt=""
-              aria-hidden="true"
-              className="pointer-events-none absolute -right-3 top-1/2 h-[19rem] max-h-[96%] w-auto -translate-y-1/2 select-none opacity-[.28] brightness-[1.18] saturate-[.78]"
-            />
             <div className="relative z-10">
               <p className="text-[8px] font-bold uppercase tracking-[.18em] text-[#ffb1a7]">
                 Selected return

@@ -45,7 +45,6 @@ import {
   defaultActivityIcon,
 } from "@/lib/activity-icons";
 import practiceHall from "@/assets/environments/optimized/activities-practice-hall.webp";
-import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -581,12 +580,6 @@ export default function Activities() {
           </section>
 
           <section className="signal-surface relative isolate overflow-hidden rounded-[2rem] border border-white/[.1] bg-[#0d1520]/88 p-4 shadow-[0_24px_70px_rgba(0,0,0,.2)] md:p-5">
-            <img
-              src={verticalOrnament}
-              alt=""
-              aria-hidden="true"
-              className="pointer-events-none absolute -right-2 top-1/2 h-[15rem] max-h-[190%] w-auto -translate-y-1/2 select-none opacity-[.28] brightness-[1.18] saturate-[.78]"
-            />
             <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div
                 className="flex flex-wrap gap-2"
