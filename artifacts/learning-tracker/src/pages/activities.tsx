@@ -567,7 +567,7 @@ export default function Activities() {
               </div>
               <Link
                 href="/history?from=activities"
-                className="activity-analysis-link relative z-10 mt-5 flex h-11 items-center justify-between rounded-2xl px-4 text-[10px] font-bold uppercase tracking-[.14em] text-[#d9f6ef]"
+                className="activity-analysis-link relative z-10 mt-5 flex h-11 items-center justify-between rounded-2xl px-4 text-[10px] font-bold uppercase tracking-[.14em] text-white/72"
               >
                 <span className="relative z-10 flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#72c6b3] shadow-[0_0_9px_rgba(114,198,179,.88)]" />

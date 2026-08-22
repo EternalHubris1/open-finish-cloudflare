@@ -19,6 +19,7 @@ import {
 import {
   Activity as ActivityIcon,
   CalendarDays,
+  ChevronDown,
   Compass,
   Orbit,
   RefreshCw,
@@ -40,6 +41,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DailyActivityChart } from "@/components/daily-activity-chart";
 import { previewActivities } from "@/pages/dashboard-exploration";
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
+import historyOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
 
 type Period = "week" | "month" | "12weeks";
 type AggregationMetric = "practice" | "sport" | "combined";
@@ -81,7 +83,6 @@ const PERIOD_LABELS: Record<Period, string> = {
   "12weeks": "12 weeks",
 };
 
-const HEATMAP_SCALE = ["#18202d", "#403238", "#76403f", "#d4584f", "#efb45f"];
 const ACTIVITY_SIGNAL_COLORS = [
   "#e45a50",
   "#6f8fbf",
@@ -553,7 +554,7 @@ export default function History() {
       )}
 
       <details
-        className="history-telemetry-console signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-4 shadow-[0_18px_46px_rgba(0,0,0,.16)] md:p-5"
+        className="history-analytics-disclosure history-telemetry-console signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-4 shadow-[0_18px_46px_rgba(0,0,0,.16)] md:p-5"
         style={
           {
             "--history-activity-ratio": `${(metricActiveDays / periodDayCount) * 100}%`,
@@ -570,8 +571,15 @@ export default function History() {
               {metricConfig.label} · {formatMinutes(metricTotal)}
             </span>
           </span>
-          <span className="rounded-full border border-white/[.08] bg-white/[.035] px-2.5 py-1 text-[8px] font-bold uppercase tracking-[.12em] text-white/42">
-            {metricActiveDays} active days · open
+          <span className="flex shrink-0 items-center gap-2">
+            <span className="rounded-full border border-white/[.08] bg-white/[.035] px-2.5 py-1 text-[8px] font-bold uppercase tracking-[.12em] text-white/42">
+              {metricActiveDays} active days
+            </span>
+            <span className="history-disclosure-indicator flex items-center gap-2 rounded-xl border border-white/[.1] bg-white/[.035] px-2.5 py-1.5 text-[8px] font-bold uppercase tracking-[.12em] text-white/58">
+              <span className="history-disclosure-closed">Open analytics</span>
+              <span className="history-disclosure-open">Hide analytics</span>
+              <ChevronDown className="history-disclosure-chevron h-3.5 w-3.5" />
+            </span>
           </span>
         </summary>
 
@@ -781,7 +789,7 @@ export default function History() {
           </div>
         </div>
 
-        <section className="mt-3 overflow-hidden rounded-2xl border border-white/[.07] bg-black/[.12]">
+        <section className="history-signal-field mt-3 overflow-hidden rounded-2xl border border-white/[.07] bg-black/[.12]">
           <div className="flex flex-col gap-4 border-b border-white/[.06] p-4 md:flex-row md:items-end md:justify-between md:p-5">
             <div>
               <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">
@@ -940,8 +948,8 @@ export default function History() {
             </p>
             <h2 className="mt-2 text-2xl font-bold text-white">Daily effort</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-white/44">
-              The field keeps the shape of your practice. Coral and gold carry
-              deliberate work; a quiet green edge records sport.
+              The field keeps the shape of your practice. Coral carries
+              deliberate work; a quiet teal edge records sport.
             </p>
           </div>
           <div className="flex items-center gap-2 rounded-2xl border border-white/[.08] bg-black/15 px-3 py-2 text-[9px] font-bold uppercase tracking-[.14em] text-white/42">
@@ -957,7 +965,7 @@ export default function History() {
               minutes: day.minutes,
               secondaryMinutes: day.sportMinutes,
             }))}
-            colorScale={HEATMAP_SCALE}
+            ornamentSrc={historyOrnament}
             secondaryColor="#62bca8"
             intensityThresholds={[30, 90, 180]}
             selectedDate={selectedDate}
@@ -965,7 +973,7 @@ export default function History() {
           />
 
           <aside className="relative overflow-hidden rounded-2xl border border-white/[.08] bg-[linear-gradient(150deg,rgba(255,120,104,.1),rgba(8,13,20,.78)_55%,rgba(98,188,168,.07))] p-5">
-            <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#ffc268]/[.09] blur-3xl" />
+            <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#ff7868]/[.09] blur-3xl" />
             <div className="relative z-10">
               <p className="text-[8px] font-bold uppercase tracking-[.18em] text-[#ffb1a7]">
                 Selected return
@@ -996,7 +1004,7 @@ export default function History() {
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span>Period peak</span>
-                  <span className="text-[#ffc268]">
+                  <span className="text-[#ff9a89]">
                     {formatMinutes(
                       peakEffortDay.minutes + peakEffortDay.sportMinutes,
                     )}

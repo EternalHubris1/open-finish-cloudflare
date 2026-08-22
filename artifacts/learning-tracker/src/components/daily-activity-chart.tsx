@@ -12,6 +12,7 @@ interface DailyActivityChartProps {
   color?: string;
   colorScale?: string[];
   secondaryColor?: string;
+  ornamentSrc?: string;
   intensityThresholds?: number[];
   emptyLabel?: string;
   className?: string;
@@ -24,6 +25,7 @@ export function DailyActivityChart({
   color = "#dc2626",
   colorScale,
   secondaryColor = "#62bca8",
+  ornamentSrc,
   intensityThresholds = [30, 90, 180],
   emptyLabel = "No activity recorded in this period",
   className,
@@ -80,15 +82,21 @@ export function DailyActivityChart({
                   : "grid-flow-col grid-rows-7",
               )}
             >
-              {days.map((day) => {
+              {days.map((day, index) => {
                 const parsedDate = parseISO(day.date);
                 const isFuture = isAfter(parsedDate, today);
                 const hasEffort = day.minutes > 0;
                 const secondaryMinutes = day.secondaryMinutes ?? 0;
                 const hasSecondaryEffort = secondaryMinutes > 0;
+                const hasSignal = hasEffort || hasSecondaryEffort;
                 const intensity = hasEffort
                   ? 0.3 + 0.7 * Math.sqrt(day.minutes / maxMinutes)
                   : 0;
+                const secondaryIntensity = hasSecondaryEffort
+                  ? 0.3 +
+                    0.7 * Math.sqrt(secondaryMinutes / maxSecondaryMinutes)
+                  : 0;
+                const signalIntensity = Math.max(intensity, secondaryIntensity);
                 const thresholdIndex = intensityThresholds.findIndex(
                   (threshold) => day.minutes <= threshold,
                 );
@@ -98,6 +106,11 @@ export function DailyActivityChart({
                     ? intensityThresholds.length + 1
                     : thresholdIndex + 1;
                 const cellColor = colorScale?.[scaleIndex] ?? color;
+                const ornamentOpacity =
+                  hasSignal && ornamentSrc
+                    ? Math.min(0.62, 0.16 + signalIntensity * 0.46)
+                    : 0;
+                const ornamentPosition = `${(index * 19) % 100}% ${(index * 31) % 100}%`;
 
                 return (
                   <button
@@ -115,40 +128,67 @@ export function DailyActivityChart({
                     )}
                     onClick={() => onSelectDate?.(day.date)}
                     style={{
-                      backgroundColor: hasEffort
-                        ? colorScale
-                          ? cellColor
-                          : color
-                        : "rgba(255,255,255,0.018)",
-                      borderColor: hasEffort
-                        ? colorScale
-                          ? cellColor
-                          : color
-                        : "rgba(255,255,255,0.04)",
+                      backgroundColor:
+                        hasSignal && ornamentSrc
+                          ? "rgba(242,246,250,0.88)"
+                          : hasEffort
+                            ? colorScale
+                              ? cellColor
+                              : color
+                            : "rgba(255,255,255,0.018)",
+                      borderColor:
+                        hasSignal && ornamentSrc
+                          ? "rgba(255,255,255,0.42)"
+                          : hasEffort
+                            ? colorScale
+                              ? cellColor
+                              : color
+                            : "rgba(255,255,255,0.04)",
                       opacity: isFuture
                         ? 0.16
-                        : hasEffort
-                          ? colorScale
-                            ? 1
-                            : intensity
-                          : 0.55,
-                      boxShadow: hasEffort
-                        ? `0 0 ${Math.round(10 * intensity)}px ${cellColor}55`
-                        : hasSecondaryEffort
-                          ? `0 0 8px ${secondaryColor}40`
-                          : "none",
+                        : hasSignal && ornamentSrc
+                          ? 1
+                          : hasEffort
+                            ? colorScale
+                              ? 1
+                              : intensity
+                            : 0.55,
+                      boxShadow:
+                        hasSignal && ornamentSrc
+                          ? `0 0 ${Math.round(8 + 8 * signalIntensity)}px rgba(220,230,238,.22)`
+                          : hasEffort
+                            ? `0 0 ${Math.round(10 * intensity)}px ${cellColor}55`
+                            : hasSecondaryEffort
+                              ? `0 0 8px ${secondaryColor}40`
+                              : "none",
                     }}
                   >
+                    {hasSignal && ornamentSrc && (
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 bg-cover bg-no-repeat mix-blend-multiply"
+                        style={{
+                          backgroundImage: `url(${ornamentSrc})`,
+                          backgroundPosition: ornamentPosition,
+                          filter:
+                            "grayscale(1) brightness(0.26) contrast(1.35)",
+                          opacity: ornamentOpacity,
+                        }}
+                      />
+                    )}
                     <span
                       aria-hidden="true"
-                      className="relative z-10 text-[8px] font-bold tabular-nums text-white/55 transition-colors group-hover:text-white"
+                      className={`relative z-10 text-[8px] font-bold tabular-nums transition-colors group-hover:text-white ${ornamentSrc && hasSignal ? "text-[#101822]/72" : "text-white/55"}`}
                     >
                       {format(parsedDate, "d")}
                     </span>
                     {hasEffort && (
                       <span
                         aria-hidden="true"
-                        className="absolute inset-x-1.5 bottom-1 h-[3px] rounded-full bg-white/45"
+                        className={cn(
+                          "absolute inset-x-1.5 bottom-1 h-[3px] rounded-full",
+                          ornamentSrc ? "bg-[#ff7868]/80" : "bg-white/45",
+                        )}
                         style={{
                           opacity: Math.min(0.9, 0.28 + intensity * 0.72),
                         }}
