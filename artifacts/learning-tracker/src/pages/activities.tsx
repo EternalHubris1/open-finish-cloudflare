@@ -46,7 +46,6 @@ import {
   defaultActivityIcon,
 } from "@/lib/activity-icons";
 import practiceHall from "@/assets/environments/optimized/activities-practice-hall.webp";
-import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -491,14 +490,7 @@ export default function Activities() {
               </div>
             </div>
 
-            <aside className="relative overflow-hidden rounded-[1.75rem] border border-white/[.09] bg-[#0d1520]/[.79] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.04)] backdrop-blur-[2px] md:p-6">
-              <img
-                src={verticalOrnament}
-                alt=""
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-7 -top-12 h-[19rem] w-auto opacity-[.34] saturate-[.82] brightness-[.82]"
-              />
-              <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-[#0d1520]/20 to-transparent" aria-hidden="true" />
+            <aside className="relative overflow-hidden rounded-[1.75rem] border border-white/[.09] bg-[#0d1520]/[.72] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.04)] backdrop-blur-[2px] md:p-6">
               <div className="relative z-10 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">
                 <Flame className="h-3.5 w-3.5" /> Week at a glance
               </div>
