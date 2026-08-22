@@ -359,33 +359,14 @@ export default function Activities() {
               </p>
             </div>
           </div>
-          <div className="w-full max-w-52 space-y-2 sm:w-52">
-            <div className="relative overflow-hidden rounded-2xl border border-white/[.1] bg-[#071019]/[.3] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,.05)] backdrop-blur-sm">
-              <div className="pointer-events-none absolute inset-y-3 left-0 w-px bg-gradient-to-b from-[#ff7868] via-[#ffc268] to-[#72c6b3] shadow-[0_0_9px_rgba(255,194,104,.55)]" />
-              <p className="text-[8px] font-bold uppercase tracking-[.17em] text-white/52">
-                This week
-              </p>
-              <p className="mt-1.5 text-[1.35rem] font-semibold leading-none tabular-nums tracking-[-.04em] text-white">
-                {compactDuration(totalWeekMinutes)}
-              </p>
-              <div className="mt-3 h-px overflow-hidden bg-white/[.08]">
-                <div
-                  className="h-full bg-gradient-to-r from-[#ff7868] via-[#ffc268] to-[#72c6b3] shadow-[0_0_10px_rgba(255,194,104,.65)] transition-[width] duration-700"
-                  style={{
-                    width: `${totalWeekTarget ? Math.min(100, Math.round((totalWeekMinutes / totalWeekTarget) * 100)) : 0}%`,
-                  }}
-                />
-              </div>
-            </div>
-            <Button
-              onClick={openCreateDialog}
-              className="h-11 w-full justify-center gap-2 rounded-2xl border border-[#ff9a89]/35 bg-[#d94a41] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white shadow-[0_10px_26px_rgba(217,74,65,.22)] transition-[transform,background-color,box-shadow] duration-150 hover:bg-[#ed5d53] hover:shadow-[0_14px_32px_rgba(233,84,72,.32)] active:scale-[.97]"
-              data-testid="button-create-activity"
-            >
-              <Plus className="h-4 w-4" />
-              New direction
-            </Button>
-          </div>
+          <Button
+            onClick={openCreateDialog}
+            className="h-11 w-full max-w-52 justify-center gap-2 rounded-2xl border border-[#ff9a89]/35 bg-[#d94a41] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white shadow-[0_10px_26px_rgba(217,74,65,.22)] transition-[transform,background-color,box-shadow] duration-150 hover:bg-[#ed5d53] hover:shadow-[0_14px_32px_rgba(233,84,72,.32)] active:scale-[.97] sm:w-52"
+            data-testid="button-create-activity"
+          >
+            <Plus className="h-4 w-4" />
+            New direction
+          </Button>
         </div>
       </section>
 

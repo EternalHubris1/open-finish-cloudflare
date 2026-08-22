@@ -149,11 +149,13 @@ function SummaryCard({
   value,
   icon: Icon,
   scenePosition,
+  sceneScale,
 }: {
   label: string;
   value: string;
   icon: typeof Clock3;
   scenePosition: string;
+  sceneScale: number;
 }) {
   return (
     <div className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.1] bg-[#0c1119]/74 p-5 shadow-[0_14px_32px_rgba(0,0,0,.14)]">
@@ -161,8 +163,13 @@ function SummaryCard({
         src={zenGarden}
         alt=""
         aria-hidden="true"
-        className={`pointer-events-none absolute inset-0 h-full w-full select-none object-cover ${scenePosition}`}
-        style={{ opacity: 0.46, filter: "brightness(.78) contrast(.94) saturate(.82)" }}
+        className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
+        style={{
+          opacity: 0.46,
+          filter: "brightness(.78) contrast(.94) saturate(.82)",
+          objectPosition: scenePosition,
+          transform: `scale(${sceneScale})`,
+        }}
       />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.9)_0%,rgba(8,13,20,.62)_53%,rgba(8,13,20,.24)_100%)]" />
       <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-[#ff8b7c]/45 via-white/[.14] to-transparent" />
@@ -536,19 +543,22 @@ export default function History() {
           label="Practice time"
           value={formatMinutes(focusMinutes)}
           icon={Clock3}
-          scenePosition="object-left"
+          scenePosition="8% 18%"
+          sceneScale={1.42}
         />
         <SummaryCard
           label="Sport · separate"
           value={formatMinutes(sportMinutes)}
           icon={ActivityIcon}
-          scenePosition="object-[38%_center]"
+          scenePosition="82% 14%"
+          sceneScale={1.42}
         />
         <SummaryCard
           label="Active days"
           value={String(activeDays)}
           icon={CalendarDays}
-          scenePosition="object-[62%_center]"
+          scenePosition="15% 82%"
+          sceneScale={1.42}
         />
         <SummaryCard
           label="Most active"
@@ -558,7 +568,8 @@ export default function History() {
               : "—"
           }
           icon={Trophy}
-          scenePosition="object-right"
+          scenePosition="86% 80%"
+          sceneScale={1.42}
         />
       </section>
 
