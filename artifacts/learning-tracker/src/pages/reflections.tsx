@@ -299,7 +299,7 @@ export function SessionNotes({ embedded = false }: { embedded?: boolean }) {
             src={verticalOrnament}
             alt=""
             aria-hidden="true"
-            className="pointer-events-none absolute -right-8 top-1/2 h-[19rem] max-h-[145%] w-auto -translate-y-1/2 select-none opacity-[.15] brightness-[1.1] saturate-[.72]"
+            className="pointer-events-none absolute -right-3 top-1/2 h-[20rem] max-h-[150%] w-auto -translate-y-1/2 select-none opacity-[.28] brightness-[1.18] saturate-[.78]"
           />
           <BookOpenText className="relative z-10 mx-auto h-9 w-9 text-white/20" />
           <h2 className="relative z-10 mt-4 text-xl font-semibold text-white">

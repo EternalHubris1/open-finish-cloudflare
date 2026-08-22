@@ -585,7 +585,7 @@ export default function Activities() {
               src={verticalOrnament}
               alt=""
               aria-hidden="true"
-              className="pointer-events-none absolute -right-6 top-1/2 h-[13rem] max-h-[185%] w-auto -translate-y-1/2 select-none opacity-[.13] brightness-[1.08] saturate-[.7]"
+              className="pointer-events-none absolute -right-2 top-1/2 h-[15rem] max-h-[190%] w-auto -translate-y-1/2 select-none opacity-[.28] brightness-[1.18] saturate-[.78]"
             />
             <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div

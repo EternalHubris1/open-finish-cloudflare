@@ -754,7 +754,7 @@ export default function Cabinet() {
           src={verticalOrnament}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute -right-7 top-1/2 h-[15rem] max-h-[170%] w-auto -translate-y-1/2 select-none opacity-[.16] brightness-[1.12] saturate-[.72]"
+          className="pointer-events-none absolute -right-3 top-1/2 h-[17rem] max-h-[180%] w-auto -translate-y-1/2 select-none opacity-[.28] brightness-[1.18] saturate-[.78]"
         />
         <div className="relative z-10 border-b border-white/[.06] p-6 md:p-7">
           <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ff9a89]">

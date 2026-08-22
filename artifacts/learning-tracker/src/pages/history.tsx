@@ -977,7 +977,7 @@ export default function History() {
               src={verticalOrnament}
               alt=""
               aria-hidden="true"
-              className="pointer-events-none absolute -right-7 top-1/2 h-[18rem] max-h-[92%] w-auto -translate-y-1/2 select-none opacity-[.16] brightness-[1.1] saturate-[.72]"
+              className="pointer-events-none absolute -right-3 top-1/2 h-[19rem] max-h-[96%] w-auto -translate-y-1/2 select-none opacity-[.28] brightness-[1.18] saturate-[.78]"
             />
             <div className="relative z-10">
               <p className="text-[8px] font-bold uppercase tracking-[.18em] text-[#ffb1a7]">
