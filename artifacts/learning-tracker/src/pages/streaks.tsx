@@ -10,7 +10,6 @@ import { addDays, format, startOfWeek, subWeeks } from "date-fns";
 import { Activity, CalendarDay } from "@workspace/api-client-react";
 import { Flame, Plus, RefreshCw, Target, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import DojoScenePanel from "@/components/dojo-scene-panel";
 import templePath from "@/assets/environments/optimized/streaks-temple-path.webp";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -110,8 +109,16 @@ export default function Streaks() {
 
   return (
     <div className="relative z-10 mx-auto min-h-screen max-w-6xl space-y-8 px-4 py-6 pb-28 md:p-8 md:pb-20">
-      <div className="border-b border-white/10 pb-6">
-        <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-red-400">
+      <div className="relative isolate overflow-hidden rounded-[1.75rem] border border-white/[.08] bg-[#0a1019]/86 px-5 py-6 shadow-[0_18px_46px_rgba(0,0,0,.18)] md:px-7">
+        <img
+          src={templePath}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-28"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.94),rgba(8,13,20,.6)_58%,rgba(8,13,20,.16))]" />
+        <div className="relative z-10">
+          <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-red-400">
           <Flame className="h-4 w-4" /> Independent momentum
         </div>
         <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
@@ -120,16 +127,11 @@ export default function Streaks() {
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/45">
           Each activity has its own rhythm. A day counts when you log anything
           for that activity — you never have to finish everything at once.
-        </p>
-            </div>
-
-      <DojoScenePanel
-        image={templePath}
-        eyebrow="Room 05 · independent rhythm"
-        context="Twelve-week cadence · individual lines"
-      />
-
+                  </p>
+        </div>
+      </div>
       {activities.length === 0 ? (
+
 
         <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.025] p-12 text-center">
           <Target className="mx-auto mb-4 h-10 w-10 text-white/20" />

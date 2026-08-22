@@ -14,38 +14,65 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import dashboardThreshold from "@/assets/environments/optimized/dashboard-threshold.webp";
+import practiceHall from "@/assets/environments/optimized/activities-practice-hall.webp";
+import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
+import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
+import templePath from "@/assets/environments/optimized/streaks-temple-path.webp";
 
 type SidebarRoute = {
   path: string;
   label: string;
   cue: string;
   icon: ComponentType<{ className?: string }>;
+  scene?: string;
 };
 
 const orientationRoutes: SidebarRoute[] = [
-  { path: "/", label: "Dashboard", cue: "Current signal", icon: Home },
-  { path: "/activities", label: "Activities", cue: "Directions", icon: Target },
+  {
+    path: "/",
+    label: "Dashboard",
+    cue: "Current signal",
+    icon: Home,
+    scene: dashboardThreshold,
+  },
+  {
+    path: "/activities",
+    label: "Activities",
+    cue: "Directions",
+    icon: Target,
+    scene: practiceHall,
+  },
   {
     path: "/history",
     label: "History",
     cue: "Patterns over time",
     icon: CalendarDays,
+    scene: zenGarden,
   },
   {
     path: "/reflections",
     label: "Cabinet",
     cue: "Reflections & tools",
     icon: BookOpenText,
+    scene: armoryRoom,
   },
 ];
 
 const longViewRoutes: SidebarRoute[] = [
-  { path: "/streaks", label: "Streaks", cue: "Return rhythm", icon: Flame },
+  {
+    path: "/streaks",
+    label: "Streaks",
+    cue: "Return rhythm",
+    icon: Flame,
+    scene: templePath,
+  },
   {
     path: "/achievements",
     label: "Achievements",
     cue: "Rare milestones",
     icon: Award,
+    scene: zenGarden,
   },
 ];
 
@@ -84,17 +111,34 @@ function DesktopRoute({
       )}
       data-testid={`nav-${route.label.toLowerCase()}`}
     >
+      {route.scene && (
+        <>
+          <img
+            src={route.scene}
+            alt=""
+            aria-hidden="true"
+            className={cn(
+              "pointer-events-none absolute inset-0 h-full w-full object-cover object-center transition-[opacity,transform] duration-300",
+              active
+                ? "scale-[1.03] opacity-[.42]"
+                : "scale-100 opacity-[.18] group-hover:scale-[1.025] group-hover:opacity-[.3]",
+            )}
+          />
+          <span
+            className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(7,10,15,.9)_0%,rgba(7,10,15,.72)_52%,rgba(7,10,15,.2)_100%)]"
+            aria-hidden="true"
+          />
+        </>
+      )}
       <span
         className={cn(
-          "relative grid h-8 w-8 shrink-0 place-items-center rounded-xl border transition-[color,background-color,border-color,box-shadow] duration-200",
-          active
-            ? "border-[#ff7868]/45 bg-[#ff7868]/18 text-[#ffb1a7] shadow-[0_0_26px_rgba(255,111,97,.2)]"
-            : "border-white/[.08] bg-white/[.035] text-white/44 group-hover:border-[#ffb1a7]/22 group-hover:bg-white/[.075] group-hover:text-white/85",
+          "relative z-10 grid h-7 w-7 shrink-0 place-items-center transition-colors duration-200",
+          active ? "text-[#ffb1a7]" : "text-white/48 group-hover:text-white/85",
         )}
       >
         <Icon className="h-4 w-4" />
       </span>
-      <span className="min-w-0 flex-1">
+      <span className="relative z-10 min-w-0 flex-1">
         <span className="block truncate text-[13px] font-semibold tracking-[-.01em]">
           {route.label}
         </span>
@@ -111,14 +155,14 @@ function DesktopRoute({
       </span>
       <ChevronRight
         className={cn(
-          "h-3.5 w-3.5 shrink-0 transition-[opacity,transform,color] duration-200",
+          "relative z-10 h-3.5 w-3.5 shrink-0 transition-[opacity,transform,color] duration-200",
           active
             ? "translate-x-0 text-[#ff9a89]/70 opacity-100"
             : "-translate-x-1 text-white/30 opacity-0 group-hover:translate-x-0 group-hover:opacity-100",
         )}
       />
       {active && (
-        <span className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-[#ffc268] via-[#ff7868] to-[#ff7868]/20 shadow-[0_0_12px_rgba(255,120,104,.65)]" />
+        <span className="absolute z-10 inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-[#ffc268] via-[#ff7868] to-[#ff7868]/20 shadow-[0_0_12px_rgba(255,120,104,.65)]" />
       )}
     </Link>
   );
@@ -263,10 +307,27 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
                   : "border-transparent text-white/32",
               )}
             >
-              <Icon className="h-5 w-5" />
-              <span className="max-w-full truncate">{route.label}</span>
+              {route.scene && (
+                <>
+                  <img
+                    src={route.scene}
+                    alt=""
+                    aria-hidden="true"
+                    className={cn(
+                      "pointer-events-none absolute inset-0 h-full w-full object-cover object-center",
+                      active ? "opacity-[.34]" : "opacity-[.12]",
+                    )}
+                  />
+                  <span
+                    className="pointer-events-none absolute inset-0 bg-[#070a0f]/68"
+                    aria-hidden="true"
+                  />
+                </>
+              )}
+              <Icon className="relative z-10 h-5 w-5" />
+              <span className="relative z-10 max-w-full truncate">{route.label}</span>
               {active && (
-                <span className="absolute top-0 h-0.5 w-5 rounded-full bg-[#ff8b7c]" />
+                <span className="absolute z-10 top-0 h-0.5 w-5 rounded-full bg-[#ff8b7c]" />
               )}
             </Link>
           );
@@ -305,17 +366,33 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
                   key={route.path}
                   href={route.path}
                   aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "sidebar-route flex items-center gap-3 rounded-2xl border px-3 py-2.5",
+                                      className={cn(
+                      "sidebar-route relative isolate overflow-hidden flex items-center gap-3 rounded-2xl border px-3 py-2.5",
+
                     active
                       ? "border-[#ff7868]/16 bg-[#ff7868]/10 text-[#ff9a89]"
                       : "border-transparent text-white/55 hover:border-white/[.06] hover:bg-white/[.04] hover:text-white",
                   )}
                 >
-                  <span className="grid h-8 w-8 place-items-center rounded-xl border border-white/[.06] bg-white/[.03]">
-                    <Icon className="h-4 w-4" />
-                  </span>
-                  <span className="min-w-0 flex-1">
+                  {route.scene && (
+                    <>
+                      <img
+                        src={route.scene}
+                        alt=""
+                        aria-hidden="true"
+                        className={cn(
+                          "pointer-events-none absolute inset-0 h-full w-full object-cover object-center",
+                          active ? "opacity-[.3]" : "opacity-[.14]",
+                        )}
+                      />
+                      <span
+                        className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(7,10,15,.86),rgba(7,10,15,.36))]"
+                        aria-hidden="true"
+                      />
+                    </>
+                  )}
+                  <Icon className="relative z-10 h-4 w-4 shrink-0" />
+                  <span className="relative z-10 min-w-0 flex-1">
                     <span className="block text-sm font-semibold">
                       {route.label}
                     </span>

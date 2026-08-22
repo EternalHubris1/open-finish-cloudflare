@@ -14,9 +14,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import DojoScenePanel from "@/components/dojo-scene-panel";
-import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
+import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
 
 function achievementDate(value: string, pattern: string) {
   const date = new Date(value);
@@ -355,12 +354,6 @@ export default function Achievements() {
         </Button>
       </div>
 
-      <DojoScenePanel
-        image={zenGarden}
-        eyebrow="Room 06 · marks kept"
-        context="Journey archive · verified progress"
-      />
-
       {isError && hasCachedData && (
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-[#ffc268]/20 bg-[#ffc268]/[.07] px-5 py-4 text-sm text-[#ffe0a5]">
           <span>
@@ -401,6 +394,13 @@ export default function Achievements() {
 
       {/* Progress Bar */}
       <div className="signal-surface relative overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-8">
+        <img
+          src={zenGarden}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-[.13]"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(12,17,25,.9),rgba(12,17,25,.58),rgba(12,17,25,.86))]" />
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between relative z-10">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-widest text-white/45">

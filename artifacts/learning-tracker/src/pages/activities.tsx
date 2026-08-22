@@ -15,7 +15,6 @@ import {
 } from "@workspace/api-client-react";
 import { Activity, ActivityInput } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
-import DojoScenePanel from "@/components/dojo-scene-panel";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 import {
   Dialog,
@@ -306,7 +305,14 @@ export default function Activities() {
 
   return (
     <div className="relative z-10 mx-auto min-h-screen max-w-7xl space-y-6 px-4 py-6 pb-28 md:p-8 md:pb-20 animate-slide-up">
-      <section className="signal-surface relative min-h-[14.5rem] overflow-hidden rounded-[2rem] border border-white/[.11] bg-[linear-gradient(135deg,rgba(17,24,36,.94),rgba(11,17,27,.86)_52%,rgba(30,16,24,.8))] p-5 shadow-[0_28px_80px_rgba(0,0,0,.28)] md:p-7">
+      <section
+        className="signal-surface relative min-h-[14.5rem] overflow-hidden rounded-[2rem] border border-white/[.11] p-5 shadow-[0_28px_80px_rgba(0,0,0,.28)] md:p-7"
+        style={{
+          backgroundImage: `linear-gradient(100deg,rgba(10,16,26,.97)_0%,rgba(10,16,26,.9)_46%,rgba(20,14,23,.54)_100%), url(${practiceHall})`,
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+        }}
+      >
         <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#ff7868]/10 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 left-[38%] h-48 w-72 rounded-full bg-[#72c6b3]/[.06] blur-3xl" />
         <div
@@ -365,12 +371,6 @@ export default function Activities() {
           </div>
         </div>
       </section>
-
-      <DojoScenePanel
-        image={practiceHall}
-        eyebrow="Room 02 · active practice"
-        context="Live field · current week"
-      />
 
       {activities.length === 0 ? (
         <section className="signal-surface relative overflow-hidden rounded-[2rem] border border-dashed border-white/[.14] bg-[#0d141f]/86 px-6 py-16 text-center shadow-[0_24px_70px_rgba(0,0,0,.22)]">

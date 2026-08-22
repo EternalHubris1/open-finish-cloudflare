@@ -34,11 +34,11 @@ import {
   subWeeks,
 } from "date-fns";
 import { Button } from "@/components/ui/button";
-import DojoScenePanel from "@/components/dojo-scene-panel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DailyActivityChart } from "@/components/daily-activity-chart";
 import { previewActivities } from "@/pages/dashboard-exploration";
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
+import katanaHorizontal from "@assets/samurai-site-assets/weapons-armor/katana-horizontal.png";
 
 type Period = "week" | "month" | "12weeks";
 
@@ -425,10 +425,23 @@ export default function History() {
 
   return (
     <div className="page-arrival relative z-10 mx-auto min-h-screen max-w-6xl space-y-8 px-4 py-6 pb-28 md:p-8 md:pb-20">
-      <header className="flex flex-col gap-5 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between">
-        <div>
+      <header className="relative isolate overflow-hidden rounded-[1.75rem] border border-white/[.08] bg-[#0a1019]/86 px-5 py-6 shadow-[0_18px_46px_rgba(0,0,0,.18)] md:flex md:items-end md:justify-between md:gap-5 md:px-7">
+        <img
+          src={zenGarden}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-30"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.94),rgba(8,13,20,.7)_54%,rgba(8,13,20,.26))]" />
+        <div className="relative z-10">
           <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#ff8b7c]">
-            <Sparkles className="h-4 w-4" /> Activity analytics
+            <img
+              src={katanaHorizontal}
+              alt=""
+              aria-hidden="true"
+              className="h-5 w-5 shrink-0 object-contain opacity-82 drop-shadow-[0_0_9px_rgba(255,120,104,.16)]"
+            />
+            Activity analytics
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
             History
@@ -437,7 +450,7 @@ export default function History() {
             See where your time went — every active day counts.
           </p>
         </div>
-        <div className="flex rounded-2xl border border-white/10 bg-white/[0.03] p-1">
+        <div className="relative z-10 flex rounded-2xl border border-white/10 bg-white/[0.03] p-1">
           {(Object.keys(PERIOD_LABELS) as Period[]).map((value) => (
             <button
               key={value}
@@ -450,12 +463,6 @@ export default function History() {
           ))}
         </div>
       </header>
-
-      <DojoScenePanel
-        image={zenGarden}
-        eyebrow="Room 03 · measured return"
-        context="History archive · selected period"
-      />
 
       {isError && hasCachedData && (
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-[#ffc268]/20 bg-[#ffc268]/[.07] px-5 py-4 text-sm text-[#ffe0a5]">

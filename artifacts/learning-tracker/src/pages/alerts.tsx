@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import DojoScenePanel from "@/components/dojo-scene-panel";
 import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
 import crossedKatanas from "@assets/samurai-site-assets/weapons-armor/crossed-katanas.png";
 import { SessionNotes } from "./reflections";
@@ -321,11 +320,23 @@ export default function Cabinet() {
   return (
     <div className="page-arrival relative z-10 mx-auto min-h-screen max-w-6xl space-y-8 px-4 py-6 pb-28 md:p-8 md:pb-20">
       <header className="relative isolate overflow-hidden rounded-[2rem] border border-[#ffc268]/15 bg-[radial-gradient(circle_at_72%_24%,rgba(255,194,104,.16),transparent_26%),linear-gradient(125deg,rgba(16,22,33,.98),rgba(10,15,23,.94)_58%,rgba(76,38,37,.58))] px-6 py-7 shadow-[inset_0_1px_0_rgba(255,255,255,.06),0_18px_54px_rgba(0,0,0,.24)] md:px-8 md:py-8">
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[linear-gradient(90deg,transparent,rgba(255,194,104,.04))]" />
+        <img
+          src={armoryRoom}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-0 hidden h-full w-[48%] select-none object-cover object-left opacity-36 mix-blend-screen md:block"
+        />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-[62%] bg-[linear-gradient(90deg,rgba(10,15,23,.05),rgba(10,15,23,.64))]" />
         <div className="relative z-10 flex flex-col gap-6 md:pr-52 lg:pr-64">
           <div>
             <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]">
-              <Archive className="h-4 w-4" /> Cabinet · quiet records
+              <img
+                src={crossedKatanas}
+                alt=""
+                aria-hidden="true"
+                className="h-5 w-5 shrink-0 object-contain opacity-82 drop-shadow-[0_0_9px_rgba(255,194,104,.16)]"
+              />
+              Cabinet · quiet records
             </div>
             <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
               Cabinet
@@ -360,12 +371,6 @@ export default function Cabinet() {
           </div>
         </div>
             </header>
-
-      <DojoScenePanel
-        image={armoryRoom}
-        eyebrow="Room 04 · quiet archive"
-        context="Cabinet archive · private shelf"
-      />
 
       <section className="grid gap-5 lg:grid-cols-[minmax(0,1.42fr)_minmax(18rem,.78fr)]">
 

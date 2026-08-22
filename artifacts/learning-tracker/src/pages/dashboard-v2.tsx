@@ -45,12 +45,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { LogActivityDialog } from "@/components/log-activity-dialog";
 import { TodayPlan } from "@/components/today-plan";
-import DojoScenePanel from "@/components/dojo-scene-panel";
 import { ActivityGlyph } from "@/lib/activity-icons";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 import { moscowOperationalDate } from "@/lib/operational-date";
 import musashi from "@assets/musashi_1785336444855.jpg";
-import dashboardThreshold from "@/assets/environments/optimized/dashboard-threshold.webp";
 import {
   previewActivities,
   previewDashboard,
@@ -1346,24 +1344,6 @@ export default function DashboardV2() {
                 className={`mb-6 flex items-center gap-3 pr-28 text-[10px] font-bold uppercase tracking-[.26em] ${light ? "text-[#91463f]" : "text-[#ff9a89]"}`}
               >
                 <Radio className="h-3.5 w-3.5" /> {momentumStatus(momentum)}
-                <SamuraiStatusIcon
-                  status={
-                    dashboard.totalMinutesToday > 0
-                      ? "active"
-                      : focus?.currentThread
-                        ? "focus"
-                        : "standing"
-                  }
-                  label={
-                    dashboard.totalMinutesToday > 0
-                      ? "Active work today"
-                      : focus?.currentThread
-                        ? "Focus prepared"
-                        : "Ready to begin"
-                  }
-                  className="ml-1 h-8 w-8 opacity-80"
-                  animate={false}
-                />
               </div>
               <p
                 className={`mb-3 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.2em] ${light ? "text-black/40" : "text-white/35"}`}
@@ -1508,12 +1488,6 @@ export default function DashboardV2() {
           light={light}
           preview={preview}
           pulseDate={recentLog?.date}
-        />
-
-        <DojoScenePanel
-          image={dashboardThreshold}
-          eyebrow="Dojo threshold · live signal"
-          context="Dashboard signal · Moscow operational day"
         />
 
         <Link
