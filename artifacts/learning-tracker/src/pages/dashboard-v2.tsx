@@ -49,6 +49,7 @@ import { ActivityGlyph } from "@/lib/activity-icons";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 import { moscowOperationalDate } from "@/lib/operational-date";
 import musashi from "@assets/musashi_1785336444855.jpg";
+import samuraiArmorEmblem from "@/assets/icons/samurai-armor-emblem.png";
 import {
   previewActivities,
   previewDashboard,
@@ -1358,6 +1359,12 @@ export default function DashboardV2() {
               <p
                 className={`mb-3 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.2em] ${light ? "text-black/40" : "text-white/35"}`}
               >
+                <img
+                  src={samuraiArmorEmblem}
+                  alt=""
+                  aria-hidden="true"
+                  className="h-7 w-7 shrink-0 object-contain opacity-80 grayscale brightness-[1.9] contrast-[.72] drop-shadow-[0_0_9px_rgba(255,139,124,.16)]"
+                />
                 <Target className="h-3 w-3" /> Your working line
               </p>
               <h1
