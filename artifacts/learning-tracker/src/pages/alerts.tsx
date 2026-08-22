@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import readingRoom from "@/assets/environments/optimized/cabinet-reading-room.webp";
+import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
 import { SessionNotes } from "./reflections";
 import { format, isBefore, startOfDay } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
@@ -573,7 +574,7 @@ export default function Cabinet() {
 
           <section className="relative min-h-[18rem] overflow-hidden rounded-3xl border border-[#ffc268]/20 bg-[radial-gradient(circle_at_72%_25%,rgba(255,194,104,.17),transparent_34%),linear-gradient(145deg,rgba(59,40,32,.78),rgba(12,17,25,.98)_58%,rgba(32,55,53,.62))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] md:p-6">
             <img
-              src={readingRoom}
+              src={armoryRoom}
               alt=""
               aria-hidden="true"
               className="pointer-events-none absolute inset-y-0 right-0 h-full w-[58%] select-none object-cover object-right opacity-[.28]"
@@ -720,7 +721,7 @@ export default function Cabinet() {
           ) : (
             <div className="col-span-full relative overflow-hidden rounded-2xl border border-dashed border-[#ffc268]/20 bg-[linear-gradient(100deg,rgba(255,194,104,.05),transparent_48%,rgba(98,188,168,.045))] px-6 py-12 text-center">
               <img
-                src={readingRoom}
+                src={armoryRoom}
                 alt=""
                 aria-hidden="true"
                 className="pointer-events-none absolute -bottom-20 right-7 hidden h-[17rem] w-auto opacity-22 md:block"
