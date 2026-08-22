@@ -20,6 +20,8 @@ import {
   Activity as ActivityIcon,
   CalendarDays,
   Clock3,
+  Compass,
+  Orbit,
   RefreshCw,
   Sparkles,
   Trophy,
@@ -40,7 +42,6 @@ import { DailyActivityChart } from "@/components/daily-activity-chart";
 import { previewActivities } from "@/pages/dashboard-exploration";
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
 import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
-import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 
 type Period = "week" | "month" | "12weeks";
 type AggregationMetric = "practice" | "sport" | "combined";
@@ -597,12 +598,14 @@ export default function History() {
         <div className="room-motif-overlay pointer-events-none absolute inset-0" />
         <div className="relative z-10">
           <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#ff8b7c]">
-            <SamuraiStatusIcon
-              status="active"
-              label="Activity analytics signal"
-              className="h-7 w-7 shrink-0"
-              animate={!reducedMotion}
-            />
+            <span
+              className="activity-field-emblem relative grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-[#ff9a89]/30 bg-[linear-gradient(145deg,rgba(255,120,104,.15),rgba(255,194,104,.045))] text-[#ffb1a7] shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_0_18px_rgba(233,84,72,.12)]"
+              role="img"
+              aria-label="Activity analytics signal"
+            >
+              <Orbit className="activity-field-emblem-orbit absolute h-6 w-6 text-[#ffc268]/62" />
+              <Compass className="relative z-10 h-3.5 w-3.5" />
+            </span>
             Activity analytics
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
