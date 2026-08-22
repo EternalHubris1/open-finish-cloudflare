@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
+import readingRoom from "@/assets/environments/optimized/cabinet-reading-room.webp";
 import crossedKatanas from "@assets/samurai-site-assets/weapons-armor/crossed-katanas.png";
 import { SessionNotes } from "./reflections";
 import { format, isBefore, startOfDay } from "date-fns";
@@ -375,8 +376,15 @@ export default function Cabinet() {
       <section className="grid gap-5 lg:grid-cols-[minmax(0,1.42fr)_minmax(18rem,.78fr)]">
 
         <div className="signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
-          <div className="flex items-start justify-between gap-4 border-b border-white/[.06] p-6 md:p-7">
-            <div>
+          <div className="relative isolate overflow-hidden flex items-start justify-between gap-4 border-b border-white/[.06] p-6 md:p-7">
+            <img
+              src={readingRoom}
+              alt=""
+              aria-hidden="true"
+              className="room-motif-image pointer-events-none absolute inset-y-0 right-0 hidden h-full w-[48%] select-none object-cover object-center md:block"
+            />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-[64%] bg-[linear-gradient(90deg,rgba(12,17,25,.04),rgba(12,17,25,.76))]" />
+            <div className="relative z-10">
               <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ff9a89]">
                 Period reflections
               </p>
@@ -389,7 +397,7 @@ export default function Cabinet() {
                 teach.
               </p>
             </div>
-            <span className="shrink-0 rounded-full border border-[#ffc268]/20 bg-[#ffc268]/[.08] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.14em] text-[#ffe0a5]">
+            <span className="relative z-10 shrink-0 rounded-full border border-[#ffc268]/20 bg-[#ffc268]/[.08] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.14em] text-[#ffe0a5]">
               {openMilestones.length} open
             </span>
           </div>
