@@ -719,25 +719,26 @@ export default function Cabinet() {
               </article>
             ))
           ) : (
-            <div className="col-span-full relative overflow-hidden rounded-2xl border border-dashed border-[#ffc268]/20 bg-[linear-gradient(100deg,rgba(255,194,104,.05),transparent_48%,rgba(98,188,168,.045))] px-6 py-12 text-center">
+            <div className="col-span-full relative isolate overflow-hidden rounded-2xl border border-dashed border-[#ffc268]/20 bg-[#0c1119] px-6 py-12 text-center">
               <img
                 src={armoryRoom}
                 alt=""
                 aria-hidden="true"
-                className="pointer-events-none absolute -bottom-20 right-7 hidden h-[17rem] w-auto opacity-22 md:block"
+                className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-[.64] [filter:brightness(.82)_contrast(1.05)_saturate(.82)]"
               />
-              <Archive className="relative mx-auto h-9 w-9 text-[#ffc268]/48" />
-              <p className="relative mt-4 text-base font-semibold text-white/68">
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(7,12,18,.76),rgba(7,12,18,.52)_50%,rgba(7,12,18,.66)),linear-gradient(0deg,rgba(7,12,18,.62),transparent_58%)]" />
+              <Archive className="relative z-10 mx-auto h-9 w-9 text-[#ffc268]/72" />
+              <p className="relative z-10 mt-4 text-base font-semibold text-white/82">
                 The cabinet is empty.
               </p>
-              <p className="relative mx-auto mt-1 max-w-md text-xs leading-5 text-white/36">
+              <p className="relative z-10 mx-auto mt-1 max-w-md text-xs leading-5 text-white/54">
                 Keep the first important link, reference, or quiet note here.
                 You can link it to a period reflection later when that context
                 matters.
               </p>
               <Button
                 onClick={() => openCabinetDialog()}
-                className="signal-button relative mt-5 h-10 gap-2 rounded-xl bg-[#ffc268] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-[#17120a] hover:bg-[#ffd486]"
+                className="signal-button relative z-10 mt-5 h-10 gap-2 rounded-xl bg-[#ffc268] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-[#17120a] hover:bg-[#ffd486]"
               >
                 <Plus className="h-4 w-4" /> Keep first tool
               </Button>
