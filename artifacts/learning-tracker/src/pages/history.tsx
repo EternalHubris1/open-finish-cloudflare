@@ -38,7 +38,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DailyActivityChart } from "@/components/daily-activity-chart";
 import { previewActivities } from "@/pages/dashboard-exploration";
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
-import katanaHorizontal from "@assets/samurai-site-assets/weapons-armor/katana-horizontal.png";
+import samuraiArmor from "@assets/samurai-weapons-armor/samurai-armor.png";
 
 type Period = "week" | "month" | "12weeks";
 
@@ -431,16 +431,24 @@ export default function History() {
           alt=""
           aria-hidden="true"
           className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center"
+          style={{ opacity: 0.52 }}
         />
         <div className="room-motif-overlay pointer-events-none absolute inset-0" />
+        <img
+          src={samuraiArmor}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-10 right-24 hidden h-44 w-auto select-none object-contain opacity-[.24] mix-blend-screen grayscale md:block"
+        />
         <div className="relative z-10">
           <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#ff8b7c]">
-            <img
-              src={katanaHorizontal}
-              alt=""
+            <span
+              className="flex h-4 w-4 shrink-0 items-center gap-1"
               aria-hidden="true"
-              className="h-5 w-5 shrink-0 object-contain opacity-82 drop-shadow-[0_0_9px_rgba(255,120,104,.16)]"
-            />
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-current shadow-[0_0_7px_currentColor]" />
+              <span className="h-px flex-1 bg-current opacity-70" />
+            </span>
             Activity analytics
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">

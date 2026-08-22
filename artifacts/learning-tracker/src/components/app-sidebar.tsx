@@ -18,6 +18,7 @@ import dashboardThreshold from "@/assets/environments/optimized/dashboard-thresh
 import practiceHall from "@/assets/environments/optimized/activities-practice-hall.webp";
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
 import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
+import readingRoom from "@/assets/environments/optimized/cabinet-reading-room.webp";
 import templePath from "@/assets/environments/optimized/streaks-temple-path.webp";
 
 type SidebarRoute = {
@@ -26,6 +27,7 @@ type SidebarRoute = {
   cue: string;
   icon: ComponentType<{ className?: string }>;
   scene?: string;
+  scenePosition?: string;
 };
 
 const orientationRoutes: SidebarRoute[] = [
@@ -35,6 +37,7 @@ const orientationRoutes: SidebarRoute[] = [
     cue: "Current signal",
     icon: Home,
     scene: dashboardThreshold,
+    scenePosition: "object-center",
   },
   {
     path: "/activities",
@@ -42,6 +45,7 @@ const orientationRoutes: SidebarRoute[] = [
     cue: "Directions",
     icon: Target,
     scene: practiceHall,
+    scenePosition: "object-right",
   },
   {
     path: "/history",
@@ -49,13 +53,15 @@ const orientationRoutes: SidebarRoute[] = [
     cue: "Patterns over time",
     icon: CalendarDays,
     scene: zenGarden,
+    scenePosition: "object-center",
   },
   {
     path: "/reflections",
     label: "Cabinet",
     cue: "Reflections & tools",
     icon: BookOpenText,
-    scene: armoryRoom,
+    scene: readingRoom,
+    scenePosition: "object-center",
   },
 ];
 
@@ -66,13 +72,15 @@ const longViewRoutes: SidebarRoute[] = [
     cue: "Return rhythm",
     icon: Flame,
     scene: templePath,
+    scenePosition: "object-center",
   },
   {
     path: "/achievements",
     label: "Achievements",
     cue: "Rare milestones",
     icon: Award,
-    scene: zenGarden,
+    scene: armoryRoom,
+    scenePosition: "object-center",
   },
 ];
 
@@ -114,7 +122,7 @@ function DesktopRoute({
       {route.scene ? (
         <span
           className={cn(
-            "relative z-10 h-9 w-12 shrink-0 overflow-hidden rounded-xl border transition-[border-color,box-shadow] duration-200",
+            "relative z-10 h-10 w-[3.75rem] shrink-0 overflow-hidden rounded-xl border transition-[border-color,box-shadow] duration-200",
             active
               ? "border-[#ff8b7c]/42 shadow-[0_0_18px_rgba(255,111,97,.16)]"
               : "border-white/[.09] group-hover:border-[#ffb1a7]/26",
@@ -124,7 +132,10 @@ function DesktopRoute({
             src={route.scene}
             alt=""
             aria-hidden="true"
-            className="h-full w-full object-cover object-center opacity-82"
+            className={cn(
+              "h-full w-full object-cover opacity-88 brightness-[.82] contrast-90 saturate-[.78] transition-transform duration-300 group-hover:scale-[1.04]",
+              route.scenePosition ?? "object-center",
+            )}
           />
           <span
             className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(7,10,15,.08),rgba(7,10,15,.58))]"

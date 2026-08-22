@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
-import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
+import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
 
 function achievementDate(value: string, pattern: string) {
   const date = new Date(value);
@@ -395,7 +395,7 @@ export default function Achievements() {
       {/* Progress Bar */}
       <div className="signal-surface relative overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-8">
         <img
-          src={zenGarden}
+          src={armoryRoom}
           alt=""
           aria-hidden="true"
           className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center"
