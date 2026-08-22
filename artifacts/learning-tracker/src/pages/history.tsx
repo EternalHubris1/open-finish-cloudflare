@@ -156,15 +156,16 @@ function SummaryCard({
   scenePosition: string;
 }) {
   return (
-    <div className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/88 p-5 shadow-[0_14px_32px_rgba(0,0,0,.14)]">
+    <div className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.1] bg-[#0c1119]/74 p-5 shadow-[0_14px_32px_rgba(0,0,0,.14)]">
       <img
         src={zenGarden}
         alt=""
         aria-hidden="true"
         className={`pointer-events-none absolute inset-0 h-full w-full select-none object-cover ${scenePosition}`}
-        style={{ opacity: 0.15, filter: "brightness(.56) contrast(.88) saturate(.72)" }}
+        style={{ opacity: 0.46, filter: "brightness(.78) contrast(.94) saturate(.82)" }}
       />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.92),rgba(8,13,20,.76)_60%,rgba(8,13,20,.57))]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.9)_0%,rgba(8,13,20,.62)_53%,rgba(8,13,20,.24)_100%)]" />
+      <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-[#ff8b7c]/45 via-white/[.14] to-transparent" />
       <div className="relative z-10">
         <div className="mb-4 flex min-h-8 items-start gap-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white/34">
           <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#ff8b7c]" />
