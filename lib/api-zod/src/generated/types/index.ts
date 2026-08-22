@@ -11,6 +11,7 @@ export * from './activity';
 export * from './activityInput';
 export * from './activityLog';
 export * from './activityLogInput';
+export * from './activityLogRecordInput';
 export * from './activityLogReflectionInput';
 export * from './activityPatch';
 export * from './activityType';

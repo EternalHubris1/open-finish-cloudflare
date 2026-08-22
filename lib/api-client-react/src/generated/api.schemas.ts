@@ -148,6 +148,15 @@ export interface ActivityLogInput {
   logDate?: string;
 }
 
+export interface ActivityLogRecordInput {
+  /** @minimum 1 */
+  durationMinutes?: number;
+  /** @nullable */
+  notes?: string | null;
+  /** YYYY-MM-DD, cannot be in the future */
+  logDate?: string;
+}
+
 export interface ActivityLogReflectionInput {
   /**
      * @maxLength 280

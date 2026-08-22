@@ -278,6 +278,52 @@ export const LogActivityResponse = zod.object({
 
 
 /**
+ * @summary List session records across all activities, newest first
+ */
+export const ListLogRecordsResponseItem = zod.object({
+  "id": zod.int(),
+  "activityId": zod.int(),
+  "activityName": zod.string(),
+  "activityColor": zod.string(),
+  "activityType": zod.enum(['practice', 'sport', 'friction']),
+  "durationMinutes": zod.int(),
+  "notes": zod.string().nullish(),
+  "logDate": zod.string()
+})
+export const ListLogRecordsResponse = zod.array(ListLogRecordsResponseItem)
+
+
+/**
+ * @summary Update duration, date, or note for a session record
+ */
+export const UpdateLogRecordParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+
+
+
+export const UpdateLogRecordBody = zod.object({
+  "durationMinutes": zod.int().min(1).optional(),
+  "notes": zod.string().nullish(),
+  "logDate": zod.string().optional().describe('YYYY-MM-DD, cannot be in the future')
+})
+
+export const UpdateLogRecordResponse = zod.object({
+  "id": zod.int(),
+  "activityId": zod.int(),
+  "durationMinutes": zod.int(),
+  "notes": zod.string().nullish(),
+  "recallNote": zod.string().nullish(),
+  "whatMoved": zod.string().nullish(),
+  "whatLearned": zod.string().nullish(),
+  "nextContinuation": zod.string().nullish(),
+  "logDate": zod.string(),
+  "createdAt": zod.string()
+})
+
+
+/**
  * @summary Update only the supplied reflection fields on a log
  */
 export const UpdateLogReflectionParams = zod.object({

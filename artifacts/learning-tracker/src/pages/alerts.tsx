@@ -3,6 +3,7 @@ import readingRoom from "@/assets/environments/optimized/cabinet-reading-room.we
 import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
 import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
 import { SessionNotes } from "./reflections";
+import { SessionRecordsPanel } from "@/components/session-records-panel";
 import { format, isBefore, startOfDay } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -754,6 +755,8 @@ export default function Cabinet() {
           )}
         </div>
       </section>
+
+      <SessionRecordsPanel />
 
       <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
         <img

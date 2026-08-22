@@ -206,6 +206,48 @@ paths:
               schema:
                 $ref: "#/components/schemas/ActivityLog"
 
+  /logs:
+    get:
+      operationId: listLogRecords
+      tags: [logs]
+      summary: List session records across all activities, newest first
+      responses:
+        "200":
+          description: Session records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CalendarLogEntry"
+
+  /logs/{id}/record:
+    patch:
+      operationId: updateLogRecord
+      tags: [logs]
+      summary: Update duration, date, or note for a session record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivityLogRecordInput"
+      responses:
+        "200":
+          description: Updated log entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActivityLog"
+        "404":
+          description: Not found
+
   /logs/{id}:
     patch:
       operationId: updateLogReflection
@@ -696,6 +738,19 @@ components:
         logDate:
           type: string
           description: "YYYY-MM-DD, defaults to today"
+
+    ActivityLogRecordInput:
+      type: object
+      minProperties: 1
+      properties:
+        durationMinutes:
+          type: integer
+          minimum: 1
+        notes:
+          type: ["string", "null"]
+        logDate:
+          type: string
+          description: "YYYY-MM-DD, cannot be in the future"
 
     ActivityLogReflectionInput:
       type: object

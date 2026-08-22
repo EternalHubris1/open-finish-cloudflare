@@ -25,12 +25,14 @@ import type {
   ActivityInput,
   ActivityLog,
   ActivityLogInput,
+  ActivityLogRecordInput,
   ActivityLogReflectionInput,
   ActivityPatch,
   Alert,
   AlertInput,
   AlertPatch,
   CalendarDay,
+  CalendarLogEntry,
   DailyContext,
   DailyContextInput,
   DashboardSummary,
@@ -814,6 +816,155 @@ export const useLogActivity = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getLogActivityMutationOptions(options));
+    }
+
+export const getListLogRecordsUrl = () => {
+
+
+
+
+  return `/api/logs`
+}
+
+/**
+ * @summary List session records across all activities, newest first
+ */
+export const listLogRecords = async ( options?: Parameters<typeof customFetch>[1]): Promise<CalendarLogEntry[]> => {
+
+  return customFetch<CalendarLogEntry[]>(getListLogRecordsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListLogRecordsQueryKey = () => {
+    return [
+    `/api/logs`
+    ] as const;
+    }
+
+
+export const getListLogRecordsQueryOptions = <TData = Awaited<ReturnType<typeof listLogRecords>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listLogRecords>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListLogRecordsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listLogRecords>>> = ({ signal }) => listLogRecords({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listLogRecords>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListLogRecordsQueryResult = NonNullable<Awaited<ReturnType<typeof listLogRecords>>>
+export type ListLogRecordsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List session records across all activities, newest first
+ */
+
+export function useListLogRecords<TData = Awaited<ReturnType<typeof listLogRecords>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listLogRecords>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListLogRecordsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateLogRecordUrl = (id: number,) => {
+
+
+
+
+  return `/api/logs/${id}/record`
+}
+
+/**
+ * @summary Update duration, date, or note for a session record
+ */
+export const updateLogRecord = async (id: number,
+    activityLogRecordInput: ActivityLogRecordInput, options?: Parameters<typeof customFetch>[1]): Promise<ActivityLog> => {
+
+  return customFetch<ActivityLog>(getUpdateLogRecordUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(activityLogRecordInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateLogRecordMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateLogRecord>>, TError,{id: number;data: BodyType<ActivityLogRecordInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateLogRecord>>, TError,{id: number;data: BodyType<ActivityLogRecordInput>}, TContext> => {
+
+const mutationKey = ['updateLogRecord'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateLogRecord>>, {id: number;data: BodyType<ActivityLogRecordInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateLogRecord(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateLogRecordMutationResult = NonNullable<Awaited<ReturnType<typeof updateLogRecord>>>
+    export type UpdateLogRecordMutationBody = BodyType<ActivityLogRecordInput>
+    export type UpdateLogRecordMutationError = ErrorType<void>
+
+    /**
+ * @summary Update duration, date, or note for a session record
+ */
+export const useUpdateLogRecord = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateLogRecord>>, TError,{id: number;data: BodyType<ActivityLogRecordInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateLogRecord>>,
+        TError,
+        {id: number;data: BodyType<ActivityLogRecordInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateLogRecordMutationOptions(options));
     }
 
 export const getUpdateLogReflectionUrl = (id: number,) => {

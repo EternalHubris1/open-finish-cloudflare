@@ -8,6 +8,10 @@ import {
   LogActivityBody,
   LogActivityResponse,
   DeleteLogParams,
+  ListLogRecordsResponse,
+  UpdateLogRecordParams,
+  UpdateLogRecordBody,
+  UpdateLogRecordResponse,
   UpdateLogReflectionParams,
   UpdateLogReflectionBody,
   UpdateLogReflectionResponse,
@@ -15,6 +19,7 @@ import {
 import { updateStreak } from "../lib/streaks";
 import { todayForRequest } from "../lib/calendar";
 import { buildReflectionUpdate } from "../lib/reflection-update";
+import { resolveActivityType } from "../lib/activity-type";
 
 const router: IRouter = Router();
 
@@ -24,6 +29,42 @@ function formatLog(log: typeof activityLogsTable.$inferSelect) {
     createdAt: log.createdAt.toISOString(),
   };
 }
+
+function formatLogRecord(
+  log: typeof activityLogsTable.$inferSelect,
+  activity: typeof activitiesTable.$inferSelect | undefined,
+) {
+  return {
+    id: log.id,
+    activityId: log.activityId,
+    activityName: activity?.name ?? "Unknown",
+    activityColor: activity?.color ?? "#dc2626",
+    activityType: resolveActivityType({
+      activityType: activity?.activityType,
+      category: activity?.category ?? "",
+    }),
+    durationMinutes: log.durationMinutes,
+    notes: log.notes,
+    logDate: log.logDate,
+  };
+}
+
+router.get("/logs", async (_req, res): Promise<void> => {
+  const [logs, activities] = await Promise.all([
+    db
+      .select()
+      .from(activityLogsTable)
+      .orderBy(desc(activityLogsTable.logDate), desc(activityLogsTable.id)),
+    db.select().from(activitiesTable),
+  ]);
+  const activityMap = new Map(activities.map((activity) => [activity.id, activity]));
+
+  res.json(
+    ListLogRecordsResponse.parse(
+      logs.map((log) => formatLogRecord(log, activityMap.get(log.activityId))),
+    ),
+  );
+});
 
 router.get("/activities/:id/logs", async (req, res): Promise<void> => {
   const params = ListActivityLogsParams.safeParse(req.params);
@@ -86,6 +127,47 @@ router.post("/activities/:id/logs", async (req, res): Promise<void> => {
   await updateStreak(params.data.id, today);
 
   res.status(201).json(LogActivityResponse.parse(formatLog(log)));
+});
+
+router.patch("/logs/:id/record", async (req, res): Promise<void> => {
+  const params = UpdateLogRecordParams.safeParse(req.params);
+  const parsed = UpdateLogRecordBody.safeParse(req.body);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  if (!Object.keys(parsed.data).length) {
+    res.status(400).json({ error: "Provide a duration, date, or note to update" });
+    return;
+  }
+
+  const [existing] = await db
+    .select()
+    .from(activityLogsTable)
+    .where(eq(activityLogsTable.id, params.data.id));
+  if (!existing) {
+    res.status(404).json({ error: "Log not found" });
+    return;
+  }
+
+  const today = todayForRequest(req);
+  if (parsed.data.logDate && parsed.data.logDate > today) {
+    res.status(400).json({ error: "Activity cannot be logged in the future" });
+    return;
+  }
+
+  const [updated] = await db
+    .update(activityLogsTable)
+    .set(parsed.data)
+    .where(eq(activityLogsTable.id, params.data.id))
+    .returning();
+
+  await updateStreak(existing.activityId, today);
+  res.json(UpdateLogRecordResponse.parse(formatLog(updated)));
 });
 
 router.patch("/logs/:id", async (req, res): Promise<void> => {
