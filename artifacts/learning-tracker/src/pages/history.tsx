@@ -41,6 +41,16 @@ import { previewActivities } from "@/pages/dashboard-exploration";
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
 
 type Period = "week" | "month" | "12weeks";
+type AggregationMetric = "practice" | "sport" | "combined";
+
+const AGGREGATION_METRICS: Record<
+  AggregationMetric,
+  { label: string; color: string }
+> = {
+  practice: { label: "Practice", color: "#ff8b7c" },
+  sport: { label: "Sport", color: "#62bca8" },
+  combined: { label: "Combined", color: "#ffc268" },
+};
 
 const PERIOD_LABELS: Record<Period, string> = {
   week: "Week",
@@ -206,6 +216,8 @@ export default function History() {
     };
   }, []);
   const [period, setPeriod] = useState<Period>("month");
+  const [aggregationMetric, setAggregationMetric] =
+    useState<AggregationMetric>("practice");
   const [hiddenActivityIds, setHiddenActivityIds] = useState<number[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(() =>
     new URLSearchParams(window.location.search).get("date"),
@@ -347,41 +359,69 @@ export default function History() {
     (sum, day) => sum + day.focusMinutes,
     0,
   );
-  const previousActiveDays = previousCalendarDays.filter(
-    (day) => day.focusMinutes > 0,
-  ).length;
-  const focusDeltaMinutes = focusMinutes - previousFocusMinutes;
-  const focusDeltaPercent = previousFocusMinutes
-    ? Math.round((focusDeltaMinutes / previousFocusMinutes) * 100)
-    : null;
-  const periodDayCount = Math.max(chartDays.length, 1);
-  const weeklyPracticePace = Math.round((focusMinutes / periodDayCount) * 7);
-  const averageActiveReturn = activeDays
-    ? Math.round(focusMinutes / activeDays)
-    : 0;
-  const consistencyRate = Math.round((activeDays / periodDayCount) * 100);
-  const peakPracticeDay = chartDays.reduce(
-    (peak, day) => (day.minutes > peak.minutes ? day : peak),
-    chartDays[0] ?? { date: end, minutes: 0, sportMinutes: 0 },
+  const previousSportMinutes = previousCalendarDays.reduce(
+    (sum, day) => sum + day.sportMinutes,
+    0,
   );
-  const practiceDistribution = activities
-    .filter((activity) => activity.activityType === "practice")
+  const periodDayCount = Math.max(chartDays.length, 1);
+  const metricConfig = AGGREGATION_METRICS[aggregationMetric];
+  const metricTotal =
+    aggregationMetric === "practice"
+      ? focusMinutes
+      : aggregationMetric === "sport"
+        ? sportMinutes
+        : focusMinutes + sportMinutes;
+  const previousMetricTotal =
+    aggregationMetric === "practice"
+      ? previousFocusMinutes
+      : aggregationMetric === "sport"
+        ? previousSportMinutes
+        : previousFocusMinutes + previousSportMinutes;
+  const metricDays = chartDays.map((day) => ({
+    date: day.date,
+    value:
+      aggregationMetric === "practice"
+        ? day.minutes
+        : aggregationMetric === "sport"
+          ? day.sportMinutes
+          : day.minutes + day.sportMinutes,
+  }));
+  const metricActiveDays = metricDays.filter((day) => day.value > 0).length;
+  const metricAverageReturn = metricActiveDays
+    ? Math.round(metricTotal / metricActiveDays)
+    : 0;
+  const metricDeltaMinutes = metricTotal - previousMetricTotal;
+  const metricDeltaPercent = previousMetricTotal
+    ? Math.round((metricDeltaMinutes / previousMetricTotal) * 100)
+    : null;
+  const metricPeakDay = metricDays.reduce(
+    (peak, day) => (day.value > peak.value ? day : peak),
+    metricDays[0] ?? { date: end, value: 0 },
+  );
+  const metricMaxValue = Math.max(1, ...metricDays.map((day) => day.value));
+  const selectedMetricDay = metricDays.find((day) => day.date === selectedDate);
+  const metricActivityType =
+    aggregationMetric === "practice"
+      ? "practice"
+      : aggregationMetric === "sport"
+        ? "sport"
+        : null;
+  const metricDistribution = activities
+    .filter((activity) => !metricActivityType || activity.activityType === metricActivityType)
     .map((activity) => ({
       activity,
-      minutes: activityTotals.get(activity.id) ?? 0,
+      minutes: calendarDays.reduce(
+        (sum, day) =>
+          sum +
+          day.logs
+            .filter((log) => log.activityId === activity.id)
+            .reduce((logSum, log) => logSum + log.durationMinutes, 0),
+        0,
+      ),
     }))
     .filter((item) => item.minutes > 0)
     .sort((a, b) => b.minutes - a.minutes)
     .slice(0, 4);
-  const topActivity = activities
-    .filter((activity) => activity.activityType === "practice")
-    .reduce<Activity | null>((top, activity) => {
-      if (!top) return activity;
-      return (activityTotals.get(activity.id) ?? 0) >
-        (activityTotals.get(top.id) ?? 0)
-        ? activity
-        : top;
-    }, null);
   const maxDailyMinutes = Math.max(60, ...chartDays.map((day) => day.minutes));
   const chartWidth = Math.max(
     720,
@@ -538,172 +578,171 @@ export default function History() {
         </div>
       )}
 
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <SummaryCard
-          label="Practice time"
-          value={formatMinutes(focusMinutes)}
-          icon={Clock3}
-          scenePosition="8% 18%"
-          sceneScale={1.42}
-        />
-        <SummaryCard
-          label="Sport · separate"
-          value={formatMinutes(sportMinutes)}
-          icon={ActivityIcon}
-          scenePosition="82% 14%"
-          sceneScale={1.42}
-        />
-        <SummaryCard
-          label="Active days"
-          value={String(activeDays)}
-          icon={CalendarDays}
-          scenePosition="15% 82%"
-          sceneScale={1.42}
-        />
-        <SummaryCard
-          label="Most active"
-          value={
-            topActivity && (activityTotals.get(topActivity.id) ?? 0) > 0
-              ? topActivity.name
-              : "—"
-          }
-          icon={Trophy}
-          scenePosition="86% 80%"
-          sceneScale={1.42}
-        />
-      </section>
-
-      <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-5 shadow-[0_18px_46px_rgba(0,0,0,.16)] md:p-6">
-        <div className="relative z-10 flex flex-col gap-2 border-b border-white/[.06] pb-5 sm:flex-row sm:items-end sm:justify-between">
+      <section className="signal-surface relative isolate overflow-hidden rounded-[2rem] border border-white/[.08] bg-[#0c1119]/92 p-5 shadow-[0_18px_46px_rgba(0,0,0,.16)] md:p-6">
+        <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#ff8b7c]/45 to-transparent" />
+        <div className="relative z-10 flex flex-col gap-4 border-b border-white/[.06] pb-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]">
-              Period read
+              Aggregation dashboard
             </p>
             <h2 className="mt-1 text-xl font-semibold text-white">
-              What this period actually says.
+              One period, one readable signal.
             </h2>
-          </div>
-          <p className="text-[9px] font-bold uppercase tracking-[.14em] text-white/32">
-            Practice only · sport stays separate
-          </p>
-        </div>
-
-        <div className="relative z-10 mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-2xl border border-white/[.07] bg-black/[.13] p-4">
-            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/36">
-              Weekly pace
+            <p className="mt-2 max-w-xl text-sm leading-6 text-white/42">
+              Switch the measure, inspect the period, then select a day to open its actual sessions below.
             </p>
-            <strong className="mt-2 block text-xl font-semibold tabular-nums text-white">
-              {formatMinutes(weeklyPracticePace)}
-            </strong>
-            <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/32">
-              average per week
-            </span>
           </div>
-          <div className="rounded-2xl border border-white/[.07] bg-black/[.13] p-4">
-            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/36">
-              Return average
-            </p>
-            <strong className="mt-2 block text-xl font-semibold tabular-nums text-white">
-              {formatMinutes(averageActiveReturn)}
-            </strong>
-            <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/32">
-              per active day
-            </span>
-          </div>
-          <div className="rounded-2xl border border-white/[.07] bg-black/[.13] p-4">
-            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/36">
-              Consistency
-            </p>
-            <strong className="mt-2 block text-xl font-semibold tabular-nums text-white">
-              {consistencyRate}%
-            </strong>
-            <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/32">
-              {activeDays} of {periodDayCount} days active
-            </span>
-          </div>
-          <div className="rounded-2xl border border-[#ff9b84]/16 bg-[#ff7868]/[.055] p-4">
-            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-[#ffb1a7]/68">
-              Period change
-            </p>
-            <strong className="mt-2 block text-xl font-semibold tabular-nums text-white">
-              {previousFocusMinutes
-                ? `${focusDeltaMinutes >= 0 ? "+" : "−"}${formatMinutes(Math.abs(focusDeltaMinutes))}`
-                : "New"}
-            </strong>
-            <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/38">
-              {previousFocusMinutes
-                ? `${focusDeltaPercent && focusDeltaPercent > 0 ? "+" : ""}${focusDeltaPercent ?? 0}% vs prior · ${previousActiveDays} active`
-                : "no prior period logged"}
-            </span>
+          <div className="flex w-full rounded-2xl border border-white/[.1] bg-black/[.16] p-1 lg:w-auto">
+            {(Object.keys(AGGREGATION_METRICS) as AggregationMetric[]).map((value) => {
+              const option = AGGREGATION_METRICS[value];
+              const active = aggregationMetric === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setAggregationMetric(value)}
+                  className={`signal-button min-w-0 flex-1 rounded-xl px-3 py-2 text-[9px] font-bold uppercase tracking-[.13em] transition-[color,background-color,box-shadow] duration-150 lg:flex-none ${active ? "text-[#071019] shadow-[0_8px_20px_rgba(0,0,0,.2)]" : "text-white/38 hover:bg-white/[.05] hover:text-white"}`}
+                  style={active ? { backgroundColor: option.color } : undefined}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        <div className="relative z-10 mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_15rem]">
-          <div className="rounded-2xl border border-white/[.07] bg-black/[.11] p-4">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
-                Direction distribution
-              </p>
-              <span className="text-[9px] font-semibold tabular-nums text-white/46">
-                {formatMinutes(focusMinutes)} total
+        <div className="relative z-10 mt-5 grid grid-cols-2 gap-3 xl:grid-cols-4">
+          <SummaryCard
+            label={`${metricConfig.label} total`}
+            value={formatMinutes(metricTotal)}
+            icon={Clock3}
+            scenePosition="8% 18%"
+            sceneScale={1.42}
+          />
+          <SummaryCard
+            label="Active days"
+            value={`${metricActiveDays} / ${periodDayCount}`}
+            icon={CalendarDays}
+            scenePosition="82% 14%"
+            sceneScale={1.42}
+          />
+          <SummaryCard
+            label="Average return"
+            value={formatMinutes(metricAverageReturn)}
+            icon={ActivityIcon}
+            scenePosition="15% 82%"
+            sceneScale={1.42}
+          />
+          <SummaryCard
+            label="Period change"
+            value={
+              previousMetricTotal
+                ? `${metricDeltaMinutes >= 0 ? "+" : "−"}${formatMinutes(Math.abs(metricDeltaMinutes))}`
+                : "New"
+            }
+            icon={RefreshCw}
+            scenePosition="86% 80%"
+            sceneScale={1.42}
+          />
+        </div>
+
+        <div className="relative z-10 mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,.72fr)]">
+          <div className="rounded-2xl border border-white/[.07] bg-black/[.12] p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
+                  Daily signal
+                </p>
+                <p className="mt-1 text-xs text-white/48">
+                  Select a day to inspect its return below.
+                </p>
+              </div>
+              <span className="rounded-full border border-white/[.08] bg-white/[.03] px-2.5 py-1 text-[8px] font-bold uppercase tracking-[.12em] text-white/42">
+                {metricActiveDays} active
               </span>
             </div>
-            {practiceDistribution.length ? (
-              <div className="mt-4 space-y-3">
-                {practiceDistribution.map(({ activity, minutes }) => {
-                  const share = focusMinutes
-                    ? Math.round((minutes / focusMinutes) * 100)
-                    : 0;
-                  return (
-                    <div key={activity.id}>
-                      <div className="flex items-center justify-between gap-3 text-[10px]">
-                        <span className="min-w-0 truncate font-medium text-white/70">
-                          {activity.name}
-                        </span>
-                        <span className="shrink-0 tabular-nums text-white/42">
-                          {formatMinutes(minutes)} · {share}%
-                        </span>
-                      </div>
-                      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[.07]">
-                        <div
-                          className="h-full rounded-full transition-[width] duration-700"
-                          style={{
-                            width: `${share}%`,
-                            backgroundColor: activityColors.get(activity.id),
-                            boxShadow: `0 0 12px ${activityColors.get(activity.id)}80`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="mt-4 text-sm text-white/34">
-                Log a practice return to build the distribution.
-              </p>
-            )}
+            <div className="mt-5 flex h-24 items-end gap-1.5 overflow-x-auto pb-1">
+              {metricDays.map((day) => {
+                const active = day.date === selectedDate;
+                const barHeight = day.value ? Math.max(10, Math.round((day.value / metricMaxValue) * 100)) : 4;
+                return (
+                  <button
+                    key={day.date}
+                    type="button"
+                    onClick={() => setSelectedDate(day.date)}
+                    title={`${format(parseISO(day.date), "EEE, MMM d")} · ${formatMinutes(day.value)}`}
+                    aria-label={`Open ${format(parseISO(day.date), "EEE, MMM d")}: ${formatMinutes(day.value)}`}
+                    className="group relative flex h-full min-w-3 flex-1 items-end rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-[#ffc268]"
+                  >
+                    <span
+                      className={`w-full rounded-sm transition-[height,opacity,box-shadow] duration-300 ${active ? "opacity-100 shadow-[0_0_14px_currentColor]" : day.value ? "opacity-75 group-hover:opacity-100" : "opacity-25"}`}
+                      style={{ height: `${barHeight}%`, backgroundColor: metricConfig.color, color: metricConfig.color }}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mt-2 flex justify-between text-[8px] font-bold uppercase tracking-[.12em] text-white/28">
+              <span>{format(range.start, period === "week" ? "EEE" : "MMM d")}</span>
+              <span>{format(range.end, period === "week" ? "EEE" : "MMM d")}</span>
+            </div>
           </div>
+
           <aside className="rounded-2xl border border-[#ffc268]/16 bg-[linear-gradient(155deg,rgba(255,194,104,.08),rgba(8,13,20,.68))] p-4">
             <p className="text-[8px] font-bold uppercase tracking-[.16em] text-[#ffe0a5]/72">
-              Peak read
+              Selected read
             </p>
             <strong className="mt-2 block text-lg font-semibold tabular-nums text-white">
-              {formatMinutes(peakPracticeDay.minutes)}
+              {selectedMetricDay ? formatMinutes(selectedMetricDay.value) : "0m"}
             </strong>
             <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/38">
-              {format(parseISO(peakPracticeDay.date), "EEE, MMM d")}
+              {selectedDate ? format(parseISO(selectedDate), "EEE, MMM d") : "No day selected"}
             </span>
-            <div className="mt-4 border-t border-white/[.08] pt-3">
-              <span className="text-[8px] font-bold uppercase tracking-[.14em] text-white/34">
-                Longest session
-              </span>
-              <strong className="mt-1 block text-sm font-semibold tabular-nums text-white/82">
-                {formatMinutes(longestSession)}
-              </strong>
+            <div className="mt-4 grid grid-cols-2 gap-3 border-t border-white/[.08] pt-3">
+              <div>
+                <span className="text-[8px] font-bold uppercase tracking-[.12em] text-white/34">Peak day</span>
+                <strong className="mt-1 block text-sm font-semibold tabular-nums text-white/82">{formatMinutes(metricPeakDay.value)}</strong>
+              </div>
+              <div>
+                <span className="text-[8px] font-bold uppercase tracking-[.12em] text-white/34">Longest session</span>
+                <strong className="mt-1 block text-sm font-semibold tabular-nums text-white/82">{formatMinutes(longestSession)}</strong>
+              </div>
             </div>
           </aside>
+        </div>
+
+        <div className="relative z-10 mt-3 rounded-2xl border border-white/[.07] bg-black/[.11] p-4">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
+              {metricConfig.label} distribution
+            </p>
+            <span className="text-[9px] font-semibold tabular-nums text-white/46">
+              {formatMinutes(metricTotal)} total
+            </span>
+          </div>
+          {metricDistribution.length ? (
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {metricDistribution.map(({ activity, minutes }) => {
+                const share = metricTotal ? Math.round((minutes / metricTotal) * 100) : 0;
+                return (
+                  <div key={activity.id}>
+                    <div className="flex items-center justify-between gap-3 text-[10px]">
+                      <span className="min-w-0 truncate font-medium text-white/70">{activity.name}</span>
+                      <span className="shrink-0 tabular-nums text-white/42">{formatMinutes(minutes)} · {share}%</span>
+                    </div>
+                    <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[.07]">
+                      <div
+                        className="h-full rounded-full transition-[width] duration-700"
+                        style={{ width: `${share}%`, backgroundColor: activityColors.get(activity.id), boxShadow: `0 0 12px ${activityColors.get(activity.id)}80` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-white/34">Log a return to build this distribution.</p>
+          )}
         </div>
       </section>
 
