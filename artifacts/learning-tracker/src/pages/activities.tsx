@@ -337,7 +337,7 @@ export default function Activities() {
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.84)_0%,rgba(8,13,20,.46)_54%,rgba(8,13,20,.06)_100%)]" />
         <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#ff7868]/10 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 left-[38%] h-48 w-72 rounded-full bg-[#72c6b3]/[.06] blur-3xl" />
-        <div className="relative z-10 flex flex-col gap-6 pr-20 sm:pr-28 xl:pr-[clamp(10rem,19vw,18rem)] xl:flex-row xl:items-end xl:justify-between">
+        <div className="relative z-10 pr-20 sm:pr-28 xl:pr-[clamp(10rem,19vw,18rem)]">
           <div className="max-w-2xl">
             <div className="min-w-0">
               <div className="mb-3 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]">
@@ -357,16 +357,16 @@ export default function Activities() {
                 week&apos;s real return into a quieter view of where your time
                 went.
               </p>
+              <Button
+                onClick={openCreateDialog}
+                className="mt-5 h-11 w-full max-w-52 justify-center gap-2 rounded-2xl border border-[#ff9a89]/35 bg-[#d94a41] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white shadow-[0_10px_26px_rgba(217,74,65,.22)] transition-[transform,background-color,box-shadow] duration-150 hover:bg-[#ed5d53] hover:shadow-[0_14px_32px_rgba(233,84,72,.32)] active:scale-[.97] sm:w-52"
+                data-testid="button-create-activity"
+              >
+                <Plus className="h-4 w-4" />
+                New direction
+              </Button>
             </div>
           </div>
-          <Button
-            onClick={openCreateDialog}
-            className="h-11 w-full max-w-52 justify-center gap-2 rounded-2xl border border-[#ff9a89]/35 bg-[#d94a41] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white shadow-[0_10px_26px_rgba(217,74,65,.22)] transition-[transform,background-color,box-shadow] duration-150 hover:bg-[#ed5d53] hover:shadow-[0_14px_32px_rgba(233,84,72,.32)] active:scale-[.97] sm:w-52"
-            data-testid="button-create-activity"
-          >
-            <Plus className="h-4 w-4" />
-            New direction
-          </Button>
         </div>
       </section>
 
