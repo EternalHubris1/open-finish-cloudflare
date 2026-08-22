@@ -8,8 +8,8 @@ import {
 } from "@workspace/api-client-react";
 import type { Activity, CalendarDay } from "@workspace/api-client-react";
 import {
-  Bar,
-  BarChart,
+  Area,
+  AreaChart,
   CartesianGrid,
   ResponsiveContainer,
   Tooltip,
@@ -44,12 +44,27 @@ import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
 
 type Period = "week" | "month" | "12weeks";
 type AggregationMetric = "practice" | "sport" | "combined";
+type TelemetrySlice = "volume" | "sessions" | "longest";
 
-type TimelineActivity = {
-  id: number;
-  name: string;
-  color: string | null;
-  activityType: "practice";
+const TELEMETRY_SLICES: Record<
+  TelemetrySlice,
+  { label: string; description: string; unit: "minutes" | "count" }
+> = {
+  volume: {
+    label: "Volume",
+    description: "Recorded minutes on each day",
+    unit: "minutes",
+  },
+  sessions: {
+    label: "Sessions",
+    description: "Number of recorded returns",
+    unit: "count",
+  },
+  longest: {
+    label: "Longest return",
+    description: "Largest single session on each day",
+    unit: "minutes",
+  },
 };
 
 const AGGREGATION_METRICS: Record<
@@ -228,7 +243,8 @@ export default function History() {
   const [period, setPeriod] = useState<Period>("month");
   const [aggregationMetric, setAggregationMetric] =
     useState<AggregationMetric>("practice");
-  const [hiddenActivityIds, setHiddenActivityIds] = useState<number[]>([]);
+  const [telemetrySlice, setTelemetrySlice] =
+    useState<TelemetrySlice>("volume");
   const [selectedDate, setSelectedDate] = useState<string | null>(() =>
     new URLSearchParams(window.location.search).get("date"),
   );
@@ -316,88 +332,6 @@ export default function History() {
     [dayMap, range],
   );
 
-  const timelineActivities = useMemo<TimelineActivity[]>(() => {
-    const currentPracticeDirections = activities
-      .filter((activity) => activity.activityType === "practice")
-      .map((activity) => ({
-        id: activity.id,
-        name: activity.name,
-        color: activity.color,
-        activityType: "practice" as const,
-      }));
-    const knownIds = new Set(currentPracticeDirections.map((activity) => activity.id));
-    const carriedDirections: TimelineActivity[] = [];
-
-    calendarDays.forEach((day) =>
-      day.logs.forEach((log) => {
-        if (log.activityType !== "practice" || knownIds.has(log.activityId)) return;
-        knownIds.add(log.activityId);
-        carriedDirections.push({
-          id: log.activityId,
-          name: log.activityName,
-          color: log.activityColor,
-          activityType: "practice",
-        });
-      }),
-    );
-
-    return [...currentPracticeDirections, ...carriedDirections];
-  }, [activities, calendarDays]);
-
-  const timelineActivityColors = useMemo(
-    () =>
-      new Map(
-        timelineActivities.map((activity, index) => [
-          activity.id,
-          activity.color || ACTIVITY_SIGNAL_COLORS[index % ACTIVITY_SIGNAL_COLORS.length],
-        ]),
-      ),
-    [timelineActivities],
-  );
-
-  const timelineActivityTotals = useMemo(() => {
-    const totals = new Map(timelineActivities.map((activity) => [activity.id, 0]));
-    calendarDays.forEach((day) =>
-      day.logs.forEach((log) => {
-        if (!totals.has(log.activityId)) return;
-        totals.set(log.activityId, (totals.get(log.activityId) ?? 0) + log.durationMinutes);
-      }),
-    );
-    return totals;
-  }, [calendarDays, timelineActivities]);
-
-  const stackedData = useMemo(
-    () =>
-      chartDays.map((day) => {
-        const calendarDay = dayMap.get(day.date);
-        const row: Record<string, string | number> = {
-          date: day.date,
-          totalMinutes: day.minutes,
-        };
-        timelineActivities.forEach((activity) => {
-          row[activityKey(activity.id)] =
-            calendarDay?.logs
-              .filter((log) => log.activityId === activity.id)
-              .reduce((sum, log) => sum + log.durationMinutes, 0) ?? 0;
-        });
-        return row;
-      }),
-    [chartDays, dayMap, timelineActivities],
-  );
-
-  const activityTotals = useMemo(() => {
-    const totals = new Map(activities.map((activity) => [activity.id, 0]));
-    calendarDays.forEach((day) =>
-      day.logs.forEach((log) => {
-        totals.set(
-          log.activityId,
-          (totals.get(log.activityId) ?? 0) + log.durationMinutes,
-        );
-      }),
-    );
-    return totals;
-  }, [activities, calendarDays]);
-
   const focusMinutes = calendarDays.reduce(
     (sum, day) => sum + day.focusMinutes,
     0,
@@ -406,7 +340,6 @@ export default function History() {
     (sum, day) => sum + day.sportMinutes,
     0,
   );
-  const activeDays = calendarDays.filter((day) => day.focusMinutes > 0).length;
   const longestSession = Math.max(
     0,
     ...calendarDays.flatMap((day) =>
@@ -435,16 +368,32 @@ export default function History() {
       : aggregationMetric === "sport"
         ? previousSportMinutes
         : previousFocusMinutes + previousSportMinutes;
-  const metricDays = chartDays.map((day) => ({
-    date: day.date,
-    value:
+  const metricActivityType =
+    aggregationMetric === "practice"
+      ? "practice"
+      : aggregationMetric === "sport"
+        ? "sport"
+        : null;
+  const telemetryDays = chartDays.map((day) => {
+    const scopedLogs = (dayMap.get(day.date)?.logs ?? []).filter((log) =>
+      metricActivityType
+        ? log.activityType === metricActivityType
+        : log.activityType !== "friction",
+    );
+    const volume =
       aggregationMetric === "practice"
         ? day.minutes
         : aggregationMetric === "sport"
           ? day.sportMinutes
-          : day.minutes + day.sportMinutes,
-  }));
-  const metricActiveDays = metricDays.filter((day) => day.value > 0).length;
+          : day.minutes + day.sportMinutes;
+    return {
+      date: day.date,
+      volume,
+      sessions: scopedLogs.length,
+      longest: Math.max(0, ...scopedLogs.map((log) => log.durationMinutes)),
+    };
+  });
+  const metricActiveDays = telemetryDays.filter((day) => day.volume > 0).length;
   const metricAverageReturn = metricActiveDays
     ? Math.round(metricTotal / metricActiveDays)
     : 0;
@@ -452,20 +401,44 @@ export default function History() {
   const metricDeltaPercent = previousMetricTotal
     ? Math.round((metricDeltaMinutes / previousMetricTotal) * 100)
     : null;
-  const metricPeakDay = metricDays.reduce(
-    (peak, day) => (day.value > peak.value ? day : peak),
-    metricDays[0] ?? { date: end, value: 0 },
+  const metricPeakDay = telemetryDays.reduce(
+    (peak, day) => (day.volume > peak.volume ? day : peak),
+    telemetryDays[0] ?? { date: end, volume: 0, sessions: 0, longest: 0 },
   );
-  const metricMaxValue = Math.max(1, ...metricDays.map((day) => day.value));
-  const selectedMetricDay = metricDays.find((day) => day.date === selectedDate);
-  const metricActivityType =
-    aggregationMetric === "practice"
-      ? "practice"
-      : aggregationMetric === "sport"
-        ? "sport"
-        : null;
+  const sortedActiveVolumes = telemetryDays
+    .map((day) => day.volume)
+    .filter((value) => value > 0)
+    .sort((left, right) => left - right);
+  const metricMedianReturn = sortedActiveVolumes.length
+    ? sortedActiveVolumes[Math.floor(sortedActiveVolumes.length / 2)]
+    : 0;
+  const metricConsistency = Math.round((metricActiveDays / periodDayCount) * 100);
+  const longestQuietRun = telemetryDays.reduce(
+    (state, day) => {
+      const current = day.volume > 0 ? 0 : state.current + 1;
+      return { current, longest: Math.max(state.longest, current) };
+    },
+    { current: 0, longest: 0 },
+  ).longest;
+  const telemetryConfig = TELEMETRY_SLICES[telemetrySlice];
+  const telemetryPeak = telemetryDays.reduce(
+    (peak, day) =>
+      day[telemetrySlice] > peak[telemetrySlice] ? day : peak,
+    telemetryDays[0] ?? { date: end, volume: 0, sessions: 0, longest: 0 },
+  );
+  const telemetryMax = Math.max(
+    telemetryConfig.unit === "minutes" ? 30 : 1,
+    ...telemetryDays.map((day) => day[telemetrySlice]),
+  );
+  const selectedTelemetry = telemetryDays.find(
+    (day) => day.date === selectedDate,
+  );
   const metricDistribution = activities
-    .filter((activity) => !metricActivityType || activity.activityType === metricActivityType)
+    .filter((activity) =>
+      metricActivityType
+        ? activity.activityType === metricActivityType
+        : activity.activityType !== "friction",
+    )
     .map((activity) => ({
       activity,
       minutes: calendarDays.reduce(
@@ -479,12 +452,7 @@ export default function History() {
     }))
     .filter((item) => item.minutes > 0)
     .sort((a, b) => b.minutes - a.minutes)
-    .slice(0, 4);
-  const maxDailyMinutes = Math.max(60, ...chartDays.map((day) => day.minutes));
-  const chartWidth = Math.max(
-    720,
-    chartDays.length * (period === "12weeks" ? 26 : 42),
-  );
+    .slice(0, 6);
 
   useEffect(() => {
     const selectedIsInRange =
@@ -537,14 +505,6 @@ export default function History() {
         Number(a.activity.activityType === "sport") -
         Number(b.activity.activityType === "sport"),
     );
-
-  const toggleActivity = (activityId: number) => {
-    setHiddenActivityIds((current) =>
-      current.includes(activityId)
-        ? current.filter((id) => id !== activityId)
-        : [...current, activityId],
-    );
-  };
 
   if (isLoading && !hasCachedData) {
     return (
@@ -681,31 +641,31 @@ export default function History() {
 
         <div className="relative z-10 mt-5 grid grid-cols-2 gap-3 xl:grid-cols-4">
           <SummaryCard
-            label={`${metricConfig.label} logged`}
+            label={`${metricConfig.label} total`}
             value={formatMinutes(metricTotal)}
             icon={Clock3}
             scenePosition="0% 54%"
             sceneScale={1.72}
           />
           <SummaryCard
-            label={`Days with ${metricConfig.label.toLowerCase()}`}
-            value={`${metricActiveDays} / ${periodDayCount}`}
+            label="Consistency"
+            value={`${metricConsistency}%`}
             icon={CalendarDays}
             scenePosition="50% 0%"
             sceneScale={1.58}
           />
           <SummaryCard
-            label="Avg. per active day"
-            value={formatMinutes(metricAverageReturn)}
+            label="Median active return"
+            value={formatMinutes(metricMedianReturn)}
             icon={ActivityIcon}
             scenePosition="52% 78%"
             sceneScale={1.62}
           />
           <SummaryCard
-            label="Change vs prior period"
+            label="Prior-period delta"
             value={
               previousMetricTotal
-                ? `${metricDeltaMinutes >= 0 ? "+" : "−"}${formatMinutes(Math.abs(metricDeltaMinutes))}`
+                ? `${metricDeltaPercent && metricDeltaPercent >= 0 ? "+" : ""}${metricDeltaPercent ?? 0}%`
                 : "New"
             }
             icon={RefreshCw}
@@ -714,66 +674,72 @@ export default function History() {
           />
         </div>
 
-        <div className="relative z-10 mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,.72fr)]">
-          <div className="history-telemetry-volume rounded-2xl border border-white/[.07] bg-black/[.12] p-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="relative z-10 mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(18rem,.8fr)]">
+          <section className="history-telemetry-volume rounded-2xl border border-white/[.07] bg-black/[.12] p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
-                  Daily volume
+                  Instrument readout
                 </p>
                 <p className="mt-1 text-xs text-white/48">
-                  Select any bar to inspect that recorded day below.
+                  Distinct statistical cuts for the selected measure — not another total.
                 </p>
               </div>
               <span className="rounded-full border border-white/[.08] bg-white/[.03] px-2.5 py-1 text-[8px] font-bold uppercase tracking-[.12em] text-white/42">
-                {metricActiveDays} active
+                {metricActiveDays} active days
               </span>
             </div>
-            <div className="mt-5 flex h-24 items-end gap-1.5 overflow-x-auto pb-1">
-              {metricDays.map((day) => {
-                const active = day.date === selectedDate;
-                const barHeight = day.value ? Math.max(10, Math.round((day.value / metricMaxValue) * 100)) : 4;
-                return (
-                  <button
-                    key={day.date}
-                    type="button"
-                    onClick={() => setSelectedDate(day.date)}
-                    title={`${format(parseISO(day.date), "EEE, MMM d")} · ${formatMinutes(day.value)}`}
-                    aria-label={`Open ${format(parseISO(day.date), "EEE, MMM d")}: ${formatMinutes(day.value)}`}
-                    className="group relative flex h-full min-w-3 flex-1 items-end rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-[#ffc268]"
-                  >
-                    <span
-                      className={`w-full rounded-sm transition-[height,opacity,box-shadow] duration-300 ${active ? "opacity-100 shadow-[0_0_14px_currentColor]" : day.value ? "opacity-75 group-hover:opacity-100" : "opacity-25"}`}
-                      style={{ height: `${barHeight}%`, backgroundColor: metricConfig.color, color: metricConfig.color }}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-            <div className="mt-2 flex justify-between text-[8px] font-bold uppercase tracking-[.12em] text-white/28">
-              <span>{format(range.start, period === "week" ? "EEE" : "MMM d")}</span>
-              <span>{format(range.end, period === "week" ? "EEE" : "MMM d")}</span>
-            </div>
-          </div>
+            <dl className="mt-5 grid gap-px overflow-hidden rounded-xl border border-white/[.07] bg-white/[.07] sm:grid-cols-2">
+              <div className="bg-[#0b111a]/92 p-4">
+                <dt className="text-[8px] font-bold uppercase tracking-[.14em] text-white/34">Avg. active day</dt>
+                <dd className="mt-2 text-lg font-semibold tabular-nums text-white">{formatMinutes(metricAverageReturn)}</dd>
+              </div>
+              <div className="bg-[#0b111a]/92 p-4">
+                <dt className="text-[8px] font-bold uppercase tracking-[.14em] text-white/34">Longest quiet run</dt>
+                <dd className="mt-2 text-lg font-semibold tabular-nums text-white">{longestQuietRun}d</dd>
+              </div>
+              <div className="bg-[#0b111a]/92 p-4">
+                <dt className="text-[8px] font-bold uppercase tracking-[.14em] text-white/34">Highest-volume day</dt>
+                <dd className="mt-2 text-lg font-semibold tabular-nums text-[#ffc268]">{formatMinutes(metricPeakDay.volume)}</dd>
+              </div>
+              <div className="bg-[#0b111a]/92 p-4">
+                <dt className="text-[8px] font-bold uppercase tracking-[.14em] text-white/34">Longest single session</dt>
+                <dd className="mt-2 text-lg font-semibold tabular-nums text-white">{formatMinutes(longestSession)}</dd>
+              </div>
+            </dl>
+          </section>
 
           <aside className="history-telemetry-selected rounded-2xl border border-[#ffc268]/16 bg-[linear-gradient(155deg,rgba(255,194,104,.08),rgba(8,13,20,.68))] p-4">
             <p className="text-[8px] font-bold uppercase tracking-[.16em] text-[#ffe0a5]/72">
-              Selected day
+              Selected signal
             </p>
-            <strong className="mt-2 block text-lg font-semibold tabular-nums text-white">
-              {selectedMetricDay ? formatMinutes(selectedMetricDay.value) : "0m"}
+            <strong className="mt-2 block text-2xl font-semibold tabular-nums text-white">
+              {telemetryConfig.unit === "minutes"
+                ? formatMinutes(selectedTelemetry?.[telemetrySlice] ?? 0)
+                : `${selectedTelemetry?.[telemetrySlice] ?? 0}`}
             </strong>
             <span className="mt-1 block text-[9px] font-medium uppercase tracking-[.12em] text-white/38">
-              {selectedDate ? format(parseISO(selectedDate), "EEE, MMM d") : "No day selected"}
+              {telemetryConfig.unit === "count" ? "sessions" : telemetryConfig.label}
             </span>
-            <div className="mt-4 grid grid-cols-2 gap-3 border-t border-white/[.08] pt-3">
-              <div>
-                <span className="text-[8px] font-bold uppercase tracking-[.12em] text-white/34">Highest-volume day</span>
-                <strong className="mt-1 block text-sm font-semibold tabular-nums text-white/82">{formatMinutes(metricPeakDay.value)}</strong>
+            <p className="mt-3 text-xs leading-5 text-white/45">
+              {selectedDate ? format(parseISO(selectedDate), "EEEE, MMM d") : "No day selected"}
+            </p>
+            <div className="mt-5 space-y-3 border-t border-white/[.08] pt-4 text-[9px] font-bold uppercase tracking-[.14em] text-white/34">
+              <div className="flex items-center justify-between gap-3">
+                <span>Trace peak</span>
+                <span className="text-white/72">
+                  {telemetryConfig.unit === "minutes"
+                    ? formatMinutes(telemetryPeak[telemetrySlice])
+                    : `${telemetryPeak[telemetrySlice]} sessions`}
+                </span>
               </div>
-              <div>
-                <span className="text-[8px] font-bold uppercase tracking-[.12em] text-white/34">Longest single session</span>
-                <strong className="mt-1 block text-sm font-semibold tabular-nums text-white/82">{formatMinutes(longestSession)}</strong>
+              <div className="flex items-center justify-between gap-3">
+                <span>Prior delta</span>
+                <span className={metricDeltaMinutes >= 0 ? "text-[#72c6b3]" : "text-[#ff9a89]"}>
+                  {previousMetricTotal
+                    ? `${metricDeltaMinutes >= 0 ? "+" : "−"}${formatMinutes(Math.abs(metricDeltaMinutes))}`
+                    : "new baseline"}
+                </span>
               </div>
             </div>
           </aside>
@@ -781,156 +747,132 @@ export default function History() {
 
         <div className="history-telemetry-distribution relative z-10 mt-3 rounded-2xl border border-white/[.07] bg-black/[.11] p-4">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
-              {metricConfig.label} by direction
-            </p>
+            <div>
+              <p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38">
+                Direction matrix
+              </p>
+              <p className="mt-1 text-xs text-white/42">Share of the selected measure by active direction.</p>
+            </div>
             <span className="text-[9px] font-semibold tabular-nums text-white/46">
               {formatMinutes(metricTotal)} total
             </span>
           </div>
           {metricDistribution.length ? (
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
-              {metricDistribution.map(({ activity, minutes }) => {
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {metricDistribution.map(({ activity, minutes }, index) => {
                 const share = metricTotal ? Math.round((minutes / metricTotal) * 100) : 0;
+                const cells = Math.max(1, Math.round(share / 10));
+                const color = activityColors.get(activity.id) ?? "#ff8b7c";
                 return (
-                  <div key={activity.id}>
-                    <div className="flex items-center justify-between gap-3 text-[10px]">
-                      <span className="min-w-0 truncate font-medium text-white/70">{activity.name}</span>
-                      <span className="shrink-0 tabular-nums text-white/42">{formatMinutes(minutes)} · {share}%</span>
+                  <article key={activity.id} className="rounded-xl border border-white/[.07] bg-[#0b111a]/86 p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-[10px] font-semibold text-white/76">{activity.name}</p>
+                        <p className="mt-1 text-[8px] font-bold uppercase tracking-[.13em] text-white/32">channel {String(index + 1).padStart(2, "0")}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-semibold tabular-nums text-white">{formatMinutes(minutes)}</p>
+                        <p className="text-[8px] font-bold uppercase tracking-[.12em] text-white/36">{share}%</p>
+                      </div>
                     </div>
-                    <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[.07]">
-                      <div
-                        className="h-full rounded-full transition-[width] duration-700"
-                        style={{ width: `${share}%`, backgroundColor: activityColors.get(activity.id), boxShadow: `0 0 12px ${activityColors.get(activity.id)}80` }}
-                      />
+                    <div className="mt-3 grid grid-cols-10 gap-1" aria-label={`${activity.name} share ${share}%`}>
+                      {Array.from({ length: 10 }, (_, cell) => (
+                        <span
+                          key={cell}
+                          className="h-1.5 rounded-sm"
+                          style={{ backgroundColor: cell < cells ? color : "rgba(255,255,255,.07)", boxShadow: cell < cells ? `0 0 8px ${color}55` : undefined }}
+                        />
+                      ))}
                     </div>
-                  </div>
+                  </article>
                 );
               })}
             </div>
           ) : (
-            <p className="mt-4 text-sm text-white/34">Log a return to build this distribution.</p>
+            <p className="mt-4 text-sm text-white/34">Log a return to build this direction matrix.</p>
           )}
         </div>
       </section>
 
       <section className="signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
-        <div className="flex flex-col gap-2 border-b border-white/5 p-6 md:p-8">
-          <h2 className="text-2xl font-bold text-white">Activity timeline</h2>
-          <p className="text-sm text-white/40">
-            Daily volume and the activities that made it up.
-          </p>
-        </div>
-
-        <div className="overflow-x-auto px-4 py-7 md:px-8">
-          <div style={{ width: `${chartWidth}px` }} className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={stackedData}
-                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-                onClick={(state) => {
-                  if (state?.activeLabel)
-                    setSelectedDate(String(state.activeLabel));
-                }}
-              >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="rgba(255,255,255,0.06)"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={(date) =>
-                    format(
-                      parseISO(String(date)),
-                      period === "week" ? "EEE" : "d MMM",
-                    )
-                  }
-                  tick={{
-                    fill: "rgba(255,255,255,0.35)",
-                    fontSize: 10,
-                    fontWeight: 700,
-                  }}
-                  axisLine={{ stroke: "rgba(255,255,255,0.1)" }}
-                  tickLine={false}
-                  minTickGap={12}
-                />
-                <YAxis
-                  domain={[0, maxDailyMinutes]}
-                  tickFormatter={(minutes) =>
-                    `${Math.round(Number(minutes) / 60)}h`
-                  }
-                  tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={32}
-                />
-                <Tooltip
-                  cursor={{ fill: "rgba(255,255,255,0.04)" }}
-                  labelFormatter={(date) =>
-                    format(parseISO(String(date)), "EEEE, MMMM d")
-                  }
-                  formatter={(value, name) => {
-                    const id = Number(String(name).replace("activity_", ""));
-                    return [
-                      formatMinutes(Number(value)),
-                      timelineActivities.find((activity) => activity.id === id)?.name ??
-                        "Activity",
-                    ];
-                  }}
-                  contentStyle={{
-                    backgroundColor: "#090d14",
-                    border: "1px solid rgba(255,194,104,0.18)",
-                    borderRadius: "1rem",
-                    color: "#fff",
-                    boxShadow: "0 18px 50px rgba(0,0,0,.32)",
-                  }}
-                />
-                {timelineActivities
-                  .filter((activity) => !hiddenActivityIds.includes(activity.id))
-                  .map((activity) => (
-                    <Bar
-                      key={activity.id}
-                      dataKey={activityKey(activity.id)}
-                      stackId="activities"
-                      fill={timelineActivityColors.get(activity.id)}
-                      isAnimationActive={!reducedMotion}
-                      maxBarSize={30}
-                      radius={[3, 3, 0, 0]}
-                    />
-                  ))}
-              </BarChart>
-            </ResponsiveContainer>
+        <div className="flex flex-col gap-4 border-b border-white/5 p-6 md:flex-row md:items-end md:justify-between md:p-8">
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">Signal trace</p>
+            <h2 className="mt-2 text-2xl font-bold text-white">Daily change, not another bar chart.</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/42">Choose the analytical slice, then select any node to inspect its recorded day.</p>
+          </div>
+          <div className="flex rounded-2xl border border-white/[.1] bg-black/[.16] p-1">
+            {(Object.keys(TELEMETRY_SLICES) as TelemetrySlice[]).map((slice) => {
+              const active = telemetrySlice === slice;
+              return (
+                <button
+                  key={slice}
+                  type="button"
+                  onClick={() => setTelemetrySlice(slice)}
+                  className={`signal-button rounded-xl px-3 py-2 text-[9px] font-bold uppercase tracking-[.13em] ${active ? "bg-[#72c6b3] text-[#07120f] shadow-[0_8px_20px_rgba(98,188,168,.16)]" : "text-white/38 hover:bg-white/[.05] hover:text-white"}`}
+                >
+                  {TELEMETRY_SLICES[slice].label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        <div className="max-h-36 overflow-y-auto border-t border-white/5 px-6 py-5 md:px-8">
-          <div className="flex flex-wrap gap-2">
-            {timelineActivities.map((activity) => {
-                const isVisible = !hiddenActivityIds.includes(activity.id);
-                return (
-                  <button
-                    key={activity.id}
-                    type="button"
-                    aria-pressed={isVisible}
-                    onClick={() => toggleActivity(activity.id)}
-                    className={`signal-button flex items-center gap-2 rounded-xl border px-3 py-2 text-[10px] font-bold uppercase tracking-wider ${isVisible ? "border-white/10 bg-white/5 text-white/70" : "border-transparent bg-transparent text-white/20"}`}
-                  >
-                    <span
-                      className="h-2.5 w-2.5 rounded-sm"
-                      style={{
-                        backgroundColor: timelineActivityColors.get(activity.id),
-                        opacity: isVisible ? 1 : 0.25,
-                      }}
-                    />
-                    {activity.name}
-                    <span className="text-white/20">practice</span>
-                    <span className="text-white/25">
-                      {formatMinutes(timelineActivityTotals.get(activity.id) ?? 0)}
-                    </span>
-                  </button>
-                );
-              })}
+        <div className="px-4 py-6 md:px-8">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-[9px] font-bold uppercase tracking-[.14em] text-white/36">
+            <span>{telemetryConfig.description}</span>
+            <span>peak {telemetryConfig.unit === "minutes" ? formatMinutes(telemetryPeak[telemetrySlice]) : `${telemetryPeak[telemetrySlice]} sessions`}</span>
+          </div>
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={telemetryDays}
+                margin={{ top: 12, right: 14, left: 0, bottom: 0 }}
+                onClick={(state) => {
+                  if (state?.activeLabel) setSelectedDate(String(state.activeLabel));
+                }}
+              >
+                <defs>
+                  <linearGradient id="history-signal-fill" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor={metricConfig.color} stopOpacity={0.48} />
+                    <stop offset="88%" stopColor={metricConfig.color} stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="2 5" stroke="rgba(255,255,255,0.08)" vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(date) => format(parseISO(String(date)), period === "week" ? "EEE" : "d MMM")}
+                  tick={{ fill: "rgba(255,255,255,0.35)", fontSize: 10, fontWeight: 700 }}
+                  axisLine={{ stroke: "rgba(255,255,255,0.1)" }}
+                  tickLine={false}
+                  minTickGap={18}
+                />
+                <YAxis
+                  domain={[0, telemetryMax]}
+                  tickFormatter={(value) => telemetryConfig.unit === "minutes" ? formatMinutes(Number(value)) : String(value)}
+                  tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={42}
+                />
+                <Tooltip
+                  cursor={{ stroke: "rgba(255,194,104,0.5)", strokeWidth: 1 }}
+                  labelFormatter={(date) => format(parseISO(String(date)), "EEEE, MMMM d")}
+                  formatter={(value) => [telemetryConfig.unit === "minutes" ? formatMinutes(Number(value)) : `${value} sessions`, telemetryConfig.label]}
+                  contentStyle={{ backgroundColor: "#090d14", border: "1px solid rgba(255,194,104,0.18)", borderRadius: "1rem", color: "#fff", boxShadow: "0 18px 50px rgba(0,0,0,.32)" }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey={telemetrySlice}
+                  stroke={metricConfig.color}
+                  strokeWidth={2.5}
+                  fill="url(#history-signal-fill)"
+                  activeDot={{ r: 5, strokeWidth: 2, stroke: "#090d14", fill: metricConfig.color }}
+                  dot={{ r: 2.5, strokeWidth: 0, fill: metricConfig.color }}
+                  isAnimationActive={!reducedMotion}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </section>
