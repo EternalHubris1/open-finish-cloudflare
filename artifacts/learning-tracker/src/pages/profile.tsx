@@ -242,7 +242,7 @@ export default function Settings() {
 
       <section
         aria-labelledby="visual-effects-heading"
-        className="signal-surface relative overflow-hidden rounded-[2rem] border border-[#ff8b7c]/15 bg-[#0c1119]/88 p-5 shadow-[0_20px_60px_rgba(0,0,0,.18)] md:p-6"
+        className="signal-surface relative overflow-hidden rounded-[2rem] border border-[#ff8b7c]/15 bg-[rgba(10,15,23,.92)] backdrop-blur-xl p-5 shadow-[0_20px_60px_rgba(0,0,0,.18)] md:p-6"
       >
         <div className="pointer-events-none absolute -right-12 -top-14 h-36 w-36 rounded-full bg-[#ff7868]/10 blur-3xl" />
         <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -297,7 +297,7 @@ export default function Settings() {
         </div>
 
         <div className="grid gap-4 lg:grid-cols-2">
-          <article className="signal-surface relative overflow-hidden rounded-[2rem] border border-[#ff8b7c]/18 bg-[linear-gradient(135deg,rgba(28,20,27,.88),rgba(12,18,27,.88))] p-5 shadow-[0_20px_60px_rgba(0,0,0,.16)] md:p-6">
+          <article className="signal-surface relative overflow-hidden rounded-[2rem] border border-[#ff8b7c]/18 bg-[linear-gradient(135deg,rgba(28,20,27,.92),rgba(12,18,27,.92))] backdrop-blur-xl p-5 shadow-[0_20px_60px_rgba(0,0,0,.16)] md:p-6">
             <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#ff7868]/10 blur-3xl" />
             <div className="relative flex h-full flex-col">
               <div className="flex items-start justify-between gap-4">
@@ -325,7 +325,7 @@ export default function Settings() {
             </div>
           </article>
 
-          <article className="relative overflow-hidden rounded-[2rem] border border-white/[.08] bg-black/[.12] p-5 md:p-6">
+          <article className="relative overflow-hidden rounded-[2rem] border border-white/[.08] bg-[rgba(10,15,23,.92)] p-5 backdrop-blur-xl md:p-6">
             <div className="pointer-events-none absolute -bottom-12 -right-8 h-32 w-32 rounded-full bg-[#72c6b3]/[.07] blur-3xl" />
             <div className="relative flex h-full flex-col">
               <div className="flex items-start justify-between gap-4">
@@ -353,7 +353,7 @@ export default function Settings() {
           </article>
         </div>
 
-        <section className="mt-5 overflow-hidden rounded-[1.65rem] border border-white/[.08] bg-black/[.12]">
+        <section className="mt-5 overflow-hidden rounded-[1.65rem] border border-white/[.08] bg-[rgba(10,15,23,.92)] backdrop-blur-xl">
           <div className="flex flex-col gap-4 border-b border-white/[.07] p-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-3">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-[#ffc268]/18 bg-[#ffc268]/[.07] text-[#ffd18a]">
@@ -497,7 +497,7 @@ export default function Settings() {
             Personal profile
           </h2>
         </div>
-        <div className="bg-[rgba(15,15,20,0.85)] backdrop-blur-xl border border-white/10 rounded-3xl p-10 shadow-2xl relative overflow-hidden">
+        <div className="bg-[rgba(10,15,23,.92)] backdrop-blur-xl border border-white/10 rounded-3xl p-10 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 to-red-800" />
 
           <div className="flex items-start gap-10">
@@ -625,7 +625,7 @@ export default function Settings() {
           </div>
         </div>
 
-        <div className="bg-[rgba(15,15,20,0.85)] backdrop-blur-xl border border-white/10 rounded-3xl p-8 flex items-center gap-6 hover:border-white/20 transition-all hover:-translate-y-1">
+        <div className="bg-[rgba(10,15,23,.92)] backdrop-blur-xl border border-white/10 rounded-3xl p-8 flex items-center gap-6 hover:border-white/20 transition-all hover:-translate-y-1">
           <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-white/60">
             <Trophy className="w-8 h-8" />
           </div>
@@ -642,7 +642,7 @@ export default function Settings() {
           </div>
         </div>
 
-        <div className="bg-[rgba(15,15,20,0.85)] backdrop-blur-xl border border-white/10 rounded-3xl p-8 flex items-center gap-6 hover:border-white/20 transition-all hover:-translate-y-1">
+        <div className="bg-[rgba(10,15,23,.92)] backdrop-blur-xl border border-white/10 rounded-3xl p-8 flex items-center gap-6 hover:border-white/20 transition-all hover:-translate-y-1">
           <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-white/60">
             <Clock className="w-8 h-8" />
           </div>
@@ -672,7 +672,7 @@ export default function Settings() {
               .map((streak) => (
                 <div
                   key={streak.activityId}
-                  className="bg-[rgba(15,15,20,0.85)] backdrop-blur-xl border border-white/10 rounded-3xl p-6 transition-all duration-300 hover:border-white/20 flex items-center justify-between group hover:shadow-2xl"
+                  className="bg-[rgba(10,15,23,.92)] backdrop-blur-xl border border-white/10 rounded-3xl p-6 transition-all duration-300 hover:border-white/20 flex items-center justify-between group hover:shadow-2xl"
                   data-testid={`streak-${streak.activityId}`}
                 >
                   <div className="flex-1">
