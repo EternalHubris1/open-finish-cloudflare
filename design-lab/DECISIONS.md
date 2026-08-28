@@ -24,6 +24,39 @@ This is the permanent decision history. IDs never change; superseded entries rem
 | OF-0018 | Approved | Keep sport on a separate clock from practice/work: main bars and Momentum represent deliberate practice, while a slim secondary lane shows movement without turning it into work output. | 2026-08-18 | User sport-dashboard direction                 |
 | OF-0019 | Approved | Make the Activity library compact and scannable while expanding meaningful category, color, and icon choices; type and icon labels must support color rather than depend on it.          | 2026-08-18 | User activity-library request                  |
 
+## OF-0020 — Grouped continuation and factual session history
+
+- **Status:** Approved requirements; visual implementation pending user review.
+- **Approved:** 2026-08-28, user website refinement request.
+- **Problem:** a flat chooser mixes work, sport and friction; activity-only day summaries hide the order of repeated sessions.
+- **Direction:** group Continue by activity domain, retaining frequency order inside each block and no preselected activity. Show selected-day activity aggregates above individual sessions in recording order, with labelled recording timestamps.
+- **Trade-off:** global frequency ordering from OF-0012 is superseded by within-domain ordering; its no-preselection rule remains unchanged. A recording timestamp is not the start time of the work.
+- **Validation:** Writing → Research → Writing remains three chronological rows, while Writing has one aggregate; sport stays outside the Dashboard's deliberate-effort total.
+- **Affected rules:** Continue interaction, session history layers; OF-0018 sport separation reaffirmed.
+
+## OF-0021 — Preserve the current Neotrad Japan × Hi-tech Data direction
+
+- **Status:** Approved art direction; not blanket approval of component details.
+- **Approved:** 2026-08-28, explicit user clarification: the site has evolved toward Neotrad Japan + Hi-tech Data and future work must adhere to the current, more developed concept.
+- **Problem and context:** reading the early D/E art-direction brief as the complete current style risks removing the expressive Japanese imagery and ornament added during subsequent iterations.
+- **Evidence:** user clarification is the approval source. The uploaded *Open Finish — Dashboard Art Direction v2* supplies the early composition rationale; *Eternal Dodjo / Open Finish — обновлённый предрелизный анализ* (2026-08-23, reviewed revision `65dd39f`) records later static figures, scenes, emblems, and controlled ornament. These reports describe their own historical snapshots, not newly verified production state or authorization to execute their recommendations. The separate Desktop report does not expand the current website-only scope.
+- **Alternatives:** preserve and refine the current hybrid; return to the earlier minimalist interpretation; restart concept exploration. The user selected continuity with the current hybrid.
+- **Direction:** expressive Japanese illustration and ornament provide identity, while precise typography, chart structure, and clear control states provide the data layer. Use existing project assets as visual references and implementation material where suitable.
+- **Trade-off:** allow greater visual richness while protecting data legibility and the primary action. Do not interpret technical precision as permission for unrelated effects or gamification.
+- **Supersession:** replaces the earlier minimalism-only reading of the aesthetic brief and the Bible's unqualified open visual-direction status. OF-0007's composition lineage remains historical foundation, not a mandate to roll back the current artwork. Product, motion, accessibility, Momentum, and sport-separation decisions remain unchanged.
+- **Validation criterion:** subsequent UI changes visibly belong to the current website, retain its Japanese/data combination, and keep values, labels, selection, and focus readable. Component changes still receive their own responsive/state review; this documentation update performs no visual QA and does not approve the latest Daily effort tiles.
+- **Affected memory:** Design Bible → Visual language status. No implementation, tokens, desktop work, or deployment changed by this decision.
+
+## OF-0022 — Accept the current History preview for publication
+
+- **Status:** Approved.
+- **Approved:** 2026-08-29, user: “Вот сейчас супер, публикуй”, with the current local History preview in view.
+- **Context:** the first tiny ginkgo treatment was visually weak; the revised tiles reuse the site's existing burgundy Japanese maple ornament on a pale translucent ground. This is a local refinement within OF-0021, not a new concept.
+- **Direction:** retain the accepted 40px desktop / 36px mobile ornament tiles, readable date backing, distinct selected-day ring, and separate practice/sport indicators; publish the reviewed website refinement bundle.
+- **Trade-off:** decorative variation adds identity while numerical labels and chronological records remain the source of truth. Synthetic preview data is not production data and the local QA server is not deployed.
+- **Validation:** prior local review covered 1440/768/390px, session order, grouped continuation, and empty/error states; the user now accepts the current History appearance. Production release checks remain a separate gate.
+- **Affected memory:** Daily effort visual treatment in the Design Bible. Resolves the pending Daily effort visual acceptance noted in OF-0021; does not approve unrelated experiments or desktop work.
+
 ## Entry format
 
 When adding a decision, record:

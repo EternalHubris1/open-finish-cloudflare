@@ -22,7 +22,7 @@ interface DailyActivityChartProps {
 
 export function DailyActivityChart({
   days,
-  color = "#dc2626",
+  color = "#b97667",
   colorScale,
   secondaryColor = "#62bca8",
   ornamentSrc,
@@ -33,7 +33,7 @@ export function DailyActivityChart({
   onSelectDate,
 }: DailyActivityChartProps) {
   const maxMinutes = Math.max(...days.map((day) => day.minutes), 1);
-  const maxSecondaryMinutes = Math.max(
+  const maxSecondary = Math.max(
     ...days.map((day) => day.secondaryMinutes ?? 0),
     1,
   );
@@ -41,222 +41,162 @@ export function DailyActivityChart({
     (day) => day.minutes > 0 || (day.secondaryMinutes ?? 0) > 0,
   );
   const today = new Date();
-  const isShortRange = days.length <= 7;
+  const shortRange = days.length <= 7;
+  // Blank slots preserve actual weekday rows when a month starts midweek.
+  const offset =
+    !shortRange && days.length ? (parseISO(days[0].date).getDay() + 6) % 7 : 0;
 
   return (
-    <div className={cn("space-y-5", className)}>
-      <div className="overflow-x-auto pb-2 scrollbar-thin">
-        <div className={cn(isShortRange ? "max-w-[26rem]" : "min-w-[820px]")}>
-          {isShortRange ? (
-            <div className="mb-2 grid grid-cols-7 gap-2 text-center text-[9px] font-bold uppercase tracking-[.12em] text-white/30">
-              {days.map((day) => (
-                <span key={day.date}>{format(parseISO(day.date), "EEE")}</span>
+    <div className={cn("min-w-0", className)}>
+      <div className="overflow-x-auto px-1 py-2 scrollbar-thin">
+        <div className="flex w-max gap-2">
+          {!shortRange && (
+            <div
+              className="grid grid-rows-7 gap-2 pr-1 text-[10px] text-white/55"
+              aria-hidden="true"
+            >
+              {["M", "T", "W", "T", "F", "S", "S"].map((label, i) => (
+                <span
+                  key={i}
+                  className={cn(
+                    "flex items-center",
+                    ornamentSrc ? "h-9 sm:h-10" : "h-8",
+                  )}
+                >
+                  {label}
+                </span>
               ))}
             </div>
-          ) : (
-            <div className="mb-3 ml-10 grid grid-flow-col grid-rows-1 gap-2 text-[9px] font-bold uppercase tracking-[.16em] text-white/30">
-              {days
-                .filter((_, index) => index % 7 === 0)
-                .map((day) => (
-                  <span key={day.date}>
-                    {format(parseISO(day.date), "MMM")}
-                  </span>
-                ))}
-            </div>
           )}
-          <div className="flex gap-2.5">
-            {!isShortRange && (
-              <div className="grid grid-rows-7 gap-2 pr-1 text-[9px] font-bold uppercase text-white/30">
-                {["M", "", "W", "", "F", "", "S"].map((label, index) => (
-                  <span key={index} className="flex h-8 items-center">
-                    {label}
-                  </span>
-                ))}
-              </div>
+          <div
+            className={cn(
+              "grid gap-2",
+              "grid-flow-col",
+              ornamentSrc
+                ? "auto-cols-[2.25rem] sm:auto-cols-[2.5rem]"
+                : "auto-cols-[2rem]",
+              shortRange ? "grid-rows-1" : "grid-rows-7",
             )}
-            <div
-              className={cn(
-                "grid flex-1 gap-2",
-                isShortRange
-                  ? "grid-cols-7 grid-rows-1"
-                  : "grid-flow-col grid-rows-7",
-              )}
-            >
-              {days.map((day, index) => {
-                const parsedDate = parseISO(day.date);
-                const isFuture = isAfter(parsedDate, today);
-                const hasEffort = day.minutes > 0;
-                const secondaryMinutes = day.secondaryMinutes ?? 0;
-                const hasSecondaryEffort = secondaryMinutes > 0;
-                const hasSignal = hasEffort || hasSecondaryEffort;
-                const intensity = hasEffort
-                  ? 0.3 + 0.7 * Math.sqrt(day.minutes / maxMinutes)
-                  : 0;
-                const secondaryIntensity = hasSecondaryEffort
-                  ? 0.3 +
-                    0.7 * Math.sqrt(secondaryMinutes / maxSecondaryMinutes)
-                  : 0;
-                const signalIntensity = Math.max(intensity, secondaryIntensity);
-                const thresholdIndex = intensityThresholds.findIndex(
-                  (threshold) => day.minutes <= threshold,
-                );
-                const scaleIndex = !hasEffort
+          >
+            {Array.from({ length: offset }, (_, i) => (
+              <span key={`offset-${i}`} aria-hidden="true" />
+            ))}
+            {days.map((day, index) => {
+              const date = parseISO(day.date);
+              const future = isAfter(date, today);
+              const sport = day.secondaryMinutes ?? 0;
+              const intensity =
+                day.minutes > 0 ? Math.sqrt(day.minutes / maxMinutes) : 0;
+              const hasSignal = day.minutes > 0 || sport > 0;
+              const threshold = intensityThresholds.findIndex(
+                (limit) => day.minutes <= limit,
+              );
+              const scaleIndex =
+                day.minutes <= 0
                   ? 0
-                  : thresholdIndex === -1
+                  : threshold < 0
                     ? intensityThresholds.length + 1
-                    : thresholdIndex + 1;
-                const cellColor = colorScale?.[scaleIndex] ?? color;
-                const ornamentOpacity =
-                  hasSignal && ornamentSrc
-                    ? Math.min(0.62, 0.16 + signalIntensity * 0.46)
-                    : 0;
-                const ornamentPosition = `${(index * 19) % 100}% ${(index * 31) % 100}%`;
-
-                return (
-                  <button
-                    type="button"
-                    key={day.date}
-                    title={`${format(parsedDate, "MMMM d, yyyy")} · ${day.minutes > 0 ? `${day.minutes} min practice` : "no practice"}${hasSecondaryEffort ? ` · ${secondaryMinutes} min sport` : ""}`}
-                    aria-label={`${format(parsedDate, "MMMM d, yyyy")}: ${day.minutes} practice minutes${hasSecondaryEffort ? ` and ${secondaryMinutes} sport minutes` : ""}`}
-                    className={cn(
-                      "group relative flex items-start justify-start overflow-hidden rounded-[9px] border px-1.5 pt-1 transition-[transform,box-shadow,border-color] duration-200 hover:z-10 hover:scale-[1.08] focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffc268] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f0f14]",
-                      isShortRange ? "aspect-square min-w-0" : "h-8 min-w-8",
-                      isSameDay(parsedDate, today) &&
-                        "ring-1 ring-[#ffc268]/85 ring-offset-2 ring-offset-[#0f0f14]",
-                      selectedDate === day.date &&
-                        "scale-[1.08] border-white/80 ring-2 ring-white/75 ring-offset-2 ring-offset-[#0f0f14]",
-                    )}
-                    onClick={() => onSelectDate?.(day.date)}
-                    style={{
-                      backgroundColor:
-                        hasSignal && ornamentSrc
-                          ? "rgba(242,246,250,0.88)"
-                          : hasEffort
-                            ? colorScale
-                              ? cellColor
-                              : color
-                            : "rgba(255,255,255,0.018)",
-                      borderColor:
-                        hasSignal && ornamentSrc
-                          ? "rgba(255,255,255,0.42)"
-                          : hasEffort
-                            ? colorScale
-                              ? cellColor
-                              : color
-                            : "rgba(255,255,255,0.04)",
-                      opacity: isFuture
-                        ? 0.16
-                        : hasSignal && ornamentSrc
-                          ? 1
-                          : hasEffort
-                            ? colorScale
-                              ? 1
-                              : intensity
-                            : 0.55,
-                      boxShadow:
-                        hasSignal && ornamentSrc
-                          ? `0 0 ${Math.round(8 + 8 * signalIntensity)}px rgba(220,230,238,.22)`
-                          : hasEffort
-                            ? `0 0 ${Math.round(10 * intensity)}px ${cellColor}55`
-                            : hasSecondaryEffort
-                              ? `0 0 8px ${secondaryColor}40`
-                              : "none",
-                    }}
-                  >
-                    {hasSignal && ornamentSrc && (
-                      <span
-                        aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 bg-cover bg-no-repeat mix-blend-multiply"
-                        style={{
-                          backgroundImage: `url(${ornamentSrc})`,
-                          backgroundPosition: ornamentPosition,
-                          filter:
-                            "grayscale(1) brightness(0.26) contrast(1.35)",
-                          opacity: ornamentOpacity,
-                        }}
-                      />
-                    )}
+                    : threshold + 1;
+              const cellColor = colorScale?.[scaleIndex] ?? color;
+              const label = `${format(date, "MMMM d, yyyy")}: ${day.minutes} practice minutes and ${sport} sport minutes`;
+              return (
+                <button
+                  key={day.date}
+                  type="button"
+                  disabled={future || !onSelectDate}
+                  aria-label={label}
+                  title={label}
+                  aria-pressed={
+                    onSelectDate ? selectedDate === day.date : undefined
+                  }
+                  aria-current={isSameDay(date, today) ? "date" : undefined}
+                  onClick={() => onSelectDate?.(day.date)}
+                  className={cn(
+                    "relative overflow-hidden rounded-[7px] border text-[10px] font-semibold tabular-nums text-white/85 transition-[box-shadow,border-color] hover:shadow-[0_0_14px_rgba(230,207,181,.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e7c9b9] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c1119] motion-reduce:transition-none",
+                    ornamentSrc ? "h-9 w-9 sm:h-10 sm:w-10" : "h-8 w-8",
+                    ornamentSrc &&
+                      hasSignal &&
+                      "shadow-[inset_0_1px_0_rgba(255,255,255,.65),0_2px_7px_rgba(0,0,0,.18)]",
+                    selectedDate === day.date
+                      ? "ring-2 ring-[#e7c9b9] ring-offset-2 ring-offset-[#0c1119]"
+                      : isSameDay(date, today)
+                        ? "ring-1 ring-white/40"
+                        : "",
+                    future && "opacity-25",
+                  )}
+                  style={{
+                    backgroundColor: ornamentSrc
+                      ? `rgba(244,237,229,${hasSignal ? 0.65 + intensity * 0.28 : 0.035})`
+                      : day.minutes > 0
+                        ? cellColor
+                        : "rgba(255,255,255,.04)",
+                    borderColor:
+                      selectedDate === day.date
+                        ? "#e7c9b9"
+                        : ornamentSrc && hasSignal
+                          ? "rgba(246,226,203,.55)"
+                          : "rgba(244,237,229,.16)",
+                  }}
+                >
+                  {ornamentSrc && hasSignal && (
                     <span
                       aria-hidden="true"
-                      className={`relative z-10 text-[8px] font-bold tabular-nums transition-colors group-hover:text-white ${ornamentSrc && hasSignal ? "text-[#101822]/72" : "text-white/55"}`}
-                    >
-                      {format(parsedDate, "d")}
-                    </span>
-                    {hasEffort && (
-                      <span
-                        aria-hidden="true"
-                        className={cn(
-                          "absolute inset-x-1.5 bottom-1 h-[3px] rounded-full",
-                          ornamentSrc ? "bg-[#ff7868]/80" : "bg-white/45",
-                        )}
-                        style={{
-                          opacity: Math.min(0.9, 0.28 + intensity * 0.72),
-                        }}
-                      />
-                    )}
-                    {hasSecondaryEffort && (
-                      <span
-                        aria-hidden="true"
-                        className="absolute inset-x-1.5 bottom-1 h-1 rounded-full"
-                        style={{
-                          width: `${Math.max(22, (secondaryMinutes / maxSecondaryMinutes) * 100)}%`,
-                          backgroundColor: secondaryColor,
-                          boxShadow: `0 0 7px ${secondaryColor}bb`,
-                        }}
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+                      className="pointer-events-none absolute inset-0 bg-no-repeat mix-blend-multiply"
+                      style={{
+                        backgroundImage: `url(${ornamentSrc})`,
+                        backgroundSize: "210% auto",
+                        backgroundPosition: [
+                          "45% 17%",
+                          "70% 27%",
+                          "35% 60%",
+                          "50% 82%",
+                        ][index % 4],
+                        opacity: 0.78 + intensity * 0.2,
+                      }}
+                    />
+                  )}
+                  <span
+                    aria-hidden="true"
+                    className={
+                      ornamentSrc && hasSignal
+                        ? "absolute left-1 top-1 z-10 rounded-[3px] bg-[#faf4e9]/90 px-1 text-[9px] leading-[13px] text-[#392824]"
+                        : "relative z-10"
+                    }
+                  >
+                    {format(date, "d")}
+                  </span>
+                  {day.minutes > 0 && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute bottom-[5px] left-1 h-[2px] rounded-full"
+                      style={{
+                        width: `${Math.max(12, intensity * 72)}%`,
+                        backgroundColor: ornamentSrc
+                          ? "#7e332f"
+                          : "rgba(255,255,255,.7)",
+                      }}
+                    />
+                  )}
+                  {sport > 0 && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute bottom-[2px] left-1 h-[2px] rounded-full"
+                      style={{
+                        width: `${Math.max(12, (sport / maxSecondary) * 72)}%`,
+                        backgroundColor:
+                          ornamentSrc && hasSignal ? "#286858" : secondaryColor,
+                      }}
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
-
-      <div className="flex items-center justify-between gap-4 text-[10px] font-semibold uppercase tracking-wider text-white/36">
-        <span>
-          {hasActivity
-            ? "One tile, one day · select to open its return"
-            : emptyLabel}
-        </span>
-        <div className="flex shrink-0 items-center gap-2">
-          <span>Less</span>
-          {(colorScale ?? [0, 0.3, 0.5, 0.72, 1]).map((value, index) => (
-            <span
-              key={index}
-              className="h-4 w-4 rounded-[5px] border"
-              style={{
-                backgroundColor:
-                  index === 0
-                    ? "rgba(255,255,255,0.018)"
-                    : typeof value === "string"
-                      ? value
-                      : color,
-                borderColor:
-                  index === 0
-                    ? "rgba(255,255,255,0.04)"
-                    : typeof value === "string"
-                      ? value
-                      : color,
-                opacity:
-                  index === 0
-                    ? 0.55
-                    : typeof value === "number"
-                      ? value || 1
-                      : 1,
-              }}
-            />
-          ))}
-          <span>More</span>
-        </div>
-        <span className="hidden items-center gap-1.5 sm:flex">
-          <span
-            className="h-px w-4 rounded-full"
-            style={{ backgroundColor: secondaryColor }}
-          />
-          Sport edge
-        </span>
-      </div>
+      {!hasActivity && (
+        <p className="mt-3 text-xs text-white/55">{emptyLabel}</p>
+      )}
     </div>
   );
 }

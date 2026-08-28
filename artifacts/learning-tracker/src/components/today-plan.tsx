@@ -146,7 +146,7 @@ export function TodayPlan({
 
   return (
     <section
-      className={`${compact ? "relative" : "signal-surface relative overflow-hidden rounded-[2rem] border p-6 md:p-8"} ${light ? (compact ? "text-[#181719]" : "border-black/[.08] bg-white/80") : (compact ? "text-white" : "border-white/[.08] bg-[#0c1119]/92")}`}
+      className={`${compact ? "relative" : "signal-surface relative overflow-hidden rounded-[2rem] border p-6 md:p-8"} ${light ? (compact ? "text-[#181719]" : "border-black/[.08] bg-white/80") : compact ? "text-white" : "border-white/[.08] bg-[#0c1119]/92"}`}
       aria-label={minimal ? "Today’s context" : undefined}
       aria-labelledby={minimal ? undefined : "today-context-heading"}
     >
@@ -191,7 +191,13 @@ export function TodayPlan({
 
         <form
           onSubmit={saveContext}
-          className={minimal ? "mt-3 space-y-3" : compact ? "mt-5 space-y-4" : "mt-7 grid gap-5 lg:grid-cols-[1fr_.75fr]"}
+          className={
+            minimal
+              ? "mt-3 space-y-3"
+              : compact
+                ? "mt-5 space-y-4"
+                : "mt-7 grid gap-5 lg:grid-cols-[1fr_.75fr]"
+          }
         >
           <div className="space-y-2">
             <label
@@ -259,7 +265,9 @@ export function TodayPlan({
                 onChange={(event) => setExternalPlanUrl(event.target.value)}
                 maxLength={2000}
                 placeholder="https://docs.google.com/..."
-                aria-describedby={compact ? undefined : "today-external-link-help"}
+                aria-describedby={
+                  compact ? undefined : "today-external-link-help"
+                }
                 className={`rounded-xl ${light ? "border-black/10 bg-black/[.025] text-black placeholder:text-black/30" : "border-white/10 bg-white/[.035] text-white placeholder:text-white/25"}`}
               />
               {!compact && (
@@ -273,7 +281,9 @@ export function TodayPlan({
               )}
             </div>
           </div>
-          <div className={`flex flex-wrap items-center gap-3 ${compact ? "" : "lg:col-span-2"}`}>
+          <div
+            className={`flex flex-wrap items-center gap-3 ${compact ? "" : "lg:col-span-2"}`}
+          >
             <Button
               type="submit"
               disabled={updateContext.isPending || preview}
@@ -286,11 +296,11 @@ export function TodayPlan({
                 href={externalUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.14em] ${light ? "text-black/50 hover:text-black" : "text-white/45 hover:text-white"}`}
+                className={`signal-button inline-flex min-h-11 items-center justify-center gap-3 rounded-xl border px-5 py-3 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff9a89] ${light ? "border-black/15 bg-black/5 text-black/75 hover:bg-black/10" : "border-white/20 bg-white/[.08] text-white/85 hover:bg-white/[.14]"}`}
               >
-                <Link2 className="h-3.5 w-3.5" /> Open context{" "}
+                <Link2 className="h-4 w-4" /> Open context{" "}
                 <span className="sr-only">in a new tab</span>
-                <ArrowUpRight className="h-3.5 w-3.5" />
+                <ArrowUpRight className="h-4 w-4" />
               </a>
             )}
           </div>

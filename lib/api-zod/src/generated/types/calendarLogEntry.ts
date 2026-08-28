@@ -17,4 +17,6 @@ export interface CalendarLogEntry {
   /** @nullable */
   notes?: string | null;
   logDate: string;
+  /** Actual recording timestamp (ISO 8601), separate from the operational log date. */
+  createdAt?: string;
 }

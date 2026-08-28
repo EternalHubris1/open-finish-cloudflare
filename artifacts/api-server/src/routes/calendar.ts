@@ -100,9 +100,12 @@ router.get("/calendar", async (req, res): Promise<void> => {
               durationMinutes: l.durationMinutes,
               notes: l.notes,
               logDate: l.logDate,
+              createdAt: l.createdAt.toISOString(),
             };
           })
-          .sort((a, b) => a.activityName.localeCompare(b.activityName)),
+          .sort(
+            (a, b) => a.createdAt.localeCompare(b.createdAt) || a.id - b.id,
+          ),
       };
     })
     .sort((a, b) => a.date.localeCompare(b.date));

@@ -48,6 +48,7 @@ import { TodayPlan } from "@/components/today-plan";
 import { ActivityGlyph } from "@/lib/activity-icons";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 import { moscowOperationalDate } from "@/lib/operational-date";
+import { practiceMinutesToday } from "@/lib/session-timeline";
 import musashi from "@assets/musashi_1785336444855.jpg";
 import samuraiArmorEmblem from "@/assets/icons/samurai-armor-emblem.png";
 import {
@@ -989,12 +990,11 @@ function ActivityPickerDialog({
         onOpenChange(false);
       }}
       className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[.035] px-4 py-4 text-left transition-colors hover:border-[#ff7868]/45 hover:bg-[#ff7868]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7868]"
-      role="listitem"
       data-testid={`button-pick-activity-${activity.id}`}
     >
-      <span className="flex items-center gap-3">
+      <span className="flex min-w-0 items-center gap-3">
         <span
-          className="flex h-9 w-9 items-center justify-center rounded-xl"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
           style={{
             color: activity.color || "#e95448",
             backgroundColor: `${activity.color || "#e95448"}18`,
@@ -1007,8 +1007,10 @@ function ActivityPickerDialog({
             className="h-4 w-4"
           />
         </span>
-        <span>
-          <span className="block font-semibold">{activity.name}</span>
+        <span className="min-w-0">
+          <span className="block break-words font-semibold">
+            {activity.name}
+          </span>
           <span className="mt-1 block text-[10px] font-bold uppercase tracking-[.16em] text-white/35">
             {activity.category}
             <span
@@ -1023,7 +1025,7 @@ function ActivityPickerDialog({
           </span>
         </span>
       </span>
-      <span className="text-xs text-white/35">
+      <span className="ml-3 shrink-0 text-right text-[10px] text-white/55">
         {sessionCountByActivity.has(activity.id)
           ? `${sessionCountByActivity.get(activity.id)} sessions`
           : "Not started"}
@@ -1033,47 +1035,50 @@ function ActivityPickerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-[2rem] border-white/10 bg-[#0c1119] p-6 text-white shadow-2xl sm:max-w-lg">
+      <DialogContent className="max-h-[85dvh] overflow-y-auto rounded-[2rem] border-white/10 bg-[#0c1119] p-6 text-white shadow-2xl sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">{title}</DialogTitle>
           <DialogDescription className="text-sm text-white/45">
             {description}
           </DialogDescription>
         </DialogHeader>
-        <div className="mt-4 space-y-5">
-          {frequent.length > 0 && (
-            <section aria-labelledby="frequent-directions-heading">
-              <p
-                id="frequent-directions-heading"
-                className="mb-2 text-[9px] font-bold uppercase tracking-[.2em] text-[#ff9a89]"
+        <div className="mt-4 space-y-4" aria-label={ariaLabel}>
+          {(["practice", "sport", "friction"] as const).map((type) => {
+            const group = [...frequent, ...other].filter(
+              (activity) => activity.activityType === type,
+            );
+            if (!group.length) return null;
+            return (
+              <section
+                key={type}
+                aria-labelledby={`continue-${type}`}
+                className="rounded-2xl border border-white/[.08] bg-black/15 p-3"
               >
-                Your frequent directions
-              </p>
-              <div
-                className="grid gap-2"
-                role="list"
-                aria-label="Your frequent directions"
-              >
-                {frequent.map(renderActivity)}
-              </div>
-            </section>
-          )}
-          {other.length > 0 && (
-            <section aria-labelledby="other-directions-heading">
-              <p
-                id="other-directions-heading"
-                className="mb-2 text-[9px] font-bold uppercase tracking-[.2em] text-white/30"
-              >
-                {frequent.length ? "Other directions" : "Directions"}
-              </p>
-              <div
-                className="grid gap-2"
-                role="list"
-                aria-label={frequent.length ? "Other directions" : ariaLabel}
-              >
-                {other.map(renderActivity)}
-              </div>
-            </section>
+                <h3
+                  id={`continue-${type}`}
+                  className={`mb-3 flex items-center justify-between text-xs font-semibold ${type === "sport" ? "text-[#8bd2c2]" : type === "friction" ? "text-[#cbb6aa]" : "text-[#ffb1a7]"}`}
+                >
+                  <span>
+                    {type === "practice"
+                      ? "Practice"
+                      : type === "sport"
+                        ? "Sport"
+                        : "Friction"}
+                  </span>
+                  <span className="font-normal text-white/45">
+                    {group.length}{" "}
+                    {group.length === 1 ? "direction" : "directions"}
+                  </span>
+                </h3>
+                <div className="grid gap-2">{group.map(renderActivity)}</div>
+              </section>
+            );
+          })}
+          {!activities.length && (
+            <p className="py-5 text-sm text-white/60">
+              No directions yet. Add an activity in the Activities page to
+              begin.
+            </p>
           )}
         </div>
       </DialogContent>
@@ -1361,7 +1366,9 @@ export default function DashboardV2() {
                   className="h-7 w-7 shrink-0 object-contain opacity-80 grayscale brightness-[1.9] contrast-[.72] drop-shadow-[0_0_9px_rgba(255,139,124,.16)]"
                 />
                 <span>{momentumStatus(momentum)}</span>
-                <span className={light ? "text-black/28" : "text-white/24"}>·</span>
+                <span className={light ? "text-black/28" : "text-white/24"}>
+                  ·
+                </span>
                 <span className={light ? "text-black/40" : "text-white/35"}>
                   Your working line
                 </span>
@@ -1382,11 +1389,27 @@ export default function DashboardV2() {
               >
                 <span className="hero-daily-signal-copy">Today holds </span>
                 <span className="hero-daily-signal-value">
-                  {minutesLabel(dashboard.totalMinutesToday)}
+                  {minutesLabel(
+                    practiceMinutesToday(
+                      dashboard.totalMinutesToday,
+                      dashboard.sportMinutesToday,
+                    ),
+                  )}
                 </span>{" "}
                 <span className="hero-daily-signal-copy">
-                  of deliberate effort. You touched{" "}
-                  {dashboard.activitiesTodayCompleted}{" "}
+                  of deliberate effort
+                  {dashboard.sportMinutesToday > 0 && (
+                    <>
+                      {" "}
+                      and{" "}
+                      <span
+                        className={light ? "text-[#246b5a]" : "text-[#8bd2c2]"}
+                      >
+                        {minutesLabel(dashboard.sportMinutesToday)} of sport
+                      </span>
+                    </>
+                  )}
+                  . You touched {dashboard.activitiesTodayCompleted}{" "}
                   {dashboard.activitiesTodayCompleted === 1
                     ? "direction"
                     : "directions"}
@@ -1395,7 +1418,7 @@ export default function DashboardV2() {
               </p>
               <div
                 className={`mt-5 rounded-[1.35rem] border px-4 py-4 sm:hidden ${light ? "border-black/[.08] bg-black/[.025]" : "border-[#ff8b7c]/18 bg-[#080b10]/48"}`}
-                aria-label={`Today’s deliberate effort: ${minutesLabel(dashboard.totalMinutesToday)}`}
+                aria-label={`Today’s deliberate effort: ${minutesLabel(practiceMinutesToday(dashboard.totalMinutesToday, dashboard.sportMinutesToday))}${dashboard.sportMinutesToday > 0 ? ` and ${minutesLabel(dashboard.sportMinutesToday)} of sport` : ""}`}
               >
                 <p
                   className={`text-[8px] font-bold uppercase tracking-[.2em] ${light ? "text-black/42" : "text-[#ffb1a7]/70"}`}
@@ -1406,7 +1429,12 @@ export default function DashboardV2() {
                   <p
                     className={`tabular-nums text-[2.85rem] font-semibold leading-none tracking-[-.055em] ${light ? "text-[#86221f]" : "text-[#ff8b7c]"}`}
                   >
-                    {minutesLabel(dashboard.totalMinutesToday)}
+                    {minutesLabel(
+                      practiceMinutesToday(
+                        dashboard.totalMinutesToday,
+                        dashboard.sportMinutesToday,
+                      ),
+                    )}
                   </p>
                   <p
                     className={`max-w-28 text-right text-[10px] leading-4 ${light ? "text-black/45" : "text-white/45"}`}
@@ -1418,6 +1446,13 @@ export default function DashboardV2() {
                     touched
                   </p>
                 </div>
+                {dashboard.sportMinutesToday > 0 && (
+                  <p
+                    className={`mt-3 text-sm ${light ? "text-[#246b5a]" : "text-[#8bd2c2]"}`}
+                  >
+                    and {minutesLabel(dashboard.sportMinutesToday)} of sport
+                  </p>
+                )}
               </div>
               <div className="mt-6 sm:mt-8">
                 <div className="flex flex-wrap items-center gap-3">
@@ -1432,7 +1467,8 @@ export default function DashboardV2() {
                   <p
                     className={`hidden max-w-sm text-xs leading-6 sm:block ${light ? "text-black/40" : "text-white/35"}`}
                   >
-                    Choose a direction, then enter the session with fresh intent.
+                    Choose a direction, then enter the session with fresh
+                    intent.
                   </p>
                 </div>
               </div>
@@ -1521,7 +1557,7 @@ export default function DashboardV2() {
         onOpenChange={setActivityPickerOpen}
         onSelect={setSelectedActivity}
         title="Where do you want to continue?"
-        description="Your most frequently visited directions come first. Choose one; nothing is preselected for you."
+        description="Choose a direction within Practice, Sport or Friction. Frequent directions come first in each block; nothing is preselected."
         ariaLabel="Frequent and other activities available to continue"
         frequentActivityIds={frequentActivityIds}
         sessionCountByActivity={sessionCountByActivity}

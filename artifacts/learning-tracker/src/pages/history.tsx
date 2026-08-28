@@ -40,6 +40,7 @@ import { DailyActivityChart } from "@/components/daily-activity-chart";
 import { previewActivities } from "@/pages/dashboard-exploration";
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
 import historyOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
+import { chronologicalSessions, recordedTime } from "@/lib/session-timeline";
 
 type Period = "week" | "month" | "12weeks";
 type AggregationMetric = "practice" | "sport" | "combined";
@@ -130,6 +131,7 @@ function previewCalendar(start: string, end: string): CalendarDay[] {
                 notes:
                   index % 5 === 0 ? "A difficult section became clear." : null,
                 logDate: dateString,
+                createdAt: `${dateString}T08:15:00Z`,
               },
             ]
           : []),
@@ -144,6 +146,7 @@ function previewCalendar(start: string, end: string): CalendarDay[] {
                 durationMinutes: research,
                 notes: null,
                 logDate: dateString,
+                createdAt: `${dateString}T10:30:00Z`,
               },
             ]
           : []),
@@ -158,6 +161,7 @@ function previewCalendar(start: string, end: string): CalendarDay[] {
                 durationMinutes: sport,
                 notes: null,
                 logDate: dateString,
+                createdAt: `${dateString}T15:45:00Z`,
               },
             ]
           : []),
@@ -441,18 +445,18 @@ export default function History() {
         : peak,
     chartDays[0] ?? { date: end, minutes: 0, sportMinutes: 0 },
   );
-  const selectedRows = activities
-    .map((activity) => ({
-      activity,
-      logs:
-        selectedDay?.logs.filter((log) => log.activityId === activity.id) ?? [],
-    }))
-    .filter((row) => row.logs.length > 0)
-    .sort(
-      (a, b) =>
-        Number(a.activity.activityType === "sport") -
-        Number(b.activity.activityType === "sport"),
-    );
+  const selectedSessions = chronologicalSessions(selectedDay?.logs ?? []);
+  const selectedActivityIds = [
+    ...new Set(selectedSessions.map((log) => log.activityId)),
+  ];
+  const selectedRows = selectedActivityIds.map((id) => {
+    const logs = selectedSessions.filter((log) => log.activityId === id);
+    return {
+      activity: logs[0],
+      minutes: logs.reduce((sum, log) => sum + log.durationMinutes, 0),
+      count: logs.length,
+    };
+  });
 
   if (isLoading && !hasCachedData) {
     return (
@@ -505,7 +509,7 @@ export default function History() {
         />
         <div className="room-motif-overlay pointer-events-none absolute inset-0" />
         <div className="relative z-10">
-          <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#ff8b7c]">
+          <div className="mb-3 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.24em] text-[#ffb1a7]">
             <span
               className="history-orbit-beacon"
               role="img"
@@ -518,14 +522,14 @@ export default function History() {
             </span>
             Activity analytics
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
+          <h1 className="text-3xl font-semibold tracking-[-.035em] text-white md:text-4xl">
             History
           </h1>
           <p className="mt-2 text-sm text-white/40">
             See where your time went — every active day counts.
           </p>
         </div>
-        <div className="relative z-10 flex rounded-2xl border border-white/10 bg-white/[0.03] p-1">
+        <div className="relative z-10 mt-4 flex w-fit rounded-2xl border border-white/10 bg-white/[0.03] p-1 md:mt-0">
           {(Object.keys(PERIOD_LABELS) as Period[]).map((value) => (
             <button
               key={value}
@@ -562,7 +566,7 @@ export default function History() {
         }
       >
         <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#ff8b7c]/45 to-transparent" />
-        <summary className="relative z-10 flex cursor-pointer list-none items-center justify-between gap-4 rounded-2xl px-2 py-1.5 [&::-webkit-details-marker]:hidden">
+        <summary className="relative z-10 flex flex-wrap cursor-pointer list-none items-center justify-between gap-4 rounded-2xl px-2 py-1.5 [&::-webkit-details-marker]:hidden">
           <span>
             <span className="block text-[8px] font-bold uppercase tracking-[.18em] text-[#ffc268]">
               Period analytics
@@ -573,7 +577,8 @@ export default function History() {
           </span>
           <span className="flex shrink-0 items-center gap-2">
             <span className="rounded-full border border-white/[.08] bg-white/[.035] px-2.5 py-1 text-[8px] font-bold uppercase tracking-[.12em] text-white/42">
-              {metricActiveDays} active days
+              {metricActiveDays} active{" "}
+              {metricActiveDays === 1 ? "day" : "days"}
             </span>
             <span className="history-disclosure-indicator flex items-center gap-2 rounded-xl border border-white/[.1] bg-white/[.035] px-2.5 py-1.5 text-[8px] font-bold uppercase tracking-[.12em] text-white/58">
               <span className="history-disclosure-closed">Open analytics</span>
@@ -941,24 +946,24 @@ export default function History() {
         id="selected-day"
         className={`signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 ${navigationContext.fromDashboard && navigationContext.date === selectedDate ? "spatial-arrival" : ""}`}
       >
-        <div className="flex flex-col gap-5 border-b border-white/[.06] p-6 md:flex-row md:items-end md:justify-between md:p-8">
+        <div className="flex flex-col gap-5 border-b border-white/[.06] p-6 xl:flex-row xl:items-end xl:justify-between md:p-8">
           <div>
             <p className="text-[9px] font-bold uppercase tracking-[.22em] text-[#ff9a89]">
               Return field
             </p>
             <h2 className="mt-2 text-2xl font-bold text-white">Daily effort</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-white/44">
-              The field keeps the shape of your practice. Coral carries
-              deliberate work; a quiet teal edge records sport.
+              Each day keeps its own mark. Warm autumn leaves carry practice; a
+              separate teal line records sport.
             </p>
           </div>
-          <div className="flex items-center gap-2 rounded-2xl border border-white/[.08] bg-black/15 px-3 py-2 text-[9px] font-bold uppercase tracking-[.14em] text-white/42">
+          <div className="flex shrink-0 self-start items-center gap-2 rounded-2xl border border-white/[.08] bg-black/15 px-3 py-2 text-[9px] font-bold uppercase tracking-[.14em] text-white/55">
             <span className="h-1.5 w-1.5 rounded-full bg-[#ff8b7c] shadow-[0_0_9px_rgba(255,139,124,.7)]" />
             Select a day to read it
           </div>
         </div>
 
-        <div className="grid gap-6 p-6 lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start md:p-8">
+        <div className="grid min-w-0 gap-6 p-6 lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start md:p-8">
           <DailyActivityChart
             days={chartDays.map((day) => ({
               date: day.date,
@@ -1058,55 +1063,78 @@ export default function History() {
             </Link>
           </div>
         ) : (
-          <div className="space-y-3">
-            {selectedRows.map(({ activity, logs }) => (
-              <div
-                key={activity.id}
-                className="rounded-2xl border border-white/[.07] bg-[#090d14]/80 p-5"
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <span
-                      className="h-8 w-1.5 rounded-full"
-                      style={{
-                        backgroundColor: activityColors.get(activity.id),
-                      }}
-                    />
-                    <div>
-                      <p className="font-bold text-white">{activity.name}</p>
-                      <p
-                        className={`text-[8px] font-bold uppercase tracking-wider ${activity.activityType === "sport" ? "text-[#72c6b3]/75" : "text-white/25"}`}
-                      >
-                        {activity.activityType} · {logs.length}{" "}
-                        {logs.length === 1 ? "session" : "sessions"}
-                      </p>
-                    </div>
-                  </div>
-                  <p
-                    className="font-bold"
-                    style={{ color: activityColors.get(activity.id) }}
-                  >
-                    {formatMinutes(
-                      logs.reduce((sum, log) => sum + log.durationMinutes, 0),
-                    )}
+          <div className="space-y-6">
+            <div
+              aria-label="Selected day activity totals"
+              className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3"
+            >
+              {selectedRows.map(({ activity, minutes, count }) => (
+                <div
+                  key={activity.activityId}
+                  className="rounded-xl border border-white/[.1] bg-white/[.035] px-4 py-3"
+                >
+                  <p className="text-xs font-semibold text-white/85">
+                    {activity.activityName}
+                  </p>
+                  <p className="mt-1 text-[11px] text-white/60">
+                    {formatMinutes(minutes)} · {count}{" "}
+                    {count === 1 ? "session" : "sessions"} ·{" "}
+                    {activity.activityType}
                   </p>
                 </div>
-                {logs.some((log) => log.notes) && (
-                  <div className="mt-4 space-y-2 border-l border-white/10 pl-4">
-                    {logs
-                      .filter((log) => log.notes)
-                      .map((log) => (
-                        <p
-                          key={log.id}
-                          className="text-sm italic leading-relaxed text-white/45"
-                        >
-                          “{log.notes}”
+              ))}
+            </div>
+            <div>
+              <h3 className="mb-3 text-xs font-medium text-white/60">
+                Session order · recording time in Moscow
+              </h3>
+              <ol
+                className="space-y-2"
+                aria-label="Sessions in recording order"
+              >
+                {selectedSessions.map((log, index) => (
+                  <li
+                    key={log.id}
+                    className="flex items-start gap-3 rounded-2xl border border-white/[.07] bg-[#090d14]/80 p-4"
+                  >
+                    <span className="mt-1 w-5 shrink-0 text-[11px] tabular-nums text-white/45">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="mt-1 h-8 w-1 shrink-0 rounded-full"
+                      style={{ backgroundColor: log.activityColor }}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                        <p className="break-words text-sm font-semibold text-white">
+                          {log.activityName}
                         </p>
-                      ))}
-                  </div>
-                )}
-              </div>
-            ))}
+                        <span className="text-sm tabular-nums text-white/80">
+                          {formatMinutes(log.durationMinutes)}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[11px] text-white/55">
+                        {recordedTime(log.createdAt) ? (
+                          <time dateTime={log.createdAt} title={log.createdAt}>
+                            Logged {recordedTime(log.createdAt)} MSK
+                          </time>
+                        ) : (
+                          "Recording time unavailable"
+                        )}
+                        {" · "}
+                        {log.activityType}
+                      </p>
+                      {log.notes && (
+                        <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-white/65">
+                          {log.notes}
+                        </p>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
           </div>
         )}
       </section>

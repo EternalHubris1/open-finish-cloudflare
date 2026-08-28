@@ -1125,6 +1125,9 @@ components:
           type: ["string", "null"]
         logDate:
           type: string
+        createdAt:
+          type: string
+          description: Actual recording timestamp (ISO 8601), separate from the operational log date.
 
     CalendarDay:
       type: object
