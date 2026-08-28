@@ -46,6 +46,7 @@ function formatLogRecord(
     durationMinutes: log.durationMinutes,
     notes: log.notes,
     logDate: log.logDate,
+    createdAt: log.createdAt.toISOString(),
   };
 }
 
@@ -57,7 +58,9 @@ router.get("/logs", async (_req, res): Promise<void> => {
       .orderBy(desc(activityLogsTable.logDate), desc(activityLogsTable.id)),
     db.select().from(activitiesTable),
   ]);
-  const activityMap = new Map(activities.map((activity) => [activity.id, activity]));
+  const activityMap = new Map(
+    activities.map((activity) => [activity.id, activity]),
+  );
 
   res.json(
     ListLogRecordsResponse.parse(
@@ -141,7 +144,9 @@ router.patch("/logs/:id/record", async (req, res): Promise<void> => {
     return;
   }
   if (!Object.keys(parsed.data).length) {
-    res.status(400).json({ error: "Provide a duration, date, or note to update" });
+    res
+      .status(400)
+      .json({ error: "Provide a duration, date, or note to update" });
     return;
   }
 

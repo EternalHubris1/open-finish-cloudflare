@@ -288,7 +288,8 @@ export const ListLogRecordsResponseItem = zod.object({
   "activityType": zod.enum(['practice', 'sport', 'friction']),
   "durationMinutes": zod.int(),
   "notes": zod.string().nullish(),
-  "logDate": zod.string()
+  "logDate": zod.string(),
+  "createdAt": zod.string().optional().describe('Actual recording timestamp (ISO 8601), separate from the operational log date.')
 })
 export const ListLogRecordsResponse = zod.array(ListLogRecordsResponseItem)
 
@@ -710,7 +711,8 @@ export const GetCalendarResponseItem = zod.object({
   "activityType": zod.enum(['practice', 'sport', 'friction']),
   "durationMinutes": zod.int(),
   "notes": zod.string().nullish(),
-  "logDate": zod.string()
+  "logDate": zod.string(),
+  "createdAt": zod.string().optional().describe('Actual recording timestamp (ISO 8601), separate from the operational log date.')
 }))
 })
 export const GetCalendarResponse = zod.array(GetCalendarResponseItem)

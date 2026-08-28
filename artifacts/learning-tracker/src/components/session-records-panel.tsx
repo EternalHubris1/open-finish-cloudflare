@@ -45,6 +45,7 @@ import {
 } from "lucide-react";
 import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
 import { moscowOperationalDate } from "@/lib/operational-date";
+import { recordedTime } from "@/lib/session-timeline";
 
 type RecordFilter = "all" | "practice" | "sport" | "friction";
 
@@ -331,6 +332,17 @@ export function SessionRecordsPanel() {
                             <span className="inline-flex items-center gap-1.5">
                               <CalendarDays className="h-3.5 w-3.5" />{" "}
                               {recordDate(record.logDate)}
+                            </span>
+                            <span
+                              title={
+                                record.createdAt
+                                  ? `Recorded ${record.createdAt}`
+                                  : undefined
+                              }
+                            >
+                              {recordedTime(record.createdAt)
+                                ? `Logged ${recordedTime(record.createdAt)} MSK`
+                                : "Recording time unavailable"}
                             </span>
                             <span className="inline-flex items-center gap-1.5 sm:hidden">
                               <Clock3 className="h-3.5 w-3.5" />{" "}
