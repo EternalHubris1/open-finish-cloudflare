@@ -337,7 +337,7 @@ export default function Achievements() {
           <p className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">
             <Sparkles className="h-3.5 w-3.5" /> Completion hall
           </p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight text-white md:text-5xl">
+          <h1 className="mt-3 text-3xl font-semibold tracking-[-.035em] text-white md:text-4xl">
             Achievements
           </h1>
           <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-[#ff8b7c]/80">

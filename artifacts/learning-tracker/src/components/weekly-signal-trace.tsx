@@ -1,4 +1,4 @@
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState } from "react";
 import {
   differenceInCalendarDays,
   format,
@@ -76,12 +76,13 @@ export function WeeklySignalTrace({
   const activeWeekIndex = manualWeek ?? selectedWeekIndex;
   const activeWeek = weeks[activeWeekIndex] ?? weeks[0];
   const maximum = Math.max(1, ...weeks.map((week) => week.value));
-  const chartWidth = Math.max(620, weeks.length * 118);
+  const chartWidth = 1000;
+  const plotMinWidth = Math.max(620, weeks.length * 118);
   const point = (week: (typeof weeks)[number], index: number) => ({
     x:
       weeks.length === 1
         ? chartWidth / 2
-        : 42 + (index * (chartWidth - 84)) / (weeks.length - 1),
+        : 70 + (index * (chartWidth - 140)) / (weeks.length - 1),
     y: 32 + (1 - week.value / maximum) * 128,
   });
   const polyline = weeks
@@ -114,7 +115,7 @@ export function WeeklySignalTrace({
         aria-label="Weekly activity change; scroll horizontally for more weeks"
         tabIndex={0}
       >
-        <div className="weekly-trace__plot" style={{ width: chartWidth }}>
+        <div className="weekly-trace__plot" style={{ minWidth: plotMinWidth }}>
           <svg
             aria-hidden="true"
             viewBox={`0 0 ${chartWidth} 205`}
@@ -138,7 +139,7 @@ export function WeeklySignalTrace({
             />
             {weeks.length > 1 && (
               <polygon
-                points={`42,184 ${polyline} ${chartWidth - 42},184`}
+                points={`70,184 ${polyline} ${chartWidth - 70},184`}
                 fill="url(#weekly-trace-fill)"
               />
             )}
@@ -161,7 +162,7 @@ export function WeeklySignalTrace({
                 className="weekly-trace__node"
                 key={week.weekStart}
                 onClick={() => setManualWeek(index)}
-                style={{ left: p.x, top: p.y } as CSSProperties}
+                style={{ left: `${p.x / 10}%`, top: p.y }}
                 type="button"
               >
                 <span className="weekly-trace__point" />

@@ -44,7 +44,6 @@ import {
   ActivityGlyph,
   defaultActivityIcon,
 } from "@/lib/activity-icons";
-import practiceHall from "@/assets/environments/optimized/activities-practice-hall.webp";
 import bambooMaple from "@/assets/patterns/bamboo-maple-cutout-v1.png";
 import {
   AlertDialog,
@@ -328,15 +327,7 @@ export default function Activities() {
   return (
     <div className="practice-room-line relative z-10 mx-auto min-h-screen max-w-7xl space-y-6 overflow-hidden px-4 py-6 pb-28 md:p-8 md:pb-20 animate-slide-up">
       <img src={bambooMaple} alt="" aria-hidden="true" className="room-scroll-line room-scroll-line--practice" />
-      <section className="signal-surface relative min-h-[14.5rem] overflow-hidden rounded-[2rem] border border-white/[.11] bg-[#0a1019]/92 p-5 shadow-[0_28px_80px_rgba(0,0,0,.28)] md:p-7">
-        <img
-          src={practiceHall}
-          alt=""
-          aria-hidden="true"
-          className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center"
-          style={{ opacity: 0.74 }}
-        />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.84)_0%,rgba(8,13,20,.46)_54%,rgba(8,13,20,.06)_100%)]" />
+      <section className="signal-surface relative min-h-[14.5rem] overflow-hidden rounded-[2rem] border border-white/[.11] bg-[linear-gradient(112deg,rgba(8,13,20,.96),rgba(12,20,29,.88)_58%,rgba(47,30,32,.72))] p-5 shadow-[0_28px_80px_rgba(0,0,0,.28)] md:p-7">
         <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#ff7868]/10 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 left-[38%] h-48 w-72 rounded-full bg-[#72c6b3]/[.06] blur-3xl" />
         <div className="relative z-10 pr-20 sm:pr-28 xl:pr-[clamp(10rem,19vw,18rem)]">

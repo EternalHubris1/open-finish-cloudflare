@@ -819,12 +819,12 @@ export default function History() {
               <h2 className="mt-2 text-2xl font-bold text-white">
                 {chartMode === "composition"
                   ? "The shape of each day."
-                  : "The signal across weeks."}
+                  : "Weekly rhythm."}
               </h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-white/60">
                 {chartMode === "composition"
                   ? "See where your time went, then follow a day into its sessions."
-                  : "Read the change between weeks, then open a recorded day inside the selected node."}
+                  : "Compare each week with the one before it, then open any recorded day."}
               </p>
             </div>
             <div

@@ -95,7 +95,7 @@
 /* One continuous illustrated scroll per room; panels remain hi-tech windows above it. */
 .room-scroll-line {
   position: absolute;
-  z-index: 0;
+  z-index: 20;
   pointer-events: none;
   user-select: none;
   object-fit: contain;
@@ -106,7 +106,7 @@
   right: -8rem;
   width: min(31rem, 48vw);
   height: calc(100% - 9rem);
-  opacity: .25;
+  opacity: .14;
   object-position: right top;
 }
 .room-scroll-line--cabinet {
@@ -114,7 +114,7 @@
   right: 1rem;
   width: 12rem;
   height: calc(100% - 10rem);
-  opacity: .3;
+  opacity: .16;
   object-fit: cover;
   object-position: center;
 }
