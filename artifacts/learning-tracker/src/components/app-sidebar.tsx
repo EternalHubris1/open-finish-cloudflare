@@ -66,8 +66,8 @@ const orientationRoutes: SidebarRoute[] = [
 const longViewRoutes: SidebarRoute[] = [
   {
     path: "/achievements",
-    label: "Achievements",
-    cue: "Marks & completed works",
+    label: "Completed",
+    cue: "Finished works",
     icon: Award,
     scene: armoryRoom,
     scenePosition: "object-center",
@@ -188,7 +188,7 @@ function RouteSection({
     <section aria-labelledby={sectionId} className="relative">
       <p
         id={sectionId}
-        className="mb-2 flex items-center gap-2 px-3 text-[8px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]/48"
+        className="sidebar-section-label mb-2 flex items-center gap-2 px-3 text-[8px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]/58"
       >
         {label}
         <span className="h-px flex-1 bg-gradient-to-r from-[#ff7868]/22 to-transparent" />
@@ -215,6 +215,7 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
   return (
     <>
       <aside className="sidebar-shell relative z-20 hidden h-dvh w-[17rem] shrink-0 flex-col overflow-hidden border-r border-[#ffb1a7]/20 md:flex">
+        <div className="sidebar-shoji pointer-events-none absolute inset-0" aria-hidden="true" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_30%_0%,rgba(255,111,97,.2),transparent_62%)]" />
         <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-[#ff7868]/38 to-transparent shadow-[0_0_14px_rgba(255,120,104,.12)]" />
 
@@ -227,7 +228,6 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
               >
                 道場
               </span>
-              <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full border border-[#070a0f] bg-[#ffc268] shadow-[0_0_10px_rgba(255,194,104,.75)]" />
             </div>
             <div className="min-w-0">
               <h1 className="truncate text-[15px] font-semibold tracking-[-.02em] text-white">

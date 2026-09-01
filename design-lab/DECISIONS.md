@@ -23,6 +23,7 @@ This is the permanent decision history. IDs never change; superseded entries rem
 | OF-0017 | Approved | Give navigation and buttons a calm interaction language: layered sidebar hierarchy, unmistakable current location, tactile hover/press/focus feedback, and reduced-motion parity.        | 2026-08-18 | User visual-improvement request                |
 | OF-0018 | Approved | Keep sport on a separate clock from practice/work: main bars and Momentum represent deliberate practice, while a slim secondary lane shows movement without turning it into work output. | 2026-08-18 | User sport-dashboard direction                 |
 | OF-0019 | Approved | Make the Activity library compact and scannable while expanding meaningful category, color, and icon choices; type and icon labels must support color rather than depend on it.          | 2026-08-18 | User activity-library request                  |
+| OF-0023 | Approved | Separate materials by meaning: analytics and data use Hi-tech Data instrumentation; navigation, rooms and ritual surfaces use the traditional dōjō language.                              | 2026-09-02 | Explicit user visual-system rule               |
 
 ## OF-0020 — Grouped continuation and factual session history
 

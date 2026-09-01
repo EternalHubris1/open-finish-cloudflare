@@ -544,6 +544,11 @@ export default function History() {
         </div>
       </header>
 
+      <div className="history-garden-threshold" aria-hidden="true">
+        <img src={zenGarden} alt="" />
+        <span />
+      </div>
+
       {isError && hasCachedData && (
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-[#ffc268]/20 bg-[#ffc268]/[.07] px-5 py-4 text-sm text-[#ffe0a5]">
           <span>Showing saved data. Fresh activity could not be loaded.</span>
@@ -559,7 +564,7 @@ export default function History() {
       )}
 
       <details
-        className="history-analytics-disclosure history-telemetry-console signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-4 shadow-[0_18px_46px_rgba(0,0,0,.16)] md:p-5"
+        className="history-data-surface history-analytics-disclosure history-telemetry-console signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-4 shadow-[0_18px_46px_rgba(0,0,0,.16)] md:p-5"
         style={
           {
             "--history-activity-ratio": `${(metricActiveDays / periodDayCount) * 100}%`,
@@ -883,11 +888,11 @@ export default function History() {
         </section>
       </details>
 
-      <section
+      <details
         id="selected-day"
-        className={`signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 ${navigationContext.fromDashboard && navigationContext.date === selectedDate ? "spatial-arrival" : ""}`}
+        className={`history-data-surface history-daily-effort signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 ${navigationContext.fromDashboard && navigationContext.date === selectedDate ? "spatial-arrival" : ""}`}
       >
-        <div className="flex flex-col gap-5 border-b border-white/[.06] p-6 xl:flex-row xl:items-end xl:justify-between md:p-8">
+        <summary className="flex cursor-pointer list-none flex-col gap-5 border-b border-white/[.06] p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8fd1cd] xl:flex-row xl:items-end xl:justify-between md:px-7 md:py-6 [&::-webkit-details-marker]:hidden">
           <div>
             <p className="text-[9px] font-bold uppercase tracking-[.22em] text-[#ff9a89]">
               Return field
@@ -898,11 +903,16 @@ export default function History() {
               separate teal line records sport.
             </p>
           </div>
-          <div className="flex shrink-0 self-start items-center gap-2 rounded-2xl border border-white/[.08] bg-black/15 px-3 py-2 text-[9px] font-bold uppercase tracking-[.14em] text-white/55">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#ff8b7c] shadow-[0_0_9px_rgba(255,139,124,.7)]" />
-            Select a day to read it
+          <div className="flex shrink-0 self-start items-center gap-3 rounded-lg border border-[#8fd1cd]/20 bg-[#07131a]/75 px-3 py-2 font-mono text-[9px] font-bold uppercase tracking-[.12em] text-white/55">
+            <span>{dailyEffortActiveDays} active days</span>
+            <span className="text-[#ff9a89]">{formatMinutes(metricTotal)}</span>
+            <span className="history-disclosure-indicator flex items-center gap-1.5 text-[#a9dfd9]">
+              <span className="history-disclosure-closed">Expand</span>
+              <span className="history-disclosure-open">Collapse</span>
+              <ChevronDown className="history-disclosure-chevron h-3.5 w-3.5" />
+            </span>
           </div>
-        </div>
+        </summary>
 
         <div className="grid min-w-0 gap-6 p-6 lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start md:p-8">
           <DailyActivityChart
@@ -967,9 +977,9 @@ export default function History() {
             </div>
           </aside>
         </div>
-      </section>
+      </details>
 
-      <section className="signal-surface rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-6 md:p-8">
+      <section className="history-data-surface signal-surface rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-6 md:p-8">
         <div className="mb-6 flex flex-col gap-3 border-b border-white/5 pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#ff8b7c]">

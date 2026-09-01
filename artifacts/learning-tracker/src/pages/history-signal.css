@@ -2,6 +2,67 @@
   --instrument-line: rgba(143, 209, 205, 0.22);
   --instrument-ink: #a9dfd9;
 }
+.history-data-surface {
+  position: relative;
+  background-image:
+    linear-gradient(rgba(143, 209, 205, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(143, 209, 205, 0.025) 1px, transparent 1px),
+    linear-gradient(145deg, rgba(19, 43, 53, 0.34), rgba(6, 11, 18, 0.96) 58%) !important;
+  background-size: 28px 28px, 28px 28px, auto !important;
+  border-color: rgba(143, 209, 205, 0.2) !important;
+  box-shadow:
+    inset 0 1px rgba(169, 223, 217, 0.08),
+    0 18px 48px rgba(0, 0, 0, 0.18) !important;
+}
+.history-data-surface::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(#8fd1cd, #8fd1cd) left top/22px 1px no-repeat,
+    linear-gradient(#8fd1cd, #8fd1cd) left top/1px 15px no-repeat,
+    linear-gradient(#ff8b7c, #ff8b7c) right bottom/22px 1px no-repeat,
+    linear-gradient(#ff8b7c, #ff8b7c) right bottom/1px 15px no-repeat;
+  opacity: 0.42;
+}
+.history-data-surface > * {
+  position: relative;
+  z-index: 1;
+}
+.history-garden-threshold {
+  position: relative;
+  height: clamp(4.5rem, 9vw, 7rem);
+  margin-top: -2.75rem;
+  margin-bottom: -1.25rem;
+  overflow: hidden;
+  border-inline: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 0 0 1.5rem 1.5rem;
+}
+.history-garden-threshold img {
+  width: 100%;
+  height: 190%;
+  object-fit: cover;
+  object-position: center 72%;
+  opacity: 0.62;
+  filter: saturate(0.78) brightness(0.68);
+}
+.history-garden-threshold span {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(5, 9, 14, 0.1), rgba(5, 9, 14, 0.96));
+}
+.history-daily-effort > summary .history-disclosure-open,
+.history-daily-effort[open] > summary .history-disclosure-closed {
+  display: none;
+}
+.history-daily-effort[open] > summary .history-disclosure-open {
+  display: inline;
+}
+.history-daily-effort[open] > summary .history-disclosure-chevron {
+  transform: rotate(180deg);
+}
 .instrument-label {
   font:
     500 10px/1.5 ui-monospace,

@@ -223,14 +223,14 @@ export default function Streaks({ embedded = false }: { embedded?: boolean }) {
           </Link>
         </div>
       ) : (
-        <section aria-label="Activity rhythms" className="space-y-3">
-          <div className="flex items-end justify-between gap-4 px-1 pb-1">
+        <section aria-label="Activity rhythms" className="activity-lines-console space-y-2 rounded-2xl border border-[#8fd1cd]/20 bg-[#071019]/72 p-3 shadow-[inset_0_1px_rgba(169,223,217,.08)]">
+          <div className="flex items-center justify-between gap-4 border-b border-[#8fd1cd]/12 px-1 pb-3">
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]">
+              <p className="font-mono text-[8px] font-bold uppercase tracking-[.2em] text-[#a9dfd9]">
                 Activity lines
               </p>
-              <p className="mt-1 text-sm text-white/42">
-                Open any direction for its twelve-week path and day-level read.
+              <p className="mt-1 text-[11px] text-white/38">
+                Twelve-week paths · open a channel for its day-level read.
               </p>
             </div>
             <span className="hidden text-[9px] font-bold uppercase tracking-[.14em] text-white/30 sm:block">
@@ -280,7 +280,7 @@ export default function Streaks({ embedded = false }: { embedded?: boolean }) {
             return (
               <section
                 key={activity.id}
-                className="overflow-hidden rounded-3xl border border-white/[.09] bg-[#0d141f]/[.84] shadow-[0_16px_38px_rgba(0,0,0,.15)] backdrop-blur-xl transition-[border-color,box-shadow] duration-200 hover:border-white/[.15]"
+                className="overflow-hidden rounded-xl border border-[#8fd1cd]/14 bg-[#0a141d]/90 shadow-[inset_0_1px_rgba(169,223,217,.04)] transition-[border-color,box-shadow] duration-200 hover:border-[#8fd1cd]/28"
               >
                 <button
                   type="button"
@@ -291,7 +291,7 @@ export default function Streaks({ embedded = false }: { embedded?: boolean }) {
                       current === activity.id ? null : activity.id,
                     )
                   }
-                  className="group flex w-full flex-col gap-4 p-4 text-left transition-colors duration-150 hover:bg-white/[.025] active:scale-[.995] sm:p-5 lg:flex-row lg:items-center lg:justify-between"
+                  className="group flex w-full flex-col gap-3 p-3 text-left transition-colors duration-150 hover:bg-[#8fd1cd]/[.025] active:scale-[.995] sm:px-4 lg:flex-row lg:items-center lg:justify-between"
                 >
                   <span className="flex min-w-0 items-center gap-3.5">
                     <span

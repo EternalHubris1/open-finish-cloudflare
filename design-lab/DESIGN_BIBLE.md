@@ -110,3 +110,7 @@ Uploaded reports explain the evolution and earlier review findings; they are his
 The user subsequently approved the current History preview and requested publication on 2026-08-29 (OF-0022). Daily effort now uses compact pale translucent tiles with crops of the existing burgundy Japanese maple ornament, legible dates, a clear selection ring, and distinct practice/sport markers. Preserve this accepted treatment when refining History. This is not blanket approval of other experiments. Exact cross-screen typography, palette, surface, elevation, radius, iconography, illustration-placement, and animation tokens still require explicit consolidation; their refinement must stay within this direction.
 
 Dashboard concepts A–E remain comparative evidence, not five parts of the design system and not approved alternatives to mix freely.
+
+### Semantic material split
+
+Data-bearing and analytical surfaces use the Hi-tech Data language: instrument geometry, restrained grids, precise monospace readouts, luminous signal accents, and compact controls. Spatial, navigational, reflective, and ritual surfaces use the traditional dōjō language: scenes, timber rhythm, paper, emblems, and ornament. Traditional imagery may frame or transition into analytics, but it must not enter the data field or hero without a spatial reason. Cyberpunk treatment must clarify information rather than add decorative noise.
