@@ -92,47 +92,53 @@
   background-size: 44px 76px;
 }
 
-/* One continuous illustrated scroll per room; panels remain hi-tech windows above it. */
-.room-scroll-line {
+.panel-ornament {
   position: absolute;
-  z-index: 20;
+  z-index: 0;
   pointer-events: none;
   user-select: none;
   object-fit: contain;
-  filter: saturate(.72) brightness(.82);
+  filter: saturate(.82) brightness(1.08);
 }
-.room-scroll-line--practice {
-  top: 7rem;
-  right: -8rem;
-  width: min(31rem, 48vw);
-  height: calc(100% - 9rem);
-  opacity: .14;
-  object-position: right top;
+.panel-ornament--practice {
+  right: -2rem;
+  top: 50%;
+  width: min(23rem, 38vw);
+  height: 132%;
+  opacity: .3;
+  transform: translateY(-50%);
+  object-position: right center;
 }
-.room-scroll-line--cabinet {
-  top: 8rem;
-  right: 1rem;
-  width: 12rem;
-  height: calc(100% - 10rem);
-  opacity: .16;
-  object-fit: cover;
+.panel-ornament--practice-next { transform: translateY(-50%) scaleY(-1); }
+.panel-ornament--cabinet {
+  right: 3.5rem;
+  top: 50%;
+  width: 10rem;
+  height: 138%;
+  opacity: .34;
+  transform: translateY(-50%);
   object-position: center;
 }
+.panel-ornament--cabinet-next { transform: translateY(-50%) scaleY(-1); }
 
-.sidebar-engraving {
+.sidebar-maple-line {
   position: absolute;
-  inset: 8rem -3rem 5rem 7rem;
+  z-index: 0;
+  right: -5.5rem;
+  bottom: 2rem;
+  width: 17rem;
+  height: 66%;
   pointer-events: none;
-  opacity: .16;
-  background-image:
-    radial-gradient(circle at 30% 18%, transparent 0 2.2rem, rgb(255 139 124 / 28%) 2.25rem 2.32rem, transparent 2.38rem),
-    repeating-linear-gradient(135deg, transparent 0 20px, rgb(255 194 104 / 10%) 21px, transparent 22px 42px);
+  object-fit: contain;
+  object-position: right bottom;
+  opacity: .26;
+  filter: saturate(.78) brightness(.72) contrast(1.05);
   mask-image: linear-gradient(180deg, transparent, #000 18%, #000 78%, transparent);
 }
 
 @media (max-width: 767px) {
-  .room-scroll-line--practice { right: -11rem; width: 24rem; opacity: .17; }
-  .room-scroll-line--cabinet { right: -4rem; width: 10rem; opacity: .2; }
+  .panel-ornament--practice { right: -8rem; width: 20rem; opacity: .22; }
+  .panel-ornament--cabinet { right: -2rem; width: 8rem; opacity: .28; }
 }
 
 :root {

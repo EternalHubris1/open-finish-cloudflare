@@ -326,7 +326,6 @@ export default function Cabinet() {
 
   return (
     <div className="page-arrival cabinet-room-line relative z-10 mx-auto min-h-screen max-w-6xl space-y-8 overflow-hidden px-4 py-6 pb-28 md:p-8 md:pb-20">
-      <img src={verticalOrnament} alt="" aria-hidden="true" className="room-scroll-line room-scroll-line--cabinet" />
       <header className="relative isolate overflow-hidden rounded-[2rem] border border-[#ffc268]/15 bg-[radial-gradient(circle_at_72%_24%,rgba(255,194,104,.16),transparent_26%),linear-gradient(125deg,rgba(16,22,33,.98),rgba(10,15,23,.94)_58%,rgba(76,38,37,.58))] px-6 py-7 shadow-[inset_0_1px_0_rgba(255,255,255,.06),0_18px_54px_rgba(0,0,0,.24)] md:px-8 md:py-8">
         <img
           src={readingRoom}
@@ -658,6 +657,7 @@ export default function Cabinet() {
       </section>
 
       <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
+        <img src={verticalOrnament} alt="" aria-hidden="true" className="panel-ornament panel-ornament--cabinet" />
         <div className="relative z-10 flex flex-col gap-4 border-b border-white/[.06] p-6 md:flex-row md:items-end md:justify-between md:p-7">
           <div>
             <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]">
@@ -764,6 +764,7 @@ export default function Cabinet() {
       </section>
 
       <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
+        <img src={verticalOrnament} alt="" aria-hidden="true" className="panel-ornament panel-ornament--cabinet panel-ornament--cabinet-next" />
         <div className="relative z-10 border-b border-white/[.06] p-6 md:p-7">
           <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ff9a89]">
             Session traces
