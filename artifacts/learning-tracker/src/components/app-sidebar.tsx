@@ -6,7 +6,6 @@ import {
   Award,
   Settings2,
   CalendarDays,
-  Flame,
   LogOut,
   MoreHorizontal,
   X,
@@ -18,7 +17,6 @@ import dashboardThreshold from "@/assets/environments/optimized/dashboard-thresh
 import practiceHall from "@/assets/environments/optimized/activities-practice-hall.webp";
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
 import readingRoom from "@/assets/environments/optimized/cabinet-reading-room.webp";
-import templePath from "@/assets/environments/optimized/streaks-temple-path.webp";
 import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
 
 type SidebarRoute = {
@@ -72,14 +70,6 @@ const longViewRoutes: SidebarRoute[] = [
     cue: "Marks & completed works",
     icon: Award,
     scene: armoryRoom,
-    scenePosition: "object-center",
-  },
-  {
-    path: "/streaks",
-    label: "Streaks",
-    cue: "Return rhythm",
-    icon: Flame,
-    scene: templePath,
     scenePosition: "object-center",
   },
 ];
@@ -224,6 +214,7 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
   return (
     <>
       <aside className="sidebar-shell relative z-20 hidden h-dvh w-[17rem] shrink-0 flex-col overflow-hidden border-r border-[#ffb1a7]/20 md:flex">
+        <div className="sidebar-engraving" aria-hidden="true" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_30%_0%,rgba(255,111,97,.2),transparent_62%)]" />
         <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-[#ff7868]/18 to-transparent" />
 

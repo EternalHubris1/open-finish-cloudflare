@@ -11,12 +11,14 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
 import { CompletionArchiveWall } from "@/components/completion-archive-wall";
+import Streaks from "./streaks";
 
 function achievementDate(value: string, pattern: string) {
   const date = new Date(value);
@@ -129,7 +131,7 @@ const JOURNEY_MARKS: JourneyMark[] = [
 
 export default function Achievements() {
   const [activeTab, setActiveTab] = useState<"journey" | "completed">(
-    "journey",
+    "completed",
   );
   const preview =
     import.meta.env.DEV &&
@@ -333,60 +335,33 @@ export default function Achievements() {
       <div className="flex flex-col gap-5 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">
-            <Sparkles className="h-3.5 w-3.5" /> Living marks
+            <Sparkles className="h-3.5 w-3.5" /> Completion hall
           </p>
           <h1 className="mt-3 text-4xl font-bold tracking-tight text-white md:text-5xl">
             Achievements
           </h1>
           <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-[#ff8b7c]/80">
-            {unlockedCount} of {totalCount} journey marks visible
-            {legacyCount
-              ? ` · ${legacyCount} earlier mark${legacyCount === 1 ? "" : "s"} kept`
-              : ""}
+            Finished work first · journey marks kept separately
           </p>
         </div>
         <Button
           type="button"
-          onClick={() => void reconcileJourney()}
-          disabled={reconciling || preview}
-          className="signal-button h-11 rounded-full bg-[#e95448] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white hover:bg-[#f26456]"
+          onClick={() => setActiveTab("journey")}
+          className="signal-button h-11 rounded-full border border-[#ffc268]/20 bg-white/[.04] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-[#ffe0a5] hover:bg-white/[.08]"
         >
-          <RefreshCw
-            className={`mr-2 h-4 w-4 ${reconciling ? "animate-spin" : ""}`}
-          />
-          {reconciling ? "Reviewing" : "Review journey"}
+          <Award className="mr-2 h-4 w-4" /> Journey marks
         </Button>
       </div>
 
-      <div
-        className="grid grid-cols-2 gap-2 rounded-2xl border border-white/[.08] bg-black/20 p-1.5"
-        role="tablist"
-        aria-label="Achievement collections"
-      >
-        <button
-          className={`signal-button rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-[.14em] ${activeTab === "journey" ? "bg-[#e95448] text-white" : "text-white/42 hover:bg-white/[.05]"}`}
-          aria-selected={activeTab === "journey"}
-          onClick={() => setActiveTab("journey")}
-          role="tab"
-          type="button"
-        >
-          Journey marks
-        </button>
-        <button
-          className={`signal-button rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-[.14em] ${activeTab === "completed" ? "bg-[#e95448] text-white" : "text-white/42 hover:bg-white/[.05]"}`}
-          aria-selected={activeTab === "completed"}
-          onClick={() => setActiveTab("completed")}
-          role="tab"
-          type="button"
-        >
-          Completed works
-        </button>
-      </div>
+      <CompletionArchiveWall />
 
-      {activeTab === "completed" ? (
-        <CompletionArchiveWall />
-      ) : (
-        <>
+      <Dialog open={activeTab === "journey"} onOpenChange={(open) => !open && setActiveTab("completed")}>
+        <DialogContent className="max-h-[90vh] max-w-5xl overflow-y-auto rounded-[2rem] border-white/10 bg-[#090d14] p-6 text-white md:p-8">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Journey marks</DialogTitle>
+            <DialogDescription className="text-white/42">Rare milestones kept together, away from the main archive.</DialogDescription>
+          </DialogHeader>
+          <div className="mt-6 space-y-8">
           {isError && hasCachedData && (
             <div className="flex items-center justify-between gap-4 rounded-2xl border border-[#ffc268]/20 bg-[#ffc268]/[.07] px-5 py-4 text-sm text-[#ffe0a5]">
               <span>
@@ -595,8 +570,13 @@ export default function Achievements() {
               </Button>
             </div>
           )}
-        </>
-      )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <section className="border-t border-white/[.08] pt-10">
+        <Streaks embedded />
+      </section>
     </div>
   );
 }

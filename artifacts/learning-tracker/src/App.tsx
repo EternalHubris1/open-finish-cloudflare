@@ -30,7 +30,6 @@ const ActivityDetail = lazy(() => import("@/pages/activity-detail"));
 const History = lazy(() => import("@/pages/history"));
 const Cabinet = lazy(() => import("@/pages/alerts"));
 const Settings = lazy(() => import("@/pages/profile"));
-const Streaks = lazy(() => import("@/pages/streaks"));
 const Achievements = lazy(() => import("@/pages/achievements"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
@@ -269,7 +268,7 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
               <Route path="/activities/:id" component={ActivityDetail} />
               <Route path="/history" component={History} />
               <Route path="/reflections" component={Cabinet} />
-              <Route path="/streaks" component={Streaks} />
+              <Route path="/streaks" component={Achievements} />
               <Route path="/achievements" component={Achievements} />
               <Route path="/alerts" component={Cabinet} />
               <Route path="/settings" component={Settings} />
@@ -284,10 +283,14 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
 }
 
 function AccessGate() {
+  const preview =
+    import.meta.env.DEV &&
+    new URLSearchParams(window.location.search).has("preview");
   const [status, setStatus] = useState<SessionStatus | null>(null);
   const [unavailable, setUnavailable] = useState(false);
 
   useEffect(() => {
+    if (preview) return;
     let active = true;
     const loadSession = async () => {
       try {
@@ -314,7 +317,7 @@ function AccessGate() {
       active = false;
       window.removeEventListener("auth:unauthorized", onUnauthorized);
     };
-  }, []);
+  }, [preview]);
 
   const authenticate = () => {
     queryClient.clear();
@@ -325,6 +328,10 @@ function AccessGate() {
     queryClient.clear();
     setStatus({ passwordEnabled: true, authenticated: false });
   };
+
+  if (preview) {
+    return <Router onLogout={async () => undefined} />;
+  }
 
   if (unavailable) {
     return (

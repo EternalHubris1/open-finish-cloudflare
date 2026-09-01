@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import templePath from "@/assets/environments/optimized/streaks-temple-path.webp";
 import katanaVerticalSignal from "@/assets/icons/katana-vertical-signal.png";
 import { Skeleton } from "@/components/ui/skeleton";
+import { previewActivities, previewStreaks } from "./dashboard-exploration";
 import {
   DailyActivityChart,
   DailyActivityPoint,
@@ -53,7 +54,10 @@ function buildDays(
   });
 }
 
-export default function Streaks() {
+export default function Streaks({ embedded = false }: { embedded?: boolean }) {
+  const preview =
+    import.meta.env.DEV &&
+    new URLSearchParams(window.location.search).has("preview");
   const [expandedActivityId, setExpandedActivityId] = useState<number | null>(
     null,
   );
@@ -78,15 +82,25 @@ export default function Streaks() {
     { query: { queryKey: getGetCalendarQueryKey({ start, end }) } },
   );
 
-  const activities = activitiesQuery.data ?? [];
-  const streaks = streaksQuery.data ?? [];
-  const calendarDays = calendarQuery.data ?? [];
+  const activities = preview
+    ? previewActivities
+    : Array.isArray(activitiesQuery.data)
+      ? activitiesQuery.data
+      : [];
+  const streaks = preview
+    ? previewStreaks
+    : Array.isArray(streaksQuery.data)
+      ? streaksQuery.data
+      : [];
+  const calendarDays = Array.isArray(calendarQuery.data)
+    ? calendarQuery.data
+    : [];
   const isLoading =
-    activitiesQuery.isLoading ||
+    !preview && (activitiesQuery.isLoading ||
     streaksQuery.isLoading ||
-    calendarQuery.isLoading;
+    calendarQuery.isLoading);
   const isError =
-    activitiesQuery.isError || streaksQuery.isError || calendarQuery.isError;
+    !preview && (activitiesQuery.isError || streaksQuery.isError || calendarQuery.isError);
   const openLines = streaks.filter((streak) => streak.currentStreak > 0).length;
   const strongestCurrentLine = streaks.reduce(
     (best, streak) => Math.max(best, streak.currentStreak),
@@ -137,7 +151,7 @@ export default function Streaks() {
   }
 
   return (
-    <div className="relative z-10 mx-auto min-h-screen max-w-6xl space-y-5 px-4 py-6 pb-28 md:p-8 md:pb-20">
+    <div className={embedded ? "relative z-10 space-y-5" : "relative z-10 mx-auto min-h-screen max-w-6xl space-y-5 px-4 py-6 pb-28 md:p-8 md:pb-20"}>
       <section className="relative isolate overflow-hidden rounded-[1.75rem] border border-white/[.08] bg-[#0a1019]/86 px-5 py-6 shadow-[0_18px_46px_rgba(0,0,0,.18)] md:px-7">
         <img
           src={templePath}
@@ -156,9 +170,7 @@ export default function Streaks() {
             />
             Independent momentum
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
-            Streaks
-          </h1>
+          {embedded ? <h2 className="text-3xl font-bold tracking-tight text-white">Return streaks</h2> : <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">Streaks</h1>}
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/48">
             Each direction has its own rhythm. Open a line to read its recent
             returns, then close it again when you only need the current state.

@@ -45,6 +45,7 @@ import {
   defaultActivityIcon,
 } from "@/lib/activity-icons";
 import practiceHall from "@/assets/environments/optimized/activities-practice-hall.webp";
+import bambooMaple from "@/assets/patterns/bamboo-maple-cutout-v1.png";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -325,7 +326,8 @@ export default function Activities() {
   }
 
   return (
-    <div className="relative z-10 mx-auto min-h-screen max-w-7xl space-y-6 px-4 py-6 pb-28 md:p-8 md:pb-20 animate-slide-up">
+    <div className="practice-room-line relative z-10 mx-auto min-h-screen max-w-7xl space-y-6 overflow-hidden px-4 py-6 pb-28 md:p-8 md:pb-20 animate-slide-up">
+      <img src={bambooMaple} alt="" aria-hidden="true" className="room-scroll-line room-scroll-line--practice" />
       <section className="signal-surface relative min-h-[14.5rem] overflow-hidden rounded-[2rem] border border-white/[.11] bg-[#0a1019]/92 p-5 shadow-[0_28px_80px_rgba(0,0,0,.28)] md:p-7">
         <img
           src={practiceHall}
@@ -394,12 +396,6 @@ export default function Activities() {
       ) : (
         <>
           <section className="signal-surface relative isolate overflow-hidden rounded-[2.25rem] border border-white/[.1] bg-[#0a1019]/88 p-2 shadow-[0_24px_70px_rgba(0,0,0,.22)]">
-            <img
-              src={practiceHall}
-              alt=""
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-right opacity-[.34]"
-            />
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(10,16,25,.82),rgba(10,16,25,.52),rgba(10,16,25,.72))]" />
             <div className="relative z-10 grid items-start gap-2 xl:grid-cols-[minmax(0,1.45fr)_minmax(19rem,.8fr)]">
               <div className="relative self-start overflow-hidden rounded-[1.75rem] border border-white/[.09] bg-[#0d1520]/[.57] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.04)] backdrop-blur-[1px] md:p-6">
