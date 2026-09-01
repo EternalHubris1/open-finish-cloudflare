@@ -31,6 +31,7 @@ const History = lazy(() => import("@/pages/history"));
 const Cabinet = lazy(() => import("@/pages/alerts"));
 const Settings = lazy(() => import("@/pages/profile"));
 const Streaks = lazy(() => import("@/pages/streaks"));
+const Achievements = lazy(() => import("@/pages/achievements"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 type SessionStatus = {
@@ -269,6 +270,7 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
               <Route path="/history" component={History} />
               <Route path="/reflections" component={Cabinet} />
               <Route path="/streaks" component={Streaks} />
+              <Route path="/achievements" component={Achievements} />
               <Route path="/alerts" component={Cabinet} />
               <Route path="/settings" component={Settings} />
               <Route path="/profile" component={Settings} />

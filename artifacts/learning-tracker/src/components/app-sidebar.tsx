@@ -19,6 +19,7 @@ import practiceHall from "@/assets/environments/optimized/activities-practice-ha
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
 import readingRoom from "@/assets/environments/optimized/cabinet-reading-room.webp";
 import templePath from "@/assets/environments/optimized/streaks-temple-path.webp";
+import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
 
 type SidebarRoute = {
   path: string;
@@ -65,6 +66,14 @@ const orientationRoutes: SidebarRoute[] = [
 ];
 
 const longViewRoutes: SidebarRoute[] = [
+  {
+    path: "/achievements",
+    label: "Achievements",
+    cue: "Marks & completed works",
+    icon: Award,
+    scene: armoryRoom,
+    scenePosition: "object-center",
+  },
   {
     path: "/streaks",
     label: "Streaks",

@@ -8,15 +8,6 @@ import {
 } from "@workspace/api-client-react";
 import type { Activity, CalendarDay } from "@workspace/api-client-react";
 import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import {
   Activity as ActivityIcon,
   CalendarDays,
   ChevronDown,
@@ -41,6 +32,11 @@ import { previewActivities } from "@/pages/dashboard-exploration";
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
 import historyOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
 import { chronologicalSessions, recordedTime } from "@/lib/session-timeline";
+import { HistoryCompositionChart } from "@/components/history-composition-chart";
+import { WeeklySignalTrace } from "@/components/weekly-signal-trace";
+import botanicalCutout from "@/assets/patterns/chrysanthemum-maple-cutout-v1.png";
+import mapleBranchCutout from "@/assets/patterns/maple-branch-cutout-v1.png";
+import "./history-signal.css";
 
 type Period = "week" | "month" | "12weeks";
 type AggregationMetric = "practice" | "sport" | "combined";
@@ -199,6 +195,9 @@ export default function History() {
     useState<AggregationMetric>("practice");
   const [telemetrySlice, setTelemetrySlice] =
     useState<TelemetrySlice>("volume");
+  const [chartMode, setChartMode] = useState<"rhythm" | "composition">(
+    "composition",
+  );
   const [selectedDate, setSelectedDate] = useState<string | null>(() =>
     new URLSearchParams(window.location.search).get("date"),
   );
@@ -498,7 +497,7 @@ export default function History() {
   }
 
   return (
-    <div className="page-arrival relative z-10 mx-auto min-h-screen max-w-6xl space-y-8 px-4 py-6 pb-28 md:p-8 md:pb-20">
+    <div className="history-instrument page-arrival relative z-10 mx-auto min-h-screen max-w-6xl space-y-8 px-4 py-6 pb-28 md:p-8 md:pb-20">
       <header className="relative isolate overflow-hidden rounded-[1.75rem] border border-white/[.08] bg-[#0a1019]/86 px-5 py-6 shadow-[0_18px_46px_rgba(0,0,0,.18)] md:flex md:items-end md:justify-between md:gap-5 md:px-7">
         <img
           src={zenGarden}
@@ -674,7 +673,14 @@ export default function History() {
               </dl>
             </section>
 
-            <aside className="history-telemetry-selected rounded-2xl border border-[#ffc268]/16 bg-[linear-gradient(155deg,rgba(255,194,104,.08),rgba(8,13,20,.68))] p-4">
+            <aside className="history-telemetry-selected instrument-panel instrument-panel--readout rounded-2xl border border-[#ffc268]/16 p-5">
+              <img
+                src={botanicalCutout}
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+                className="instrument-panel__ornament"
+              />
               <p className="text-[8px] font-bold uppercase tracking-[.16em] text-[#ffe0a5]/72">
                 Selected signal
               </p>
@@ -794,151 +800,91 @@ export default function History() {
           </div>
         </div>
 
-        <section className="history-signal-field mt-3 overflow-hidden rounded-2xl border border-white/[.07] bg-black/[.12]">
-          <div className="flex flex-col gap-4 border-b border-white/[.06] p-4 md:flex-row md:items-end md:justify-between md:p-5">
+        <section
+          className="history-signal-field history-chart-console relative isolate mt-3 overflow-hidden rounded-2xl border border-white/[.07] bg-black/[.12]"
+          aria-label="History chart explorer"
+        >
+          <img
+            src={mapleBranchCutout}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            className="history-chart-console__ornament"
+          />
+          <div className="history-chart-console__header relative z-10 flex flex-col gap-4 p-4 md:flex-row md:items-end md:justify-between md:p-5">
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">
-                Signal trace
-              </p>
+              <p className="instrument-label">History / signal explorer</p>
               <h2 className="mt-2 text-2xl font-bold text-white">
-                Daily change, not another bar chart.
+                {chartMode === "composition"
+                  ? "The shape of each day."
+                  : "The signal across weeks."}
               </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/42">
-                Choose the analytical slice, then select any node to inspect its
-                recorded day.
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/60">
+                {chartMode === "composition"
+                  ? "See where your time went, then follow a day into its sessions."
+                  : "Read the change between weeks, then open a recorded day inside the selected node."}
               </p>
             </div>
-            <div className="flex rounded-2xl border border-white/[.1] bg-black/[.16] p-1">
-              {(Object.keys(TELEMETRY_SLICES) as TelemetrySlice[]).map(
-                (slice) => {
-                  const active = telemetrySlice === slice;
-                  return (
-                    <button
-                      key={slice}
-                      type="button"
-                      onClick={() => setTelemetrySlice(slice)}
-                      className={`signal-button rounded-xl px-3 py-2 text-[9px] font-bold uppercase tracking-[.13em] ${active ? "bg-[#72c6b3] text-[#07120f] shadow-[0_8px_20px_rgba(98,188,168,.16)]" : "text-white/38 hover:bg-white/[.05] hover:text-white"}`}
-                    >
-                      {TELEMETRY_SLICES[slice].label}
-                    </button>
-                  );
-                },
-              )}
+            <div
+              className="history-chart-modes shrink-0 self-start"
+              role="group"
+              aria-label="Chart view"
+            >
+              <button
+                type="button"
+                aria-pressed={chartMode === "composition"}
+                onClick={() => setChartMode("composition")}
+              >
+                Day composition
+              </button>
+              <button
+                type="button"
+                aria-pressed={chartMode === "rhythm"}
+                onClick={() => setChartMode("rhythm")}
+              >
+                Weekly trace
+              </button>
             </div>
           </div>
+          {chartMode === "composition" ? (
+            <HistoryCompositionChart
+              calendar={calendarDays}
+              dates={chartDays.map((day) => day.date)}
+              metric={aggregationMetric}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+            />
+          ) : (
+            <div className="p-4 md:p-5">
+              <div className="px-4 pt-4 md:px-5">
+                <div className="flex rounded-2xl border border-white/[.1] bg-black/[.16] p-1">
+                  {(Object.keys(TELEMETRY_SLICES) as TelemetrySlice[]).map(
+                    (slice) => {
+                      const active = telemetrySlice === slice;
+                      return (
+                        <button
+                          key={slice}
+                          type="button"
+                          aria-pressed={active}
+                          onClick={() => setTelemetrySlice(slice)}
+                          className={`signal-button rounded-xl px-3 py-2 text-[9px] font-bold uppercase tracking-[.13em] ${active ? "bg-[#72c6b3] text-[#07120f] shadow-[0_8px_20px_rgba(98,188,168,.16)]" : "text-white/38 hover:bg-white/[.05] hover:text-white"}`}
+                        >
+                          {TELEMETRY_SLICES[slice].label}
+                        </button>
+                      );
+                    },
+                  )}
+                </div>
+              </div>
 
-          <div className="px-4 py-5 md:px-5">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-[9px] font-bold uppercase tracking-[.14em] text-white/36">
-              <span>{telemetryConfig.description}</span>
-              <span>
-                peak{" "}
-                {telemetryConfig.unit === "minutes"
-                  ? formatMinutes(telemetryPeak[telemetrySlice])
-                  : `${telemetryPeak[telemetrySlice]} sessions`}
-              </span>
+              <WeeklySignalTrace
+                days={telemetryDays}
+                slice={telemetrySlice}
+                selectedDate={selectedDate}
+                onSelectDate={setSelectedDate}
+              />
             </div>
-            <div className="h-60">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={telemetryDays}
-                  margin={{ top: 12, right: 14, left: 0, bottom: 0 }}
-                  onClick={(state) => {
-                    if (state?.activeLabel)
-                      setSelectedDate(String(state.activeLabel));
-                  }}
-                >
-                  <defs>
-                    <linearGradient
-                      id="history-signal-fill"
-                      x1="0"
-                      x2="0"
-                      y1="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="0%"
-                        stopColor={metricConfig.color}
-                        stopOpacity={0.48}
-                      />
-                      <stop
-                        offset="88%"
-                        stopColor={metricConfig.color}
-                        stopOpacity={0.02}
-                      />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid
-                    strokeDasharray="2 5"
-                    stroke="rgba(255,255,255,0.08)"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="date"
-                    tickFormatter={(date) =>
-                      format(
-                        parseISO(String(date)),
-                        period === "week" ? "EEE" : "d MMM",
-                      )
-                    }
-                    tick={{
-                      fill: "rgba(255,255,255,0.35)",
-                      fontSize: 10,
-                      fontWeight: 700,
-                    }}
-                    axisLine={{ stroke: "rgba(255,255,255,0.1)" }}
-                    tickLine={false}
-                    minTickGap={18}
-                  />
-                  <YAxis
-                    domain={[0, telemetryMax]}
-                    tickFormatter={(value) =>
-                      telemetryConfig.unit === "minutes"
-                        ? formatMinutes(Number(value))
-                        : String(value)
-                    }
-                    tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={42}
-                  />
-                  <Tooltip
-                    cursor={{ stroke: "rgba(255,194,104,0.5)", strokeWidth: 1 }}
-                    labelFormatter={(date) =>
-                      format(parseISO(String(date)), "EEEE, MMMM d")
-                    }
-                    formatter={(value) => [
-                      telemetryConfig.unit === "minutes"
-                        ? formatMinutes(Number(value))
-                        : `${value} sessions`,
-                      telemetryConfig.label,
-                    ]}
-                    contentStyle={{
-                      backgroundColor: "#090d14",
-                      border: "1px solid rgba(255,194,104,0.18)",
-                      borderRadius: "1rem",
-                      color: "#fff",
-                      boxShadow: "0 18px 50px rgba(0,0,0,.32)",
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey={telemetrySlice}
-                    stroke={metricConfig.color}
-                    strokeWidth={2.5}
-                    fill="url(#history-signal-fill)"
-                    activeDot={{
-                      r: 5,
-                      strokeWidth: 2,
-                      stroke: "#090d14",
-                      fill: metricConfig.color,
-                    }}
-                    dot={{ r: 2.5, strokeWidth: 0, fill: metricConfig.color }}
-                    isAnimationActive={!reducedMotion}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+          )}
         </section>
       </details>
 
@@ -977,7 +923,14 @@ export default function History() {
             onSelectDate={setSelectedDate}
           />
 
-          <aside className="relative overflow-hidden rounded-2xl border border-white/[.08] bg-[linear-gradient(150deg,rgba(255,120,104,.1),rgba(8,13,20,.78)_55%,rgba(98,188,168,.07))] p-5">
+          <aside className="instrument-panel instrument-panel--return relative overflow-hidden rounded-2xl border border-white/[.08] p-5">
+            <img
+              src={botanicalCutout}
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              className="instrument-panel__ornament"
+            />
             <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#ff7868]/[.09] blur-3xl" />
             <div className="relative z-10">
               <p className="text-[8px] font-bold uppercase tracking-[.18em] text-[#ffb1a7]">

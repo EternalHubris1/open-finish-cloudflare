@@ -39,7 +39,7 @@ jobs:
         run: pnpm --filter @workspace/api-server test
 
       - name: Verify web session presentation
-        run: pnpm --filter @workspace/api-server exec tsx --test ../learning-tracker/src/lib/session-timeline.test.ts
+        run: pnpm --filter @workspace/api-server exec tsx --test ../learning-tracker/src/lib/session-timeline.test.ts ../learning-tracker/src/lib/history-composition.test.ts
 
       - name: Build Worker assets
         run: pnpm run build
