@@ -221,6 +221,15 @@
   line-height: 1.6;
 }
 
+.completion-wall__duration {
+  display: block;
+  margin-top: 1rem;
+  color: #91cdbf;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.62rem;
+  font-weight: 650;
+}
+
 @media (max-width: 800px) {
   .completion-wall__layout {
     grid-template-columns: 1fr;

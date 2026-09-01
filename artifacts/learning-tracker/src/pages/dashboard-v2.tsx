@@ -47,6 +47,7 @@ import { LogActivityDialog } from "@/components/log-activity-dialog";
 import { TodayPlan } from "@/components/today-plan";
 import { ActivityGlyph } from "@/lib/activity-icons";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
+import { CompletionShowcase } from "@/components/completion-showcase";
 import { moscowOperationalDate } from "@/lib/operational-date";
 import { practiceMinutesToday } from "@/lib/session-timeline";
 import musashi from "@assets/musashi_1785336444855.jpg";
@@ -1531,6 +1532,8 @@ export default function DashboardV2() {
             <strong>{minutesLabel(recentLog.duration)}</strong>
           </div>
         )}
+
+        <CompletionShowcase light={light} />
 
         <Timeline
           days={days}

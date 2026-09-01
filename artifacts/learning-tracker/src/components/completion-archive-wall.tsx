@@ -1,46 +1,26 @@
 import { useState } from "react";
 import { BookOpen, Check, GraduationCap, Layers3 } from "lucide-react";
 import bambooMaple from "@/assets/patterns/bamboo-maple-cutout-v1.png";
+import {
+  completionDuration,
+  completionKindLabel,
+  previewCompletionRecords,
+} from "@/lib/completion-records";
 import "./completion-archive-wall.css";
 
-const records = [
-  {
-    id: "five-rings",
-    kind: "Book",
-    title: "The Book of Five Rings",
-    creator: "Miyamoto Musashi",
-    date: "12 Aug 2026",
-    mark: "五",
-    icon: BookOpen,
-    description: "Timing, distance, and seeing the whole field.",
-  },
-  {
-    id: "data-signal",
-    kind: "Course",
-    title: "Data Visualization: Story & Signal",
-    creator: "Independent course",
-    date: "28 Jul 2026",
-    mark: "視",
-    icon: GraduationCap,
-    description: "Turning dense measurements into legible comparisons.",
-  },
-  {
-    id: "practice-cycle",
-    kind: "Completed work",
-    title: "Thirty Days of Deliberate Practice",
-    creator: "Personal study cycle",
-    date: "30 Jun 2026",
-    mark: "道",
-    icon: Layers3,
-    description: "A finished cycle with conclusions and a next return point.",
-  },
-];
+const kindIcon = { book: BookOpen, course: GraduationCap, block: Layers3 };
+const recordDate = (value: string) =>
+  new Intl.DateTimeFormat("en", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(`${value}T12:00:00`));
 
 export function CompletionArchiveWall() {
+  const records = previewCompletionRecords;
   const [selectedId, setSelectedId] = useState(records[0].id);
   const selected =
     records.find((record) => record.id === selectedId) ?? records[0];
-
   return (
     <section
       className="completion-wall"
@@ -55,22 +35,21 @@ export function CompletionArchiveWall() {
       />
       <div className="completion-wall__header">
         <div>
-          <p className="completion-wall__kicker">Cabinet wall · sealed works</p>
-          <h2 id="completion-wall-title">Completion archive</h2>
+          <p className="completion-wall__kicker">Hall display · sealed works</p>
+          <h2 id="completion-wall-title">Completed works</h2>
           <p>
-            Finished books, courses, and substantial works kept as evidence—not
-            mixed with automatic Journey Marks.
+            Every finished book, course, or substantial block keeps what it was,
+            when it was sealed, and the time it required.
           </p>
         </div>
         <span className="completion-wall__prototype">
           Visual prototype · illustrative records
         </span>
       </div>
-
       <div className="completion-wall__layout">
         <div className="completion-wall__records">
           {records.map((record) => {
-            const Icon = record.icon;
+            const Icon = kindIcon[record.kind];
             return (
               <button
                 aria-pressed={selected.id === record.id}
@@ -85,29 +64,33 @@ export function CompletionArchiveWall() {
                 <span className="completion-plaque__body">
                   <span className="completion-plaque__kind">
                     <Icon aria-hidden="true" className="h-3.5 w-3.5" />
-                    {record.kind}
+                    {completionKindLabel[record.kind]}
                   </span>
                   <strong>{record.title}</strong>
                   <small>{record.creator}</small>
                 </span>
                 <span className="completion-plaque__date">
                   <Check aria-hidden="true" className="h-3 w-3" />
-                  {record.date}
+                  {recordDate(record.completedOn)} ·{" "}
+                  {completionDuration(record.durationMinutes)}
                 </span>
               </button>
             );
           })}
         </div>
-
         <aside className="completion-wall__inspector" aria-live="polite">
           <span aria-hidden="true">{selected.mark}</span>
           <div>
             <p>
-              {selected.kind} · sealed {selected.date}
+              {completionKindLabel[selected.kind]} · sealed{" "}
+              {recordDate(selected.completedOn)}
             </p>
             <h3>{selected.title}</h3>
             <small>{selected.creator}</small>
             <blockquote>{selected.description}</blockquote>
+            <strong className="completion-wall__duration">
+              Time invested · {completionDuration(selected.durationMinutes)}
+            </strong>
           </div>
         </aside>
       </div>

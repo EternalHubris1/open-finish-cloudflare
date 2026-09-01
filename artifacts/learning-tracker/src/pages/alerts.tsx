@@ -6,7 +6,6 @@ import seatedSamuraiSignal from "@/assets/icons/seated-samurai-signal.png";
 import waveMapleCutout from "@/assets/patterns/wave-maple-cutout-v1.png";
 import { SessionNotes } from "./reflections";
 import { SessionRecordsPanel } from "@/components/session-records-panel";
-import { CompletionArchiveWall } from "@/components/completion-archive-wall";
 import { format, isBefore, startOfDay } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -385,8 +384,6 @@ export default function Cabinet() {
         </div>
       </header>
 
-      <CompletionArchiveWall />
-
       <section className="grid gap-5 lg:grid-cols-[minmax(0,1.42fr)_minmax(18rem,.78fr)]">
         <div className="signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
           <div className="relative isolate overflow-hidden flex items-start justify-between gap-4 border-b border-white/[.06] p-6 md:p-7">
@@ -744,7 +741,7 @@ export default function Cabinet() {
               </article>
             ))
           ) : (
-            <div className="col-span-full relative isolate overflow-hidden rounded-2xl border border-dashed border-[#ffc268]/20 bg-[#0c1119] px-6 py-12 text-center">
+            <div className="dojo-pattern-surface col-span-full relative isolate overflow-hidden rounded-2xl border border-dashed border-[#ffc268]/20 bg-[#0c1119] px-6 py-12 text-center">
               <img
                 src={armoryRoom}
                 alt=""
