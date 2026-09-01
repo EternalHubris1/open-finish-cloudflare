@@ -100,44 +100,18 @@
   object-fit: contain;
   filter: saturate(.82) brightness(1.08);
 }
-.panel-ornament--practice {
-  right: -2rem;
-  top: 50%;
-  width: min(23rem, 38vw);
-  height: 132%;
-  opacity: .3;
-  transform: translateY(-50%);
-  object-position: right center;
-}
-.panel-ornament--practice-next { transform: translateY(-50%) scaleY(-1); }
 .panel-ornament--cabinet {
   right: 3.5rem;
   top: 50%;
   width: 10rem;
-  height: 138%;
+  height: 28rem;
   opacity: .34;
   transform: translateY(-50%);
   object-position: center;
 }
 .panel-ornament--cabinet-next { transform: translateY(-50%) scaleY(-1); }
 
-.sidebar-maple-line {
-  position: absolute;
-  z-index: 0;
-  right: -5.5rem;
-  bottom: 2rem;
-  width: 17rem;
-  height: 66%;
-  pointer-events: none;
-  object-fit: contain;
-  object-position: right bottom;
-  opacity: .26;
-  filter: saturate(.78) brightness(.72) contrast(1.05);
-  mask-image: linear-gradient(180deg, transparent, #000 18%, #000 78%, transparent);
-}
-
 @media (max-width: 767px) {
-  .panel-ornament--practice { right: -8rem; width: 20rem; opacity: .22; }
   .panel-ornament--cabinet { right: -2rem; width: 8rem; opacity: .28; }
 }
 

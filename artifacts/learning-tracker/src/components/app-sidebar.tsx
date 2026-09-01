@@ -18,7 +18,6 @@ import practiceHall from "@/assets/environments/optimized/activities-practice-ha
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
 import readingRoom from "@/assets/environments/optimized/cabinet-reading-room.webp";
 import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
-import mapleBranchCutout from "@/assets/patterns/maple-branch-cutout-v1.png";
 
 type SidebarRoute = {
   path: string;
@@ -191,7 +190,6 @@ function RouteSection({
         id={sectionId}
         className="mb-2 flex items-center gap-2 px-3 text-[8px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]/48"
       >
-        <span className="h-1 w-1 rounded-full bg-[#ff7868] shadow-[0_0_8px_rgba(255,120,104,.7)]" />
         {label}
         <span className="h-px flex-1 bg-gradient-to-r from-[#ff7868]/22 to-transparent" />
       </p>
@@ -217,9 +215,8 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
   return (
     <>
       <aside className="sidebar-shell relative z-20 hidden h-dvh w-[17rem] shrink-0 flex-col overflow-hidden border-r border-[#ffb1a7]/20 md:flex">
-        <img src={mapleBranchCutout} alt="" aria-hidden="true" className="sidebar-maple-line" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_30%_0%,rgba(255,111,97,.2),transparent_62%)]" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-[3px] bg-gradient-to-b from-[#ffc268]/35 via-[#ff7868]/48 to-transparent shadow-[0_0_18px_rgba(255,120,104,.15)]" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-[#ff7868]/38 to-transparent shadow-[0_0_14px_rgba(255,120,104,.12)]" />
 
         <header className="relative border-b border-white/[.055] px-5 py-5">
           <div className="flex items-center gap-3.5">

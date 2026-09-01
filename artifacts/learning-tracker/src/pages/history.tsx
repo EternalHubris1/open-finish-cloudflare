@@ -676,13 +676,6 @@ export default function History() {
             </section>
 
             <aside className="history-telemetry-selected instrument-panel instrument-panel--readout rounded-2xl border border-[#ffc268]/16 p-5">
-              <img
-                src={botanicalCutout}
-                alt=""
-                aria-hidden="true"
-                loading="lazy"
-                className="instrument-panel__ornament"
-              />
               <p className="text-[8px] font-bold uppercase tracking-[.16em] text-[#ffe0a5]/72">
                 Selected signal
               </p>

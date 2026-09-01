@@ -332,26 +332,25 @@ export default function Achievements() {
           </DialogContent>
         </Dialog>
       )}
-      <div className="flex flex-col gap-5 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">
-            <Sparkles className="h-3.5 w-3.5" /> Completion hall
-          </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-[-.035em] text-white md:text-4xl">
-            Achievements
-          </h1>
-          <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-[#ff8b7c]/80">
-            Finished work first · journey marks kept separately
-          </p>
+      <header className="relative isolate overflow-hidden rounded-[2rem] border border-white/[.1] bg-[#0a1019]/92 px-6 py-7 shadow-[0_24px_70px_rgba(0,0,0,.24)] md:px-8 md:py-8">
+        <img src={armoryRoom} alt="" aria-hidden="true" className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-70" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.92),rgba(8,13,20,.62)_58%,rgba(8,13,20,.18))]" />
+        <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="mt-1 grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#ffc268]/28 bg-[#ffc268]/[.08] text-[#ffe0a5] shadow-[0_0_28px_rgba(255,194,104,.1)]">
+              <Award className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">Completion hall</p>
+              <h1 className="mt-3 text-3xl font-semibold tracking-[-.035em] text-white md:text-4xl">Achievements</h1>
+              <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-[#ff8b7c]/80">Finished work first · journey marks kept separately</p>
+            </div>
+          </div>
+          <Button type="button" onClick={() => setActiveTab("journey")} className="signal-button h-11 rounded-full border border-[#ffc268]/24 bg-black/25 px-5 text-[10px] font-bold uppercase tracking-[.14em] text-[#ffe0a5] backdrop-blur-md hover:bg-white/[.08]">
+            <Award className="mr-2 h-4 w-4" /> Journey marks
+          </Button>
         </div>
-        <Button
-          type="button"
-          onClick={() => setActiveTab("journey")}
-          className="signal-button h-11 rounded-full border border-[#ffc268]/20 bg-white/[.04] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-[#ffe0a5] hover:bg-white/[.08]"
-        >
-          <Award className="mr-2 h-4 w-4" /> Journey marks
-        </Button>
-      </div>
+      </header>
 
       <CompletionArchiveWall />
 
