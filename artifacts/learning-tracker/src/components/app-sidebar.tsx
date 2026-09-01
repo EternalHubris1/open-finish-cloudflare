@@ -18,6 +18,7 @@ import practiceHall from "@/assets/environments/optimized/activities-practice-ha
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
 import readingRoom from "@/assets/environments/optimized/cabinet-reading-room.webp";
 import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
+import mapleBranchCutout from "@/assets/patterns/maple-branch-cutout-v1.png";
 
 type SidebarRoute = {
   path: string;
@@ -185,12 +186,14 @@ function RouteSection({
 }) {
   const sectionId = `sidebar-${label.toLowerCase().replaceAll(" ", "-")}`;
   return (
-    <section aria-labelledby={sectionId}>
+    <section aria-labelledby={sectionId} className="relative">
       <p
         id={sectionId}
-        className="mb-2 px-3 text-[8px] font-bold uppercase tracking-[.24em] text-white/20"
+        className="mb-2 flex items-center gap-2 px-3 text-[8px] font-bold uppercase tracking-[.24em] text-[#ffb1a7]/48"
       >
+        <span className="h-1 w-1 rounded-full bg-[#ff7868] shadow-[0_0_8px_rgba(255,120,104,.7)]" />
         {label}
+        <span className="h-px flex-1 bg-gradient-to-r from-[#ff7868]/22 to-transparent" />
       </p>
       <div className="space-y-1">
         {routes.map((route) => (
@@ -214,9 +217,9 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
   return (
     <>
       <aside className="sidebar-shell relative z-20 hidden h-dvh w-[17rem] shrink-0 flex-col overflow-hidden border-r border-[#ffb1a7]/20 md:flex">
-        <div className="sidebar-engraving" aria-hidden="true" />
+        <img src={mapleBranchCutout} alt="" aria-hidden="true" className="sidebar-maple-line" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_30%_0%,rgba(255,111,97,.2),transparent_62%)]" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-[#ff7868]/18 to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-[3px] bg-gradient-to-b from-[#ffc268]/35 via-[#ff7868]/48 to-transparent shadow-[0_0_18px_rgba(255,120,104,.15)]" />
 
         <header className="relative border-b border-white/[.055] px-5 py-5">
           <div className="flex items-center gap-3.5">
@@ -240,7 +243,7 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
           </div>
         </header>
 
-        <nav className="relative flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-3 py-4">
+        <nav className="relative flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto border-y border-white/[.035] bg-black/[.08] px-3 py-5">
           <RouteSection
             label="Practice"
             routes={orientationRoutes}

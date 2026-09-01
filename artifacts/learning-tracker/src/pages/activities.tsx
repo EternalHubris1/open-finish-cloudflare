@@ -326,7 +326,6 @@ export default function Activities() {
 
   return (
     <div className="practice-room-line relative z-10 mx-auto min-h-screen max-w-7xl space-y-6 overflow-hidden px-4 py-6 pb-28 md:p-8 md:pb-20 animate-slide-up">
-      <img src={bambooMaple} alt="" aria-hidden="true" className="room-scroll-line room-scroll-line--practice" />
       <section className="signal-surface relative min-h-[14.5rem] overflow-hidden rounded-[2rem] border border-white/[.11] bg-[linear-gradient(112deg,rgba(8,13,20,.96),rgba(12,20,29,.88)_58%,rgba(47,30,32,.72))] p-5 shadow-[0_28px_80px_rgba(0,0,0,.28)] md:p-7">
         <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#ff7868]/10 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 left-[38%] h-48 w-72 rounded-full bg-[#72c6b3]/[.06] blur-3xl" />
@@ -387,6 +386,7 @@ export default function Activities() {
       ) : (
         <>
           <section className="signal-surface relative isolate overflow-hidden rounded-[2.25rem] border border-white/[.1] bg-[#0a1019]/88 p-2 shadow-[0_24px_70px_rgba(0,0,0,.22)]">
+            <img src={bambooMaple} alt="" aria-hidden="true" className="panel-ornament panel-ornament--practice" />
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(10,16,25,.82),rgba(10,16,25,.52),rgba(10,16,25,.72))]" />
             <div className="relative z-10 grid items-start gap-2 xl:grid-cols-[minmax(0,1.45fr)_minmax(19rem,.8fr)]">
               <div className="relative self-start overflow-hidden rounded-[1.75rem] border border-white/[.09] bg-[#0d1520]/[.57] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.04)] backdrop-blur-[1px] md:p-6">
@@ -567,6 +567,7 @@ export default function Activities() {
           </section>
 
           <section className="signal-surface relative isolate overflow-hidden rounded-[2rem] border border-white/[.1] bg-[#0d1520]/88 p-4 shadow-[0_24px_70px_rgba(0,0,0,.2)] md:p-5">
+            <img src={bambooMaple} alt="" aria-hidden="true" className="panel-ornament panel-ornament--practice panel-ornament--practice-next" />
             <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div
                 className="flex flex-wrap gap-2"
