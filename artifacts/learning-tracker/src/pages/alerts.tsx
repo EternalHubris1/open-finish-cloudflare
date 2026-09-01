@@ -3,8 +3,10 @@ import readingRoom from "@/assets/environments/optimized/cabinet-reading-room.we
 import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
 import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
 import seatedSamuraiSignal from "@/assets/icons/seated-samurai-signal.png";
+import waveMapleCutout from "@/assets/patterns/wave-maple-cutout-v1.png";
 import { SessionNotes } from "./reflections";
 import { SessionRecordsPanel } from "@/components/session-records-panel";
+import { CompletionArchiveWall } from "@/components/completion-archive-wall";
 import { format, isBefore, startOfDay } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -382,6 +384,8 @@ export default function Cabinet() {
           </div>
         </div>
       </header>
+
+      <CompletionArchiveWall />
 
       <section className="grid gap-5 lg:grid-cols-[minmax(0,1.42fr)_minmax(18rem,.78fr)]">
         <div className="signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
@@ -770,10 +774,10 @@ export default function Cabinet() {
 
       <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
         <img
-          src={verticalOrnament}
+          src={waveMapleCutout}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute right-14 top-1/2 h-[20rem] max-h-[190%] w-auto -translate-y-1/2 select-none opacity-[.34] brightness-[1.14] saturate-[.82]"
+          className="pointer-events-none absolute -right-8 top-1/2 h-[29rem] max-h-[280%] w-auto -translate-y-1/2 select-none opacity-[.22] brightness-[.82] saturate-[.72] [mask-image:linear-gradient(90deg,transparent,#000_42%)]"
         />
         <div className="relative z-10 border-b border-white/[.06] p-6 md:p-7">
           <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ff9a89]">
