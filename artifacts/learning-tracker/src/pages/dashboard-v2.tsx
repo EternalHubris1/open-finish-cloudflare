@@ -881,6 +881,10 @@ function Timeline({
               </table>
             </div>
           </details>
+
+          <div className="mt-5">
+            <CompletionShowcase light={light} />
+          </div>
         </div>
 
         <aside
@@ -1551,8 +1555,6 @@ export default function DashboardV2() {
           <span>Open History for composition and long-term patterns</span>
           <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
         </Link>
-
-        <CompletionShowcase light={light} />
       </div>
       <ActivityPickerDialog
         activities={activities}

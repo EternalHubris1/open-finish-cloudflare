@@ -342,8 +342,8 @@ export default function Achievements() {
             </div>
             <div>
               <p className="text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">Completion hall</p>
-              <h1 className="mt-3 text-3xl font-semibold tracking-[-.035em] text-white md:text-4xl">Achievements</h1>
-              <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-[#ff8b7c]/80">Finished work first · journey marks kept separately</p>
+              <h1 className="mt-3 text-3xl font-semibold tracking-[-.035em] text-white md:text-4xl">Completed</h1>
+              <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-[#ff8b7c]/80">Completed works first · journey marks kept separately</p>
             </div>
           </div>
           <Button type="button" onClick={() => setActiveTab("journey")} className="signal-button h-11 rounded-full border border-[#ffc268]/24 bg-black/25 px-5 text-[10px] font-bold uppercase tracking-[.14em] text-[#ffe0a5] backdrop-blur-md hover:bg-white/[.08]">
