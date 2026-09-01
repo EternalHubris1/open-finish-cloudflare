@@ -1,14 +1,25 @@
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Plus } from "lucide-react";
 import {
+  COMPLETION_RECORDS_CHANGED,
   completionKindLabel,
-  previewCompletionRecords,
+  loadCompletionRecords,
+  type CompletionRecord,
 } from "@/lib/completion-records";
 
 export function CompletionShowcase({ light = false }: { light?: boolean }) {
+  const [completionRecords, setCompletionRecords] = useState<CompletionRecord[]>(
+    () => loadCompletionRecords(),
+  );
+  useEffect(() => {
+    const refresh = () => setCompletionRecords(loadCompletionRecords());
+    window.addEventListener(COMPLETION_RECORDS_CHANGED, refresh);
+    return () => window.removeEventListener(COMPLETION_RECORDS_CHANGED, refresh);
+  }, []);
   const groups = (["block", "course", "book"] as const).map((kind) => ({
     kind,
-    records: previewCompletionRecords.filter((record) => record.kind === kind),
+    records: completionRecords.filter((record) => record.kind === kind).slice(0, 4),
   }));
   return (
     <section
@@ -47,8 +58,8 @@ export function CompletionShowcase({ light = false }: { light?: boolean }) {
             >
               {completionKindLabel[group.kind]}
             </p>
-            <div className="mt-2 flex gap-2">
-              {group.records.map((record) => (
+            <div className="mt-2 flex min-h-10 gap-2">
+              {group.records.length ? group.records.map((record) => (
                 <span
                   key={record.id}
                   title={`${record.title}: ${record.description}`}
@@ -56,7 +67,11 @@ export function CompletionShowcase({ light = false }: { light?: boolean }) {
                 >
                   {record.mark}
                 </span>
-              ))}
+              )) : (
+                <Link href="/achievements" className={`flex items-center gap-1 text-[8px] font-bold uppercase tracking-[.12em] ${light ? "text-black/32" : "text-white/28"}`}>
+                  <Plus className="h-3.5 w-3.5" /> Add first
+                </Link>
+              )}
             </div>
           </div>
         ))}

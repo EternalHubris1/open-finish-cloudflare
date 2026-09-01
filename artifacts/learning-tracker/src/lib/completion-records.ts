@@ -11,39 +11,24 @@ export type CompletionRecord = {
   description: string;
 };
 
-// Design-Lab fixtures until the completion-record API is approved.
-export const previewCompletionRecords: CompletionRecord[] = [
-  {
-    id: "five-rings",
-    kind: "book",
-    title: "The Book of Five Rings",
-    creator: "Miyamoto Musashi",
-    completedOn: "2026-08-12",
-    durationMinutes: 690,
-    mark: "五",
-    description: "Timing, distance, and seeing the whole field.",
-  },
-  {
-    id: "data-signal",
-    kind: "course",
-    title: "Data Visualization: Story & Signal",
-    creator: "Independent course",
-    completedOn: "2026-07-28",
-    durationMinutes: 1260,
-    mark: "視",
-    description: "Turning dense measurements into legible comparisons.",
-  },
-  {
-    id: "practice-cycle",
-    kind: "block",
-    title: "Thirty Days of Deliberate Practice",
-    creator: "Personal study cycle",
-    completedOn: "2026-06-30",
-    durationMinutes: 2480,
-    mark: "道",
-    description: "A finished block with conclusions and a next return point.",
-  },
-];
+const STORAGE_KEY = "open-finish:completion-records";
+export const COMPLETION_RECORDS_CHANGED = "completion-records:changed";
+
+export function loadCompletionRecords(): CompletionRecord[] {
+  try {
+    const value = window.localStorage.getItem(STORAGE_KEY);
+    if (!value) return [];
+    const parsed = JSON.parse(value) as unknown;
+    return Array.isArray(parsed) ? (parsed as CompletionRecord[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveCompletionRecords(records: CompletionRecord[]) {
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  window.dispatchEvent(new Event(COMPLETION_RECORDS_CHANGED));
+}
 
 export const completionKindLabel: Record<CompletionKind, string> = {
   book: "Books",

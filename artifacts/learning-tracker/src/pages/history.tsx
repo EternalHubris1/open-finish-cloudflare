@@ -38,7 +38,7 @@ import botanicalCutout from "@/assets/patterns/chrysanthemum-maple-cutout-v1.png
 import mapleBranchCutout from "@/assets/patterns/maple-branch-cutout-v1.png";
 import "./history-signal.css";
 
-type Period = "week" | "month" | "12weeks";
+type Period = "week" | "30days" | "month" | "12weeks";
 type AggregationMetric = "practice" | "sport" | "combined";
 type TelemetrySlice = "volume" | "sessions" | "longest";
 
@@ -74,7 +74,8 @@ const AGGREGATION_METRICS: Record<
 
 const PERIOD_LABELS: Record<Period, string> = {
   week: "Week",
-  month: "Month",
+  "30days": "30 days",
+  month: "Calendar month",
   "12weeks": "12 weeks",
 };
 
@@ -89,6 +90,7 @@ const ACTIVITY_SIGNAL_COLORS = [
 function getRange(period: Period) {
   const end = new Date();
   if (period === "week") return { start: subDays(end, 6), end };
+  if (period === "30days") return { start: subDays(end, 29), end };
   if (period === "month") return { start: startOfMonth(end), end };
   return { start: startOfWeek(subWeeks(end, 11), { weekStartsOn: 1 }), end };
 }
@@ -190,7 +192,7 @@ export default function History() {
       date: params.get("date"),
     };
   }, []);
-  const [period, setPeriod] = useState<Period>("month");
+  const [period, setPeriod] = useState<Period>("30days");
   const [aggregationMetric, setAggregationMetric] =
     useState<AggregationMetric>("practice");
   const [telemetrySlice, setTelemetrySlice] =
@@ -817,12 +819,12 @@ export default function History() {
               <h2 className="mt-2 text-2xl font-bold text-white">
                 {chartMode === "composition"
                   ? "The shape of each day."
-                  : "The signal across weeks."}
+                  : "Weekly rhythm."}
               </h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-white/60">
                 {chartMode === "composition"
                   ? "See where your time went, then follow a day into its sessions."
-                  : "Read the change between weeks, then open a recorded day inside the selected node."}
+                  : "Compare each week with the one before it, then open any recorded day."}
               </p>
             </div>
             <div

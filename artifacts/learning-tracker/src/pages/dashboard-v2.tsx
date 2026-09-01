@@ -1533,8 +1533,6 @@ export default function DashboardV2() {
           </div>
         )}
 
-        <CompletionShowcase light={light} />
-
         <Timeline
           days={days}
           activities={activities}
@@ -1553,6 +1551,8 @@ export default function DashboardV2() {
           <span>Open History for composition and long-term patterns</span>
           <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
         </Link>
+
+        <CompletionShowcase light={light} />
       </div>
       <ActivityPickerDialog
         activities={activities}
