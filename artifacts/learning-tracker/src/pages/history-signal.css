@@ -31,27 +31,30 @@
   position: relative;
   z-index: 1;
 }
-.history-garden-threshold {
-  position: relative;
-  height: clamp(4.5rem, 9vw, 7rem);
-  margin-top: -2.75rem;
-  margin-bottom: -1.25rem;
-  overflow: hidden;
-  border-inline: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 0 0 1.5rem 1.5rem;
-}
-.history-garden-threshold img {
-  width: 100%;
-  height: 190%;
-  object-fit: cover;
-  object-position: center 72%;
-  opacity: 0.62;
-  filter: saturate(0.78) brightness(0.68);
-}
-.history-garden-threshold span {
-  position: absolute;
+.history-daily-effort__scene {
+  position: absolute !important;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(5, 9, 14, 0.1), rgba(5, 9, 14, 0.96));
+  z-index: -2 !important;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  opacity: 0.72;
+  filter: saturate(0.8) brightness(0.7);
+  transition: opacity 180ms ease;
+}
+.history-daily-effort__scene-mask {
+  position: absolute !important;
+  inset: 0;
+  z-index: -1 !important;
+  background: linear-gradient(90deg, rgba(5, 10, 17, 0.94), rgba(5, 10, 17, 0.7) 58%, rgba(5, 10, 17, 0.46));
+  transition: background-color 180ms ease;
+}
+.history-daily-effort[open] .history-daily-effort__scene {
+  opacity: 0;
+}
+.history-daily-effort[open] .history-daily-effort__scene-mask {
+  background: rgba(5, 10, 17, 0.82);
 }
 .history-daily-effort > summary .history-disclosure-open,
 .history-daily-effort[open] > summary .history-disclosure-closed {

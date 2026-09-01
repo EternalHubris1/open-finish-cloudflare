@@ -544,11 +544,6 @@ export default function History() {
         </div>
       </header>
 
-      <div className="history-garden-threshold" aria-hidden="true">
-        <img src={zenGarden} alt="" />
-        <span />
-      </div>
-
       {isError && hasCachedData && (
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-[#ffc268]/20 bg-[#ffc268]/[.07] px-5 py-4 text-sm text-[#ffe0a5]">
           <span>Showing saved data. Fresh activity could not be loaded.</span>
@@ -892,8 +887,15 @@ export default function History() {
         id="selected-day"
         className={`history-data-surface history-daily-effort signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 ${navigationContext.fromDashboard && navigationContext.date === selectedDate ? "spatial-arrival" : ""}`}
       >
-        <summary className="flex cursor-pointer list-none flex-col gap-5 border-b border-white/[.06] p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8fd1cd] xl:flex-row xl:items-end xl:justify-between md:px-7 md:py-6 [&::-webkit-details-marker]:hidden">
-          <div>
+        <summary className="relative isolate flex cursor-pointer list-none flex-col gap-5 overflow-hidden border-b border-white/[.06] p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8fd1cd] xl:flex-row xl:items-end xl:justify-between md:px-7 md:py-6 [&::-webkit-details-marker]:hidden">
+          <img
+            src={zenGarden}
+            alt=""
+            aria-hidden="true"
+            className="history-daily-effort__scene"
+          />
+          <span className="history-daily-effort__scene-mask" aria-hidden="true" />
+          <div className="relative z-10">
             <p className="text-[9px] font-bold uppercase tracking-[.22em] text-[#ff9a89]">
               Return field
             </p>
@@ -903,7 +905,7 @@ export default function History() {
               separate teal line records sport.
             </p>
           </div>
-          <div className="flex shrink-0 self-start items-center gap-3 rounded-lg border border-[#8fd1cd]/20 bg-[#07131a]/75 px-3 py-2 font-mono text-[9px] font-bold uppercase tracking-[.12em] text-white/55">
+          <div className="relative z-10 flex shrink-0 self-start items-center gap-3 rounded-lg border border-[#8fd1cd]/20 bg-[#07131a]/75 px-3 py-2 font-mono text-[9px] font-bold uppercase tracking-[.12em] text-white/55">
             <span>{dailyEffortActiveDays} active days</span>
             <span className="text-[#ff9a89]">{formatMinutes(metricTotal)}</span>
             <span className="history-disclosure-indicator flex items-center gap-1.5 text-[#a9dfd9]">
