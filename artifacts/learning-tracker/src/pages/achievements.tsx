@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
 import templePath from "@/assets/environments/optimized/streaks-temple-path.webp";
+import progressScrollEmblem from "@/assets/icons/cabinet-scroll-emblem-v1.webp";
 import { CompletionArchiveWall } from "@/components/completion-archive-wall";
 import Streaks from "./streaks";
 
@@ -331,15 +332,15 @@ export default function Achievements() {
       )}
       <section className="progress-room">
       <header className="progress-room__hero relative isolate overflow-hidden px-6 py-7 md:px-8 md:py-8">
-        <img src={templePath} alt="" aria-hidden="true" className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-78" />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.94),rgba(8,13,20,.66)_58%,rgba(8,13,20,.2))]" />
+        <img src={templePath} alt="" aria-hidden="true" className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-95 saturate-[1.08]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.82),rgba(8,13,20,.48)_58%,rgba(8,13,20,.12))]" />
         <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-start gap-4">
-            <SamuraiStatusIcon
-              status="standing"
-              label="Progress archive"
-              className="mt-1 h-9 w-9 shrink-0 opacity-88 grayscale brightness-[1.7] contrast-[.78]"
-              animate={false}
+            <img
+              src={progressScrollEmblem}
+              alt=""
+              aria-hidden="true"
+              className="mt-0.5 h-12 w-12 shrink-0 object-contain opacity-90 grayscale brightness-[1.35] contrast-[.88] drop-shadow-[0_0_12px_rgba(255,224,165,.12)]"
             />
             <div>
               <p className="text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">Long-view room</p>
