@@ -8,6 +8,7 @@ export type CompletionRecord = {
   completedOn: string;
   durationMinutes: number;
   mark: string;
+  medalImage?: string;
   description: string;
 };
 
