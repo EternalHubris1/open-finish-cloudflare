@@ -43,7 +43,7 @@ import {
   Search,
   Trash2,
 } from "lucide-react";
-import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
+import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.webp";
 import { moscowOperationalDate } from "@/lib/operational-date";
 import { recordedTime } from "@/lib/session-timeline";
 

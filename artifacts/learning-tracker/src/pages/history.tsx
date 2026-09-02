@@ -30,12 +30,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DailyActivityChart } from "@/components/daily-activity-chart";
 import { previewActivities } from "@/pages/dashboard-exploration";
 import zenGarden from "@/assets/environments/optimized/history-zen-garden.webp";
-import historyOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
+import historyOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.webp";
 import { chronologicalSessions, recordedTime } from "@/lib/session-timeline";
 import { HistoryCompositionChart } from "@/components/history-composition-chart";
 import { WeeklySignalTrace } from "@/components/weekly-signal-trace";
-import botanicalCutout from "@/assets/patterns/chrysanthemum-maple-cutout-v1.png";
-import mapleBranchCutout from "@/assets/patterns/maple-branch-cutout-v1.png";
+import botanicalCutout from "@/assets/patterns/chrysanthemum-maple-cutout-v1.webp";
+import mapleBranchCutout from "@/assets/patterns/maple-branch-cutout-v1.webp";
 import "./history-signal.css";
 
 type Period = "week" | "30days" | "month" | "12weeks";
@@ -201,6 +201,7 @@ export default function History() {
     "composition",
   );
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
+  const [dailyEffortOpen, setDailyEffortOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(() =>
     new URLSearchParams(window.location.search).get("date"),
   );
@@ -598,11 +599,11 @@ export default function History() {
 
         <div
           id="period-analytics-panel"
-          className="history-analytics-collapse"
+          className="of-disclosure-collapse"
           aria-hidden={!analyticsOpen}
           inert={!analyticsOpen ? true : undefined}
         >
-          <div className="history-analytics-collapse__inner">
+          <div className="of-disclosure-collapse__inner">
         <div className="relative z-10 mt-4 border-t border-white/[.06] pt-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -899,11 +900,18 @@ export default function History() {
         </div>
       </section>
 
-      <details
+      <section
         id="selected-day"
+        data-open={dailyEffortOpen ? "true" : "false"}
         className={`history-data-surface history-daily-effort signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 ${navigationContext.fromDashboard && navigationContext.date === selectedDate ? "spatial-arrival" : ""}`}
       >
-        <summary className="relative isolate flex cursor-pointer list-none flex-col gap-5 overflow-hidden border-b border-white/[.06] p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8fd1cd] xl:flex-row xl:items-end xl:justify-between md:px-7 md:py-6 [&::-webkit-details-marker]:hidden">
+        <button
+          type="button"
+          aria-expanded={dailyEffortOpen}
+          aria-controls="daily-effort-panel"
+          onClick={() => setDailyEffortOpen((open) => !open)}
+          className="relative isolate flex w-full cursor-pointer flex-col gap-5 overflow-hidden border-b border-white/[.06] p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8fd1cd] xl:flex-row xl:items-end xl:justify-between md:px-7 md:py-6"
+        >
           <img
             src={zenGarden}
             alt=""
@@ -925,13 +933,19 @@ export default function History() {
             <span>{dailyEffortActiveDays} active days</span>
             <span className="text-[#ff9a89]">{formatMinutes(metricTotal)}</span>
             <span className="history-disclosure-indicator flex items-center gap-1.5 text-[#a9dfd9]">
-              <span className="history-disclosure-closed">Expand</span>
-              <span className="history-disclosure-open">Collapse</span>
+              <span>{dailyEffortOpen ? "Collapse" : "Expand"}</span>
               <ChevronDown className="history-disclosure-chevron h-3.5 w-3.5" />
             </span>
           </div>
-        </summary>
+        </button>
 
+        <div
+          id="daily-effort-panel"
+          className="of-disclosure-collapse"
+          aria-hidden={!dailyEffortOpen}
+          inert={!dailyEffortOpen ? true : undefined}
+        >
+        <div className="of-disclosure-collapse__inner">
         <div className="grid min-w-0 gap-6 p-6 lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start md:p-8">
           <DailyActivityChart
             days={chartDays.map((day) => ({
@@ -995,7 +1009,9 @@ export default function History() {
             </div>
           </aside>
         </div>
-      </details>
+        </div>
+        </div>
+      </section>
 
       <section className="history-data-surface signal-surface rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-6 md:p-8">
         <div className="mb-6 flex flex-col gap-3 border-b border-white/5 pb-6 sm:flex-row sm:items-end sm:justify-between">

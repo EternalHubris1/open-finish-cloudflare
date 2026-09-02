@@ -21,7 +21,7 @@ import {
   VisualEffectsProvider,
   useVisualEffects,
 } from "@/components/visual-effects-provider";
-import inkToriiBackground from "@assets/ink-torii-night-background-v2-clean.png";
+import inkToriiBackground from "@assets/ink-torii-night-background-v2-clean.webp";
 
 const Dashboard = lazy(() => import("@/pages/dashboard-v2"));
 const Activities = lazy(() => import("@/pages/activities"));

@@ -361,9 +361,11 @@ export default function Streaks({ embedded = false }: { embedded?: boolean }) {
                 <div
                   id={detailId}
                   aria-hidden={!isExpanded}
-                  className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out ${isExpanded ? "grid-rows-[1fr] opacity-100" : "pointer-events-none grid-rows-[0fr] opacity-0"}`}
+                  inert={!isExpanded ? true : undefined}
+                  className="of-disclosure-collapse"
+                  data-open={isExpanded ? "true" : "false"}
                 >
-                  <div className="min-h-0 overflow-hidden">
+                  <div className="of-disclosure-collapse__inner">
                     <div className="border-t border-white/[.07] bg-black/[.07] p-4 sm:p-5">
                       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_13rem]">
                         <div className="rounded-2xl border border-white/[.07] bg-black/[.13] px-4 py-3.5">
