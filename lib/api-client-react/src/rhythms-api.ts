@@ -29,6 +29,42 @@ export interface MilestoneInput {
   status?: MilestoneStatus;
 }
 
+export type SprintStatus = "active" | "complete" | "archived";
+export type SprintStepStatus = "pending" | "complete";
+
+export interface SprintStep {
+  id: number;
+  sprintId: number;
+  title: string;
+  plannedDate: string;
+  position: number;
+  status: SprintStepStatus;
+  completedAt: string | null;
+}
+
+export interface Sprint {
+  id: number;
+  activityId: number | null;
+  activityName: string | null;
+  title: string;
+  outcome: string;
+  startDate: string;
+  dueDate: string;
+  status: SprintStatus;
+  createdAt: string;
+  completedAt: string | null;
+  steps: SprintStep[];
+}
+
+export interface SprintInput {
+  activityId?: number | null;
+  title: string;
+  outcome?: string;
+  startDate: string;
+  dueDate: string;
+  steps: Array<{ title: string; plannedDate: string }>;
+}
+
 export interface PeriodReflection {
   id: number;
   milestoneId: number;
@@ -64,6 +100,7 @@ export interface DojoCabinetItemInput {
 }
 
 export const getListMilestonesQueryKey = () => ["/api/milestones"] as const;
+export const getListSprintsQueryKey = () => ["/api/sprints"] as const;
 export const getListDojoCabinetQueryKey = () => ["/api/dojo-cabinet"] as const;
 export const getPeriodReflectionQueryKey = (milestoneId: number) =>
   ["/api/milestones", milestoneId, "reflection"] as const;
@@ -116,6 +153,79 @@ export function useDeleteMilestone(options?: {
   return useMutation({
     mutationFn: ({ id }) =>
       customFetch<void>(`/api/milestones/${id}`, {
+        method: "DELETE",
+        responseType: "json",
+      }),
+    ...options?.mutation,
+  });
+}
+
+export function useListSprints<TData = Sprint[]>(options?: {
+  query?: UseQueryOptions<Sprint[], ErrorType, TData>;
+}) {
+  return useQuery({
+    queryKey: getListSprintsQueryKey(),
+    queryFn: () => customFetch<Sprint[]>("/api/sprints"),
+    ...options?.query,
+  });
+}
+
+export function useCreateSprint(options?: {
+  mutation?: UseMutationOptions<Sprint, ErrorType, SprintInput>;
+}) {
+  return useMutation({
+    mutationFn: (data) =>
+      customFetch<Sprint>("/api/sprints", {
+        method: "POST",
+        body: JSON.stringify(data),
+        responseType: "json",
+      }),
+    ...options?.mutation,
+  });
+}
+
+export function useUpdateSprint(options?: {
+  mutation?: UseMutationOptions<
+    Sprint,
+    ErrorType,
+    { id: number; data: Partial<Pick<Sprint, "title" | "outcome" | "dueDate" | "status">> }
+  >;
+}) {
+  return useMutation({
+    mutationFn: ({ id, data }) =>
+      customFetch<Sprint>(`/api/sprints/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+        responseType: "json",
+      }),
+    ...options?.mutation,
+  });
+}
+
+export function useUpdateSprintStep(options?: {
+  mutation?: UseMutationOptions<
+    Sprint,
+    ErrorType,
+    { sprintId: number; stepId: number; status: SprintStepStatus }
+  >;
+}) {
+  return useMutation({
+    mutationFn: ({ sprintId, stepId, status }) =>
+      customFetch<Sprint>(`/api/sprints/${sprintId}/steps/${stepId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+        responseType: "json",
+      }),
+    ...options?.mutation,
+  });
+}
+
+export function useDeleteSprint(options?: {
+  mutation?: UseMutationOptions<void, ErrorType, { id: number }>;
+}) {
+  return useMutation({
+    mutationFn: ({ id }) =>
+      customFetch<void>(`/api/sprints/${id}`, {
         method: "DELETE",
         responseType: "json",
       }),

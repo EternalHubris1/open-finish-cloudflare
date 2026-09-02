@@ -8,6 +8,7 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { activitiesTable } from "./activities";
 
 export const milestonesTable = pgTable("milestones", {
   id: serial("id").primaryKey(),
@@ -21,6 +22,43 @@ export const milestonesTable = pgTable("milestones", {
     .defaultNow(),
   completedAt: timestamp("completed_at", { withTimezone: true }),
 });
+
+export const sprintsTable = pgTable("sprints", {
+  id: serial("id").primaryKey(),
+  activityId: integer("activity_id").references(() => activitiesTable.id, {
+    onDelete: "set null",
+  }),
+  title: text("title").notNull(),
+  outcome: text("outcome").notNull().default(""),
+  startDate: date("start_date", { mode: "string" }).notNull(),
+  dueDate: date("due_date", { mode: "string" }).notNull(),
+  status: text("status").notNull().default("active"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+});
+
+export const sprintStepsTable = pgTable(
+  "sprint_steps",
+  {
+    id: serial("id").primaryKey(),
+    sprintId: integer("sprint_id")
+      .notNull()
+      .references(() => sprintsTable.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    plannedDate: date("planned_date", { mode: "string" }).notNull(),
+    position: integer("position").notNull(),
+    status: text("status").notNull().default("pending"),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex("sprint_steps_sprint_position_unique").on(
+      table.sprintId,
+      table.position,
+    ),
+  ],
+);
 
 export const periodReflectionsTable = pgTable(
   "period_reflections",
@@ -61,5 +99,7 @@ export const dojoCabinetItemsTable = pgTable("dojo_cabinet_items", {
 });
 
 export type Milestone = typeof milestonesTable.$inferSelect;
+export type Sprint = typeof sprintsTable.$inferSelect;
+export type SprintStep = typeof sprintStepsTable.$inferSelect;
 export type PeriodReflection = typeof periodReflectionsTable.$inferSelect;
 export type DojoCabinetItem = typeof dojoCabinetItemsTable.$inferSelect;

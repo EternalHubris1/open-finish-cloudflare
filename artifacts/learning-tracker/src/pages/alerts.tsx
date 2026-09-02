@@ -5,16 +5,18 @@ import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2
 import seatedSamuraiSignal from "@/assets/icons/seated-samurai-signal.png";
 import { SessionNotes } from "./reflections";
 import { SessionRecordsPanel } from "@/components/session-records-panel";
-import { format, isBefore, startOfDay } from "date-fns";
+import { addDays, format, isBefore, startOfDay } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   getListAlertsQueryKey,
   getListDojoCabinetQueryKey,
   getListMilestonesQueryKey,
+  getListSprintsQueryKey,
   getPeriodReflectionQueryKey,
   useCreateAlert,
   useCreateDojoCabinetItem,
   useCreateMilestone,
+  useCreateSprint,
   useDeleteAlert,
   useDeleteDojoCabinetItem,
   useDeleteMilestone,
@@ -22,15 +24,19 @@ import {
   useListActivities,
   useListDojoCabinet,
   useListMilestones,
+  useListSprints,
   usePeriodReflection,
   usePutPeriodReflection,
   useUpdateAlert,
   useUpdateMilestone,
+  useUpdateSprintStep,
+  useDeleteSprint,
   type Alert,
   type AlertInput,
   type DojoCabinetItem,
   type Milestone,
   type MilestoneInput,
+  type SprintInput,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,14 +62,16 @@ import {
   ChevronRight,
   ExternalLink,
   Link2,
+  ListChecks,
   Plus,
+  Route,
   ScrollText,
   Trash2,
 } from "lucide-react";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-type DialogKind = "reminder" | "milestone" | "cabinet" | null;
+type DialogKind = "reminder" | "milestone" | "sprint" | "cabinet" | null;
 
 function formatDeadline(milestone: Milestone) {
   const due = new Date(`${milestone.dueDate}T00:00:00`);
@@ -87,6 +95,7 @@ export default function Cabinet() {
     useListActivities();
   const { data: milestones = [], isLoading: milestonesLoading } =
     useListMilestones();
+  const { data: sprints = [], isLoading: sprintsLoading } = useListSprints();
   const { data: cabinetItems = [], isLoading: cabinetLoading } =
     useListDojoCabinet();
   const queryClient = useQueryClient();
@@ -96,6 +105,9 @@ export default function Cabinet() {
   const updateAlert = useUpdateAlert();
   const deleteAlert = useDeleteAlert();
   const createMilestone = useCreateMilestone();
+  const createSprint = useCreateSprint();
+  const updateSprintStep = useUpdateSprintStep();
+  const deleteSprint = useDeleteSprint();
   const updateMilestone = useUpdateMilestone();
   const deleteMilestone = useDeleteMilestone();
   const createCabinetItem = useCreateDojoCabinetItem();
@@ -123,6 +135,20 @@ export default function Cabinet() {
     detail: "",
     period: "week",
     dueDate: format(new Date(), "yyyy-MM-dd"),
+  });
+  const [sprintForm, setSprintForm] = useState<SprintInput>(() => {
+    const today = new Date();
+    return {
+      activityId: null,
+      title: "",
+      outcome: "",
+      startDate: format(today, "yyyy-MM-dd"),
+      dueDate: format(addDays(today, 2), "yyyy-MM-dd"),
+      steps: [0, 1, 2].map((offset) => ({
+        title: "",
+        plannedDate: format(addDays(today, offset), "yyyy-MM-dd"),
+      })),
+    };
   });
   const [cabinetForm, setCabinetForm] = useState({
     title: "",
@@ -160,6 +186,14 @@ export default function Cabinet() {
     () => milestones.filter((milestone) => milestone.status === "complete"),
     [milestones],
   );
+  const activeSprints = useMemo(
+    () => sprints.filter((sprint) => sprint.status === "active"),
+    [sprints],
+  );
+  const completeSprints = useMemo(
+    () => sprints.filter((sprint) => sprint.status === "complete"),
+    [sprints],
+  );
   const recentCabinetItems = useMemo(
     () => cabinetItems.slice(-2).reverse(),
     [cabinetItems],
@@ -173,6 +207,9 @@ export default function Cabinet() {
       queryKey: getListDojoCabinetQueryKey(),
     });
   };
+
+  const invalidateSprints = () =>
+    void queryClient.invalidateQueries({ queryKey: getListSprintsQueryKey() });
 
   const openReminderDialog = (alert?: Alert) => {
     setEditingAlert(alert ?? null);
@@ -240,6 +277,30 @@ export default function Cabinet() {
       onError: () =>
         toast({ title: "Couldn’t save deadline", variant: "destructive" }),
     });
+  };
+
+  const saveSprint = (event: React.FormEvent) => {
+    event.preventDefault();
+    const steps = sprintForm.steps.filter((step) => step.title.trim());
+    if (!sprintForm.title.trim() || steps.length === 0) {
+      toast({
+        title: "Name the sprint and add at least one daily step",
+        variant: "destructive",
+      });
+      return;
+    }
+    createSprint.mutate(
+      { ...sprintForm, steps },
+      {
+        onSuccess: () => {
+          invalidateSprints();
+          setDialog(null);
+          toast({ title: "Sprint path opened" });
+        },
+        onError: () =>
+          toast({ title: "Couldn’t open sprint", variant: "destructive" }),
+      },
+    );
   };
 
   const saveCabinetItem = (event: React.FormEvent) => {
@@ -313,7 +374,11 @@ export default function Cabinet() {
   };
 
   const loading =
-    alertsLoading || activitiesLoading || milestonesLoading || cabinetLoading;
+    alertsLoading ||
+    activitiesLoading ||
+    milestonesLoading ||
+    sprintsLoading ||
+    cabinetLoading;
   if (loading) {
     return (
       <div className="mx-auto max-w-6xl space-y-6 px-4 py-8 md:p-8">
@@ -360,6 +425,12 @@ export default function Cabinet() {
           </div>
           <div className="flex flex-wrap gap-2.5">
             <Button
+              onClick={() => setDialog("sprint")}
+              className="signal-button h-11 gap-2 rounded-2xl border border-[#72c6b3]/35 bg-[#14302f] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-[#b8f1e5] shadow-[0_10px_24px_rgba(36,150,132,.16)] transition-[transform,background-color,box-shadow,border-color] duration-150 hover:bg-[#1a403d] active:scale-[.97]"
+            >
+              <Route className="h-4 w-4" /> Open sprint
+            </Button>
+            <Button
               onClick={() => setDialog("milestone")}
               className="signal-button h-11 gap-2 rounded-2xl border border-[#ff9a89]/30 bg-[#e95448] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-white shadow-[0_10px_24px_rgba(233,84,72,.22)] transition-[transform,background-color,box-shadow,border-color] duration-150 hover:bg-[#f26456] hover:shadow-[0_14px_30px_rgba(233,84,72,.3)] active:scale-[.97]"
             >
@@ -391,17 +462,145 @@ export default function Cabinet() {
                 Period reflections
               </p>
               <h2 className="mt-2 text-2xl font-bold text-white">
-                Deadlines & reflections
+                Sprints & deadlines
               </h2>
               <p className="mt-2 text-sm leading-6 text-white/42">
-                A deadline is a calm checkpoint, not another scorecard. Complete
-                it, postpone it, or leave a reflection when it has something to
-                teach.
+                Open a sequenced path when an outcome needs several days. Keep
+                a deadline as a calm checkpoint when the route can remain open.
               </p>
             </div>
             <span className="relative z-10 shrink-0 rounded-full border border-[#ffc268]/20 bg-[#ffc268]/[.08] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.14em] text-[#ffe0a5]">
-              {openMilestones.length} open
+              {activeSprints.length + openMilestones.length} open
             </span>
+          </div>
+          <div className="border-b border-white/[.06] bg-[linear-gradient(135deg,rgba(32,112,103,.1),transparent_58%)] p-5 md:p-6">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">
+                  Sequential practice
+                </p>
+                <h3 className="mt-1 text-lg font-bold text-white">Active sprints</h3>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setDialog("sprint")}
+                className="signal-button h-9 gap-2 rounded-xl border-[#72c6b3]/25 bg-[#72c6b3]/[.06] px-3 text-[9px] font-bold uppercase tracking-[.13em] text-[#9ee3d5] hover:bg-[#72c6b3]/12"
+              >
+                <Plus className="h-3.5 w-3.5" /> Sprint
+              </Button>
+            </div>
+            {activeSprints.length ? (
+              <div className="space-y-3">
+                {activeSprints.map((sprint) => {
+                  const completeCount = sprint.steps.filter(
+                    (step) => step.status === "complete",
+                  ).length;
+                  const currentIndex = sprint.steps.findIndex(
+                    (step) => step.status === "pending",
+                  );
+                  return (
+                    <article
+                      key={sprint.id}
+                      className="overflow-hidden rounded-2xl border border-[#72c6b3]/16 bg-[#071315]/72"
+                    >
+                      <div className="flex items-start justify-between gap-4 px-4 pb-3 pt-4 md:px-5">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h4 className="font-semibold text-white">{sprint.title}</h4>
+                            {sprint.activityName && (
+                              <span className="text-[8px] font-bold uppercase tracking-[.14em] text-[#72c6b3]">
+                                {sprint.activityName}
+                              </span>
+                            )}
+                          </div>
+                          {sprint.outcome && (
+                            <p className="mt-1 text-xs leading-5 text-white/38">
+                              {sprint.outcome}
+                            </p>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm("Remove this sprint?"))
+                              deleteSprint.mutate(
+                                { id: sprint.id },
+                                { onSuccess: invalidateSprints },
+                              );
+                          }}
+                          className="rounded-lg p-2 text-white/20 hover:bg-white/5 hover:text-[#ff8b7c]"
+                          aria-label={`Remove ${sprint.title}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                      <div
+                        className="grid gap-px border-y border-white/[.06] bg-white/[.05]"
+                        style={{
+                          gridTemplateColumns:
+                            "repeat(auto-fit, minmax(min(100%, 7.5rem), 1fr))",
+                        }}
+                      >
+                        {sprint.steps.map((step, index) => {
+                          const complete = step.status === "complete";
+                          const current = index === currentIndex;
+                          const locked = !complete && !current;
+                          return (
+                            <button
+                              key={step.id}
+                              type="button"
+                              disabled={locked || updateSprintStep.isPending}
+                              onClick={() =>
+                                updateSprintStep.mutate(
+                                  {
+                                    sprintId: sprint.id,
+                                    stepId: step.id,
+                                    status: complete ? "pending" : "complete",
+                                  },
+                                  {
+                                    onSuccess: invalidateSprints,
+                                    onError: () =>
+                                      toast({
+                                        title: "Complete the earlier step first",
+                                        variant: "destructive",
+                                      }),
+                                  },
+                                )
+                              }
+                              className={`min-h-16 px-2 py-2 text-left transition-colors ${complete ? "bg-[#72c6b3]/12" : current ? "bg-[#ffc268]/[.08]" : "bg-[#080e12] opacity-42"}`}
+                              aria-label={`${complete ? "Reopen" : "Complete"} ${step.title}`}
+                            >
+                              <span className={`block font-mono text-[8px] uppercase tracking-[.12em] ${complete ? "text-[#72c6b3]" : current ? "text-[#ffc268]" : "text-white/25"}`}>
+                                {format(new Date(`${step.plannedDate}T00:00:00`), "EEE d")}
+                              </span>
+                              <span className={`mt-1 line-clamp-2 block text-[10px] leading-4 ${complete ? "text-white/45 line-through" : "text-white/72"}`}>
+                                {step.title}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div className="flex items-center justify-between gap-3 px-4 py-3 font-mono text-[8px] uppercase tracking-[.12em] text-white/30 md:px-5">
+                        <span>{completeCount}/{sprint.steps.length} steps sealed</span>
+                        <span>Due {format(new Date(`${sprint.dueDate}T00:00:00`), "MMM d")}</span>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setDialog("sprint")}
+                className="flex w-full items-center gap-3 rounded-2xl border border-dashed border-[#72c6b3]/20 px-4 py-5 text-left transition-colors hover:border-[#72c6b3]/42 hover:bg-[#72c6b3]/[.04]"
+              >
+                <ListChecks className="h-5 w-5 text-[#72c6b3]/65" />
+                <span>
+                  <span className="block text-sm font-semibold text-white/68">No active sprint</span>
+                  <span className="mt-1 block text-xs text-white/32">Sequence the next result into daily closures.</span>
+                </span>
+              </button>
+            )}
           </div>
           <div className="divide-y divide-white/[.06]">
             {openMilestones.length ? (
@@ -493,11 +692,12 @@ export default function Cabinet() {
               </div>
             )}
           </div>
-          {completeMilestones.length > 0 && (
+          {completeMilestones.length + completeSprints.length > 0 && (
             <div className="border-t border-white/[.06] bg-[#72c6b3]/[.035] px-6 py-4 text-[10px] font-bold uppercase tracking-[.14em] text-[#72c6b3]">
-              {completeMilestones.length} closed mark
-              {completeMilestones.length === 1 ? "" : "s"} kept with your
-              records
+              {completeSprints.length} closed sprint
+              {completeSprints.length === 1 ? "" : "s"} · {completeMilestones.length}{" "}
+              closed mark{completeMilestones.length === 1 ? "" : "s"} kept with
+              your records
             </div>
           )}
         </div>
@@ -888,6 +1088,213 @@ export default function Cabinet() {
                 className="signal-button bg-[#e95448] text-white hover:bg-[#f26456]"
               >
                 {editingAlert ? "Save" : "Set reminder"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={dialog === "sprint"}
+        onOpenChange={(open) => !open && setDialog(null)}
+      >
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-3xl border-[#72c6b3]/18 bg-[#080f14] p-7 shadow-2xl">
+          <DialogHeader>
+            <div className="mb-2 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">
+              <Route className="h-4 w-4" /> Sequential practice
+            </div>
+            <DialogTitle className="text-2xl font-bold text-white">
+              Open a sprint
+            </DialogTitle>
+            <DialogDescription className="text-white/42">
+              One outcome, broken into steps that unlock in order across the
+              days you choose.
+            </DialogDescription>
+          </DialogHeader>
+          <form className="mt-4 space-y-5" onSubmit={saveSprint}>
+            <div className="grid gap-4 sm:grid-cols-[1fr_.8fr]">
+              <label className="block space-y-2">
+                <Label>Sprint name</Label>
+                <Input
+                  autoFocus
+                  value={sprintForm.title}
+                  onChange={(event) =>
+                    setSprintForm({ ...sprintForm, title: event.target.value })
+                  }
+                  className="border-white/10 bg-white/[.04] text-white"
+                  placeholder="Ship the reading module"
+                />
+              </label>
+              <label className="block space-y-2">
+                <Label>Direction (optional)</Label>
+                <select
+                  value={sprintForm.activityId ?? ""}
+                  onChange={(event) =>
+                    setSprintForm({
+                      ...sprintForm,
+                      activityId: event.target.value
+                        ? Number(event.target.value)
+                        : null,
+                    })
+                  }
+                  className="h-11 w-full rounded-xl border border-white/10 bg-white/[.04] px-3 text-sm text-white"
+                >
+                  <option value="">No direction</option>
+                  {activities.map((activity) => (
+                    <option key={activity.id} value={activity.id}>
+                      {activity.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <label className="block space-y-2">
+              <Label>Result at the end</Label>
+              <Textarea
+                value={sprintForm.outcome ?? ""}
+                onChange={(event) =>
+                  setSprintForm({ ...sprintForm, outcome: event.target.value })
+                }
+                className="min-h-20 border-white/10 bg-white/[.04] text-white"
+                placeholder="A concrete finish that will exist when the path closes."
+              />
+            </label>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block space-y-2">
+                <Label>Starts</Label>
+                <Input
+                  type="date"
+                  value={sprintForm.startDate}
+                  onChange={(event) =>
+                    setSprintForm({ ...sprintForm, startDate: event.target.value })
+                  }
+                  className="border-white/10 bg-white/[.04] text-white"
+                />
+              </label>
+              <label className="block space-y-2">
+                <Label>Due</Label>
+                <Input
+                  type="date"
+                  value={sprintForm.dueDate}
+                  onChange={(event) =>
+                    setSprintForm({ ...sprintForm, dueDate: event.target.value })
+                  }
+                  className="border-white/10 bg-white/[.04] text-white"
+                />
+              </label>
+            </div>
+            <div className="rounded-2xl border border-white/[.08] bg-black/15 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <Label>Daily sequence</Label>
+                  <p className="mt-1 text-[10px] leading-4 text-white/30">
+                    Later steps remain quiet until the preceding step closes.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const last = sprintForm.steps.at(-1);
+                    const nextDate = last
+                      ? format(
+                          addDays(new Date(`${last.plannedDate}T00:00:00`), 1),
+                          "yyyy-MM-dd",
+                        )
+                      : sprintForm.startDate;
+                    setSprintForm({
+                      ...sprintForm,
+                      dueDate:
+                        nextDate > sprintForm.dueDate
+                          ? nextDate
+                          : sprintForm.dueDate,
+                      steps: [
+                        ...sprintForm.steps,
+                        { title: "", plannedDate: nextDate },
+                      ],
+                    });
+                  }}
+                  className="h-9 gap-2 rounded-xl border-[#72c6b3]/22 text-[9px] font-bold uppercase tracking-[.12em] text-[#9ee3d5] hover:bg-[#72c6b3]/10"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Day
+                </Button>
+              </div>
+              <div className="mt-4 space-y-2">
+                {sprintForm.steps.map((step, index) => (
+                  <div
+                    key={index}
+                    className="grid gap-2 sm:grid-cols-[2.4rem_1fr_9rem_2rem] sm:items-center"
+                  >
+                    <span className="font-mono text-[9px] uppercase tracking-[.12em] text-[#72c6b3]/65">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <Input
+                      value={step.title}
+                      onChange={(event) =>
+                        setSprintForm({
+                          ...sprintForm,
+                          steps: sprintForm.steps.map((item, itemIndex) =>
+                            itemIndex === index
+                              ? { ...item, title: event.target.value }
+                              : item,
+                          ),
+                        })
+                      }
+                      className="border-white/10 bg-white/[.035] text-white"
+                      placeholder="Close this part"
+                      aria-label={`Step ${index + 1}`}
+                    />
+                    <Input
+                      type="date"
+                      value={step.plannedDate}
+                      onChange={(event) =>
+                        setSprintForm({
+                          ...sprintForm,
+                          steps: sprintForm.steps.map((item, itemIndex) =>
+                            itemIndex === index
+                              ? { ...item, plannedDate: event.target.value }
+                              : item,
+                          ),
+                        })
+                      }
+                      className="border-white/10 bg-white/[.035] text-white"
+                      aria-label={`Step ${index + 1} date`}
+                    />
+                    <button
+                      type="button"
+                      disabled={sprintForm.steps.length === 1}
+                      onClick={() =>
+                        setSprintForm({
+                          ...sprintForm,
+                          steps: sprintForm.steps.filter(
+                            (_, itemIndex) => itemIndex !== index,
+                          ),
+                        })
+                      }
+                      className="rounded-lg p-2 text-white/20 hover:bg-white/5 hover:text-[#ff8b7c] disabled:opacity-20"
+                      aria-label={`Remove step ${index + 1}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 border-t border-white/[.08] pt-5">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setDialog(null)}
+                className="text-white/55"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={createSprint.isPending}
+                className="signal-button gap-2 bg-[#287d71] text-white hover:bg-[#319686]"
+              >
+                <Route className="h-4 w-4" /> Open sprint
               </Button>
             </div>
           </form>
