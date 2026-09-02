@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
-import completedScrollEmblem from "@/assets/icons/completed-scroll-emblem-v1.webp";
+import templePath from "@/assets/environments/optimized/streaks-temple-path.webp";
 import { CompletionArchiveWall } from "@/components/completion-archive-wall";
 import Streaks from "./streaks";
 
@@ -331,13 +331,16 @@ export default function Achievements() {
       )}
       <section className="progress-room">
       <header className="progress-room__hero relative isolate overflow-hidden px-6 py-7 md:px-8 md:py-8">
-        <img src={armoryRoom} alt="" aria-hidden="true" className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-70" />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.92),rgba(8,13,20,.62)_58%,rgba(8,13,20,.18))]" />
+        <img src={templePath} alt="" aria-hidden="true" className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-78" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.94),rgba(8,13,20,.66)_58%,rgba(8,13,20,.2))]" />
         <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-start gap-4">
-            <div className="mt-1 grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-[#ffc268]/28 bg-black/25 shadow-[0_0_28px_rgba(255,194,104,.1)]">
-              <img src={completedScrollEmblem} alt="" aria-hidden="true" className="h-12 w-12 object-contain drop-shadow-[0_0_12px_rgba(255,194,104,.2)]" />
-            </div>
+            <SamuraiStatusIcon
+              status="standing"
+              label="Progress archive"
+              className="mt-1 h-9 w-9 shrink-0 opacity-88 grayscale brightness-[1.7] contrast-[.78]"
+              animate={false}
+            />
             <div>
               <p className="text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">Long-view room</p>
               <h1 className="mt-3 text-3xl font-semibold tracking-[-.035em] text-white md:text-4xl">Progress</h1>
@@ -358,7 +361,12 @@ export default function Achievements() {
             <img src={armoryRoom} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover object-center opacity-55" />
             <span className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(8,13,20,.96),rgba(8,13,20,.68),rgba(8,13,20,.36))]" />
             <div className="flex items-center gap-4 pr-8">
-              <img src={completedScrollEmblem} alt="" aria-hidden="true" className="h-12 w-12 shrink-0 object-contain" />
+              <SamuraiStatusIcon
+                status="standing"
+                label="Journey marks archive"
+                className="h-10 w-10 shrink-0 opacity-85 grayscale brightness-[1.65] contrast-[.8]"
+                animate={false}
+              />
               <div>
                 <DialogTitle className="text-2xl font-semibold">Journey marks</DialogTitle>
                 <DialogDescription className="mt-1 text-white/46">Rare milestones kept quietly beside the completed-work archive.</DialogDescription>
