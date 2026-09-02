@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
+import completedScrollEmblem from "@/assets/icons/completed-scroll-emblem-v1.webp";
 import { CompletionArchiveWall } from "@/components/completion-archive-wall";
 import Streaks from "./streaks";
 
@@ -288,14 +289,10 @@ export default function Achievements() {
   ).length;
   const unlockedCount = unlockedMarks.length;
   const totalCount = JOURNEY_MARKS.length;
-  const progressPercent = Math.min(
-    100,
-    Math.round((unlockedCount / totalCount) * 100),
-  );
   const nextMark = lockedMarks[0] ?? null;
 
   return (
-    <div className="page-arrival relative z-10 mx-auto min-h-screen max-w-6xl space-y-12 px-4 py-6 pb-28 md:p-8 md:pb-20">
+    <div className="page-arrival relative z-10 mx-auto min-h-screen max-w-6xl px-4 py-6 pb-28 md:p-8 md:pb-20">
       {latestAchievement && (
         <Dialog
           open={ritualOpen}
@@ -332,18 +329,19 @@ export default function Achievements() {
           </DialogContent>
         </Dialog>
       )}
-      <header className="relative isolate overflow-hidden rounded-[2rem] border border-white/[.1] bg-[#0a1019]/92 px-6 py-7 shadow-[0_24px_70px_rgba(0,0,0,.24)] md:px-8 md:py-8">
+      <section className="progress-room">
+      <header className="progress-room__hero relative isolate overflow-hidden px-6 py-7 md:px-8 md:py-8">
         <img src={armoryRoom} alt="" aria-hidden="true" className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-70" />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.92),rgba(8,13,20,.62)_58%,rgba(8,13,20,.18))]" />
         <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-start gap-4">
-            <div className="mt-1 grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#ffc268]/28 bg-[#ffc268]/[.08] text-[#ffe0a5] shadow-[0_0_28px_rgba(255,194,104,.1)]">
-              <Award className="h-5 w-5" />
+            <div className="mt-1 grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-[#ffc268]/28 bg-black/25 shadow-[0_0_28px_rgba(255,194,104,.1)]">
+              <img src={completedScrollEmblem} alt="" aria-hidden="true" className="h-12 w-12 object-contain drop-shadow-[0_0_12px_rgba(255,194,104,.2)]" />
             </div>
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">Completion hall</p>
-              <h1 className="mt-3 text-3xl font-semibold tracking-[-.035em] text-white md:text-4xl">Completed</h1>
-              <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-[#ff8b7c]/80">Completed works first · journey marks kept separately</p>
+              <p className="text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">Long-view room</p>
+              <h1 className="mt-3 text-3xl font-semibold tracking-[-.035em] text-white md:text-4xl">Progress</h1>
+              <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-[#ff8b7c]/80">Finished work first · milestones and return lines kept in context</p>
             </div>
           </div>
           <Button type="button" onClick={() => setActiveTab("journey")} className="signal-button h-11 rounded-full border border-[#ffc268]/24 bg-black/25 px-5 text-[10px] font-bold uppercase tracking-[.14em] text-[#ffe0a5] backdrop-blur-md hover:bg-white/[.08]">
@@ -355,12 +353,19 @@ export default function Achievements() {
       <CompletionArchiveWall />
 
       <Dialog open={activeTab === "journey"} onOpenChange={(open) => !open && setActiveTab("completed")}>
-        <DialogContent className="max-h-[90vh] max-w-5xl overflow-y-auto rounded-[2rem] border-white/10 bg-[#090d14] p-6 text-white md:p-8">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Journey marks</DialogTitle>
-            <DialogDescription className="text-white/42">Rare milestones kept together, away from the main archive.</DialogDescription>
+        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto rounded-[2rem] border-[#ffc268]/16 bg-[#090d14] p-0 text-white shadow-[0_30px_100px_rgba(0,0,0,.55)]">
+          <DialogHeader className="relative isolate overflow-hidden border-b border-white/[.07] p-6 text-left md:p-7">
+            <img src={armoryRoom} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover object-center opacity-55" />
+            <span className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(8,13,20,.96),rgba(8,13,20,.68),rgba(8,13,20,.36))]" />
+            <div className="flex items-center gap-4 pr-8">
+              <img src={completedScrollEmblem} alt="" aria-hidden="true" className="h-12 w-12 shrink-0 object-contain" />
+              <div>
+                <DialogTitle className="text-2xl font-semibold">Journey marks</DialogTitle>
+                <DialogDescription className="mt-1 text-white/46">Rare milestones kept quietly beside the completed-work archive.</DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
-          <div className="mt-6 space-y-8">
+          <div className="space-y-6 p-5 md:p-7">
           {isError && hasCachedData && (
             <div className="flex items-center justify-between gap-4 rounded-2xl border border-[#ffc268]/20 bg-[#ffc268]/[.07] px-5 py-4 text-sm text-[#ffe0a5]">
               <span>
@@ -400,93 +405,52 @@ export default function Achievements() {
             </div>
           )}
 
-          {/* Progress Bar */}
-          <div className="signal-surface relative overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-8">
-            <img
-              src={armoryRoom}
-              alt=""
-              aria-hidden="true"
-              className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center"
-            />
-            <div className="room-motif-overlay pointer-events-none absolute inset-0" />
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between relative z-10">
+          <div className="relative overflow-hidden rounded-2xl border border-[#ffc268]/14 bg-[#ffc268]/[.035] p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-widest text-white/45">
-                  Journey marks
+                <span className="text-[9px] font-bold uppercase tracking-[.18em] text-[#ffe0a5]/62">
+                  Next threshold
                 </span>
-                <p className="mt-2 text-sm text-white/48">
+                <p className="mt-1.5 text-sm text-white/58">
                   {nextMark
                     ? `Next: ${nextMark.title} · ${nextMark.condition}`
                     : "Every current journey mark is visible."}
                 </p>
               </div>
-              <div className="flex items-center gap-3">
-                <SamuraiStatusIcon
-                  status={unlockedCount === totalCount ? "active" : "focus"}
-                  label={
-                    unlockedCount === totalCount
-                      ? "Every current journey mark is visible"
-                      : "Focus on the next journey mark"
-                  }
-                  className="h-12 w-12 opacity-80"
-                />
-                <span className="text-3xl font-semibold tracking-tight text-[#ffc268]">
-                  {progressPercent}%
-                </span>
+              <div className="shrink-0 rounded-xl border border-white/[.08] bg-black/20 px-3 py-2 text-right">
+                <span className="block font-mono text-lg font-semibold text-[#ffe0a5]">{unlockedCount}/{totalCount}</span>
+                <span className="block text-[7px] font-bold uppercase tracking-[.15em] text-white/30">marks held</span>
               </div>
             </div>
-            <div className="h-2 bg-white/5 rounded-full overflow-hidden relative z-10">
-              <div
-                className="achievement-progress h-full rounded-full bg-gradient-to-r from-[#d95149] to-[#efb45f] shadow-[0_0_14px_rgba(255,194,104,.2)] transition-all duration-1000 ease-out"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-48 bg-gradient-to-l from-[#ffc268]/[.06] to-transparent" />
           </div>
 
           {/* Unlocked Achievements */}
           {achievements.length > 0 && (
             <div>
-              <h2 className="text-2xl font-bold mb-8 text-white tracking-wide">
-                Unlocked
+              <h2 className="mb-3 text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]/72">
+                Held marks
               </h2>
               <div
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                className="grid grid-cols-1 gap-2 sm:grid-cols-2"
                 data-focus-scope
               >
                 {achievements.map((achievement) => (
                   <div
                     key={achievement.id}
-                    className="achievement-card signal-surface group relative flex min-h-64 flex-col rounded-3xl border border-[#ff9b84]/16 bg-[#0c1119]/92 p-8 hover:-translate-y-1 hover:border-[#ffc268]/24"
+                    className="achievement-card group relative grid grid-cols-[2.75rem_minmax(0,1fr)] gap-3 rounded-xl border border-[#ff9b84]/14 bg-[#0c1119]/82 p-3 hover:border-[#ffc268]/22"
                     data-testid={`achievement-${achievement.id}`}
                     data-focus-item
                   >
-                    <div className="pointer-events-none absolute -bottom-4 -right-4 h-32 w-32 rounded-full bg-[#ffc268]/[.06] opacity-0 blur-3xl transition-opacity group-hover:opacity-100" />
-                    <div className="flex items-start justify-between mb-8 relative z-10">
-                      <div className="text-5xl drop-shadow-[0_0_14px_rgba(255,194,104,.25)]">
+                    <div className="grid h-11 w-11 place-items-center rounded-lg border border-[#ffc268]/14 bg-[#ffc268]/[.04] text-2xl drop-shadow-[0_0_10px_rgba(255,194,104,.18)]">
                         {achievement.icon || "🏆"}
-                      </div>
-                      <div className="flex items-center gap-2 rounded-2xl border border-[#ffc268]/20 bg-[#ffc268]/[.07] px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#ffc268]">
-                        <Check className="w-3.5 h-3.5" />
-                        Earned
-                      </div>
                     </div>
-                    <h3 className="text-xl font-bold mb-2 leading-tight text-white tracking-wide">
-                      {achievement.title}
-                    </h3>
-                    <p className="text-sm text-white/50 mb-6 font-medium">
-                      {achievement.description}
-                    </p>
-
-                    <div className="pt-5 border-t border-white/10 mt-auto flex items-center justify-between">
-                      {achievement.activityName ? (
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-[#ff9a89]">
-                          {achievement.activityName}
-                        </span>
-                      ) : (
-                        <span />
-                      )}
-                      <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
+                    <div className="min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="truncate text-sm font-semibold text-white">{achievement.title}</h3>
+                        <Check className="h-3.5 w-3.5 shrink-0 text-[#ffc268]" />
+                      </div>
+                      <p className="mt-1 line-clamp-2 text-xs leading-5 text-white/42">{achievement.description}</p>
+                      <span className="mt-2 block text-[8px] font-bold uppercase tracking-[.13em] text-white/30">
                         {achievementDate(achievement.unlockedAt, "MMM d, yyyy")}
                       </span>
                     </div>
@@ -498,45 +462,36 @@ export default function Achievements() {
 
           {/* Locked Achievements */}
           <div>
-            <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div className="mb-3 flex items-end justify-between gap-3">
               <div>
-                <h2 className="text-2xl font-bold tracking-wide text-white">
+                <h2 className="text-[9px] font-bold uppercase tracking-[.2em] text-white/42">
                   Still taking shape
                 </h2>
-                <p className="mt-2 text-sm text-white/40">
-                  Every mark names the next return instead of hiding it.
-                </p>
               </div>
               <span className="text-[10px] font-bold uppercase tracking-[.16em] text-white/25">
                 {lockedMarks.length} ahead
               </span>
             </div>
             <div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              className="grid grid-cols-1 gap-2 sm:grid-cols-2"
               data-focus-scope
             >
               {lockedMarks.map((mark) => (
                 <article
                   key={mark.key}
-                  className="signal-surface group relative overflow-hidden rounded-3xl border border-dashed border-white/[.09] bg-[#0a0e15]/76 p-7 transition-[border-color,background-color,transform] duration-200 hover:-translate-y-0.5 hover:border-[#ffc268]/20 hover:bg-[#0c1119]/92"
+                  className="group flex items-center gap-3 rounded-xl border border-dashed border-white/[.08] bg-[#0a0e15]/72 p-3 transition-colors hover:border-[#ffc268]/18"
                   data-testid={`locked-achievement-${mark.key}`}
                   data-focus-item
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="grid h-14 w-14 place-items-center rounded-2xl border border-white/[.07] bg-white/[.025] text-2xl text-white/35">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-white/[.07] bg-white/[.025] text-lg text-white/30">
                       <span aria-hidden="true">{mark.icon}</span>
                       <span className="sr-only">Locked</span>
                     </div>
-                    <div className="flex items-center gap-2 rounded-2xl border border-white/[.06] bg-white/[.025] px-3 py-2 text-[9px] font-bold uppercase tracking-[.14em] text-white/35">
-                      <Lock className="h-3.5 w-3.5" /> Locked
+                    <div className="min-w-0 flex-1">
+                      <h3 className="truncate text-sm font-semibold text-white/64">{mark.title}</h3>
+                      <p className="mt-1 truncate text-xs text-white/32">{mark.condition}</p>
                     </div>
-                  </div>
-                  <h3 className="mt-7 text-xl font-semibold leading-tight text-white/72">
-                    {mark.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-6 text-white/38">
-                    {mark.condition}
-                  </p>
+                    <Lock className="h-3.5 w-3.5 shrink-0 text-white/24" />
                 </article>
               ))}
             </div>
@@ -573,8 +528,9 @@ export default function Achievements() {
         </DialogContent>
       </Dialog>
 
-      <section className="border-t border-white/[.08] pt-10">
+      <section className="progress-room__streaks border-t border-white/[.07]">
         <Streaks embedded />
+      </section>
       </section>
     </div>
   );

@@ -10,6 +10,31 @@
   box-shadow: inset 0 1px rgb(255 255 255 / 5%);
 }
 
+.progress-room {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 9%);
+  border-radius: 2rem;
+  background: linear-gradient(145deg, rgb(12 17 25 / 97%), rgb(8 12 18 / 98%));
+  box-shadow: 0 24px 70px rgb(0 0 0 / 24%);
+}
+
+.progress-room__hero {
+  border-bottom: 1px solid rgb(255 255 255 / 7%);
+}
+
+.progress-room > .completion-wall {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.progress-room__streaks {
+  padding: 0 1rem 1.25rem;
+}
+
 .completion-wall::before {
   position: absolute;
   inset: 0;
@@ -21,19 +46,6 @@
   content: "";
   mask-image: linear-gradient(90deg, transparent 28%, #000);
   -webkit-mask-image: linear-gradient(90deg, transparent 28%, #000);
-}
-
-.completion-wall__ornament {
-  position: absolute;
-  right: -5.5rem;
-  top: -17rem;
-  z-index: -1;
-  width: 34rem;
-  max-width: none;
-  opacity: 0.24;
-  filter: saturate(0.68) brightness(0.78);
-  mask-image: linear-gradient(90deg, transparent, #000 44%);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 44%);
 }
 
 .completion-wall__header {
@@ -268,10 +280,6 @@
   .completion-wall__header {
     align-items: flex-start;
     flex-direction: column;
-  }
-  .completion-wall__ornament {
-    right: -11rem;
-    opacity: 0.18;
   }
   .completion-plaque {
     grid-template-columns: 2.8rem minmax(0, 1fr);

@@ -66,8 +66,8 @@ const orientationRoutes: SidebarRoute[] = [
 const longViewRoutes: SidebarRoute[] = [
   {
     path: "/achievements",
-    label: "Completed",
-    cue: "Finished works",
+    label: "Progress",
+    cue: "Works & milestones",
     icon: Award,
     scene: armoryRoom,
     scenePosition: "object-center",

@@ -19,6 +19,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
+import readingRoom from "@/assets/environments/optimized/cabinet-reading-room.webp";
+import cabinetScrollEmblem from "@/assets/icons/cabinet-scroll-emblem-v1.webp";
 
 function includesQuery(
   entry: {
@@ -123,11 +125,12 @@ export function SessionNotes({ embedded = false }: { embedded?: boolean }) {
       }
     >
       {!embedded && (
-        <header className="signal-surface relative overflow-hidden rounded-[2rem] border border-white/[.08] bg-[#0c1119]/92 p-7 md:p-9">
-          <div className="absolute -right-10 -top-16 h-44 w-44 rounded-full bg-[#ff7868] blur-3xl opacity-[.07]" />
+        <header className="signal-surface relative isolate overflow-hidden rounded-[2rem] border border-white/[.08] bg-[#0c1119]/92 p-7 md:p-9">
+          <img src={readingRoom} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover object-center opacity-62" />
+          <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(8,13,20,.95),rgba(8,13,20,.7)_62%,rgba(8,13,20,.22))]" />
           <div className="relative max-w-2xl">
             <p className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">
-              <BookOpenText className="h-3.5 w-3.5" /> Session notes
+              <img src={cabinetScrollEmblem} alt="" aria-hidden="true" className="h-9 w-9 object-contain drop-shadow-[0_0_10px_rgba(255,194,104,.18)]" /> Session notes
             </p>
             <h1 className="mt-4 text-3xl font-semibold tracking-[-.04em] text-white md:text-4xl">
               A light trail back into the work.
