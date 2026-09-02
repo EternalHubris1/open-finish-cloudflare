@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
+import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.webp";
 import readingRoom from "@/assets/environments/optimized/cabinet-reading-room.webp";
 import cabinetScrollEmblem from "@/assets/icons/cabinet-scroll-emblem-v1.webp";
 

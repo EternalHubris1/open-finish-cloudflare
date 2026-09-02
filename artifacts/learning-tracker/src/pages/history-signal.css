@@ -50,20 +50,13 @@
   background: linear-gradient(90deg, rgba(5, 10, 17, 0.94), rgba(5, 10, 17, 0.7) 58%, rgba(5, 10, 17, 0.46));
   transition: background-color 180ms ease;
 }
-.history-daily-effort[open] .history-daily-effort__scene {
+.history-daily-effort[data-open="true"] .history-daily-effort__scene {
   opacity: 0;
 }
-.history-daily-effort[open] .history-daily-effort__scene-mask {
+.history-daily-effort[data-open="true"] .history-daily-effort__scene-mask {
   background: rgba(5, 10, 17, 0.82);
 }
-.history-daily-effort > summary .history-disclosure-open,
-.history-daily-effort[open] > summary .history-disclosure-closed {
-  display: none;
-}
-.history-daily-effort[open] > summary .history-disclosure-open {
-  display: inline;
-}
-.history-daily-effort[open] > summary .history-disclosure-chevron {
+.history-daily-effort[data-open="true"] > button .history-disclosure-chevron {
   transform: rotate(180deg);
 }
 .instrument-label {

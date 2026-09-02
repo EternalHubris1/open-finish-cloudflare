@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import readingRoom from "@/assets/environments/optimized/cabinet-reading-room.webp";
 import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
-import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.png";
+import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2-cropped.webp";
 import seatedSamuraiSignal from "@/assets/icons/seated-samurai-signal.png";
 import { SessionNotes } from "./reflections";
 import { SessionRecordsPanel } from "@/components/session-records-panel";
