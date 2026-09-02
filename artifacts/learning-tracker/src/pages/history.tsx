@@ -200,6 +200,7 @@ export default function History() {
   const [chartMode, setChartMode] = useState<"rhythm" | "composition">(
     "composition",
   );
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(() =>
     new URLSearchParams(window.location.search).get("date"),
   );
@@ -558,7 +559,8 @@ export default function History() {
         </div>
       )}
 
-      <details
+      <section
+        data-open={analyticsOpen ? "true" : "false"}
         className="history-data-surface history-analytics-disclosure history-telemetry-console signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92 p-4 shadow-[0_18px_46px_rgba(0,0,0,.16)] md:p-5"
         style={
           {
@@ -567,7 +569,13 @@ export default function History() {
         }
       >
         <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#ff8b7c]/45 to-transparent" />
-        <summary className="relative z-10 flex flex-wrap cursor-pointer list-none items-center justify-between gap-4 rounded-2xl px-2 py-1.5 [&::-webkit-details-marker]:hidden">
+        <button
+          type="button"
+          aria-expanded={analyticsOpen}
+          aria-controls="period-analytics-panel"
+          onClick={() => setAnalyticsOpen((open) => !open)}
+          className="relative z-10 flex w-full flex-wrap cursor-pointer items-center justify-between gap-4 rounded-2xl px-2 py-1.5 text-left"
+        >
           <span>
             <span className="block text-[8px] font-bold uppercase tracking-[.18em] text-[#ffc268]">
               Period analytics
@@ -582,13 +590,19 @@ export default function History() {
               {metricActiveDays === 1 ? "day" : "days"}
             </span>
             <span className="history-disclosure-indicator flex items-center gap-2 rounded-xl border border-white/[.1] bg-white/[.035] px-2.5 py-1.5 text-[8px] font-bold uppercase tracking-[.12em] text-white/58">
-              <span className="history-disclosure-closed">Open analytics</span>
-              <span className="history-disclosure-open">Hide analytics</span>
+              <span>{analyticsOpen ? "Hide analytics" : "Open analytics"}</span>
               <ChevronDown className="history-disclosure-chevron h-3.5 w-3.5" />
             </span>
           </span>
-        </summary>
+        </button>
 
+        <div
+          id="period-analytics-panel"
+          className="history-analytics-collapse"
+          aria-hidden={!analyticsOpen}
+          inert={!analyticsOpen ? true : undefined}
+        >
+          <div className="history-analytics-collapse__inner">
         <div className="relative z-10 mt-4 border-t border-white/[.06] pt-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -881,7 +895,9 @@ export default function History() {
             </div>
           )}
         </section>
-      </details>
+        </div>
+        </div>
+      </section>
 
       <details
         id="selected-day"

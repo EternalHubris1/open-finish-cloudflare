@@ -11,28 +11,28 @@
 }
 
 .progress-room {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  border: 1px solid rgb(255 255 255 / 9%);
-  border-radius: 2rem;
-  background: linear-gradient(145deg, rgb(12 17 25 / 97%), rgb(8 12 18 / 98%));
-  box-shadow: 0 24px 70px rgb(0 0 0 / 24%);
+  display: grid;
+  gap: 1.25rem;
 }
 
 .progress-room__hero {
-  border-bottom: 1px solid rgb(255 255 255 / 7%);
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 2rem;
+  background: rgb(9 14 21 / 96%);
+  box-shadow: 0 22px 64px rgb(0 0 0 / 22%);
 }
 
 .progress-room > .completion-wall {
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
+  box-shadow: 0 18px 52px rgb(0 0 0 / 18%), inset 0 1px rgb(255 255 255 / 5%);
 }
 
 .progress-room__streaks {
-  padding: 0 1rem 1.25rem;
+  overflow: hidden;
+  border: 1px solid rgb(143 209 205 / 12%);
+  border-radius: 1.75rem;
+  background: linear-gradient(145deg, rgb(9 16 24 / 96%), rgb(7 13 20 / 98%));
+  box-shadow: 0 18px 52px rgb(0 0 0 / 18%);
 }
 
 .completion-wall::before {
