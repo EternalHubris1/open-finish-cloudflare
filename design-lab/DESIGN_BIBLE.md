@@ -1,7 +1,7 @@
 # Open Finish Design Bible
 
 Status: active foundation
-Last updated: 2026-08-29
+Last updated: 2026-09-03
 
 This file contains only approved design decisions. Proposals, moodboards, references, and prototypes belong in explorations until approval.
 
@@ -88,6 +88,10 @@ Buttons respond with a restrained lift on fine-pointer hover, a short compressio
 ## System completeness
 
 Every approved pattern includes its loading, empty, error, success, edge, responsive, keyboard, touch, and reduced-motion behavior where relevant. A polished default state does not make an incomplete component approved.
+
+### Record agency
+
+Every record created by the person remains correctable after creation. Editing preserves the record's identity and connected history. A reversible lifecycle action such as completing or closing a record must expose a clear way to restore it; closed records remain findable rather than collapsing into an unexplained count. Save, close, and restore actions provide visible success or actionable error feedback near the affected workflow. Deletion remains a separate destructive action and is not implied by editability.
 
 ## Design memory
 

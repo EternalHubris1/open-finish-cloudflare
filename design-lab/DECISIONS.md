@@ -24,6 +24,17 @@ This is the permanent decision history. IDs never change; superseded entries rem
 | OF-0018 | Approved | Keep sport on a separate clock from practice/work: main bars and Momentum represent deliberate practice, while a slim secondary lane shows movement without turning it into work output. | 2026-08-18 | User sport-dashboard direction                 |
 | OF-0019 | Approved | Make the Activity library compact and scannable while expanding meaningful category, color, and icon choices; type and icon labels must support color rather than depend on it.          | 2026-08-18 | User activity-library request                  |
 | OF-0023 | Approved | Separate materials by meaning: analytics and data use Hi-tech Data instrumentation; navigation, rooms and ritual surfaces use the traditional dōjō language.                              | 2026-09-02 | Explicit user visual-system rule               |
+| OF-0024 | Approved | Keep every user-created record correctable; make reversible lifecycle states restorable and keep closed records findable.                                                               | 2026-09-03 | Explicit user record-agency rule               |
+
+## OF-0024 — User-owned records remain adjustable
+
+- **Status:** Approved.
+- **Approved:** 2026-09-03, explicit user requirement that every entered entity be adjustable.
+- **Problem:** a mistaken date or accidental completion can currently strand an otherwise valuable record, weakening trust in the Personal OS.
+- **Direction:** preserve stable record identity while allowing correction after creation. Reversible states such as complete/closed expose restoration, and historical records remain visible enough to edit. Save, close, and restore actions report their outcome.
+- **Trade-off:** record surfaces gain compact edit and restore controls; deletion remains separate and guarded because adjustability does not imply destructive removal.
+- **Validation:** an active or completed deadline can be edited without recreation; a completed deadline can be reopened; the updated state is immediately visible and failure is actionable.
+- **Affected rules:** Design Bible → System completeness → Record agency; all future user-created record flows.
 
 ## OF-0020 — Grouped continuation and factual session history
 
