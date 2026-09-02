@@ -363,6 +363,50 @@
   text-transform: uppercase;
 }
 
+.completion-plaque__seal--image {
+  overflow: hidden;
+  padding: 0.22rem;
+  background: radial-gradient(circle at 35% 28%, rgb(255 255 255 / 13%), transparent 30%), linear-gradient(145deg, rgb(92 45 41 / 92%), rgb(22 19 23 / 96%));
+  box-shadow: inset 0 0 0 3px rgb(8 12 18 / 75%), inset 0 0 0 4px rgb(255 194 104 / 18%), 0 8px 24px rgb(0 0 0 / 32%);
+}
+.completion-plaque__seal--image img,
+.completion-wall__medal img,
+.completion-medal-upload__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(var(--medal-scale, 1));
+  transform-origin: center;
+}
+.completion-wall__medal {
+  display: block;
+  overflow: hidden;
+}
+.completion-medal-upload__preview {
+  display: grid;
+  overflow: hidden;
+  width: 3.5rem;
+  height: 3.5rem;
+  place-items: center;
+  border-radius: .8rem;
+  background: rgb(233 84 72 / 9%);
+}
+.completion-medal-scale {
+  display: grid;
+  gap: .55rem;
+  border-radius: .8rem;
+  background: rgb(255 255 255 / 2.5%);
+  padding: .65rem .8rem;
+}
+.completion-medal-scale > span { display: flex; align-items: center; justify-content: space-between; }
+.completion-medal-scale output { color: #ffc268; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .65rem; }
+.completion-medal-scale input { width: 100%; accent-color: #e95448; }
+.completion-plaque[aria-pressed="true"] {
+  background: radial-gradient(circle at 50% 30%, rgb(233 84 72 / 13%), transparent 62%), rgb(255 255 255 / 3.5%);
+  box-shadow: inset 0 0 24px rgb(233 84 72 / 4%), 0 12px 30px rgb(0 0 0 / 20%);
+  transform: translateY(-2px);
+}
+
 @media (max-width: 800px) {
   .completion-wall__layout {
     grid-template-columns: 1fr;

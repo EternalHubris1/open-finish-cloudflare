@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState, type CSSProperties } from "react";
 import { BookOpen, Check, GraduationCap, ImagePlus, Layers3, Pencil, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -10,7 +10,7 @@ import "./completion-archive-wall.css";
 
 const kindIcon = { book: BookOpen, course: GraduationCap, block: Layers3 };
 const recordDate = (value: string) => new Intl.DateTimeFormat("en", { day: "numeric", month: "short", year: "numeric" }).format(new Date(`${value}T12:00:00`));
-const emptyForm = () => ({ kind: "book" as CompletionKind, title: "", creator: "", completedOn: new Date().toISOString().slice(0, 10), hours: "", minutes: "", mark: "印", medalImage: "", description: "" });
+const emptyForm = () => ({ kind: "book" as CompletionKind, title: "", creator: "", completedOn: new Date().toISOString().slice(0, 10), hours: "", minutes: "", mark: "印", medalImage: "", medalScale: 100, description: "" });
 
 async function prepareMedalImage(file: File) {
   if (!file.type.startsWith("image/")) throw new Error("Choose an image file.");
@@ -50,7 +50,7 @@ export function CompletionArchiveWall() {
       completedOn: record.completedOn,
       hours: String(Math.floor(record.durationMinutes / 60)),
       minutes: String(record.durationMinutes % 60),
-      mark: record.mark, medalImage: record.medalImage ?? "", description: record.description,
+      mark: record.mark, medalImage: record.medalImage ?? "", medalScale: record.medalScale ?? 100, description: record.description,
     });
     setFormError(""); setDialogOpen(true);
   };
@@ -63,6 +63,7 @@ export function CompletionArchiveWall() {
       durationMinutes: Math.max(0, Number(form.hours || 0) * 60 + Number(form.minutes || 0)),
       mark: form.mark.trim().slice(0, 2) || "印",
       medalImage: form.medalImage || undefined,
+      medalScale: form.medalImage ? form.medalScale : undefined,
       description: form.description.trim() || "A completed work kept in the archive.",
     };
     const next = editingId
@@ -96,8 +97,8 @@ export function CompletionArchiveWall() {
       <Button type="button" onClick={openNewRecord} className="signal-button h-11 rounded-full bg-[#e95448] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white hover:bg-[#f26456]"><Plus className="mr-2 h-4 w-4" /> Add completed work</Button>
     </div>
     {records.length ? <div className="completion-wall__layout">
-      <div className="completion-wall__records">{records.map((record) => { const Icon = kindIcon[record.kind]; return <button aria-pressed={selected?.id === record.id} className="completion-plaque" key={record.id} onClick={() => setSelectedId(record.id)} type="button">{record.medalImage ? <img className="completion-plaque__seal completion-plaque__seal--image" src={record.medalImage} alt="" /> : <span className="completion-plaque__seal" aria-hidden="true">{record.mark}</span>}<span className="completion-plaque__body"><span className="completion-plaque__kind"><Icon aria-hidden="true" className="h-3.5 w-3.5" />{completionKindLabel[record.kind]}</span><strong>{record.title}</strong><small>{record.creator}</small></span><span className="completion-plaque__date"><Check aria-hidden="true" className="h-3 w-3" />{recordDate(record.completedOn)} · {completionDuration(record.durationMinutes)}</span></button>; })}</div>
-      {selected && <aside className="completion-wall__inspector" aria-live="polite">{selected.medalImage ? <img className="completion-wall__medal" src={selected.medalImage} alt={`Medal for ${selected.title}`} /> : <span aria-hidden="true">{selected.mark}</span>}<div><p>{completionKindLabel[selected.kind]} · sealed {recordDate(selected.completedOn)}</p><h3>{selected.title}</h3><small>{selected.creator}</small><blockquote>{selected.description}</blockquote><strong className="completion-wall__duration">Time invested · {completionDuration(selected.durationMinutes)}</strong><Button type="button" variant="ghost" onClick={() => openRecordEditor(selected)} className="completion-wall__edit"><Pencil className="mr-2 h-3.5 w-3.5" />Edit work</Button></div></aside>}
+      <div className="completion-wall__records">{records.map((record) => { const Icon = kindIcon[record.kind]; const medalStyle = { "--medal-scale": String((record.medalScale ?? 100) / 100) } as CSSProperties; return <button aria-pressed={selected?.id === record.id} className="completion-plaque" key={record.id} onClick={() => setSelectedId(record.id)} type="button"><span className={`completion-plaque__seal ${record.medalImage ? "completion-plaque__seal--image" : ""}`} aria-hidden="true">{record.medalImage ? <img src={record.medalImage} alt="" style={medalStyle} /> : record.mark}</span><span className="completion-plaque__body"><span className="completion-plaque__kind"><Icon aria-hidden="true" className="h-3.5 w-3.5" />{completionKindLabel[record.kind]}</span><strong>{record.title}</strong><small>{record.creator}</small></span><span className="completion-plaque__date"><Check aria-hidden="true" className="h-3 w-3" />{recordDate(record.completedOn)} · {completionDuration(record.durationMinutes)}</span></button>; })}</div>
+      {selected && <aside className="completion-wall__inspector" aria-live="polite">{selected.medalImage ? <span className="completion-wall__medal"><img src={selected.medalImage} alt={`Medal for ${selected.title}`} style={{ "--medal-scale": String((selected.medalScale ?? 100) / 100) } as CSSProperties} /></span> : <span aria-hidden="true">{selected.mark}</span>}<div><p>{completionKindLabel[selected.kind]} · sealed {recordDate(selected.completedOn)}</p><h3>{selected.title}</h3><small>{selected.creator}</small><blockquote>{selected.description}</blockquote><strong className="completion-wall__duration">Time invested · {completionDuration(selected.durationMinutes)}</strong><Button type="button" variant="ghost" onClick={() => openRecordEditor(selected)} className="completion-wall__edit"><Pencil className="mr-2 h-3.5 w-3.5" />Edit work</Button></div></aside>}
     </div> : <div className="completion-wall__empty"><span aria-hidden="true">印</span><h3>The archive is ready for its first finished work.</h3><p>No illustrative medals: only books, courses and blocks you actually completed.</p><Button type="button" onClick={openNewRecord} className="signal-button mt-5 rounded-full bg-[#e95448] text-white hover:bg-[#f26456]"><Plus className="mr-2 h-4 w-4" />Add first work</Button></div>}
     <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditingId(null); setFormError(""); } }}><DialogContent className="max-w-xl rounded-3xl border-white/10 bg-[#090d14] p-7 text-white shadow-2xl"><DialogHeader><DialogTitle className="text-2xl font-bold">{editingId ? "Edit completed work" : "Register completed work"}</DialogTitle><DialogDescription className="text-white/42">{editingId ? "Refine the record or replace its medal image." : "Keep a finished book, course or meaningful block in the hall."}</DialogDescription></DialogHeader><form className="mt-4 grid gap-4 sm:grid-cols-2" onSubmit={addRecord}>
       <label className="space-y-2 sm:col-span-2"><Label>What was completed</Label><Input required autoFocus value={form.title} onChange={(e) => setForm({...form,title:e.target.value})} className="border-white/10 bg-white/[.04]" placeholder="Book, course, or study block" /></label>
@@ -110,11 +111,12 @@ export function CompletionArchiveWall() {
       <div className="space-y-2 sm:col-span-2">
         <Label>Medal image (optional)</Label>
         <div className="completion-medal-upload">
-          {form.medalImage ? <img src={form.medalImage} alt="Medal preview" /> : <span aria-hidden="true"><ImagePlus className="h-5 w-5" /></span>}
+          {form.medalImage ? <span className="completion-medal-upload__preview"><img src={form.medalImage} alt="Medal preview" style={{ "--medal-scale": String(form.medalScale / 100) } as CSSProperties} /></span> : <span aria-hidden="true"><ImagePlus className="h-5 w-5" /></span>}
           <div><strong>{form.medalImage ? "Medal ready" : "Add a custom medal"}</strong><small>PNG, JPEG or WebP · up to 5 MB. The image is prepared for the archive automatically.</small></div>
           <label className="completion-medal-upload__action"><input type="file" accept="image/png,image/jpeg,image/webp" disabled={imageBusy} onChange={(event) => { void selectMedalImage(event.target.files?.[0]); event.target.value = ""; }} /><span>{imageBusy ? "Preparing…" : form.medalImage ? "Replace" : "Choose image"}</span></label>
           {form.medalImage && <button type="button" className="completion-medal-upload__remove" onClick={() => setForm((current) => ({ ...current, medalImage: "" }))} aria-label="Remove medal image"><X className="h-4 w-4" /></button>}
         </div>
+        {form.medalImage && <label className="completion-medal-scale"><span><Label>Image scale</Label><output>{form.medalScale}%</output></span><input type="range" min="60" max="160" step="5" value={form.medalScale} onChange={(event) => setForm((current) => ({ ...current, medalScale: Number(event.target.value) }))} /></label>}
         {formError && <p className="completion-form-error" role="alert">{formError}</p>}
       </div>
       <label className="space-y-2 sm:col-span-2"><Label>What remains from it</Label><Textarea value={form.description} onChange={(e) => setForm({...form,description:e.target.value})} className="min-h-24 border-white/10 bg-white/[.04]" /></label>

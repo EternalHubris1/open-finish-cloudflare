@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 import armoryRoom from "@/assets/environments/optimized/cabinet-armory-room.webp";
 import templePath from "@/assets/environments/optimized/streaks-temple-path.webp";
-import progressScrollEmblem from "@/assets/icons/cabinet-scroll-emblem-v1.webp";
+import progressArchiveEmblem from "@/assets/icons/progress-archive-emblem-v2.webp";
 import { CompletionArchiveWall } from "@/components/completion-archive-wall";
 import Streaks from "./streaks";
 
@@ -336,12 +336,7 @@ export default function Achievements() {
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.82),rgba(8,13,20,.48)_58%,rgba(8,13,20,.12))]" />
         <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-start gap-4">
-            <img
-              src={progressScrollEmblem}
-              alt=""
-              aria-hidden="true"
-              className="mt-0.5 h-12 w-12 shrink-0 object-contain opacity-90 grayscale brightness-[1.35] contrast-[.88] drop-shadow-[0_0_12px_rgba(255,224,165,.12)]"
-            />
+            <img src={progressArchiveEmblem} alt="" aria-hidden="true" className="mt-0.5 h-12 w-12 shrink-0 object-contain opacity-85 grayscale brightness-[1.18] contrast-[.9] drop-shadow-[0_0_10px_rgba(255,224,165,.12)]" />
             <div>
               <p className="text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">Long-view room</p>
               <h1 className="mt-3 text-3xl font-semibold tracking-[-.035em] text-white md:text-4xl">Progress</h1>
