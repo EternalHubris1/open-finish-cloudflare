@@ -44,7 +44,7 @@ export function CompletionShowcase({ light = false }: { light?: boolean }) {
           href="/achievements"
           className={`flex items-center gap-1 text-[8px] font-bold uppercase tracking-[.14em] ${light ? "text-black/45" : "text-white/40"}`}
         >
-          Open hall <ArrowUpRight className="h-3.5 w-3.5" />
+          Open progress <ArrowUpRight className="h-3.5 w-3.5" />
         </Link>
       </div>
       <div className="mt-4 grid gap-2 sm:grid-cols-3">

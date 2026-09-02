@@ -1,6 +1,5 @@
 import { FormEvent, useMemo, useState } from "react";
 import { BookOpen, Check, GraduationCap, Layers3, Plus } from "lucide-react";
-import bambooMaple from "@/assets/patterns/bamboo-maple-cutout-v1.png";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -35,9 +34,8 @@ export function CompletionArchiveWall() {
   };
 
   return <section className="completion-wall" aria-labelledby="completion-wall-title">
-    <img alt="" aria-hidden="true" className="completion-wall__ornament" loading="lazy" src={bambooMaple} />
     <div className="completion-wall__header">
-      <div><p className="completion-wall__kicker">Hall archive · finished work</p><h2 id="completion-wall-title">Completed works</h2><p>Books, courses and substantial blocks — what was finished, when, and how much time it took.</p></div>
+      <div><p className="completion-wall__kicker">Progress archive · finished work</p><h2 id="completion-wall-title">Completed works</h2><p>Books, courses and substantial blocks — what was finished, when, and how much time it took.</p></div>
       <Button type="button" onClick={() => setDialogOpen(true)} className="signal-button h-11 rounded-full bg-[#e95448] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white hover:bg-[#f26456]"><Plus className="mr-2 h-4 w-4" /> Add completed work</Button>
     </div>
     {records.length ? <div className="completion-wall__layout">

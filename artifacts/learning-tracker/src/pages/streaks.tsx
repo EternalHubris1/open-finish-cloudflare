@@ -152,14 +152,16 @@ export default function Streaks({ embedded = false }: { embedded?: boolean }) {
 
   return (
     <div className={embedded ? "relative z-10 space-y-5" : "relative z-10 mx-auto min-h-screen max-w-6xl space-y-5 px-4 py-6 pb-28 md:p-8 md:pb-20"}>
-      <section className="relative isolate overflow-hidden rounded-[1.75rem] border border-white/[.08] bg-[#0a1019]/86 px-5 py-6 shadow-[0_18px_46px_rgba(0,0,0,.18)] md:px-7">
-        <img
-          src={templePath}
-          alt=""
-          aria-hidden="true"
-          className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center"
-        />
-        <div className="room-motif-overlay pointer-events-none absolute inset-0" />
+      <section className={`relative isolate overflow-hidden px-5 py-6 md:px-7 ${embedded ? "" : "rounded-[1.75rem] border border-white/[.08] bg-[#0a1019]/86 shadow-[0_18px_46px_rgba(0,0,0,.18)]"}`}>
+        {!embedded && <>
+          <img
+            src={templePath}
+            alt=""
+            aria-hidden="true"
+            className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center"
+          />
+          <div className="room-motif-overlay pointer-events-none absolute inset-0" />
+        </>}
         <div className="relative z-10">
           <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-red-400">
             <img
