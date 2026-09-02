@@ -336,7 +336,9 @@ export default function Achievements() {
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.82),rgba(8,13,20,.48)_58%,rgba(8,13,20,.12))]" />
         <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-start gap-4">
-            <img src={progressArchiveEmblem} alt="" aria-hidden="true" className="mt-0.5 h-12 w-12 shrink-0 object-contain opacity-85 grayscale brightness-[1.18] contrast-[.9] drop-shadow-[0_0_10px_rgba(255,224,165,.12)]" />
+            <span className="mt-0.5 grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full border border-white/14 bg-black/25 shadow-[inset_0_0_0_3px_rgba(255,255,255,.025),0_0_18px_rgba(255,255,255,.07)] backdrop-blur-sm" aria-hidden="true">
+              <img src={progressArchiveEmblem} alt="" className="h-9 w-9 object-contain grayscale brightness-[1.55] contrast-[1.1] opacity-90" />
+            </span>
             <div>
               <p className="text-[9px] font-bold uppercase tracking-[.24em] text-[#ff9a89]">Long-view room</p>
               <h1 className="mt-3 text-3xl font-semibold tracking-[-.035em] text-white md:text-4xl">Progress</h1>
