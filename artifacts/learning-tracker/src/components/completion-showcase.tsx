@@ -15,7 +15,11 @@ export function CompletionShowcase({ light = false }: { light?: boolean }) {
   useEffect(() => {
     const refresh = () => setCompletionRecords(loadCompletionRecords());
     window.addEventListener(COMPLETION_RECORDS_CHANGED, refresh);
-    return () => window.removeEventListener(COMPLETION_RECORDS_CHANGED, refresh);
+    window.addEventListener("storage", refresh);
+    return () => {
+      window.removeEventListener(COMPLETION_RECORDS_CHANGED, refresh);
+      window.removeEventListener("storage", refresh);
+    };
   }, []);
   const groups = (["block", "course", "book"] as const).map((kind) => ({
     kind,
@@ -63,9 +67,19 @@ export function CompletionShowcase({ light = false }: { light?: boolean }) {
                 <span
                   key={record.id}
                   title={`${record.title}: ${record.description}`}
-                  className="grid h-10 w-10 place-items-center rounded-xl border border-[#ff9a89]/20 bg-[#e95448]/10 font-serif text-lg text-[#ffb1a7]"
+                  className={`relative grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full border font-serif text-lg ${light ? "border-black/15 bg-white/55 text-[#8a302b]" : "border-[#ff9a89]/25 bg-[#e95448]/10 text-[#ffb1a7]"}`}
                 >
-                  {record.mark}
+                  {record.medalImage ? (
+                    <img
+                      src={record.medalImage}
+                      alt=""
+                      aria-hidden="true"
+                      className="h-full w-full object-cover"
+                      style={{ transform: `scale(${(record.medalScale ?? 100) / 100})` }}
+                    />
+                  ) : (
+                    record.mark
+                  )}
                 </span>
               )) : (
                 <Link href="/achievements" className={`flex items-center gap-1 text-[8px] font-bold uppercase tracking-[.12em] ${light ? "text-black/32" : "text-white/28"}`}>

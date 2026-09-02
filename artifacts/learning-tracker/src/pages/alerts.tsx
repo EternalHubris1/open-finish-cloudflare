@@ -63,7 +63,9 @@ import {
   ExternalLink,
   Link2,
   ListChecks,
+  Pencil,
   Plus,
+  RotateCcw,
   Route,
   ScrollText,
   Trash2,
@@ -116,6 +118,7 @@ export default function Cabinet() {
 
   const [dialog, setDialog] = useState<DialogKind>(null);
   const [editingAlert, setEditingAlert] = useState<Alert | null>(null);
+  const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
   const [activeMilestoneId, setActiveMilestoneId] = useState<number | null>(
     null,
   );
@@ -239,6 +242,26 @@ export default function Cabinet() {
     setDialog("cabinet");
   };
 
+  const openMilestoneDialog = (milestone?: Milestone) => {
+    setEditingMilestone(milestone ?? null);
+    setMilestoneForm(
+      milestone
+        ? {
+            title: milestone.title,
+            detail: milestone.detail ?? "",
+            period: milestone.period,
+            dueDate: milestone.dueDate,
+          }
+        : {
+            title: "",
+            detail: "",
+            period: "week",
+            dueDate: format(new Date(), "yyyy-MM-dd"),
+          },
+    );
+    setDialog("milestone");
+  };
+
   const saveReminder = (event: React.FormEvent) => {
     event.preventDefault();
     if (!reminderForm.activityId || reminderForm.daysOfWeek.length === 0) {
@@ -268,15 +291,24 @@ export default function Cabinet() {
   const saveMilestone = (event: React.FormEvent) => {
     event.preventDefault();
     if (!milestoneForm.title.trim()) return;
-    createMilestone.mutate(milestoneForm, {
+    const options = {
       onSuccess: () => {
         invalidateCabinet();
         setDialog(null);
-        toast({ title: "Deadline saved" });
+        setEditingMilestone(null);
+        toast({ title: editingMilestone ? "Deadline updated" : "Deadline saved" });
       },
       onError: () =>
         toast({ title: "Couldn’t save deadline", variant: "destructive" }),
-    });
+    };
+    if (editingMilestone) {
+      updateMilestone.mutate(
+        { id: editingMilestone.id, data: milestoneForm },
+        options,
+      );
+    } else {
+      createMilestone.mutate(milestoneForm, options);
+    }
   };
 
   const saveSprint = (event: React.FormEvent) => {
@@ -369,7 +401,19 @@ export default function Cabinet() {
         id: milestone.id,
         data: { status: milestone.status === "complete" ? "open" : "complete" },
       },
-      { onSuccess: invalidateCabinet },
+      {
+        onSuccess: () => {
+          invalidateCabinet();
+          toast({
+            title:
+              milestone.status === "complete"
+                ? "Deadline reopened"
+                : "Deadline completed",
+          });
+        },
+        onError: () =>
+          toast({ title: "Couldn’t update deadline", variant: "destructive" }),
+      },
     );
   };
 
@@ -431,7 +475,7 @@ export default function Cabinet() {
               <Route className="h-4 w-4" /> Open sprint
             </Button>
             <Button
-              onClick={() => setDialog("milestone")}
+              onClick={() => openMilestoneDialog()}
               className="signal-button h-11 gap-2 rounded-2xl border border-[#ff9a89]/30 bg-[#e95448] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-white shadow-[0_10px_24px_rgba(233,84,72,.22)] transition-[transform,background-color,box-shadow,border-color] duration-150 hover:bg-[#f26456] hover:shadow-[0_14px_30px_rgba(233,84,72,.3)] active:scale-[.97]"
             >
               <Plus className="h-4 w-4" /> Set deadline
@@ -653,6 +697,13 @@ export default function Cabinet() {
                           <ScrollText className="h-3.5 w-3.5" /> Reflect on this
                           period
                         </button>
+                        <button
+                          type="button"
+                          onClick={() => openMilestoneDialog(milestone)}
+                          className="signal-button flex items-center gap-1 text-white/42 transition-colors hover:text-white"
+                        >
+                          <Pencil className="h-3.5 w-3.5" /> Edit deadline
+                        </button>
                       </div>
                     </div>
                     <button
@@ -684,7 +735,7 @@ export default function Cabinet() {
                   attention. It can stay flexible.
                 </p>
                 <Button
-                  onClick={() => setDialog("milestone")}
+                  onClick={() => openMilestoneDialog()}
                   className="signal-button mt-5 h-10 gap-2 rounded-xl bg-[#e95448] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-white hover:bg-[#f26456]"
                 >
                   <Plus className="h-4 w-4" /> Set first deadline
@@ -693,11 +744,44 @@ export default function Cabinet() {
             )}
           </div>
           {completeMilestones.length + completeSprints.length > 0 && (
-            <div className="border-t border-white/[.06] bg-[#72c6b3]/[.035] px-6 py-4 text-[10px] font-bold uppercase tracking-[.14em] text-[#72c6b3]">
-              {completeSprints.length} closed sprint
-              {completeSprints.length === 1 ? "" : "s"} · {completeMilestones.length}{" "}
-              closed mark{completeMilestones.length === 1 ? "" : "s"} kept with
-              your records
+            <div className="border-t border-white/[.06] bg-[#72c6b3]/[.035]">
+              <div className="px-6 py-4 text-[10px] font-bold uppercase tracking-[.14em] text-[#72c6b3]">
+                {completeSprints.length} closed sprint
+                {completeSprints.length === 1 ? "" : "s"} · {completeMilestones.length}{" "}
+                closed mark{completeMilestones.length === 1 ? "" : "s"} kept with your records
+              </div>
+              {completeMilestones.length > 0 && (
+                <div className="divide-y divide-white/[.06] border-t border-white/[.06]">
+                  {completeMilestones.map((milestone) => {
+                    const due = formatDeadline(milestone);
+                    return (
+                      <article key={milestone.id} className="flex items-center gap-3 px-5 py-4 md:px-6">
+                        <Check className="h-4 w-4 shrink-0 text-[#72c6b3]" />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold normal-case tracking-normal text-white/72">{milestone.title}</p>
+                          <p className="mt-1 font-mono text-[8px] uppercase tracking-[.12em] text-white/30">Closed · due {due.label}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => openMilestoneDialog(milestone)}
+                          className="signal-button flex items-center gap-1 rounded-lg px-2 py-1.5 text-[8px] text-white/42 hover:bg-white/[.05] hover:text-white"
+                          aria-label={`Edit ${milestone.title}`}
+                        >
+                          <Pencil className="h-3.5 w-3.5" /> Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => toggleMilestone(milestone)}
+                          className="signal-button flex items-center gap-1 rounded-lg px-2 py-1.5 text-[8px] text-[#72c6b3]/72 hover:bg-[#72c6b3]/10 hover:text-[#9ee3d5]"
+                          aria-label={`Reopen ${milestone.title}`}
+                        >
+                          <RotateCcw className="h-3.5 w-3.5" /> Reopen
+                        </button>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1303,12 +1387,17 @@ export default function Cabinet() {
 
       <Dialog
         open={dialog === "milestone"}
-        onOpenChange={(open) => !open && setDialog(null)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDialog(null);
+            setEditingMilestone(null);
+          }
+        }}
       >
         <DialogContent className="max-w-xl rounded-3xl border-white/10 bg-[#090d14] p-7 shadow-2xl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-white">
-              Set a deadline
+              {editingMilestone ? "Edit deadline" : "Set a deadline"}
             </DialogTitle>
             <DialogDescription className="text-white/42">
               A clear mark for the week, month, or a personally chosen date.
@@ -1387,10 +1476,10 @@ export default function Cabinet() {
               </Button>
               <Button
                 type="submit"
-                disabled={createMilestone.isPending}
+                disabled={createMilestone.isPending || updateMilestone.isPending}
                 className="signal-button bg-[#e95448] text-white hover:bg-[#f26456]"
               >
-                Place deadline
+                {editingMilestone ? "Save changes" : "Place deadline"}
               </Button>
             </div>
           </form>
