@@ -32,19 +32,22 @@ const milestoneInput = z.object({
 const milestonePatch = milestoneInput.partial();
 
 const sprintStepInput = z.object({
+  id: idSchema.optional(),
   title: z.string().trim().min(1).max(180),
   plannedDate: dateSchema,
+  status: sprintStepStatusSchema.optional(),
 });
 
-const sprintInput = z
-  .object({
-    activityId: idSchema.nullable().optional(),
-    title: z.string().trim().min(1).max(140),
-    outcome: z.string().trim().max(1200).default(""),
-    startDate: dateSchema,
-    dueDate: dateSchema,
-    steps: z.array(sprintStepInput).min(1).max(31),
-  })
+const sprintFields = z.object({
+  activityId: idSchema.nullable().optional(),
+  title: z.string().trim().min(1).max(140),
+  outcome: z.string().trim().max(1200).default(""),
+  startDate: dateSchema,
+  dueDate: dateSchema,
+  steps: z.array(sprintStepInput).min(1).max(31),
+});
+
+const sprintInput = sprintFields
   .refine((value) => value.startDate <= value.dueDate, {
     message: "Sprint due date must not precede its start",
   })
@@ -66,10 +69,7 @@ const sprintInput = z
     { message: "Sprint steps must follow chronological order" },
   );
 
-const sprintPatch = z.object({
-  title: z.string().trim().min(1).max(140).optional(),
-  outcome: z.string().trim().max(1200).optional(),
-  dueDate: dateSchema.optional(),
+const sprintPatch = sprintFields.partial().extend({
   status: sprintStatusSchema.optional(),
 });
 
@@ -305,7 +305,7 @@ router.post("/sprints", async (req, res): Promise<void> => {
     .returning();
   try {
     await db.insert(sprintStepsTable).values(
-      steps.map((step, position) => ({
+      steps.map(({ id: _stepId, status: _status, ...step }, position) => ({
         sprintId: sprint.id,
         ...step,
         position,
@@ -327,19 +327,73 @@ router.patch("/sprints/:id", async (req, res): Promise<void> => {
     res.status(400).json({ error: "Provide a valid sprint update" });
     return;
   }
-  const [sprint] = await db
-    .update(sprintsTable)
-    .set({
-      ...parsed.data,
-      completedAt:
-        parsed.data.status === "complete"
-          ? new Date()
-          : parsed.data.status === "active"
-            ? null
-            : undefined,
-    })
-    .where(eq(sprintsTable.id, id.data))
-    .returning({ id: sprintsTable.id });
+  if (parsed.data.activityId) {
+    const [activity] = await db
+      .select({ id: activitiesTable.id })
+      .from(activitiesTable)
+      .where(eq(activitiesTable.id, parsed.data.activityId));
+    if (!activity) {
+      res.status(400).json({ error: "Activity not found" });
+      return;
+    }
+  }
+  const existingSprint = (await listSprints()).find(
+    (item) => item.id === id.data,
+  );
+  if (!existingSprint) {
+    res.status(404).json({ error: "Sprint not found" });
+    return;
+  }
+  const prospectiveSprint = sprintInput.safeParse({
+    ...existingSprint,
+    ...parsed.data,
+    steps: parsed.data.steps ?? existingSprint.steps,
+  });
+  if (!prospectiveSprint.success) {
+    res.status(400).json({ error: prospectiveSprint.error.message });
+    return;
+  }
+  const { steps, ...sprintData } = parsed.data;
+  const sprint = await db.transaction(async (transaction) => {
+    const resolvedStatus =
+      sprintData.status ??
+      (steps
+        ? existingSprint.status === "archived"
+          ? "archived"
+          : steps.every((step) => step.status === "complete")
+            ? "complete"
+            : "active"
+        : undefined);
+    const [updatedSprint] = await transaction
+      .update(sprintsTable)
+      .set({
+        ...sprintData,
+        status: resolvedStatus,
+        completedAt:
+          resolvedStatus === "complete"
+            ? new Date()
+            : resolvedStatus === "active"
+              ? null
+              : undefined,
+      })
+      .where(eq(sprintsTable.id, id.data))
+      .returning({ id: sprintsTable.id });
+    if (!updatedSprint || !steps) return updatedSprint;
+
+    await transaction
+      .delete(sprintStepsTable)
+      .where(eq(sprintStepsTable.sprintId, id.data));
+    await transaction.insert(sprintStepsTable).values(
+      steps.map(({ id: _stepId, status, ...step }, position) => ({
+        sprintId: id.data,
+        ...step,
+        position,
+        status: status ?? "pending",
+        completedAt: status === "complete" ? new Date() : null,
+      })),
+    );
+    return updatedSprint;
+  });
   if (!sprint) {
     res.status(404).json({ error: "Sprint not found" });
     return;

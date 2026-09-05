@@ -62,7 +62,12 @@ export interface SprintInput {
   outcome?: string;
   startDate: string;
   dueDate: string;
-  steps: Array<{ title: string; plannedDate: string }>;
+  steps: Array<{
+    id?: number;
+    title: string;
+    plannedDate: string;
+    status?: SprintStepStatus;
+  }>;
 }
 
 export interface PeriodReflection {
@@ -188,7 +193,7 @@ export function useUpdateSprint(options?: {
   mutation?: UseMutationOptions<
     Sprint,
     ErrorType,
-    { id: number; data: Partial<Pick<Sprint, "title" | "outcome" | "dueDate" | "status">> }
+    { id: number; data: Partial<SprintInput> & { status?: SprintStatus } }
   >;
 }) {
   return useMutation({
