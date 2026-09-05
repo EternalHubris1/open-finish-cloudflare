@@ -29,6 +29,7 @@ import {
   usePutPeriodReflection,
   useUpdateAlert,
   useUpdateMilestone,
+  useUpdateSprint,
   useUpdateSprintStep,
   useDeleteSprint,
   type Alert,
@@ -36,6 +37,7 @@ import {
   type DojoCabinetItem,
   type Milestone,
   type MilestoneInput,
+  type Sprint,
   type SprintInput,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
@@ -108,6 +110,7 @@ export default function Cabinet() {
   const deleteAlert = useDeleteAlert();
   const createMilestone = useCreateMilestone();
   const createSprint = useCreateSprint();
+  const updateSprint = useUpdateSprint();
   const updateSprintStep = useUpdateSprintStep();
   const deleteSprint = useDeleteSprint();
   const updateMilestone = useUpdateMilestone();
@@ -119,6 +122,7 @@ export default function Cabinet() {
   const [dialog, setDialog] = useState<DialogKind>(null);
   const [editingAlert, setEditingAlert] = useState<Alert | null>(null);
   const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
+  const [editingSprint, setEditingSprint] = useState<Sprint | null>(null);
   const [activeMilestoneId, setActiveMilestoneId] = useState<number | null>(
     null,
   );
@@ -186,7 +190,7 @@ export default function Cabinet() {
     [milestones],
   );
   const completeMilestones = useMemo(
-    () => milestones.filter((milestone) => milestone.status === "complete"),
+    () => milestones.filter((milestone) => milestone.status !== "open"),
     [milestones],
   );
   const activeSprints = useMemo(
@@ -194,7 +198,7 @@ export default function Cabinet() {
     [sprints],
   );
   const completeSprints = useMemo(
-    () => sprints.filter((sprint) => sprint.status === "complete"),
+    () => sprints.filter((sprint) => sprint.status !== "active"),
     [sprints],
   );
   const recentCabinetItems = useMemo(
@@ -262,6 +266,39 @@ export default function Cabinet() {
     setDialog("milestone");
   };
 
+  const openSprintDialog = (sprint?: Sprint) => {
+    setEditingSprint(sprint ?? null);
+    if (sprint) {
+      setSprintForm({
+        activityId: sprint.activityId,
+        title: sprint.title,
+        outcome: sprint.outcome,
+        startDate: sprint.startDate,
+        dueDate: sprint.dueDate,
+        steps: sprint.steps.map((step) => ({
+          id: step.id,
+          title: step.title,
+          plannedDate: step.plannedDate,
+          status: step.status,
+        })),
+      });
+    } else {
+      const today = new Date();
+      setSprintForm({
+        activityId: null,
+        title: "",
+        outcome: "",
+        startDate: format(today, "yyyy-MM-dd"),
+        dueDate: format(addDays(today, 2), "yyyy-MM-dd"),
+        steps: [0, 1, 2].map((offset) => ({
+          title: "",
+          plannedDate: format(addDays(today, offset), "yyyy-MM-dd"),
+        })),
+      });
+    }
+    setDialog("sprint");
+  };
+
   const saveReminder = (event: React.FormEvent) => {
     event.preventDefault();
     if (!reminderForm.activityId || reminderForm.daysOfWeek.length === 0) {
@@ -321,16 +358,46 @@ export default function Cabinet() {
       });
       return;
     }
-    createSprint.mutate(
-      { ...sprintForm, steps },
+    const options = {
+      onSuccess: () => {
+        invalidateSprints();
+        setDialog(null);
+        setEditingSprint(null);
+        toast({ title: editingSprint ? "Sprint updated" : "Sprint path opened" });
+      },
+      onError: () =>
+        toast({
+          title: editingSprint ? "Couldn’t update sprint" : "Couldn’t open sprint",
+          variant: "destructive" as const,
+        }),
+    };
+    if (editingSprint) {
+      updateSprint.mutate(
+        { id: editingSprint.id, data: { ...sprintForm, steps } },
+        options,
+      );
+    } else {
+      createSprint.mutate({ ...sprintForm, steps }, options);
+    }
+  };
+
+  const setSprintStatus = (sprint: Sprint, status: Sprint["status"]) => {
+    updateSprint.mutate(
+      { id: sprint.id, data: { status } },
       {
         onSuccess: () => {
           invalidateSprints();
-          setDialog(null);
-          toast({ title: "Sprint path opened" });
+          toast({
+            title:
+              status === "active"
+                ? "Sprint returned to active practice"
+                : status === "archived"
+                  ? "Sprint moved to past paths"
+                  : "Sprint completed",
+          });
         },
         onError: () =>
-          toast({ title: "Couldn’t open sprint", variant: "destructive" }),
+          toast({ title: "Couldn’t update sprint", variant: "destructive" }),
       },
     );
   };
@@ -417,6 +484,28 @@ export default function Cabinet() {
     );
   };
 
+  const setMilestoneStatus = (
+    milestone: Milestone,
+    status: Milestone["status"],
+  ) => {
+    updateMilestone.mutate(
+      { id: milestone.id, data: { status } },
+      {
+        onSuccess: () => {
+          invalidateCabinet();
+          toast({
+            title:
+              status === "open"
+                ? "Deadline returned to active practice"
+                : "Deadline moved to past paths",
+          });
+        },
+        onError: () =>
+          toast({ title: "Couldn’t update deadline", variant: "destructive" }),
+      },
+    );
+  };
+
   const loading =
     alertsLoading ||
     activitiesLoading ||
@@ -469,7 +558,7 @@ export default function Cabinet() {
           </div>
           <div className="flex flex-wrap gap-2.5">
             <Button
-              onClick={() => setDialog("sprint")}
+              onClick={() => openSprintDialog()}
               className="signal-button h-11 gap-2 rounded-2xl border border-[#72c6b3]/35 bg-[#14302f] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-[#b8f1e5] shadow-[0_10px_24px_rgba(36,150,132,.16)] transition-[transform,background-color,box-shadow,border-color] duration-150 hover:bg-[#1a403d] active:scale-[.97]"
             >
               <Route className="h-4 w-4" /> Open sprint
@@ -527,7 +616,7 @@ export default function Cabinet() {
               </div>
               <Button
                 variant="outline"
-                onClick={() => setDialog("sprint")}
+                onClick={() => openSprintDialog()}
                 className="signal-button h-9 gap-2 rounded-xl border-[#72c6b3]/25 bg-[#72c6b3]/[.06] px-3 text-[9px] font-bold uppercase tracking-[.13em] text-[#9ee3d5] hover:bg-[#72c6b3]/12"
               >
                 <Plus className="h-3.5 w-3.5" /> Sprint
@@ -563,20 +652,38 @@ export default function Cabinet() {
                             </p>
                           )}
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (window.confirm("Remove this sprint?"))
-                              deleteSprint.mutate(
-                                { id: sprint.id },
-                                { onSuccess: invalidateSprints },
-                              );
-                          }}
-                          className="rounded-lg p-2 text-white/20 hover:bg-white/5 hover:text-[#ff8b7c]"
-                          aria-label={`Remove ${sprint.title}`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        <div className="flex shrink-0 items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => openSprintDialog(sprint)}
+                            className="signal-button rounded-lg p-2 text-white/35 hover:bg-white/5 hover:text-white"
+                            aria-label={`Edit ${sprint.title}`}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setSprintStatus(sprint, "archived")}
+                            className="signal-button rounded-lg p-2 text-white/28 hover:bg-[#ffc268]/10 hover:text-[#ffc268]"
+                            aria-label={`Move ${sprint.title} to past paths`}
+                          >
+                            <Archive className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm("Remove this sprint?"))
+                                deleteSprint.mutate(
+                                  { id: sprint.id },
+                                  { onSuccess: invalidateSprints },
+                                );
+                            }}
+                            className="rounded-lg p-2 text-white/20 hover:bg-white/5 hover:text-[#ff8b7c]"
+                            aria-label={`Remove ${sprint.title}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
                       <div
                         className="grid gap-px border-y border-white/[.06] bg-white/[.05]"
@@ -615,7 +722,7 @@ export default function Cabinet() {
                               aria-label={`${complete ? "Reopen" : "Complete"} ${step.title}`}
                             >
                               <span className={`block font-mono text-[8px] uppercase tracking-[.12em] ${complete ? "text-[#72c6b3]" : current ? "text-[#ffc268]" : "text-white/25"}`}>
-                                {format(new Date(`${step.plannedDate}T00:00:00`), "EEE d")}
+                                {current ? "Current · " : ""}{format(new Date(`${step.plannedDate}T00:00:00`), "EEE d")}
                               </span>
                               <span className={`mt-1 line-clamp-2 block text-[10px] leading-4 ${complete ? "text-white/45 line-through" : "text-white/72"}`}>
                                 {step.title}
@@ -624,8 +731,11 @@ export default function Cabinet() {
                           );
                         })}
                       </div>
-                      <div className="flex items-center justify-between gap-3 px-4 py-3 font-mono text-[8px] uppercase tracking-[.12em] text-white/30 md:px-5">
+                      <div className="flex items-center gap-3 px-4 py-3 font-mono text-[8px] uppercase tracking-[.12em] text-white/30 md:px-5">
                         <span>{completeCount}/{sprint.steps.length} steps sealed</span>
+                        <span className="h-1 flex-1 overflow-hidden rounded-full bg-white/[.06]" aria-hidden="true">
+                          <span className="block h-full rounded-full bg-[#72c6b3]" style={{ width: `${(completeCount / sprint.steps.length) * 100}%` }} />
+                        </span>
                         <span>Due {format(new Date(`${sprint.dueDate}T00:00:00`), "MMM d")}</span>
                       </div>
                     </article>
@@ -635,7 +745,7 @@ export default function Cabinet() {
             ) : (
               <button
                 type="button"
-                onClick={() => setDialog("sprint")}
+                onClick={() => openSprintDialog()}
                 className="flex w-full items-center gap-3 rounded-2xl border border-dashed border-[#72c6b3]/20 px-4 py-5 text-left transition-colors hover:border-[#72c6b3]/42 hover:bg-[#72c6b3]/[.04]"
               >
                 <ListChecks className="h-5 w-5 text-[#72c6b3]/65" />
@@ -704,6 +814,13 @@ export default function Cabinet() {
                         >
                           <Pencil className="h-3.5 w-3.5" /> Edit deadline
                         </button>
+                        <button
+                          type="button"
+                          onClick={() => setMilestoneStatus(milestone, "archived")}
+                          className="signal-button flex items-center gap-1 text-white/32 transition-colors hover:text-[#ffc268]"
+                        >
+                          <Archive className="h-3.5 w-3.5" /> Move to past paths
+                        </button>
                       </div>
                     </div>
                     <button
@@ -744,45 +861,75 @@ export default function Cabinet() {
             )}
           </div>
           {completeMilestones.length + completeSprints.length > 0 && (
-            <div className="border-t border-white/[.06] bg-[#72c6b3]/[.035]">
-              <div className="px-6 py-4 text-[10px] font-bold uppercase tracking-[.14em] text-[#72c6b3]">
-                {completeSprints.length} closed sprint
-                {completeSprints.length === 1 ? "" : "s"} · {completeMilestones.length}{" "}
-                closed mark{completeMilestones.length === 1 ? "" : "s"} kept with your records
+            <details className="group border-t border-white/[.06] bg-[#72c6b3]/[.025]">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-4 transition-colors hover:bg-white/[.025]">
+                <span>
+                  <span className="block text-[9px] font-bold uppercase tracking-[.18em] text-[#72c6b3]">Past paths</span>
+                  <span className="mt-1 block text-xs text-white/38">Return to completed or archived sprints and deadlines.</span>
+                </span>
+                <span className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[.12em] text-white/35">
+                  {completeSprints.length + completeMilestones.length} records
+                  <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
+                </span>
+              </summary>
+              <div className="divide-y divide-white/[.06] border-t border-white/[.06]">
+                {completeSprints.map((sprint) => (
+                  <article key={sprint.id} className="flex items-center gap-3 px-5 py-4 md:px-6">
+                    <Route className="h-4 w-4 shrink-0 text-[#72c6b3]" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-white/72">{sprint.title}</p>
+                      <p className="mt-1 font-mono text-[8px] uppercase tracking-[.12em] text-white/30">
+                        Sprint · {sprint.status} · {sprint.steps.length} steps · due {format(new Date(`${sprint.dueDate}T00:00:00`), "MMM d")}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => openSprintDialog(sprint)}
+                      className="signal-button flex items-center gap-1 rounded-lg px-2 py-1.5 text-[8px] text-white/42 hover:bg-white/[.05] hover:text-white"
+                      aria-label={`Edit ${sprint.title}`}
+                    >
+                      <Pencil className="h-3.5 w-3.5" /> Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSprintStatus(sprint, "active")}
+                      className="signal-button flex items-center gap-1 rounded-lg px-2 py-1.5 text-[8px] text-[#72c6b3]/72 hover:bg-[#72c6b3]/10 hover:text-[#9ee3d5]"
+                      aria-label={`Return ${sprint.title} to active practice`}
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" /> Return
+                    </button>
+                  </article>
+                ))}
+                {completeMilestones.map((milestone) => {
+                  const due = formatDeadline(milestone);
+                  return (
+                    <article key={milestone.id} className="flex items-center gap-3 px-5 py-4 md:px-6">
+                      <CalendarClock className="h-4 w-4 shrink-0 text-[#ffc268]/75" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-white/72">{milestone.title}</p>
+                        <p className="mt-1 font-mono text-[8px] uppercase tracking-[.12em] text-white/30">Deadline · {milestone.status} · due {due.label}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => openMilestoneDialog(milestone)}
+                        className="signal-button flex items-center gap-1 rounded-lg px-2 py-1.5 text-[8px] text-white/42 hover:bg-white/[.05] hover:text-white"
+                        aria-label={`Edit ${milestone.title}`}
+                      >
+                        <Pencil className="h-3.5 w-3.5" /> Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMilestoneStatus(milestone, "open")}
+                        className="signal-button flex items-center gap-1 rounded-lg px-2 py-1.5 text-[8px] text-[#72c6b3]/72 hover:bg-[#72c6b3]/10 hover:text-[#9ee3d5]"
+                        aria-label={`Return ${milestone.title} to active practice`}
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" /> Return
+                      </button>
+                    </article>
+                  );
+                })}
               </div>
-              {completeMilestones.length > 0 && (
-                <div className="divide-y divide-white/[.06] border-t border-white/[.06]">
-                  {completeMilestones.map((milestone) => {
-                    const due = formatDeadline(milestone);
-                    return (
-                      <article key={milestone.id} className="flex items-center gap-3 px-5 py-4 md:px-6">
-                        <Check className="h-4 w-4 shrink-0 text-[#72c6b3]" />
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-semibold normal-case tracking-normal text-white/72">{milestone.title}</p>
-                          <p className="mt-1 font-mono text-[8px] uppercase tracking-[.12em] text-white/30">Closed · due {due.label}</p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => openMilestoneDialog(milestone)}
-                          className="signal-button flex items-center gap-1 rounded-lg px-2 py-1.5 text-[8px] text-white/42 hover:bg-white/[.05] hover:text-white"
-                          aria-label={`Edit ${milestone.title}`}
-                        >
-                          <Pencil className="h-3.5 w-3.5" /> Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => toggleMilestone(milestone)}
-                          className="signal-button flex items-center gap-1 rounded-lg px-2 py-1.5 text-[8px] text-[#72c6b3]/72 hover:bg-[#72c6b3]/10 hover:text-[#9ee3d5]"
-                          aria-label={`Reopen ${milestone.title}`}
-                        >
-                          <RotateCcw className="h-3.5 w-3.5" /> Reopen
-                        </button>
-                      </article>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+            </details>
           )}
         </div>
 
@@ -1180,7 +1327,12 @@ export default function Cabinet() {
 
       <Dialog
         open={dialog === "sprint"}
-        onOpenChange={(open) => !open && setDialog(null)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDialog(null);
+            setEditingSprint(null);
+          }
+        }}
       >
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-3xl border-[#72c6b3]/18 bg-[#080f14] p-7 shadow-2xl">
           <DialogHeader>
@@ -1188,7 +1340,7 @@ export default function Cabinet() {
               <Route className="h-4 w-4" /> Sequential practice
             </div>
             <DialogTitle className="text-2xl font-bold text-white">
-              Open a sprint
+              {editingSprint ? "Edit sprint" : "Open a sprint"}
             </DialogTitle>
             <DialogDescription className="text-white/42">
               One outcome, broken into steps that unlock in order across the
@@ -1375,10 +1527,10 @@ export default function Cabinet() {
               </Button>
               <Button
                 type="submit"
-                disabled={createSprint.isPending}
+                disabled={createSprint.isPending || updateSprint.isPending}
                 className="signal-button gap-2 bg-[#287d71] text-white hover:bg-[#319686]"
               >
-                <Route className="h-4 w-4" /> Open sprint
+                <Route className="h-4 w-4" /> {editingSprint ? "Save changes" : "Open sprint"}
               </Button>
             </div>
           </form>
