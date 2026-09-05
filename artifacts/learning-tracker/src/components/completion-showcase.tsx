@@ -3,10 +3,22 @@ import { Link } from "wouter";
 import { ArrowUpRight, Plus } from "lucide-react";
 import {
   COMPLETION_RECORDS_CHANGED,
+  completionDuration,
   completionKindLabel,
   loadCompletionRecords,
   type CompletionRecord,
 } from "@/lib/completion-records";
+
+function completionDate(value: string) {
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime())
+    ? value
+    : new Intl.DateTimeFormat("en", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }).format(date);
+}
 
 export function CompletionShowcase({ light = false }: { light?: boolean }) {
   const [completionRecords, setCompletionRecords] = useState<CompletionRecord[]>(
@@ -21,10 +33,9 @@ export function CompletionShowcase({ light = false }: { light?: boolean }) {
       window.removeEventListener("storage", refresh);
     };
   }, []);
-  const groups = (["block", "course", "book"] as const).map((kind) => ({
-    kind,
-    records: completionRecords.filter((record) => record.kind === kind).slice(0, 4),
-  }));
+  const recentRecords = [...completionRecords]
+    .sort((left, right) => right.completedOn.localeCompare(left.completedOn))
+    .slice(0, 4);
   return (
     <section
       className={`relative isolate overflow-hidden rounded-[1.6rem] border p-4 sm:p-5 ${light ? "border-black/10 bg-white/45" : "border-white/[.08] bg-[#0c1119]/82"}`}
@@ -51,45 +62,55 @@ export function CompletionShowcase({ light = false }: { light?: boolean }) {
           Open progress <ArrowUpRight className="h-3.5 w-3.5" />
         </Link>
       </div>
-      <div className="mt-4 grid gap-2 sm:grid-cols-3">
-        {groups.map((group) => (
-          <div
-            key={group.kind}
-            className={`rounded-xl border px-3 py-3 ${light ? "border-black/[.07] bg-black/[.025]" : "border-white/[.06] bg-white/[.025]"}`}
-          >
-            <p
-              className={`text-[7px] font-bold uppercase tracking-[.16em] ${light ? "text-black/38" : "text-white/32"}`}
+      {recentRecords.length ? (
+        <div className="mt-4 grid gap-2 lg:grid-cols-2">
+          {recentRecords.map((record) => (
+            <Link
+              key={record.id}
+              href="/achievements"
+              className={`group flex min-w-0 items-center gap-3 rounded-xl border p-3 transition-[border-color,background-color,transform] duration-150 active:scale-[.99] ${light ? "border-black/[.07] bg-black/[.025] hover:border-[#8a302b]/20 hover:bg-white/55" : "border-white/[.06] bg-white/[.025] hover:border-[#ff9a89]/22 hover:bg-white/[.045]"}`}
+              aria-label={`Open ${record.title} in Progress`}
             >
-              {completionKindLabel[group.kind]}
-            </p>
-            <div className="mt-2 flex min-h-10 gap-2">
-              {group.records.length ? group.records.map((record) => (
-                <span
-                  key={record.id}
-                  title={`${record.title}: ${record.description}`}
-                  className={`relative grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full border font-serif text-lg ${light ? "border-black/15 bg-white/55 text-[#8a302b]" : "border-[#ff9a89]/25 bg-[#e95448]/10 text-[#ffb1a7]"}`}
-                >
-                  {record.medalImage ? (
-                    <img
-                      src={record.medalImage}
-                      alt=""
-                      aria-hidden="true"
-                      className="h-full w-full object-cover"
-                      style={{ transform: `scale(${(record.medalScale ?? 100) / 100})` }}
-                    />
-                  ) : (
-                    record.mark
-                  )}
+              <span
+                className={`relative grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full border font-serif text-xl shadow-[inset_0_0_0_3px_rgba(255,255,255,.035)] ${light ? "border-black/15 bg-white/60 text-[#8a302b]" : "border-[#ff9a89]/25 bg-[#e95448]/10 text-[#ffb1a7]"}`}
+              >
+                {record.medalImage ? (
+                  <img
+                    src={record.medalImage}
+                    alt=""
+                    aria-hidden="true"
+                    className="h-full w-full object-cover"
+                    style={{ transform: `scale(${(record.medalScale ?? 100) / 100})` }}
+                  />
+                ) : (
+                  record.mark
+                )}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className={`block truncate text-sm font-semibold ${light ? "text-[#181719]" : "text-white/88"}`}>
+                  {record.title}
                 </span>
-              )) : (
-                <Link href="/achievements" className={`flex items-center gap-1 text-[8px] font-bold uppercase tracking-[.12em] ${light ? "text-black/32" : "text-white/28"}`}>
-                  <Plus className="h-3.5 w-3.5" /> Add first
-                </Link>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+                <span className={`mt-1 block font-mono text-[8px] font-bold uppercase tracking-[.12em] ${light ? "text-black/42" : "text-white/38"}`}>
+                  {completionKindLabel[record.kind]} · {completionDate(record.completedOn)} · {completionDuration(record.durationMinutes)}
+                </span>
+                {record.description && (
+                  <span className={`mt-1.5 line-clamp-2 block text-[10px] leading-4 ${light ? "text-black/48" : "text-white/46"}`}>
+                    {record.description}
+                  </span>
+                )}
+              </span>
+              <ArrowUpRight className={`h-3.5 w-3.5 shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 ${light ? "text-black/25" : "text-white/22"}`} />
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <Link
+          href="/achievements"
+          className={`mt-4 flex min-h-20 items-center justify-center gap-2 rounded-xl border border-dashed text-[9px] font-bold uppercase tracking-[.12em] ${light ? "border-black/10 text-black/36" : "border-white/[.08] text-white/32"}`}
+        >
+          <Plus className="h-4 w-4" /> Register the first completed work
+        </Link>
+      )}
     </section>
   );
 }
