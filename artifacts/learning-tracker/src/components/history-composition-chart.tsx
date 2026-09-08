@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, type CSSProperties } from "react";
 import { format, parseISO } from "date-fns";
-import { ArrowLeft, ArrowRight, Check, Crosshair } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Crosshair, MoonStar } from "lucide-react";
 import type { CalendarDay } from "@workspace/api-client-react";
 import { buildHistoryComposition } from "@/lib/history-composition";
 
@@ -154,7 +154,7 @@ export function HistoryCompositionChart({
                       if (node) dayButtons.current.set(day.date, node);
                       else dayButtons.current.delete(day.date);
                     }}
-                    aria-label={`Inspect ${format(parseISO(day.date), "MMMM d, yyyy")}: ${day.practice} practice minutes, ${day.sport} sport minutes`}
+                    aria-label={`Inspect ${format(parseISO(day.date), "MMMM d, yyyy")}: ${day.practice} practice minutes, ${day.sport} sport minutes${day.restDay ? ", rest day" : ""}`}
                     onClick={() => onSelectDate(day.date)}
                     onKeyDown={(event) => {
                       if (
@@ -205,6 +205,11 @@ export function HistoryCompositionChart({
                       </span>
                       {!day[mainType] && (
                         <span className="composition-chart__zero" />
+                      )}
+                      {day.restDay && (
+                        <span className="absolute left-1/2 top-2 grid h-5 w-5 -translate-x-1/2 place-items-center rounded-full border border-[#a8bcda]/30 bg-[#607896]/15 text-[#c2d2e9]">
+                          <MoonStar className="h-3 w-3" />
+                        </span>
                       )}
                     </span>
                     <span

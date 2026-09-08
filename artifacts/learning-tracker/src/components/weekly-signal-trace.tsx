@@ -5,13 +5,14 @@ import {
   parseISO,
   startOfWeek,
 } from "date-fns";
-import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Minus, MoonStar } from "lucide-react";
 
 type SignalDay = {
   date: string;
   volume: number;
   sessions: number;
   longest: number;
+  restDay?: boolean;
 };
 
 type SignalSlice = "volume" | "sessions" | "longest";
@@ -205,13 +206,20 @@ export function WeeklySignalTrace({
             {activeWeek.days.map((day) => (
               <button
                 aria-pressed={selectedDate === day.date}
-                disabled={day[slice] <= 0}
+                disabled={day[slice] <= 0 && !day.restDay}
                 key={day.date}
                 onClick={() => onSelectDate(day.date)}
                 type="button"
+                aria-label={`${format(parseISO(day.date), "EEEE")}: ${day.restDay ? "rest day, " : ""}${labelValue(day[slice], slice)}`}
               >
                 <span>{format(parseISO(day.date), "EEE")}</span>
-                <strong>{labelValue(day[slice], slice)}</strong>
+                <strong>
+                  {day.restDay && day[slice] <= 0 ? (
+                    <><MoonStar aria-hidden="true" size={12} /> rest</>
+                  ) : (
+                    labelValue(day[slice], slice)
+                  )}
+                </strong>
               </button>
             ))}
           </div>

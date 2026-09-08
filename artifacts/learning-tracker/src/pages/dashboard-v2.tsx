@@ -33,6 +33,7 @@ import {
   Target,
   Bell,
   CalendarClock,
+  MoonStar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -50,6 +51,7 @@ import { SamuraiStatusIcon } from "@/components/samurai-status-icon";
 import { CompletionShowcase } from "@/components/completion-showcase";
 import { moscowOperationalDate } from "@/lib/operational-date";
 import { practiceMinutesToday } from "@/lib/session-timeline";
+import { RestDayToggle } from "@/components/rest-day-toggle";
 import musashi from "@assets/musashi_1785336444855.jpg";
 import samuraiArmorEmblem from "@/assets/icons/samurai-armor-emblem.png";
 import {
@@ -171,7 +173,9 @@ function momentumSeries(days: CalendarDay[]) {
   return days.map((day) => {
     const dailyEnergy = Math.min(day.focusMinutes / 240, 1);
     accumulated =
-      day.focusMinutes === 0
+      day.restDay && day.focusMinutes === 0
+        ? accumulated
+        : day.focusMinutes === 0
         ? accumulated * 0.52
         : Math.min(1, accumulated * 0.68 + dailyEnergy * 0.52);
     return accumulated;
@@ -203,6 +207,7 @@ function previewCalendar(): CalendarDay[] {
       sportMinutes,
       goalMinutes: 235,
       status: focusMinutes >= 235 ? "met" : "under",
+      restDay: index === 2,
       logs: focusMinutes
         ? [
             {
@@ -714,7 +719,7 @@ function Timeline({
                   const latestDayWithWork = isLatestDay && day.focusMinutes > 0;
                   const selectedDay = selected?.date === day.date;
                   const showDayValue =
-                    latestDayWithWork || focusedDate === day.date;
+                    latestDayWithWork || day.restDay || focusedDate === day.date;
                   const grade = effortGradeFor(day.focusMinutes);
                   const barStyle = effortBarStyle(day.focusMinutes);
                   const effortHeight = Math.max(
@@ -726,7 +731,7 @@ function Timeline({
                     <button
                       key={day.date}
                       type="button"
-                      aria-label={`${format(new Date(`${day.date}T00:00:00`), "EEEE")}: ${day.focusMinutes} practice minutes and ${day.sportMinutes} sport minutes. Open day history.`}
+                      aria-label={`${format(new Date(`${day.date}T00:00:00`), "EEEE")}: ${day.focusMinutes} practice minutes and ${day.sportMinutes} sport minutes${day.restDay ? ", marked as a rest day" : ""}. Open day history.`}
                       onPointerEnter={() => {
                         setSelectedDate(day.date);
                         setFocusedDate(day.date);
@@ -762,6 +767,11 @@ function Timeline({
                             {day.sportMinutes > 0 && (
                               <span className="mt-1 block text-[7px] font-semibold leading-none text-[#8bd2c2]">
                                 + {minutesLabel(day.sportMinutes)} sport
+                              </span>
+                            )}
+                            {day.restDay && (
+                              <span className="mt-1 flex items-center justify-center gap-1 text-[7px] font-semibold uppercase tracking-[.1em] text-[#c2d2e9]">
+                                <MoonStar className="h-2.5 w-2.5" /> rest
                               </span>
                             )}
                           </span>
@@ -827,6 +837,8 @@ function Timeline({
             <span>Momentum</span>
             <span className="mx-1 h-1.5 w-8 rounded-full bg-gradient-to-r from-[#3c9f8d] to-[#9ce2cf] shadow-[0_0_8px_rgba(98,188,168,.45)]" />
             <span>Sport</span>
+            <MoonStar className="ml-1 h-3.5 w-3.5 text-[#c2d2e9]" />
+            <span>Rest day</span>
           </div>
           <details
             className={`mt-5 rounded-xl border px-3 py-2 text-xs ${light ? "border-black/10 bg-black/[.025] text-black/60" : "border-white/10 bg-white/[.02] text-white/55"}`}
@@ -1151,11 +1163,15 @@ export default function DashboardV2() {
         sportMinutes: 0,
         goalMinutes: 0,
         status: "under" as const,
+        restDay: false,
         logs: [],
       }
     );
   });
   const momentum = momentumSeries(days);
+  const todayRestDay = Boolean(
+    days.find((day) => day.date === displayDate)?.restDay,
+  );
   const momentumStrength = momentum.at(-1) ?? 0;
   const exceptionalWeek = days.some((day) => day.focusMinutes > 240);
   const atmosphere =
@@ -1392,6 +1408,11 @@ export default function DashboardV2() {
               <p
                 className={`hero-daily-signal mt-6 hidden max-w-xl text-sm leading-7 sm:block ${light ? "is-light" : ""}`}
               >
+                {todayRestDay && (
+                  <span className={light ? "text-[#536987]" : "text-[#c2d2e9]"}>
+                    Rest day marked.{" "}
+                  </span>
+                )}
                 <span className="hero-daily-signal-copy">Today holds </span>
                 <span className="hero-daily-signal-value">
                   {minutesLabel(
@@ -1458,6 +1479,11 @@ export default function DashboardV2() {
                     and {minutesLabel(dashboard.sportMinutesToday)} of sport
                   </p>
                 )}
+                {todayRestDay && (
+                  <p className={`mt-3 flex items-center gap-2 text-sm ${light ? "text-[#536987]" : "text-[#c2d2e9]"}`}>
+                    <MoonStar className="h-4 w-4" /> Rest day remains separate from recorded sessions
+                  </p>
+                )}
               </div>
               <div className="mt-6 sm:mt-8">
                 <div className="flex flex-wrap items-center gap-3">
@@ -1475,6 +1501,12 @@ export default function DashboardV2() {
                     Choose a direction, then enter the session with fresh
                     intent.
                   </p>
+                  <RestDayToggle
+                    date={displayDate}
+                    restDay={todayRestDay}
+                    disabled={preview}
+                    light={light}
+                  />
                 </div>
               </div>
             </div>

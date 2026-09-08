@@ -398,7 +398,22 @@ export interface CalendarDay {
   goalMinutes: number;
   /** under: below goal, met: reached goal (below the 'heavily over' threshold), over: heavily exceeded the goal */
   status: CalendarDayStatus;
+  /** A separate rest marker; activity logs and minutes remain unchanged. */
+  restDay: boolean;
   logs: CalendarLogEntry[];
+}
+
+export type DayMarkerKind = typeof DayMarkerKind[keyof typeof DayMarkerKind];
+
+
+export const DayMarkerKind = {
+  rest: 'rest',
+} as const;
+
+export interface DayMarker {
+  date: string;
+  kind: DayMarkerKind;
+  createdAt: string;
 }
 
 export type GetCalendarParams = {

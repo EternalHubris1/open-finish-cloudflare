@@ -11,6 +11,7 @@ import {
   Activity as ActivityIcon,
   CalendarDays,
   ChevronDown,
+  MoonStar,
   RefreshCw,
   Sparkles,
   Trophy,
@@ -37,6 +38,7 @@ import { WeeklySignalTrace } from "@/components/weekly-signal-trace";
 import botanicalCutout from "@/assets/patterns/chrysanthemum-maple-cutout-v1.webp";
 import mapleBranchCutout from "@/assets/patterns/maple-branch-cutout-v1.webp";
 import "./history-signal.css";
+import { RestDayToggle } from "@/components/rest-day-toggle";
 
 type Period = "week" | "30days" | "month" | "12weeks";
 type AggregationMetric = "practice" | "sport" | "combined";
@@ -172,6 +174,7 @@ function previewCalendar(start: string, end: string): CalendarDay[] {
         sportMinutes: sport,
         goalMinutes: 180,
         status: focusMinutes >= 180 ? "met" : "under",
+        restDay: quietDay && index % 2 === 0,
         logs,
       };
     },
@@ -281,6 +284,7 @@ export default function History() {
           date: dateString,
           minutes: dayMap.get(dateString)?.focusMinutes ?? 0,
           sportMinutes: dayMap.get(dateString)?.sportMinutes ?? 0,
+          restDay: dayMap.get(dateString)?.restDay ?? false,
         };
       }),
     [dayMap, range],
@@ -345,6 +349,7 @@ export default function History() {
       volume,
       sessions: scopedLogs.length,
       longest: Math.max(0, ...scopedLogs.map((log) => log.durationMinutes)),
+      restDay: day.restDay,
     };
   });
   const metricActiveDays = telemetryDays.filter((day) => day.volume > 0).length;
@@ -441,6 +446,7 @@ export default function History() {
   const dailyEffortActiveDays = chartDays.filter(
     (day) => day.minutes > 0 || day.sportMinutes > 0,
   ).length;
+  const dailyEffortRestDays = chartDays.filter((day) => day.restDay).length;
   const peakEffortDay = chartDays.reduce(
     (peak, day) =>
       day.minutes + day.sportMinutes > peak.minutes + peak.sportMinutes
@@ -931,6 +937,9 @@ export default function History() {
           </div>
           <div className="relative z-10 flex shrink-0 self-start items-center gap-3 rounded-lg border border-[#8fd1cd]/20 bg-[#07131a]/75 px-3 py-2 font-mono text-[9px] font-bold uppercase tracking-[.12em] text-white/55">
             <span>{dailyEffortActiveDays} active days</span>
+            {dailyEffortRestDays > 0 && (
+              <span className="text-[#c2d2e9]">{dailyEffortRestDays} rest</span>
+            )}
             <span className="text-[#ff9a89]">{formatMinutes(metricTotal)}</span>
             <span className="history-disclosure-indicator flex items-center gap-1.5 text-[#a9dfd9]">
               <span>{dailyEffortOpen ? "Collapse" : "Expand"}</span>
@@ -952,6 +961,7 @@ export default function History() {
               date: day.date,
               minutes: day.minutes,
               secondaryMinutes: day.sportMinutes,
+              restDay: day.restDay,
             }))}
             ornamentSrc={historyOrnament}
             secondaryColor="#62bca8"
@@ -988,6 +998,11 @@ export default function History() {
                 <p className="mt-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#72c6b3]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#62bca8] shadow-[0_0_8px_rgba(98,188,168,.65)]" />
                   Sport · {formatMinutes(selectedDay?.sportMinutes ?? 0)}
+                </p>
+              )}
+              {selectedDay?.restDay && (
+                <p className="mt-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.13em] text-[#c2d2e9]">
+                  <MoonStar className="h-3.5 w-3.5" /> Rest day
                 </p>
               )}
               <div className="mt-5 space-y-3 border-t border-white/[.08] pt-4 text-[9px] font-bold uppercase tracking-[.14em] text-white/34">
@@ -1027,7 +1042,7 @@ export default function History() {
                 : "Choose a day"}
             </h2>
           </div>
-          <div className="text-right">
+          <div className="flex flex-col items-end gap-3 text-right">
             <p className="text-2xl font-bold text-white">
               {formatMinutes(selectedDay?.focusMinutes ?? 0)}
             </p>
@@ -1036,14 +1051,28 @@ export default function History() {
                 Sport · {formatMinutes(selectedDay?.sportMinutes ?? 0)}
               </p>
             )}
+            {selectedDate && (
+              <RestDayToggle
+                date={selectedDate}
+                restDay={Boolean(selectedDay?.restDay)}
+                disabled={preview}
+                compact
+              />
+            )}
           </div>
         </div>
 
         {selectedRows.length === 0 ? (
           <div className="py-10 text-center">
-            <ActivityIcon className="mx-auto mb-3 h-9 w-9 text-white/15" />
+            {selectedDay?.restDay ? (
+              <MoonStar className="mx-auto mb-3 h-9 w-9 text-[#a8bcda]/55" />
+            ) : (
+              <ActivityIcon className="mx-auto mb-3 h-9 w-9 text-white/15" />
+            )}
             <p className="text-sm text-white/35">
-              No activity recorded. Choose another day or log a session.
+              {selectedDay?.restDay
+                ? "Rest day marked. No activity was recorded, and the pause remains distinct from your practice history."
+                : "No activity recorded. Choose another day, mark it as rest, or log a session."}
             </p>
             <Link href="/">
               <Button

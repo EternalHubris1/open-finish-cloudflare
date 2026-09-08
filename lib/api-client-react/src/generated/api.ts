@@ -36,6 +36,7 @@ import type {
   DailyContext,
   DailyContextInput,
   DashboardSummary,
+  DayMarker,
   EvidenceShelfInput,
   GetCalendarParams,
   HealthStatus,
@@ -2313,4 +2314,146 @@ export function useGetCalendar<TData = Awaited<ReturnType<typeof getCalendar>>, 
 
 
 
+
+export const getPutRestDayUrl = (date: string,) => {
+
+
+
+
+  return `/api/day-markers/${date}/rest`
+}
+
+/**
+ * @summary Mark a calendar day as a rest day without changing its activity logs
+ */
+export const putRestDay = async (date: string, options?: Parameters<typeof customFetch>[1]): Promise<DayMarker> => {
+
+  return customFetch<DayMarker>(getPutRestDayUrl(date),
+  {
+    ...options,
+    method: 'PUT'
+
+
+  }
+);}
+
+
+
+
+
+export const getPutRestDayMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putRestDay>>, TError,{date: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof putRestDay>>, TError,{date: string}, TContext> => {
+
+const mutationKey = ['putRestDay'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putRestDay>>, {date: string}> = (props) => {
+          const {date} = props ?? {};
+
+          return  putRestDay(date,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PutRestDayMutationResult = NonNullable<Awaited<ReturnType<typeof putRestDay>>>
+
+    export type PutRestDayMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Mark a calendar day as a rest day without changing its activity logs
+ */
+export const usePutRestDay = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putRestDay>>, TError,{date: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof putRestDay>>,
+        TError,
+        {date: string},
+        TContext
+      > => {
+      return useMutation(getPutRestDayMutationOptions(options));
+    }
+
+export const getDeleteRestDayUrl = (date: string,) => {
+
+
+
+
+  return `/api/day-markers/${date}/rest`
+}
+
+/**
+ * @summary Remove a rest day marker without changing its activity logs
+ */
+export const deleteRestDay = async (date: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteRestDayUrl(date),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteRestDayMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRestDay>>, TError,{date: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteRestDay>>, TError,{date: string}, TContext> => {
+
+const mutationKey = ['deleteRestDay'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteRestDay>>, {date: string}> = (props) => {
+          const {date} = props ?? {};
+
+          return  deleteRestDay(date,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteRestDayMutationResult = NonNullable<Awaited<ReturnType<typeof deleteRestDay>>>
+
+    export type DeleteRestDayMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Remove a rest day marker without changing its activity logs
+ */
+export const useDeleteRestDay = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRestDay>>, TError,{date: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteRestDay>>,
+        TError,
+        {date: string},
+        TContext
+      > => {
+      return useMutation(getDeleteRestDayMutationOptions(options));
+    }
 

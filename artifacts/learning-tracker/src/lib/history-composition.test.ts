@@ -28,6 +28,7 @@ const day = (logs: CalendarLogEntry[], date = "2026-08-29"): CalendarDay => ({
   sportMinutes: 0,
   goalMinutes: 0,
   status: "under",
+  restDay: false,
 });
 
 test("composition aggregates repeat sessions and retains legacy directions from canonical logs", () => {

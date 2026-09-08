@@ -6,6 +6,7 @@ import {
   GetCalendarResponse,
 } from "@workspace/api-zod";
 import { resolveActivityType } from "../lib/activity-type";
+import { listRestDayDates } from "../lib/day-markers";
 
 const router: IRouter = Router();
 
@@ -28,15 +29,19 @@ router.get("/calendar", async (req, res): Promise<void> => {
     .filter((activity) => resolveActivityType(activity) === "practice")
     .reduce((sum, activity) => sum + activity.targetMinutesPerDay, 0);
 
-  const logs = await db
-    .select()
-    .from(activityLogsTable)
-    .where(
-      and(
-        gte(activityLogsTable.logDate, start),
-        lte(activityLogsTable.logDate, end),
+  const [logs, restDayDates] = await Promise.all([
+    db
+      .select()
+      .from(activityLogsTable)
+      .where(
+        and(
+          gte(activityLogsTable.logDate, start),
+          lte(activityLogsTable.logDate, end),
+        ),
       ),
-    );
+    listRestDayDates(start, end),
+  ]);
+  const restDays = new Set(restDayDates);
 
   const logsByDate = new Map<string, typeof logs>();
   for (const log of logs) {
@@ -48,8 +53,10 @@ router.get("/calendar", async (req, res): Promise<void> => {
     }
   }
 
-  const days = Array.from(logsByDate.entries())
-    .map(([date, dayLogs]) => {
+  const recordedDates = new Set([...logsByDate.keys(), ...restDays]);
+  const days = Array.from(recordedDates)
+    .map((date) => {
+      const dayLogs = logsByDate.get(date) ?? [];
       const focusMinutes = dayLogs.reduce((sum, log) => {
         const activity = activityMap.get(log.activityId);
         return resolveActivityType({
@@ -85,6 +92,7 @@ router.get("/calendar", async (req, res): Promise<void> => {
         sportMinutes,
         goalMinutes,
         status,
+        restDay: restDays.has(date),
         logs: dayLogs
           .map((l) => {
             const activity = activityMap.get(l.activityId);

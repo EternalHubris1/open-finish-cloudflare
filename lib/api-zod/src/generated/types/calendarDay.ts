@@ -16,5 +16,7 @@ export interface CalendarDay {
   goalMinutes: number;
   /** under: below goal, met: reached goal (below the 'heavily over' threshold), over: heavily exceeded the goal */
   status: CalendarDayStatus;
+  /** A separate rest marker; activity logs and minutes remain unchanged. */
+  restDay: boolean;
   logs: CalendarLogEntry[];
 }
