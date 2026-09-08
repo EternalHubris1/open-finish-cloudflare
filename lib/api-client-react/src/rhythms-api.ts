@@ -31,11 +31,13 @@ export interface MilestoneInput {
 
 export type SprintStatus = "active" | "complete" | "archived";
 export type SprintStepStatus = "pending" | "complete";
+export type SprintStepKind = "task" | "buffer";
 
 export interface SprintStep {
   id: number;
   sprintId: number;
   title: string;
+  kind: SprintStepKind;
   plannedDate: string;
   position: number;
   status: SprintStepStatus;
@@ -65,6 +67,7 @@ export interface SprintInput {
   steps: Array<{
     id?: number;
     title: string;
+    kind?: SprintStepKind;
     plannedDate: string;
     status?: SprintStepStatus;
   }>;

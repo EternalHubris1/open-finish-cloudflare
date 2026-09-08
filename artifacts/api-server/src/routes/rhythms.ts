@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { and, asc, desc, eq, gte, lt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod/v4";
 import {
   db,
@@ -10,6 +10,7 @@ import {
   sprintStepsTable,
   sprintsTable,
 } from "@workspace/db";
+import { sprintStatusFromSteps } from "../lib/sprint-model";
 
 const router: IRouter = Router();
 
@@ -20,6 +21,7 @@ const periodSchema = z.enum(["week", "month", "custom"]);
 const statusSchema = z.enum(["open", "complete", "archived"]);
 const sprintStatusSchema = z.enum(["active", "complete", "archived"]);
 const sprintStepStatusSchema = z.enum(["pending", "complete"]);
+const sprintStepKindSchema = z.enum(["task", "buffer"]);
 
 const milestoneInput = z.object({
   title: z.string().trim().min(1).max(140),
@@ -31,12 +33,17 @@ const milestoneInput = z.object({
 
 const milestonePatch = milestoneInput.partial();
 
-const sprintStepInput = z.object({
-  id: idSchema.optional(),
-  title: z.string().trim().min(1).max(180),
-  plannedDate: dateSchema,
-  status: sprintStepStatusSchema.optional(),
-});
+const sprintStepInput = z
+  .object({
+    id: idSchema.optional(),
+    title: z.string().trim().max(180),
+    kind: sprintStepKindSchema.default("task"),
+    plannedDate: dateSchema,
+    status: sprintStepStatusSchema.optional(),
+  })
+  .refine((step) => step.kind === "buffer" || step.title.length > 0, {
+    message: "Every task needs a title",
+  });
 
 const sprintFields = z.object({
   activityId: idSchema.nullable().optional(),
@@ -44,7 +51,7 @@ const sprintFields = z.object({
   outcome: z.string().trim().max(1200).default(""),
   startDate: dateSchema,
   dueDate: dateSchema,
-  steps: z.array(sprintStepInput).min(1).max(31),
+  steps: z.array(sprintStepInput).min(1).max(62),
 });
 
 const sprintInput = sprintFields
@@ -60,14 +67,9 @@ const sprintInput = sprintFields
       ),
     { message: "Every step must fall inside the sprint" },
   )
-  .refine(
-    (value) =>
-      value.steps.every(
-        (step, index) =>
-          index === 0 || step.plannedDate >= value.steps[index - 1].plannedDate,
-      ),
-    { message: "Sprint steps must follow chronological order" },
-  );
+  .refine((value) => value.steps.some((step) => step.kind === "task"), {
+    message: "A sprint needs at least one task",
+  });
 
 const sprintPatch = sprintFields.partial().extend({
   status: sprintStatusSchema.optional(),
@@ -97,12 +99,17 @@ function ensureSprintSchema() {
         "id" serial PRIMARY KEY NOT NULL,
         "sprint_id" integer NOT NULL REFERENCES "sprints"("id") ON DELETE cascade,
         "title" text NOT NULL,
+        "kind" text NOT NULL DEFAULT 'task',
         "planned_date" date NOT NULL,
         "position" integer NOT NULL,
         "status" text NOT NULL DEFAULT 'pending',
         "completed_at" timestamp with time zone,
         CONSTRAINT "sprint_steps_sprint_position_unique" UNIQUE("sprint_id", "position")
       )
+    `);
+    await db.execute(sql`
+      ALTER TABLE "sprint_steps"
+        ADD COLUMN IF NOT EXISTS "kind" text NOT NULL DEFAULT 'task'
     `);
   })().catch((error) => {
     sprintSchemaReady = undefined;
@@ -305,10 +312,11 @@ router.post("/sprints", async (req, res): Promise<void> => {
     .returning();
   try {
     await db.insert(sprintStepsTable).values(
-      steps.map(({ id: _stepId, status: _status, ...step }, position) => ({
+      steps.map(({ id: _stepId, status, ...step }, position) => ({
         sprintId: sprint.id,
         ...step,
         position,
+        status: step.kind === "buffer" ? "pending" : (status ?? "pending"),
       })),
     );
   } catch (error) {
@@ -354,15 +362,26 @@ router.patch("/sprints/:id", async (req, res): Promise<void> => {
     return;
   }
   const { steps, ...sprintData } = parsed.data;
+  const previousSteps = existingSprint.steps;
+  const previousById = new Map(previousSteps.map((step) => [step.id, step]));
+  const suppliedIds =
+    steps?.flatMap((step) => (step.id ? [step.id] : [])) ?? [];
+  if (
+    new Set(suppliedIds).size !== suppliedIds.length ||
+    suppliedIds.some((stepId) => !previousById.has(stepId))
+  ) {
+    res
+      .status(400)
+      .json({ error: "Sprint contains an invalid step reference" });
+    return;
+  }
   const sprint = await db.transaction(async (transaction) => {
     const resolvedStatus =
       sprintData.status ??
       (steps
         ? existingSprint.status === "archived"
           ? "archived"
-          : steps.every((step) => step.status === "complete")
-            ? "complete"
-            : "active"
+          : sprintStatusFromSteps(steps)
         : undefined);
     const [updatedSprint] = await transaction
       .update(sprintsTable)
@@ -380,18 +399,57 @@ router.patch("/sprints/:id", async (req, res): Promise<void> => {
       .returning({ id: sprintsTable.id });
     if (!updatedSprint || !steps) return updatedSprint;
 
-    await transaction
-      .delete(sprintStepsTable)
-      .where(eq(sprintStepsTable.sprintId, id.data));
-    await transaction.insert(sprintStepsTable).values(
-      steps.map(({ id: _stepId, status, ...step }, position) => ({
-        sprintId: id.data,
-        ...step,
-        position,
-        status: status ?? "pending",
-        completedAt: status === "complete" ? new Date() : null,
-      })),
-    );
+    const removedIds = previousSteps
+      .map((step) => step.id)
+      .filter((stepId) => !suppliedIds.includes(stepId));
+    if (removedIds.length) {
+      await transaction
+        .delete(sprintStepsTable)
+        .where(inArray(sprintStepsTable.id, removedIds));
+    }
+
+    if (suppliedIds.length) {
+      await transaction
+        .update(sprintStepsTable)
+        .set({ position: sql`${sprintStepsTable.position} + 1000` })
+        .where(inArray(sprintStepsTable.id, suppliedIds));
+    }
+
+    for (const [position, step] of steps.entries()) {
+      const status =
+        step.kind === "buffer" ? "pending" : (step.status ?? "pending");
+      if (step.id) {
+        const previous = previousById.get(step.id)!;
+        await transaction
+          .update(sprintStepsTable)
+          .set({
+            title: step.title,
+            kind: step.kind,
+            plannedDate: step.plannedDate,
+            position,
+            status,
+            completedAt:
+              status === previous.status
+                ? previous.completedAt
+                  ? new Date(previous.completedAt)
+                  : null
+                : status === "complete"
+                  ? new Date()
+                  : null,
+          })
+          .where(eq(sprintStepsTable.id, step.id));
+      } else {
+        await transaction.insert(sprintStepsTable).values({
+          sprintId: id.data,
+          title: step.title,
+          kind: step.kind,
+          plannedDate: step.plannedDate,
+          position,
+          status,
+          completedAt: status === "complete" ? new Date() : null,
+        });
+      }
+    }
     return updatedSprint;
   });
   if (!sprint) {
@@ -402,80 +460,70 @@ router.patch("/sprints/:id", async (req, res): Promise<void> => {
   res.json(updated);
 });
 
-router.patch("/sprints/:sprintId/steps/:stepId", async (req, res): Promise<void> => {
-  await ensureSprintSchema();
-  const sprintId = idSchema.safeParse(req.params.sprintId);
-  const stepId = idSchema.safeParse(req.params.stepId);
-  const parsed = sprintStepPatch.safeParse(req.body);
-  if (!sprintId.success || !stepId.success || !parsed.success) {
-    res.status(400).json({ error: "Provide a valid sprint step update" });
-    return;
-  }
-  const [step] = await db
-    .select()
-    .from(sprintStepsTable)
-    .where(
-      and(
-        eq(sprintStepsTable.id, stepId.data),
-        eq(sprintStepsTable.sprintId, sprintId.data),
-      ),
-    );
-  if (!step) {
-    res.status(404).json({ error: "Sprint step not found" });
-    return;
-  }
-  if (parsed.data.status === "complete") {
-    const [blockedBy] = await db
+router.patch(
+  "/sprints/:sprintId/steps/:stepId",
+  async (req, res): Promise<void> => {
+    await ensureSprintSchema();
+    const sprintId = idSchema.safeParse(req.params.sprintId);
+    const stepId = idSchema.safeParse(req.params.stepId);
+    const parsed = sprintStepPatch.safeParse(req.body);
+    if (!sprintId.success || !stepId.success || !parsed.success) {
+      res.status(400).json({ error: "Provide a valid sprint step update" });
+      return;
+    }
+    const [step] = await db
+      .select()
+      .from(sprintStepsTable)
+      .where(
+        and(
+          eq(sprintStepsTable.id, stepId.data),
+          eq(sprintStepsTable.sprintId, sprintId.data),
+        ),
+      );
+    if (!step) {
+      res.status(404).json({ error: "Sprint step not found" });
+      return;
+    }
+    if (step.kind === "buffer") {
+      res
+        .status(409)
+        .json({ error: "Open days do not have a completion state" });
+      return;
+    }
+    if (parsed.data.status === "pending") {
+      await db
+        .update(sprintStepsTable)
+        .set({ status: "pending", completedAt: null })
+        .where(eq(sprintStepsTable.id, step.id));
+    } else {
+      await db
+        .update(sprintStepsTable)
+        .set({ status: "complete", completedAt: new Date() })
+        .where(eq(sprintStepsTable.id, step.id));
+    }
+    const remaining = await db
       .select({ id: sprintStepsTable.id })
       .from(sprintStepsTable)
       .where(
         and(
           eq(sprintStepsTable.sprintId, sprintId.data),
-          lt(sprintStepsTable.position, step.position),
+          eq(sprintStepsTable.kind, "task"),
           eq(sprintStepsTable.status, "pending"),
         ),
-      )
-      .limit(1);
-    if (blockedBy) {
-      res.status(409).json({ error: "Complete the earlier step first" });
-      return;
-    }
-  }
-  if (parsed.data.status === "pending") {
-    await db
-      .update(sprintStepsTable)
-      .set({ status: "pending", completedAt: null })
-      .where(
-        and(
-          eq(sprintStepsTable.sprintId, sprintId.data),
-          gte(sprintStepsTable.position, step.position),
-        ),
       );
-  } else {
     await db
-      .update(sprintStepsTable)
-      .set({ status: "complete", completedAt: new Date() })
-      .where(eq(sprintStepsTable.id, step.id));
-  }
-  const remaining = await db
-    .select({ id: sprintStepsTable.id })
-    .from(sprintStepsTable)
-    .where(
-      and(
-        eq(sprintStepsTable.sprintId, sprintId.data),
-        eq(sprintStepsTable.status, "pending"),
-      ),
+      .update(sprintsTable)
+      .set({
+        status: remaining.length === 0 ? "complete" : "active",
+        completedAt: remaining.length === 0 ? new Date() : null,
+      })
+      .where(eq(sprintsTable.id, sprintId.data));
+    const updated = (await listSprints()).find(
+      (item) => item.id === sprintId.data,
     );
-  await db
-    .update(sprintsTable)
-    .set({
-      status: remaining.length === 0 ? "complete" : "active",
-      completedAt: remaining.length === 0 ? new Date() : null,
-    })
-    .where(eq(sprintsTable.id, sprintId.data));
-  const updated = (await listSprints()).find((item) => item.id === sprintId.data);
-  res.json(updated);
-});
+    res.json(updated);
+  },
+);
 
 router.delete("/sprints/:id", async (req, res): Promise<void> => {
   await ensureSprintSchema();

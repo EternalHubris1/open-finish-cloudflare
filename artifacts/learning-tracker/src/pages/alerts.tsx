@@ -5,10 +5,17 @@ import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2
 import seatedSamuraiSignal from "@/assets/icons/seated-samurai-signal.png";
 import { SessionNotes } from "./reflections";
 import { SessionRecordsPanel } from "@/components/session-records-panel";
-import { addDays, format, isBefore, startOfDay } from "date-fns";
+import {
+  addDays,
+  differenceInCalendarDays,
+  format,
+  isBefore,
+  startOfDay,
+} from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   getListAlertsQueryKey,
+  getListActivitiesQueryKey,
   getListDojoCabinetQueryKey,
   getListMilestonesQueryKey,
   getListSprintsQueryKey,
@@ -39,6 +46,7 @@ import {
   type MilestoneInput,
   type Sprint,
   type SprintInput,
+  type SprintStepKind,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,6 +64,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import {
   Archive,
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
   Bell,
   BellOff,
   BookOpen,
@@ -63,9 +75,11 @@ import {
   Check,
   ChevronRight,
   ExternalLink,
+  GripVertical,
   Link2,
   ListChecks,
   Pencil,
+  Pause,
   Plus,
   RotateCcw,
   Route,
@@ -93,15 +107,114 @@ function periodLabel(period: Milestone["period"]) {
   return "Personal date";
 }
 
+function moveItem<T>(items: T[], from: number, to: number): T[] {
+  if (to < 0 || to >= items.length || from === to) return items;
+  const next = [...items];
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item);
+  return next;
+}
+
+function shiftDate(value: string, amount: number): string {
+  return format(addDays(new Date(`${value}T00:00:00`), amount), "yyyy-MM-dd");
+}
+
+function sprintDayCount(startDate: string, dueDate: string): number {
+  if (!startDate || !dueDate) return 0;
+  const value =
+    differenceInCalendarDays(
+      new Date(`${dueDate}T00:00:00`),
+      new Date(`${startDate}T00:00:00`),
+    ) + 1;
+  return Number.isFinite(value) ? Math.max(0, value) : 0;
+}
+
+const previewSprints: Sprint[] = [
+  {
+    id: 901,
+    activityId: null,
+    activityName: "Writing",
+    title: "Finish the methods chapter",
+    outcome: "A complete draft ready for one editorial pass.",
+    startDate: "2026-09-07",
+    dueDate: "2026-09-13",
+    status: "active",
+    createdAt: "2026-09-07T08:00:00.000Z",
+    completedAt: null,
+    steps: [
+      {
+        id: 1901,
+        sprintId: 901,
+        title: "Rebuild the argument map",
+        kind: "task",
+        plannedDate: "2026-09-07",
+        position: 0,
+        status: "complete",
+        completedAt: "2026-09-07T18:00:00.000Z",
+      },
+      {
+        id: 1902,
+        sprintId: 901,
+        title: "Recovery and reading",
+        kind: "buffer",
+        plannedDate: "2026-09-09",
+        position: 1,
+        status: "pending",
+        completedAt: null,
+      },
+      {
+        id: 1903,
+        sprintId: 901,
+        title: "Write the comparative section",
+        kind: "task",
+        plannedDate: "2026-09-10",
+        position: 2,
+        status: "pending",
+        completedAt: null,
+      },
+    ],
+  },
+];
+
 export default function Cabinet() {
-  const { data: alerts = [], isLoading: alertsLoading } = useListAlerts();
-  const { data: activities = [], isLoading: activitiesLoading } =
-    useListActivities();
-  const { data: milestones = [], isLoading: milestonesLoading } =
-    useListMilestones();
-  const { data: sprints = [], isLoading: sprintsLoading } = useListSprints();
-  const { data: cabinetItems = [], isLoading: cabinetLoading } =
-    useListDojoCabinet();
+  const preview =
+    import.meta.env.DEV &&
+    new URLSearchParams(window.location.search).has("preview");
+  const alertsQuery = useListAlerts({
+    query: { enabled: !preview, queryKey: getListAlertsQueryKey() },
+  });
+  const activitiesQuery = useListActivities({
+    query: { enabled: !preview, queryKey: getListActivitiesQueryKey() },
+  });
+  const milestonesQuery = useListMilestones({
+    query: { enabled: !preview, queryKey: getListMilestonesQueryKey() },
+  });
+  const sprintsQuery = useListSprints({
+    query: { enabled: !preview, queryKey: getListSprintsQueryKey() },
+  });
+  const cabinetQuery = useListDojoCabinet({
+    query: { enabled: !preview, queryKey: getListDojoCabinetQueryKey() },
+  });
+  const alerts = Array.isArray(alertsQuery.data) ? alertsQuery.data : [];
+  const activities = Array.isArray(activitiesQuery.data)
+    ? activitiesQuery.data
+    : [];
+  const milestones = Array.isArray(milestonesQuery.data)
+    ? milestonesQuery.data
+    : [];
+  const sprints = preview
+    ? previewSprints
+    : Array.isArray(sprintsQuery.data)
+      ? sprintsQuery.data
+      : [];
+  const cabinetItems = Array.isArray(cabinetQuery.data)
+    ? cabinetQuery.data
+    : [];
+  const alertsLoading = !preview && alertsQuery.isLoading;
+  const activitiesLoading = !preview && activitiesQuery.isLoading;
+  const milestonesLoading = !preview && milestonesQuery.isLoading;
+  const sprintsLoading = !preview && sprintsQuery.isLoading;
+  const cabinetLoading = !preview && cabinetQuery.isLoading;
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -121,8 +234,14 @@ export default function Cabinet() {
 
   const [dialog, setDialog] = useState<DialogKind>(null);
   const [editingAlert, setEditingAlert] = useState<Alert | null>(null);
-  const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
+  const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(
+    null,
+  );
   const [editingSprint, setEditingSprint] = useState<Sprint | null>(null);
+  const [draggedSprintStep, setDraggedSprintStep] = useState<number | null>(
+    null,
+  );
+  const [sprintError, setSprintError] = useState("");
   const [activeMilestoneId, setActiveMilestoneId] = useState<number | null>(
     null,
   );
@@ -153,6 +272,7 @@ export default function Cabinet() {
       dueDate: format(addDays(today, 2), "yyyy-MM-dd"),
       steps: [0, 1, 2].map((offset) => ({
         title: "",
+        kind: "task" as const,
         plannedDate: format(addDays(today, offset), "yyyy-MM-dd"),
       })),
     };
@@ -268,6 +388,8 @@ export default function Cabinet() {
 
   const openSprintDialog = (sprint?: Sprint) => {
     setEditingSprint(sprint ?? null);
+    setSprintError("");
+    setDraggedSprintStep(null);
     if (sprint) {
       setSprintForm({
         activityId: sprint.activityId,
@@ -278,6 +400,7 @@ export default function Cabinet() {
         steps: sprint.steps.map((step) => ({
           id: step.id,
           title: step.title,
+          kind: step.kind,
           plannedDate: step.plannedDate,
           status: step.status,
         })),
@@ -292,6 +415,7 @@ export default function Cabinet() {
         dueDate: format(addDays(today, 2), "yyyy-MM-dd"),
         steps: [0, 1, 2].map((offset) => ({
           title: "",
+          kind: "task" as const,
           plannedDate: format(addDays(today, offset), "yyyy-MM-dd"),
         })),
       });
@@ -333,7 +457,9 @@ export default function Cabinet() {
         invalidateCabinet();
         setDialog(null);
         setEditingMilestone(null);
-        toast({ title: editingMilestone ? "Deadline updated" : "Deadline saved" });
+        toast({
+          title: editingMilestone ? "Deadline updated" : "Deadline saved",
+        });
       },
       onError: () =>
         toast({ title: "Couldn’t save deadline", variant: "destructive" }),
@@ -350,12 +476,41 @@ export default function Cabinet() {
 
   const saveSprint = (event: React.FormEvent) => {
     event.preventDefault();
-    const steps = sprintForm.steps.filter((step) => step.title.trim());
-    if (!sprintForm.title.trim() || steps.length === 0) {
-      toast({
-        title: "Name the sprint and add at least one daily step",
-        variant: "destructive",
-      });
+    setSprintError("");
+    const steps = sprintForm.steps.map((step) => ({
+      ...step,
+      title: step.title.trim(),
+      kind: step.kind ?? "task",
+    }));
+    if (!sprintForm.title.trim()) {
+      setSprintError("Name the sprint before saving it.");
+      return;
+    }
+    if (!steps.some((step) => step.kind === "task")) {
+      setSprintError("Keep at least one task in the sprint route.");
+      return;
+    }
+    const unnamedTask = steps.findIndex(
+      (step) => step.kind === "task" && !step.title,
+    );
+    if (unnamedTask >= 0) {
+      setSprintError(
+        `Task ${unnamedTask + 1} needs a name, or change it to an open day.`,
+      );
+      return;
+    }
+    if (sprintForm.startDate > sprintForm.dueDate) {
+      setSprintError("The sprint cannot end before it starts.");
+      return;
+    }
+    if (
+      steps.some(
+        (step) =>
+          step.plannedDate < sprintForm.startDate ||
+          step.plannedDate > sprintForm.dueDate,
+      )
+    ) {
+      setSprintError("Every route item must stay inside the sprint dates.");
       return;
     }
     const options = {
@@ -363,13 +518,22 @@ export default function Cabinet() {
         invalidateSprints();
         setDialog(null);
         setEditingSprint(null);
-        toast({ title: editingSprint ? "Sprint updated" : "Sprint path opened" });
-      },
-      onError: () =>
+        setSprintError("");
         toast({
-          title: editingSprint ? "Couldn’t update sprint" : "Couldn’t open sprint",
+          title: editingSprint ? "Sprint updated" : "Sprint path opened",
+        });
+      },
+      onError: () => {
+        setSprintError(
+          "The sprint was not saved. Review the route and try again.",
+        );
+        toast({
+          title: editingSprint
+            ? "Couldn’t update sprint"
+            : "Couldn’t open sprint",
           variant: "destructive" as const,
-        }),
+        });
+      },
     };
     if (editingSprint) {
       updateSprint.mutate(
@@ -379,6 +543,54 @@ export default function Cabinet() {
     } else {
       createSprint.mutate({ ...sprintForm, steps }, options);
     }
+  };
+
+  const moveSprintStep = (from: number, to: number) => {
+    setSprintForm((current) => ({
+      ...current,
+      steps: moveItem(current.steps, from, to),
+    }));
+    setSprintError("");
+  };
+
+  const addSprintStep = (kind: SprintStepKind) => {
+    setSprintForm((current) => {
+      const lastDate = current.steps.at(-1)?.plannedDate ?? current.startDate;
+      const plannedDate = kind === "buffer" ? shiftDate(lastDate, 1) : lastDate;
+      return {
+        ...current,
+        dueDate: plannedDate > current.dueDate ? plannedDate : current.dueDate,
+        steps: [...current.steps, { title: "", kind, plannedDate }],
+      };
+    });
+    setSprintError("");
+  };
+
+  const shiftSprint = (amount: number) => {
+    setSprintForm((current) => ({
+      ...current,
+      startDate: shiftDate(current.startDate, amount),
+      dueDate: shiftDate(current.dueDate, amount),
+      steps: current.steps.map((step) => ({
+        ...step,
+        plannedDate: shiftDate(step.plannedDate, amount),
+      })),
+    }));
+    setSprintError("");
+  };
+
+  const updateSprintStepDate = (index: number, plannedDate: string) => {
+    if (!plannedDate) return;
+    setSprintForm((current) => ({
+      ...current,
+      startDate:
+        plannedDate < current.startDate ? plannedDate : current.startDate,
+      dueDate: plannedDate > current.dueDate ? plannedDate : current.dueDate,
+      steps: current.steps.map((step, itemIndex) =>
+        itemIndex === index ? { ...step, plannedDate } : step,
+      ),
+    }));
+    setSprintError("");
   };
 
   const setSprintStatus = (sprint: Sprint, status: Sprint["status"]) => {
@@ -598,8 +810,8 @@ export default function Cabinet() {
                 Sprints & deadlines
               </h2>
               <p className="mt-2 text-sm leading-6 text-white/42">
-                Open a sequenced path when an outcome needs several days. Keep
-                a deadline as a calm checkpoint when the route can remain open.
+                Shape a multi-day route when an outcome needs structure. Keep
+                space for recovery, parallel work, and changing priorities.
               </p>
             </div>
             <span className="relative z-10 shrink-0 rounded-full border border-[#ffc268]/20 bg-[#ffc268]/[.08] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.14em] text-[#ffe0a5]">
@@ -610,9 +822,11 @@ export default function Cabinet() {
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
                 <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">
-                  Sequential practice
+                  Flexible routes
                 </p>
-                <h3 className="mt-1 text-lg font-bold text-white">Active sprints</h3>
+                <h3 className="mt-1 text-lg font-bold text-white">
+                  Active sprints
+                </h3>
               </div>
               <Button
                 variant="outline"
@@ -625,12 +839,13 @@ export default function Cabinet() {
             {activeSprints.length ? (
               <div className="space-y-3">
                 {activeSprints.map((sprint) => {
-                  const completeCount = sprint.steps.filter(
-                    (step) => step.status === "complete",
+                  const taskSteps = sprint.steps.filter(
+                    (step) => step.kind === "task",
                   ).length;
-                  const currentIndex = sprint.steps.findIndex(
-                    (step) => step.status === "pending",
-                  );
+                  const completeCount = sprint.steps.filter(
+                    (step) =>
+                      step.kind === "task" && step.status === "complete",
+                  ).length;
                   return (
                     <article
                       key={sprint.id}
@@ -639,7 +854,9 @@ export default function Cabinet() {
                       <div className="flex items-start justify-between gap-4 px-4 pb-3 pt-4 md:px-5">
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
-                            <h4 className="font-semibold text-white">{sprint.title}</h4>
+                            <h4 className="font-semibold text-white">
+                              {sprint.title}
+                            </h4>
                             {sprint.activityName && (
                               <span className="text-[8px] font-bold uppercase tracking-[.14em] text-[#72c6b3]">
                                 {sprint.activityName}
@@ -693,14 +910,34 @@ export default function Cabinet() {
                         }}
                       >
                         {sprint.steps.map((step, index) => {
+                          const buffer = step.kind === "buffer";
                           const complete = step.status === "complete";
-                          const current = index === currentIndex;
-                          const locked = !complete && !current;
+                          const pending = updateSprintStep.isPending;
+                          if (buffer) {
+                            return (
+                              <div
+                                key={step.id}
+                                className="min-h-16 bg-[linear-gradient(135deg,rgba(114,198,179,.04),rgba(255,194,104,.035))] px-2 py-2 text-left"
+                                aria-label={`${step.title || "Open day"}, ${format(new Date(`${step.plannedDate}T00:00:00`), "EEEE, MMMM d")}`}
+                              >
+                                <span className="block font-mono text-[8px] uppercase tracking-[.12em] text-[#ffc268]/60">
+                                  Open ·{" "}
+                                  {format(
+                                    new Date(`${step.plannedDate}T00:00:00`),
+                                    "EEE d",
+                                  )}
+                                </span>
+                                <span className="mt-1 line-clamp-2 block text-[10px] leading-4 text-white/38">
+                                  {step.title || "Unassigned space"}
+                                </span>
+                              </div>
+                            );
+                          }
                           return (
                             <button
                               key={step.id}
                               type="button"
-                              disabled={locked || updateSprintStep.isPending}
+                              disabled={pending}
                               onClick={() =>
                                 updateSprintStep.mutate(
                                   {
@@ -712,19 +949,28 @@ export default function Cabinet() {
                                     onSuccess: invalidateSprints,
                                     onError: () =>
                                       toast({
-                                        title: "Complete the earlier step first",
+                                        title: "Couldn’t update this task",
+                                        description:
+                                          "The sprint was not changed. Try again.",
                                         variant: "destructive",
                                       }),
                                   },
                                 )
                               }
-                              className={`min-h-16 px-2 py-2 text-left transition-colors ${complete ? "bg-[#72c6b3]/12" : current ? "bg-[#ffc268]/[.08]" : "bg-[#080e12] opacity-42"}`}
+                              className={`min-h-16 px-2 py-2 text-left transition-colors ${complete ? "bg-[#72c6b3]/12" : "bg-[#080e12] hover:bg-[#ffc268]/[.08]"}`}
                               aria-label={`${complete ? "Reopen" : "Complete"} ${step.title}`}
                             >
-                              <span className={`block font-mono text-[8px] uppercase tracking-[.12em] ${complete ? "text-[#72c6b3]" : current ? "text-[#ffc268]" : "text-white/25"}`}>
-                                {current ? "Current · " : ""}{format(new Date(`${step.plannedDate}T00:00:00`), "EEE d")}
+                              <span
+                                className={`block font-mono text-[8px] uppercase tracking-[.12em] ${complete ? "text-[#72c6b3]" : "text-[#ffc268]"}`}
+                              >
+                                {format(
+                                  new Date(`${step.plannedDate}T00:00:00`),
+                                  "EEE d",
+                                )}
                               </span>
-                              <span className={`mt-1 line-clamp-2 block text-[10px] leading-4 ${complete ? "text-white/45 line-through" : "text-white/72"}`}>
+                              <span
+                                className={`mt-1 line-clamp-2 block text-[10px] leading-4 ${complete ? "text-white/45 line-through" : "text-white/72"}`}
+                              >
                                 {step.title}
                               </span>
                             </button>
@@ -732,11 +978,27 @@ export default function Cabinet() {
                         })}
                       </div>
                       <div className="flex items-center gap-3 px-4 py-3 font-mono text-[8px] uppercase tracking-[.12em] text-white/30 md:px-5">
-                        <span>{completeCount}/{sprint.steps.length} steps sealed</span>
-                        <span className="h-1 flex-1 overflow-hidden rounded-full bg-white/[.06]" aria-hidden="true">
-                          <span className="block h-full rounded-full bg-[#72c6b3]" style={{ width: `${(completeCount / sprint.steps.length) * 100}%` }} />
+                        <span>
+                          {completeCount}/{taskSteps} tasks sealed
                         </span>
-                        <span>Due {format(new Date(`${sprint.dueDate}T00:00:00`), "MMM d")}</span>
+                        <span
+                          className="h-1 flex-1 overflow-hidden rounded-full bg-white/[.06]"
+                          aria-hidden="true"
+                        >
+                          <span
+                            className="block h-full rounded-full bg-[#72c6b3]"
+                            style={{
+                              width: `${taskSteps ? (completeCount / taskSteps) * 100 : 0}%`,
+                            }}
+                          />
+                        </span>
+                        <span>
+                          Due{" "}
+                          {format(
+                            new Date(`${sprint.dueDate}T00:00:00`),
+                            "MMM d",
+                          )}
+                        </span>
                       </div>
                     </article>
                   );
@@ -750,8 +1012,12 @@ export default function Cabinet() {
               >
                 <ListChecks className="h-5 w-5 text-[#72c6b3]/65" />
                 <span>
-                  <span className="block text-sm font-semibold text-white/68">No active sprint</span>
-                  <span className="mt-1 block text-xs text-white/32">Sequence the next result into daily closures.</span>
+                  <span className="block text-sm font-semibold text-white/68">
+                    No active sprint
+                  </span>
+                  <span className="mt-1 block text-xs text-white/32">
+                    Sequence the next result into daily closures.
+                  </span>
                 </span>
               </button>
             )}
@@ -816,7 +1082,9 @@ export default function Cabinet() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => setMilestoneStatus(milestone, "archived")}
+                          onClick={() =>
+                            setMilestoneStatus(milestone, "archived")
+                          }
                           className="signal-button flex items-center gap-1 text-white/32 transition-colors hover:text-[#ffc268]"
                         >
                           <Archive className="h-3.5 w-3.5" /> Move to past paths
@@ -864,8 +1132,12 @@ export default function Cabinet() {
             <details className="group border-t border-white/[.06] bg-[#72c6b3]/[.025]">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-4 transition-colors hover:bg-white/[.025]">
                 <span>
-                  <span className="block text-[9px] font-bold uppercase tracking-[.18em] text-[#72c6b3]">Past paths</span>
-                  <span className="mt-1 block text-xs text-white/38">Return to completed or archived sprints and deadlines.</span>
+                  <span className="block text-[9px] font-bold uppercase tracking-[.18em] text-[#72c6b3]">
+                    Past paths
+                  </span>
+                  <span className="mt-1 block text-xs text-white/38">
+                    Return to completed or archived sprints and deadlines.
+                  </span>
                 </span>
                 <span className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[.12em] text-white/35">
                   {completeSprints.length + completeMilestones.length} records
@@ -874,12 +1146,26 @@ export default function Cabinet() {
               </summary>
               <div className="divide-y divide-white/[.06] border-t border-white/[.06]">
                 {completeSprints.map((sprint) => (
-                  <article key={sprint.id} className="flex items-center gap-3 px-5 py-4 md:px-6">
+                  <article
+                    key={sprint.id}
+                    className="flex items-center gap-3 px-5 py-4 md:px-6"
+                  >
                     <Route className="h-4 w-4 shrink-0 text-[#72c6b3]" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-white/72">{sprint.title}</p>
+                      <p className="truncate text-sm font-semibold text-white/72">
+                        {sprint.title}
+                      </p>
                       <p className="mt-1 font-mono text-[8px] uppercase tracking-[.12em] text-white/30">
-                        Sprint · {sprint.status} · {sprint.steps.length} steps · due {format(new Date(`${sprint.dueDate}T00:00:00`), "MMM d")}
+                        Sprint · {sprint.status} ·{" "}
+                        {
+                          sprint.steps.filter((step) => step.kind === "task")
+                            .length
+                        }{" "}
+                        tasks · due{" "}
+                        {format(
+                          new Date(`${sprint.dueDate}T00:00:00`),
+                          "MMM d",
+                        )}
                       </p>
                     </div>
                     <button
@@ -903,11 +1189,18 @@ export default function Cabinet() {
                 {completeMilestones.map((milestone) => {
                   const due = formatDeadline(milestone);
                   return (
-                    <article key={milestone.id} className="flex items-center gap-3 px-5 py-4 md:px-6">
+                    <article
+                      key={milestone.id}
+                      className="flex items-center gap-3 px-5 py-4 md:px-6"
+                    >
                       <CalendarClock className="h-4 w-4 shrink-0 text-[#ffc268]/75" />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-white/72">{milestone.title}</p>
-                        <p className="mt-1 font-mono text-[8px] uppercase tracking-[.12em] text-white/30">Deadline · {milestone.status} · due {due.label}</p>
+                        <p className="truncate text-sm font-semibold text-white/72">
+                          {milestone.title}
+                        </p>
+                        <p className="mt-1 font-mono text-[8px] uppercase tracking-[.12em] text-white/30">
+                          Deadline · {milestone.status} · due {due.label}
+                        </p>
                       </div>
                       <button
                         type="button"
@@ -1088,7 +1381,12 @@ export default function Cabinet() {
       </section>
 
       <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
-        <img src={verticalOrnament} alt="" aria-hidden="true" className="panel-ornament panel-ornament--cabinet" />
+        <img
+          src={verticalOrnament}
+          alt=""
+          aria-hidden="true"
+          className="panel-ornament panel-ornament--cabinet"
+        />
         <div className="relative z-10 flex flex-col gap-4 border-b border-white/[.06] p-6 md:flex-row md:items-end md:justify-between md:p-7">
           <div>
             <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]">
@@ -1195,7 +1493,12 @@ export default function Cabinet() {
       </section>
 
       <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
-        <img src={verticalOrnament} alt="" aria-hidden="true" className="panel-ornament panel-ornament--cabinet panel-ornament--cabinet-next" />
+        <img
+          src={verticalOrnament}
+          alt=""
+          aria-hidden="true"
+          className="panel-ornament panel-ornament--cabinet panel-ornament--cabinet-next"
+        />
         <div className="relative z-10 border-b border-white/[.06] p-6 md:p-7">
           <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ff9a89]">
             Session traces
@@ -1210,9 +1513,9 @@ export default function Cabinet() {
         </div>
       </section>
 
-      <SessionNotes embedded />
+      {!preview && <SessionNotes embedded />}
 
-      <SessionRecordsPanel />
+      {!preview && <SessionRecordsPanel />}
 
       <Dialog
         open={dialog === "reminder"}
@@ -1334,17 +1637,17 @@ export default function Cabinet() {
           }
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-3xl border-[#72c6b3]/18 bg-[#080f14] p-7 shadow-2xl">
+        <DialogContent className="max-h-[92vh] max-w-4xl overflow-y-auto rounded-3xl border-[#72c6b3]/18 bg-[#080f14] p-7 shadow-2xl">
           <DialogHeader>
             <div className="mb-2 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">
-              <Route className="h-4 w-4" /> Sequential practice
+              <Route className="h-4 w-4" /> Flexible sprint route
             </div>
             <DialogTitle className="text-2xl font-bold text-white">
               {editingSprint ? "Edit sprint" : "Open a sprint"}
             </DialogTitle>
             <DialogDescription className="text-white/42">
-              One outcome, broken into steps that unlock in order across the
-              days you choose.
+              Shape a flexible route. Tasks may share dates, skip days, and be
+              completed in any order; open days preserve intentional space.
             </DialogDescription>
           </DialogHeader>
           <form className="mt-4 space-y-5" onSubmit={saveSprint}>
@@ -1400,9 +1703,13 @@ export default function Cabinet() {
                 <Label>Starts</Label>
                 <Input
                   type="date"
+                  required
                   value={sprintForm.startDate}
                   onChange={(event) =>
-                    setSprintForm({ ...sprintForm, startDate: event.target.value })
+                    setSprintForm({
+                      ...sprintForm,
+                      startDate: event.target.value,
+                    })
                   }
                   className="border-white/10 bg-white/[.04] text-white"
                 />
@@ -1411,127 +1718,242 @@ export default function Cabinet() {
                 <Label>Due</Label>
                 <Input
                   type="date"
+                  required
                   value={sprintForm.dueDate}
                   onChange={(event) =>
-                    setSprintForm({ ...sprintForm, dueDate: event.target.value })
+                    setSprintForm({
+                      ...sprintForm,
+                      dueDate: event.target.value,
+                    })
                   }
                   className="border-white/10 bg-white/[.04] text-white"
                 />
               </label>
             </div>
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/[.07] bg-white/[.025] px-4 py-3">
+              <p className="font-mono text-[9px] uppercase tracking-[.13em] text-white/36">
+                {sprintDayCount(sprintForm.startDate, sprintForm.dueDate)} days
+                ·{" "}
+                {
+                  sprintForm.steps.filter(
+                    (step) => (step.kind ?? "task") === "task",
+                  ).length
+                }{" "}
+                tasks ·{" "}
+                {
+                  sprintForm.steps.filter((step) => step.kind === "buffer")
+                    .length
+                }{" "}
+                open
+              </p>
+              <div
+                className="flex items-center gap-1.5"
+                aria-label="Shift entire sprint schedule"
+              >
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => shiftSprint(-1)}
+                  aria-label="Shift entire sprint one day earlier"
+                  className="h-8 gap-1 rounded-lg px-2 text-[8px] font-bold uppercase tracking-[.12em] text-white/42 hover:bg-white/[.05] hover:text-white"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" /> Shift 1 day
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => shiftSprint(1)}
+                  aria-label="Shift entire sprint one day later"
+                  className="h-8 gap-1 rounded-lg px-2 text-[8px] font-bold uppercase tracking-[.12em] text-white/42 hover:bg-white/[.05] hover:text-white"
+                >
+                  Shift 1 day <ArrowRight className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
             <div className="rounded-2xl border border-white/[.08] bg-black/15 p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <Label>Daily sequence</Label>
+                  <Label>Sprint route</Label>
                   <p className="mt-1 text-[10px] leading-4 text-white/30">
-                    Later steps remain quiet until the preceding step closes.
+                    Drag or use arrows to set priority. Dates can overlap or
+                    leave gaps.
                   </p>
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    const last = sprintForm.steps.at(-1);
-                    const nextDate = last
-                      ? format(
-                          addDays(new Date(`${last.plannedDate}T00:00:00`), 1),
-                          "yyyy-MM-dd",
-                        )
-                      : sprintForm.startDate;
-                    setSprintForm({
-                      ...sprintForm,
-                      dueDate:
-                        nextDate > sprintForm.dueDate
-                          ? nextDate
-                          : sprintForm.dueDate,
-                      steps: [
-                        ...sprintForm.steps,
-                        { title: "", plannedDate: nextDate },
-                      ],
-                    });
-                  }}
-                  className="h-9 gap-2 rounded-xl border-[#72c6b3]/22 text-[9px] font-bold uppercase tracking-[.12em] text-[#9ee3d5] hover:bg-[#72c6b3]/10"
-                >
-                  <Plus className="h-3.5 w-3.5" /> Day
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => addSprintStep("buffer")}
+                    className="h-9 gap-2 rounded-xl border-[#ffc268]/20 text-[9px] font-bold uppercase tracking-[.12em] text-[#ffe0a5]/75 hover:bg-[#ffc268]/10"
+                  >
+                    <Pause className="h-3.5 w-3.5" /> Open day
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => addSprintStep("task")}
+                    className="h-9 gap-2 rounded-xl border-[#72c6b3]/22 text-[9px] font-bold uppercase tracking-[.12em] text-[#9ee3d5] hover:bg-[#72c6b3]/10"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Task
+                  </Button>
+                </div>
               </div>
               <div className="mt-4 space-y-2">
-                {sprintForm.steps.map((step, index) => (
-                  <div
-                    key={index}
-                    className="grid gap-2 sm:grid-cols-[2.4rem_1fr_9rem_2rem] sm:items-center"
-                  >
-                    <span className="font-mono text-[9px] uppercase tracking-[.12em] text-[#72c6b3]/65">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <Input
-                      value={step.title}
-                      onChange={(event) =>
-                        setSprintForm({
-                          ...sprintForm,
-                          steps: sprintForm.steps.map((item, itemIndex) =>
-                            itemIndex === index
-                              ? { ...item, title: event.target.value }
-                              : item,
-                          ),
-                        })
-                      }
-                      className="border-white/10 bg-white/[.035] text-white"
-                      placeholder="Close this part"
-                      aria-label={`Step ${index + 1}`}
-                    />
-                    <Input
-                      type="date"
-                      value={step.plannedDate}
-                      onChange={(event) =>
-                        setSprintForm({
-                          ...sprintForm,
-                          steps: sprintForm.steps.map((item, itemIndex) =>
-                            itemIndex === index
-                              ? { ...item, plannedDate: event.target.value }
-                              : item,
-                          ),
-                        })
-                      }
-                      className="border-white/10 bg-white/[.035] text-white"
-                      aria-label={`Step ${index + 1} date`}
-                    />
-                    <button
-                      type="button"
-                      disabled={sprintForm.steps.length === 1}
-                      onClick={() =>
-                        setSprintForm({
-                          ...sprintForm,
-                          steps: sprintForm.steps.filter(
-                            (_, itemIndex) => itemIndex !== index,
-                          ),
-                        })
-                      }
-                      className="rounded-lg p-2 text-white/20 hover:bg-white/5 hover:text-[#ff8b7c] disabled:opacity-20"
-                      aria-label={`Remove step ${index + 1}`}
+                {sprintForm.steps.map((step, index) => {
+                  const kind = step.kind ?? "task";
+                  const buffer = kind === "buffer";
+                  return (
+                    <div
+                      key={step.id ?? `${kind}-${index}`}
+                      onDragOver={(event) => event.preventDefault()}
+                      onDrop={() => {
+                        if (draggedSprintStep !== null) {
+                          moveSprintStep(draggedSprintStep, index);
+                        }
+                        setDraggedSprintStep(null);
+                      }}
+                      className={`grid gap-2 rounded-xl border p-2 transition-[border-color,background-color] sm:grid-cols-[2rem_3.5rem_minmax(10rem,1fr)_8.75rem_6.5rem_2rem] sm:items-center ${draggedSprintStep === index ? "border-[#72c6b3]/45 bg-[#72c6b3]/[.08]" : buffer ? "border-[#ffc268]/12 bg-[#ffc268]/[.025]" : "border-white/[.055] bg-white/[.018]"}`}
                     >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
+                      <button
+                        type="button"
+                        draggable
+                        onDragStart={() => setDraggedSprintStep(index)}
+                        onDragEnd={() => setDraggedSprintStep(null)}
+                        className="flex h-9 cursor-grab items-center justify-center rounded-lg text-white/22 hover:bg-white/[.05] hover:text-white/60 active:cursor-grabbing"
+                        aria-label={`Drag route item ${index + 1}`}
+                        title="Drag to reorder"
+                      >
+                        <GripVertical className="h-4 w-4" />
+                      </button>
+                      <div className="flex items-center justify-center gap-0.5">
+                        <button
+                          type="button"
+                          disabled={index === 0}
+                          onClick={() => moveSprintStep(index, index - 1)}
+                          className="rounded-md p-1.5 text-white/28 hover:bg-white/[.06] hover:text-white disabled:opacity-15"
+                          aria-label={`Move route item ${index + 1} earlier`}
+                        >
+                          <ArrowUp className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={index === sprintForm.steps.length - 1}
+                          onClick={() => moveSprintStep(index, index + 1)}
+                          className="rounded-md p-1.5 text-white/28 hover:bg-white/[.06] hover:text-white disabled:opacity-15"
+                          aria-label={`Move route item ${index + 1} later`}
+                        >
+                          <ArrowDown className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                      <Input
+                        value={step.title}
+                        onChange={(event) => {
+                          setSprintForm({
+                            ...sprintForm,
+                            steps: sprintForm.steps.map((item, itemIndex) =>
+                              itemIndex === index
+                                ? { ...item, title: event.target.value }
+                                : item,
+                            ),
+                          });
+                          setSprintError("");
+                        }}
+                        className="border-white/10 bg-white/[.035] text-white"
+                        placeholder={
+                          buffer
+                            ? "Optional note for this open day"
+                            : "Task to close"
+                        }
+                        aria-label={`${buffer ? "Open day" : "Task"} ${index + 1} title`}
+                      />
+                      <Input
+                        type="date"
+                        value={step.plannedDate}
+                        onChange={(event) =>
+                          updateSprintStepDate(index, event.target.value)
+                        }
+                        className="border-white/10 bg-white/[.035] text-white"
+                        aria-label={`Route item ${index + 1} date`}
+                      />
+                      <select
+                        value={kind}
+                        onChange={(event) => {
+                          const nextKind = event.target.value as SprintStepKind;
+                          setSprintForm({
+                            ...sprintForm,
+                            steps: sprintForm.steps.map((item, itemIndex) =>
+                              itemIndex === index
+                                ? {
+                                    ...item,
+                                    kind: nextKind,
+                                    status:
+                                      nextKind === "buffer"
+                                        ? "pending"
+                                        : item.status,
+                                  }
+                                : item,
+                            ),
+                          });
+                          setSprintError("");
+                        }}
+                        className={`h-10 rounded-xl border bg-black/20 px-2 text-[9px] font-bold uppercase tracking-[.1em] ${buffer ? "border-[#ffc268]/18 text-[#ffe0a5]/70" : "border-[#72c6b3]/18 text-[#9ee3d5]/75"}`}
+                        aria-label={`Route item ${index + 1} type`}
+                      >
+                        <option value="task">Task</option>
+                        <option value="buffer">Open day</option>
+                      </select>
+                      <button
+                        type="button"
+                        disabled={sprintForm.steps.length === 1}
+                        onClick={() => {
+                          setSprintForm({
+                            ...sprintForm,
+                            steps: sprintForm.steps.filter(
+                              (_, itemIndex) => itemIndex !== index,
+                            ),
+                          });
+                          setSprintError("");
+                        }}
+                        className="rounded-lg p-2 text-white/20 hover:bg-white/5 hover:text-[#ff8b7c] disabled:opacity-20"
+                        aria-label={`Remove route item ${index + 1}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-            <div className="flex justify-end gap-2 border-t border-white/[.08] pt-5">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setDialog(null)}
-                className="text-white/55"
+            {sprintError && (
+              <div
+                role="alert"
+                className="rounded-xl border border-[#ff7868]/25 bg-[#ff7868]/[.08] px-4 py-3 text-xs leading-5 text-[#ffb1a7]"
               >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={createSprint.isPending || updateSprint.isPending}
-                className="signal-button gap-2 bg-[#287d71] text-white hover:bg-[#319686]"
-              >
-                <Route className="h-4 w-4" /> {editingSprint ? "Save changes" : "Open sprint"}
-              </Button>
+                {sprintError}
+              </div>
+            )}
+            <div className="flex items-center justify-between gap-3 border-t border-white/[.08] pt-5">
+              <p className="text-[10px] leading-4 text-white/28">
+                Saving keeps existing task history, even after reordering.
+              </p>
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setDialog(null)}
+                  className="text-white/55"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={createSprint.isPending || updateSprint.isPending}
+                  className="signal-button gap-2 bg-[#287d71] text-white hover:bg-[#319686]"
+                >
+                  <Route className="h-4 w-4" />{" "}
+                  {editingSprint ? "Save changes" : "Open sprint"}
+                </Button>
+              </div>
             </div>
           </form>
         </DialogContent>
@@ -1628,7 +2050,9 @@ export default function Cabinet() {
               </Button>
               <Button
                 type="submit"
-                disabled={createMilestone.isPending || updateMilestone.isPending}
+                disabled={
+                  createMilestone.isPending || updateMilestone.isPending
+                }
                 className="signal-button bg-[#e95448] text-white hover:bg-[#f26456]"
               >
                 {editingMilestone ? "Save changes" : "Place deadline"}

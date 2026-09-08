@@ -1,7 +1,7 @@
 # Open Finish Design Bible
 
 Status: active foundation
-Last updated: 2026-09-08
+Last updated: 2026-09-09
 
 This file contains only approved design decisions. Proposals, moodboards, references, and prototypes belong in explorations until approval.
 
@@ -96,6 +96,10 @@ Every approved pattern includes its loading, empty, error, success, edge, respon
 ### Record agency
 
 Every record created by the person remains correctable after creation. Editing preserves the record's identity and connected history. A reversible lifecycle action such as completing or closing a record must expose a clear way to restore it; closed records remain findable rather than collapsing into an unexplained count. Save, close, and restore actions provide visible success or actionable error feedback near the affected workflow. Deletion remains a separate destructive action and is not implied by editability.
+
+### Flexible sprint routes
+
+A sprint is an editable multi-day route, not a locked checklist. Tasks may share dates, leave gaps, and be completed in any order. Explicit open-day slots preserve intentional space without becoming tasks or affecting completion. Reordering keeps the identity and completion history of existing tasks; changing one task does not silently reset later work. The editor supports direct date changes, accessible reordering, whole-schedule shifts, task/open-day conversion, and local actionable validation.
 
 ## Design memory
 
