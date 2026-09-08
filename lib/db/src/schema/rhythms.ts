@@ -47,6 +47,7 @@ export const sprintStepsTable = pgTable(
       .notNull()
       .references(() => sprintsTable.id, { onDelete: "cascade" }),
     title: text("title").notNull(),
+    kind: text("kind").notNull().default("task"),
     plannedDate: date("planned_date", { mode: "string" }).notNull(),
     position: integer("position").notNull(),
     status: text("status").notNull().default("pending"),

@@ -43,6 +43,13 @@
       "when": 1788883200000,
       "tag": "0005_day_markers",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788969600000,
+      "tag": "0006_flexible_sprint_steps",
+      "breakpoints": true
     }
   ]
 }

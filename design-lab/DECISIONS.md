@@ -23,9 +23,20 @@ This is the permanent decision history. IDs never change; superseded entries rem
 | OF-0017 | Approved | Give navigation and buttons a calm interaction language: layered sidebar hierarchy, unmistakable current location, tactile hover/press/focus feedback, and reduced-motion parity.        | 2026-08-18 | User visual-improvement request                |
 | OF-0018 | Approved | Keep sport on a separate clock from practice/work: main bars and Momentum represent deliberate practice, while a slim secondary lane shows movement without turning it into work output. | 2026-08-18 | User sport-dashboard direction                 |
 | OF-0019 | Approved | Make the Activity library compact and scannable while expanding meaningful category, color, and icon choices; type and icon labels must support color rather than depend on it.          | 2026-08-18 | User activity-library request                  |
-| OF-0023 | Approved | Separate materials by meaning: analytics and data use Hi-tech Data instrumentation; navigation, rooms and ritual surfaces use the traditional dōjō language.                              | 2026-09-02 | Explicit user visual-system rule               |
-| OF-0024 | Approved | Keep every user-created record correctable; make reversible lifecycle states restorable and keep closed records findable.                                                               | 2026-09-03 | Explicit user record-agency rule               |
+| OF-0023 | Approved | Separate materials by meaning: analytics and data use Hi-tech Data instrumentation; navigation, rooms and ritual surfaces use the traditional dōjō language.                             | 2026-09-02 | Explicit user visual-system rule               |
+| OF-0024 | Approved | Keep every user-created record correctable; make reversible lifecycle states restorable and keep closed records findable.                                                                | 2026-09-03 | Explicit user record-agency rule               |
 | OF-0025 | Approved | Model rest as a reversible calendar-day marker that coexists with sessions, adds no activity, and neutrally bridges streak and Momentum continuity.                                      | 2026-09-08 | Explicit user rest-day requirement             |
+| OF-0026 | Approved | Treat sprints as flexible editable routes with independent task order, open days, non-sequential completion, schedule shifting, and identity-preserving edits.                           | 2026-09-09 | Explicit user sprint-editing requirement       |
+
+## OF-0026 — Sprints are flexible routes, not locked sequences
+
+- **Status:** Approved.
+- **Approved:** 2026-09-09, explicit request to substantially improve sprint editing, including rearranging days and tasks and leaving gaps.
+- **Problem:** chronological validation, sequential completion locks, and full step replacement made a sprint brittle and could discard the identity and completion time of edited tasks.
+- **Direction:** separate route order from calendar date; allow tasks to overlap, skip dates, and complete independently. Add explicit open-day slots, drag and keyboard-accessible reorder controls, task/open-day conversion, and whole-route date shifting. Preserve existing step IDs and completion timestamps when saving edits.
+- **Trade-off:** the route is less prescriptive than a strict waterfall, but better reflects changing personal practice and recovery.
+- **Validation:** an existing sprint can be reordered, shifted, expanded with open days, and edited without recreating unchanged tasks; any task can be completed or reopened independently; invalid drafts explain the correction next to the save action.
+- **Affected rules:** System completeness → Record agency; Hi-tech Data controls; motion and accessibility.
 
 ## OF-0025 — Rest is recorded without becoming activity
 
@@ -62,7 +73,7 @@ This is the permanent decision history. IDs never change; superseded entries rem
 - **Status:** Approved art direction; not blanket approval of component details.
 - **Approved:** 2026-08-28, explicit user clarification: the site has evolved toward Neotrad Japan + Hi-tech Data and future work must adhere to the current, more developed concept.
 - **Problem and context:** reading the early D/E art-direction brief as the complete current style risks removing the expressive Japanese imagery and ornament added during subsequent iterations.
-- **Evidence:** user clarification is the approval source. The uploaded *Open Finish — Dashboard Art Direction v2* supplies the early composition rationale; *Eternal Dodjo / Open Finish — обновлённый предрелизный анализ* (2026-08-23, reviewed revision `65dd39f`) records later static figures, scenes, emblems, and controlled ornament. These reports describe their own historical snapshots, not newly verified production state or authorization to execute their recommendations. The separate Desktop report does not expand the current website-only scope.
+- **Evidence:** user clarification is the approval source. The uploaded _Open Finish — Dashboard Art Direction v2_ supplies the early composition rationale; _Eternal Dodjo / Open Finish — обновлённый предрелизный анализ_ (2026-08-23, reviewed revision `65dd39f`) records later static figures, scenes, emblems, and controlled ornament. These reports describe their own historical snapshots, not newly verified production state or authorization to execute their recommendations. The separate Desktop report does not expand the current website-only scope.
 - **Alternatives:** preserve and refine the current hybrid; return to the earlier minimalist interpretation; restart concept exploration. The user selected continuity with the current hybrid.
 - **Direction:** expressive Japanese illustration and ornament provide identity, while precise typography, chart structure, and clear control states provide the data layer. Use existing project assets as visual references and implementation material where suitable.
 - **Trade-off:** allow greater visual richness while protecting data legibility and the primary action. Do not interpret technical precision as permission for unrelated effects or gamification.
