@@ -703,6 +703,7 @@ export const GetCalendarResponseItem = zod.object({
   "sportMinutes": zod.int(),
   "goalMinutes": zod.int(),
   "status": zod.enum(['under', 'met', 'over']).describe('under: below goal, met: reached goal (below the \'heavily over\' threshold), over: heavily exceeded the goal'),
+  "restDay": zod.boolean().describe('A separate rest marker; activity logs and minutes remain unchanged.'),
   "logs": zod.array(zod.object({
   "id": zod.int(),
   "activityId": zod.int(),
@@ -716,5 +717,35 @@ export const GetCalendarResponseItem = zod.object({
 }))
 })
 export const GetCalendarResponse = zod.array(GetCalendarResponseItem)
+
+
+/**
+ * @summary Mark a calendar day as a rest day without changing its activity logs
+ */
+export const putRestDayPathDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
+export const PutRestDayParams = zod.object({
+  "date": zod.coerce.string().regex(putRestDayPathDateRegExp)
+})
+
+export const PutRestDayResponse = zod.object({
+  "date": zod.string(),
+  "kind": zod.enum(['rest']),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Remove a rest day marker without changing its activity logs
+ */
+export const deleteRestDayPathDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
+export const DeleteRestDayParams = zod.object({
+  "date": zod.coerce.string().regex(deleteRestDayPathDateRegExp)
+})
+
+export const DeleteRestDayResponse = zod.void()
 
 

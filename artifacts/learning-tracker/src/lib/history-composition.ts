@@ -5,6 +5,9 @@ export function buildHistoryComposition(
   dates: string[],
 ) {
   const allowedDates = new Set(dates);
+  const restDates = new Set(
+    calendar.filter((day) => day.restDay).map((day) => day.date),
+  );
   const channels = new Map<
     number,
     {
@@ -50,6 +53,7 @@ export function buildHistoryComposition(
     }));
     return {
       date,
+      restDay: restDates.has(date),
       segments,
       practice: segments
         .filter((s) => s.type === "practice")

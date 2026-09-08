@@ -19,6 +19,7 @@ import {
 } from "../lib/calendar";
 import { rankFrequentActivities } from "../lib/activity-frequency";
 import { resolveActivityType } from "../lib/activity-type";
+import { listRestDayDates } from "../lib/day-markers";
 
 const router: IRouter = Router();
 
@@ -30,7 +31,10 @@ function getLast7Days(today: string): string[] {
 
 router.get("/dashboard", async (req, res): Promise<void> => {
   const today = displayDateForRequest(req);
-  const activities = await db.select().from(activitiesTable);
+  const [activities, restDayDates] = await Promise.all([
+    db.select().from(activitiesTable),
+    listRestDayDates(),
+  ]);
   const todayLogs = await db
     .select()
     .from(activityLogsTable)
@@ -85,6 +89,7 @@ router.get("/dashboard", async (req, res): Promise<void> => {
       .filter((log) => activityTypeById.get(log.activityId) !== "friction")
       .map((log) => log.logDate),
     today,
+    restDayDates,
   ).currentStreak;
 
   const totalAchievements = (await db.select().from(achievementsTable)).length;
@@ -119,8 +124,11 @@ router.get("/dashboard", async (req, res): Promise<void> => {
 });
 
 router.get("/streaks", async (req, res): Promise<void> => {
-  const activities = await db.select().from(activitiesTable);
-  const logs = await db.select().from(activityLogsTable);
+  const [activities, logs, restDayDates] = await Promise.all([
+    db.select().from(activitiesTable),
+    db.select().from(activityLogsTable),
+    listRestDayDates(),
+  ]);
   const today = todayForRequest(req);
 
   res.json(
@@ -134,6 +142,7 @@ router.get("/streaks", async (req, res): Promise<void> => {
               .filter((log) => log.activityId === activity.id)
               .map((log) => log.logDate),
             today,
+            restDayDates,
           ),
         }))
         .sort((a, b) => b.currentStreak - a.currentStreak),

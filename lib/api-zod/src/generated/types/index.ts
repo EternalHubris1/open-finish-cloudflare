@@ -24,6 +24,8 @@ export * from './calendarLogEntry';
 export * from './dailyContext';
 export * from './dailyContextInput';
 export * from './dashboardSummary';
+export * from './dayMarker';
+export * from './dayMarkerKind';
 export * from './dayProgress';
 export * from './evidenceShelfInput';
 export * from './frequentActivity';

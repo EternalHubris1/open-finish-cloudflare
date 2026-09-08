@@ -1,7 +1,7 @@
 # Open Finish Design Bible
 
 Status: active foundation
-Last updated: 2026-09-03
+Last updated: 2026-09-08
 
 This file contains only approved design decisions. Proposals, moodboards, references, and prototypes belong in explorations until approval.
 
@@ -46,6 +46,10 @@ Momentum is a signature metaphor for the current tempo of development. It is nev
 Practice/work and sport are distinct activity domains. The Dashboard's vertical bars, targets, focused totals, and Momentum use practice time only. Sport appears directly beneath each day as a slim horizontal teal lane with its own minute label; its visual hierarchy is secondary but never hidden. History preserves the same split in summaries, charts, selected-day details, and activity pages. A sport session must never inflate practice Momentum.
 
 Activity type cannot be communicated by color alone. Compact labels and semantic icons accompany the restrained expanded palette. The Activity library favors a dense, scannable grid; its richer icon, color, and category choices belong inside creation/editing rather than expanding every card.
+
+### Rest days
+
+A rest day is a calendar-day marker, not an activity, zero-duration session, reward, or missing-data substitute. It may coexist with recorded practice and sport on the same date. It never adds minutes or an active day; a marked rest day pauses streak continuity and Momentum decay without increasing either measure. Rest remains identifiable through a moon symbol and text, not color alone, and the marker can be removed without changing session history.
 
 ## General rewards
 

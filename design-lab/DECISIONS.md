@@ -25,6 +25,17 @@ This is the permanent decision history. IDs never change; superseded entries rem
 | OF-0019 | Approved | Make the Activity library compact and scannable while expanding meaningful category, color, and icon choices; type and icon labels must support color rather than depend on it.          | 2026-08-18 | User activity-library request                  |
 | OF-0023 | Approved | Separate materials by meaning: analytics and data use Hi-tech Data instrumentation; navigation, rooms and ritual surfaces use the traditional dōjō language.                              | 2026-09-02 | Explicit user visual-system rule               |
 | OF-0024 | Approved | Keep every user-created record correctable; make reversible lifecycle states restorable and keep closed records findable.                                                               | 2026-09-03 | Explicit user record-agency rule               |
+| OF-0025 | Approved | Model rest as a reversible calendar-day marker that coexists with sessions, adds no activity, and neutrally bridges streak and Momentum continuity.                                      | 2026-09-08 | Explicit user rest-day requirement             |
+
+## OF-0025 — Rest is recorded without becoming activity
+
+- **Status:** Approved.
+- **Approved:** 2026-09-08, explicit requirement to display a day as a rest day while logically coexisting with all activity views.
+- **Problem:** an empty day cannot distinguish intentional recovery from missing activity, while inventing a zero-minute activity would corrupt the meaning of sessions and analytics.
+- **Direction:** store one reversible rest marker per calendar date. Show it in Dashboard, History, daily composition, weekly traces, and per-activity lines. Existing sessions remain intact and visible. Rest adds neither minutes nor active days; it bridges continuity without increasing streak length and holds Momentum rather than creating energy.
+- **Trade-off:** a date may truthfully show both rest and recorded sessions; the interface explains that the marker is contextual rather than mutually exclusive.
+- **Validation:** marking and unmarking a past or current date changes its visible status everywhere without changing any logged duration; rest-only days remain selectable; future dates cannot be marked.
+- **Affected rules:** Data visualization, Practice and sport clocks, Record agency, continuity data trust.
 
 ## OF-0024 — User-owned records remain adjustable
 

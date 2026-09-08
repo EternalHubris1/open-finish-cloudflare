@@ -1,10 +1,12 @@
 import { format, isAfter, isSameDay, parseISO } from "date-fns";
+import { MoonStar } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface DailyActivityPoint {
   date: string;
   minutes: number;
   secondaryMinutes?: number;
+  restDay?: boolean;
 }
 
 interface DailyActivityChartProps {
@@ -37,8 +39,9 @@ export function DailyActivityChart({
     ...days.map((day) => day.secondaryMinutes ?? 0),
     1,
   );
-  const hasActivity = days.some(
-    (day) => day.minutes > 0 || (day.secondaryMinutes ?? 0) > 0,
+  const hasRecordedDay = days.some(
+    (day) =>
+      day.minutes > 0 || (day.secondaryMinutes ?? 0) > 0 || day.restDay,
   );
   const today = new Date();
   const shortRange = days.length <= 7;
@@ -88,6 +91,7 @@ export function DailyActivityChart({
               const intensity =
                 day.minutes > 0 ? Math.sqrt(day.minutes / maxMinutes) : 0;
               const hasSignal = day.minutes > 0 || sport > 0;
+              const restDay = Boolean(day.restDay);
               const threshold = intensityThresholds.findIndex(
                 (limit) => day.minutes <= limit,
               );
@@ -98,7 +102,7 @@ export function DailyActivityChart({
                     ? intensityThresholds.length + 1
                     : threshold + 1;
               const cellColor = colorScale?.[scaleIndex] ?? color;
-              const label = `${format(date, "MMMM d, yyyy")}: ${day.minutes} practice minutes and ${sport} sport minutes`;
+              const label = `${format(date, "MMMM d, yyyy")}: ${day.minutes} practice minutes and ${sport} sport minutes${restDay ? "; marked as a rest day" : ""}`;
               return (
                 <button
                   key={day.date}
@@ -126,7 +130,9 @@ export function DailyActivityChart({
                   )}
                   style={{
                     backgroundColor: ornamentSrc
-                      ? `rgba(244,237,229,${hasSignal ? 0.65 + intensity * 0.28 : 0.035})`
+                      ? restDay && !hasSignal
+                        ? "rgba(91,111,143,.28)"
+                        : `rgba(244,237,229,${hasSignal ? 0.65 + intensity * 0.28 : 0.035})`
                       : day.minutes > 0
                         ? cellColor
                         : "rgba(255,255,255,.04)",
@@ -188,13 +194,21 @@ export function DailyActivityChart({
                       }}
                     />
                   )}
+                  {restDay && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute bottom-1 right-1 z-20 grid h-4 w-4 place-items-center rounded-full border border-[#bed0ea]/35 bg-[#101923]/88 text-[#c9d8ec] shadow-[0_0_9px_rgba(148,174,210,.24)]"
+                    >
+                      <MoonStar className="h-2.5 w-2.5" />
+                    </span>
+                  )}
                 </button>
               );
             })}
           </div>
         </div>
       </div>
-      {!hasActivity && (
+      {!hasRecordedDay && (
         <p className="mt-3 text-xs text-white/55">{emptyLabel}</p>
       )}
     </div>

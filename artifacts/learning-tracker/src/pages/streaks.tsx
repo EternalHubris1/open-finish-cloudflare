@@ -41,16 +41,22 @@ function buildDays(
   calendarDays: CalendarDay[],
 ): DailyActivityPoint[] {
   const minutesByDate = new Map<string, number>();
+  const restDates = new Set<string>();
   calendarDays.forEach((day) => {
     const minutes = day.logs
       .filter((log) => log.activityId === activity.id)
       .reduce((sum, log) => sum + log.durationMinutes, 0);
     minutesByDate.set(day.date, minutes);
+    if (day.restDay) restDates.add(day.date);
   });
 
   return Array.from({ length: WEEKS_TO_SHOW * 7 }, (_, index) => {
     const date = format(addDays(start, index), "yyyy-MM-dd");
-    return { date, minutes: minutesByDate.get(date) ?? 0 };
+    return {
+      date,
+      minutes: minutesByDate.get(date) ?? 0,
+      restDay: restDates.has(date),
+    };
   });
 }
 
