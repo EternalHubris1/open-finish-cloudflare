@@ -8,7 +8,7 @@ import { customFetch, type ErrorType } from "./custom-fetch";
 
 export type MilestonePeriod = "week" | "month" | "custom";
 export type MilestoneStatus = "open" | "complete" | "archived";
-export type DojoCabinetKind = "link" | "note";
+export type DojoCabinetKind = "link" | "note" | "repository";
 
 export interface Milestone {
   id: number;

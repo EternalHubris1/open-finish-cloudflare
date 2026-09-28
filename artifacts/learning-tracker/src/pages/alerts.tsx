@@ -35,12 +35,14 @@ import {
   usePeriodReflection,
   usePutPeriodReflection,
   useUpdateAlert,
+  useUpdateDojoCabinetItem,
   useUpdateMilestone,
   useUpdateSprint,
   useUpdateSprintStep,
   useDeleteSprint,
   type Alert,
   type AlertInput,
+  type DojoCabinetKind,
   type DojoCabinetItem,
   type Milestone,
   type MilestoneInput,
@@ -76,6 +78,7 @@ import {
   ChevronRight,
   ExternalLink,
   GripVertical,
+  Github,
   Link2,
   ListChecks,
   Pencil,
@@ -88,6 +91,33 @@ import {
 } from "lucide-react";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+const COURSE_REPOSITORIES = [
+  {
+    id: "classic-ml-dl",
+    title: "Classic ML + DL",
+    slug: "EternalHubris1/classic-ml-dl-course",
+    url: "https://github.com/EternalHubris1/classic-ml-dl-course",
+    note: "Private offline archive of the Classic ML + DL course.",
+  },
+  {
+    id: "agents",
+    title: "AI Agents",
+    slug: "EternalHubris1/agents-course",
+    url: "https://github.com/EternalHubris1/agents-course",
+    note: "Private offline archive of the Agents course.",
+  },
+] as const;
+
+function repositoryKey(value: string | null | undefined) {
+  return (
+    value
+      ?.trim()
+      .replace(/\.git$/i, "")
+      .replace(/\/$/, "")
+      .toLowerCase() ?? ""
+  );
+}
 
 type DialogKind = "reminder" | "milestone" | "sprint" | "cabinet" | null;
 
@@ -176,6 +206,59 @@ const previewSprints: Sprint[] = [
   },
 ];
 
+const previewCabinetItems: DojoCabinetItem[] = [
+  {
+    id: 2901,
+    periodReflectionId: null,
+    title: "Classic ML + DL",
+    url: COURSE_REPOSITORIES[0].url,
+    note: COURSE_REPOSITORIES[0].note,
+    kind: "repository",
+    position: 0,
+    createdAt: "2026-09-22T20:00:00.000Z",
+  },
+  {
+    id: 2902,
+    periodReflectionId: null,
+    title: "AI Agents",
+    url: COURSE_REPOSITORIES[1].url,
+    note: COURSE_REPOSITORIES[1].note,
+    kind: "repository",
+    position: 1,
+    createdAt: "2026-09-22T20:05:00.000Z",
+  },
+  {
+    id: 2903,
+    periodReflectionId: null,
+    title: "Advanced Angdan · tower course",
+    url: "https://example.com/course",
+    note: "Primary course workspace.",
+    kind: "link",
+    position: 2,
+    createdAt: "2026-09-23T08:00:00.000Z",
+  },
+  {
+    id: 2904,
+    periodReflectionId: null,
+    title: "Mathematics for DS",
+    url: "https://example.com/math",
+    note: "Reference playlist.",
+    kind: "link",
+    position: 3,
+    createdAt: "2026-09-23T08:05:00.000Z",
+  },
+  {
+    id: 2905,
+    periodReflectionId: null,
+    title: "Semester notes",
+    url: null,
+    note: "Return to the first semester summary before planning the next block.",
+    kind: "note",
+    position: 4,
+    createdAt: "2026-09-23T08:10:00.000Z",
+  },
+];
+
 export default function Cabinet() {
   const preview =
     import.meta.env.DEV &&
@@ -207,9 +290,11 @@ export default function Cabinet() {
     : Array.isArray(sprintsQuery.data)
       ? sprintsQuery.data
       : [];
-  const cabinetItems = Array.isArray(cabinetQuery.data)
-    ? cabinetQuery.data
-    : [];
+  const cabinetItems = preview
+    ? previewCabinetItems
+    : Array.isArray(cabinetQuery.data)
+      ? cabinetQuery.data
+      : [];
   const alertsLoading = !preview && alertsQuery.isLoading;
   const activitiesLoading = !preview && activitiesQuery.isLoading;
   const milestonesLoading = !preview && milestonesQuery.isLoading;
@@ -229,6 +314,7 @@ export default function Cabinet() {
   const updateMilestone = useUpdateMilestone();
   const deleteMilestone = useDeleteMilestone();
   const createCabinetItem = useCreateDojoCabinetItem();
+  const updateCabinetItem = useUpdateDojoCabinetItem();
   const deleteCabinetItem = useDeleteDojoCabinetItem();
   const putReflection = usePutPeriodReflection();
 
@@ -238,6 +324,8 @@ export default function Cabinet() {
     null,
   );
   const [editingSprint, setEditingSprint] = useState<Sprint | null>(null);
+  const [editingCabinetItem, setEditingCabinetItem] =
+    useState<DojoCabinetItem | null>(null);
   const [draggedSprintStep, setDraggedSprintStep] = useState<number | null>(
     null,
   );
@@ -277,12 +365,19 @@ export default function Cabinet() {
       })),
     };
   });
-  const [cabinetForm, setCabinetForm] = useState({
+  const [cabinetForm, setCabinetForm] = useState<{
+    title: string;
+    url: string;
+    note: string;
+    kind: DojoCabinetKind;
+  }>({
     title: "",
     url: "",
     note: "",
-    kind: "link" as const,
+    kind: "link",
   });
+  const [cabinetError, setCabinetError] = useState("");
+  const [repositoryError, setRepositoryError] = useState("");
   const [reflectionDraft, setReflectionDraft] = useState({
     notice: "",
     carry: "",
@@ -321,9 +416,34 @@ export default function Cabinet() {
     () => sprints.filter((sprint) => sprint.status !== "active"),
     [sprints],
   );
-  const recentCabinetItems = useMemo(
-    () => cabinetItems.slice(-2).reverse(),
+  const cabinetLinks = useMemo(
+    () => cabinetItems.filter((item) => Boolean(item.url)),
     [cabinetItems],
+  );
+  const cabinetNotes = useMemo(
+    () => cabinetItems.filter((item) => !item.url),
+    [cabinetItems],
+  );
+  const repositoriesByUrl = useMemo(
+    () =>
+      new Map(
+        cabinetItems.flatMap((item) => {
+          const key = repositoryKey(item.url);
+          return key ? [[key, item] as const] : [];
+        }),
+      ),
+    [cabinetItems],
+  );
+  const otherCabinetLinks = useMemo(
+    () =>
+      cabinetLinks.filter(
+        (item) =>
+          !COURSE_REPOSITORIES.some(
+            (repository) =>
+              repositoryKey(repository.url) === repositoryKey(item.url),
+          ),
+      ),
+    [cabinetLinks],
   );
 
   const invalidateCabinet = () => {
@@ -360,9 +480,24 @@ export default function Cabinet() {
     setDialog("reminder");
   };
 
-  const openCabinetDialog = (periodReflectionId: number | null = null) => {
-    setCabinetReflectionId(periodReflectionId);
-    setCabinetForm({ title: "", url: "", note: "", kind: "link" });
+  const openCabinetDialog = (
+    periodReflectionId: number | null = null,
+    item: DojoCabinetItem | null = null,
+    kind: DojoCabinetKind = "link",
+  ) => {
+    setCabinetReflectionId(item?.periodReflectionId ?? periodReflectionId);
+    setEditingCabinetItem(item);
+    setCabinetError("");
+    setCabinetForm(
+      item
+        ? {
+            title: item.title,
+            url: item.url ?? "",
+            note: item.note,
+            kind: item.kind,
+          }
+        : { title: "", url: "", note: "", kind },
+    );
     setDialog("cabinet");
   };
 
@@ -616,25 +751,119 @@ export default function Cabinet() {
 
   const saveCabinetItem = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!cabinetForm.title.trim()) return;
+    setCabinetError("");
+    if (!cabinetForm.title.trim()) {
+      setCabinetError("Give this item a short name.");
+      return;
+    }
+    if (cabinetForm.kind === "repository" && !cabinetForm.url.trim()) {
+      setCabinetError("A repository needs its GitHub address.");
+      return;
+    }
+    const options = {
+      onSuccess: () => {
+        invalidateCabinet();
+        setDialog(null);
+        setEditingCabinetItem(null);
+        setCabinetForm({ title: "", url: "", note: "", kind: "link" as const });
+        toast({
+          title: editingCabinetItem
+            ? "Cabinet item updated"
+            : cabinetForm.kind === "repository"
+              ? "Repository kept close"
+              : "Placed in the dojo cabinet",
+        });
+      },
+      onError: () =>
+        setCabinetError(
+          "This item could not be saved. Check the address and try again.",
+        ),
+    };
+    if (editingCabinetItem) {
+      updateCabinetItem.mutate(
+        {
+          id: editingCabinetItem.id,
+          data: {
+            ...cabinetForm,
+            periodReflectionId: cabinetReflectionId,
+          },
+        },
+        options,
+      );
+      return;
+    }
     createCabinetItem.mutate(
       {
         ...cabinetForm,
         periodReflectionId: cabinetReflectionId,
         position: cabinetItems.length,
       },
+      options,
+    );
+  };
+
+  const toggleCourseRepository = (
+    repository: (typeof COURSE_REPOSITORIES)[number],
+  ) => {
+    const selected = repositoriesByUrl.get(repositoryKey(repository.url));
+    setRepositoryError("");
+    if (selected) {
+      deleteCabinetItem.mutate(
+        { id: selected.id },
+        {
+          onSuccess: () => {
+            invalidateCabinet();
+            toast({
+              title: `${repository.title} removed from the quick shelf`,
+            });
+          },
+          onError: () =>
+            setRepositoryError(
+              "The repository could not be removed. Try again.",
+            ),
+        },
+      );
+      return;
+    }
+    createCabinetItem.mutate(
+      {
+        title: repository.title,
+        url: repository.url,
+        note: repository.note,
+        kind: "repository",
+        position: cabinetItems.length,
+      },
+      {
+        onSuccess: () => {
+          invalidateCabinet();
+          toast({ title: `${repository.title} added to the quick shelf` });
+        },
+        onError: () =>
+          setRepositoryError(
+            "The repository could not be added. Check the connection and try again.",
+          ),
+      },
+    );
+  };
+
+  const removeCabinetItem = () => {
+    if (!editingCabinetItem) return;
+    if (
+      !window.confirm(`Remove “${editingCabinetItem.title}” from the cabinet?`)
+    )
+      return;
+    setCabinetError("");
+    deleteCabinetItem.mutate(
+      { id: editingCabinetItem.id },
       {
         onSuccess: () => {
           invalidateCabinet();
           setDialog(null);
-          setCabinetForm({ title: "", url: "", note: "", kind: "link" });
-          toast({ title: "Placed in the dojo cabinet" });
+          setEditingCabinetItem(null);
+          toast({ title: "Cabinet item removed" });
         },
         onError: () =>
-          toast({
-            title: "Couldn’t save cabinet item",
-            variant: "destructive",
-          }),
+          setCabinetError("This item could not be removed. Try again."),
       },
     );
   };
@@ -1307,7 +1536,7 @@ export default function Cabinet() {
             </div>
           </section>
 
-          <section className="relative min-h-[18rem] isolate overflow-hidden rounded-3xl border border-[#ffc268]/20 bg-[#0c1119] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] md:p-6">
+          <section className="relative isolate overflow-hidden rounded-3xl border border-[#ffc268]/20 bg-[#0c1119] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] md:p-6">
             <img
               src={armoryRoom}
               alt=""
@@ -1316,7 +1545,7 @@ export default function Cabinet() {
             />
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.76)_0%,rgba(8,13,20,.56)_42%,rgba(8,13,20,.26)_68%,rgba(8,13,20,.12)_100%),linear-gradient(0deg,rgba(8,13,20,.28),transparent_58%)]" />
             <div className="pointer-events-none absolute -right-9 -top-9 h-32 w-32 rounded-full bg-[#ffc268]/[.16] blur-3xl" />
-            <div className="relative z-10 flex h-full max-w-[15rem] flex-col">
+            <div className="relative z-10 flex h-full flex-col">
               <div className="flex items-center gap-2 text-[#ffe0a5]">
                 <ScrollText
                   className="h-5 w-5 shrink-0 opacity-85 drop-shadow-[0_0_10px_rgba(255,194,104,.18)]"
@@ -1329,167 +1558,220 @@ export default function Cabinet() {
               <h2 className="mt-3 text-xl font-bold leading-tight text-white">
                 Keep the tools that matter.
               </h2>
-              {recentCabinetItems.length ? (
-                <div className="mt-4 space-y-2">
-                  {recentCabinetItems.map((item) => {
-                    const content = (
-                      <>
-                        <Link2 className="h-3.5 w-3.5 shrink-0 text-[#ffe0a5]/75" />
-                        <span className="min-w-0 flex-1 truncate">
-                          {item.title}
-                        </span>
-                        {item.url && (
-                          <ExternalLink className="h-3 w-3 shrink-0 opacity-55" />
-                        )}
-                      </>
+              <div className="mt-5">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[8px] font-bold uppercase tracking-[.18em] text-[#ffb1a7]">
+                    Course repositories
+                  </p>
+                  <span className="font-mono text-[8px] uppercase tracking-[.12em] text-white/32">
+                    {
+                      COURSE_REPOSITORIES.filter((repository) =>
+                        repositoriesByUrl.has(repositoryKey(repository.url)),
+                      ).length
+                    }
+                    /{COURSE_REPOSITORIES.length} kept
+                  </span>
+                </div>
+                <div className="mt-2 space-y-2">
+                  {COURSE_REPOSITORIES.map((repository) => {
+                    const selected = repositoriesByUrl.get(
+                      repositoryKey(repository.url),
                     );
-                    return item.url ? (
-                      <a
-                        key={item.id}
-                        href={item.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="signal-button flex items-center gap-2 rounded-xl border border-white/[.1] bg-black/[.2] px-3 py-2 text-[10px] font-semibold text-white/82 transition-colors hover:border-[#ffc268]/38 hover:bg-white/[.07] hover:text-white"
-                      >
-                        {content}
-                      </a>
-                    ) : (
+                    return (
                       <div
-                        key={item.id}
-                        className="flex items-center gap-2 rounded-xl border border-white/[.08] bg-black/[.16] px-3 py-2 text-[10px] font-semibold text-white/70"
+                        key={repository.id}
+                        className="group flex items-center gap-2 rounded-xl border border-[#ff8b7c]/14 bg-[#080b10]/46 p-2"
                       >
-                        {content}
+                        <a
+                          href={repository.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="signal-button flex min-w-0 flex-1 items-center gap-2 rounded-lg px-1 py-1 text-left hover:text-white"
+                        >
+                          <Github
+                            aria-hidden="true"
+                            className="h-4 w-4 shrink-0 text-[#ffb1a7]"
+                          />
+                          <span className="min-w-0">
+                            <span
+                              className="block truncate text-[10px] font-semibold text-white/88"
+                              title={selected?.title ?? repository.title}
+                            >
+                              {selected?.title ?? repository.title}
+                            </span>
+                            <span className="block truncate font-mono text-[7px] text-white/30">
+                              {repository.slug}
+                            </span>
+                          </span>
+                          <ExternalLink
+                            aria-hidden="true"
+                            className="ml-auto h-3 w-3 shrink-0 text-white/30"
+                          />
+                        </a>
+                        {selected && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              openCabinetDialog(
+                                selected.periodReflectionId,
+                                selected,
+                              )
+                            }
+                            className="signal-button rounded-lg p-2 text-white/30 hover:bg-white/[.06] hover:text-white"
+                            aria-label={`Edit ${selected.title}`}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => toggleCourseRepository(repository)}
+                          disabled={
+                            createCabinetItem.isPending ||
+                            deleteCabinetItem.isPending
+                          }
+                          aria-pressed={Boolean(selected)}
+                          aria-label={`${selected ? "Remove" : "Keep"} ${repository.title} ${selected ? "from" : "on"} the quick shelf`}
+                          className={`signal-button min-w-[4.3rem] rounded-lg border px-2 py-2 text-[7px] font-bold uppercase tracking-[.12em] disabled:opacity-45 ${selected ? "border-[#72c6b3]/24 bg-[#72c6b3]/[.08] text-[#9ee3d5]" : "border-white/[.09] bg-white/[.035] text-white/42 hover:border-[#ffc268]/30 hover:text-[#ffe0a5]"}`}
+                        >
+                          {selected ? "Kept" : "Keep"}
+                        </button>
                       </div>
                     );
                   })}
                 </div>
-              ) : (
-                <p className="mt-3 text-xs leading-5 text-white/52">
-                  Save an important link, reference, or quiet note without
-                  turning it into a task.
-                </p>
+                {repositoryError && (
+                  <p
+                    className="mt-2 rounded-lg border border-[#ff8b7c]/20 bg-[#ff7868]/[.08] px-3 py-2 text-[10px] leading-4 text-[#ffb1a7]"
+                    role="alert"
+                  >
+                    {repositoryError}
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-5 border-t border-white/[.08] pt-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[8px] font-bold uppercase tracking-[.18em] text-[#ffe0a5]/70">
+                    Saved links
+                  </p>
+                  <span className="font-mono text-[8px] text-white/28">
+                    {cabinetLinks.length} total
+                  </span>
+                </div>
+                {otherCabinetLinks.length ? (
+                  <div className="mt-2 space-y-2">
+                    {otherCabinetLinks.map((item) => {
+                      const content = (
+                        <>
+                          <Link2
+                            aria-hidden="true"
+                            className="h-3.5 w-3.5 shrink-0 text-[#ffe0a5]/75"
+                          />
+                          <span
+                            className="min-w-0 flex-1 truncate"
+                            title={item.title}
+                          >
+                            {item.title}
+                          </span>
+                          {item.url && (
+                            <ExternalLink
+                              aria-hidden="true"
+                              className="h-3 w-3 shrink-0 opacity-55"
+                            />
+                          )}
+                        </>
+                      );
+                      return item.url ? (
+                        <div
+                          key={item.id}
+                          className="group flex items-stretch overflow-hidden rounded-xl border border-white/[.1] bg-black/[.2] transition-colors hover:border-[#ffc268]/38 hover:bg-white/[.07]"
+                        >
+                          <a
+                            href={item.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="signal-button flex min-w-0 flex-1 items-center gap-2 px-3 py-2 text-[10px] font-semibold text-white/82 hover:text-white"
+                          >
+                            {content}
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              openCabinetDialog(item.periodReflectionId, item)
+                            }
+                            className="signal-button grid w-9 shrink-0 place-items-center border-l border-white/[.07] text-white/26 hover:bg-white/[.06] hover:text-white"
+                            aria-label={`Edit ${item.title}`}
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          key={item.id}
+                          className="flex items-center gap-2 rounded-xl border border-white/[.08] bg-black/[.16] px-3 py-2 text-[10px] font-semibold text-white/70"
+                        >
+                          {content}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="mt-3 text-xs leading-5 text-white/52">
+                    Keep another frequently used link here without turning it
+                    into a task.
+                  </p>
+                )}
+              </div>
+              {cabinetNotes.length > 0 && (
+                <details className="mt-4 rounded-xl border border-white/[.08] bg-black/[.14]">
+                  <summary className="signal-button flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2 text-[8px] font-bold uppercase tracking-[.14em] text-white/40">
+                    Quiet notes
+                    <span className="font-mono text-white/28">
+                      {cabinetNotes.length}
+                    </span>
+                  </summary>
+                  <div className="space-y-2 border-t border-white/[.07] p-2">
+                    {cabinetNotes.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() =>
+                          openCabinetDialog(item.periodReflectionId, item)
+                        }
+                        className="signal-button block w-full rounded-lg px-2 py-2 text-left hover:bg-white/[.05]"
+                      >
+                        <span className="block truncate text-[10px] font-semibold text-white/72">
+                          {item.title}
+                        </span>
+                        {item.note && (
+                          <span className="mt-1 line-clamp-2 block text-[9px] leading-4 text-white/34">
+                            {item.note}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </details>
               )}
-              <Button
-                onClick={() => openCabinetDialog()}
-                className="signal-button mt-auto h-11 w-full gap-2 rounded-2xl bg-[#ffc268] text-[10px] font-bold uppercase tracking-[.14em] text-[#17120a] shadow-[0_10px_24px_rgba(255,194,104,.16)] hover:bg-[#ffd486]"
-              >
-                <Plus className="h-4 w-4" /> Add tool
-              </Button>
+              <div className="mt-5 grid grid-cols-2 gap-2">
+                <Button
+                  onClick={() => openCabinetDialog()}
+                  className="signal-button h-10 gap-2 rounded-xl bg-[#ffc268] text-[9px] font-bold uppercase tracking-[.12em] text-[#17120a] shadow-[0_10px_24px_rgba(255,194,104,.16)] hover:bg-[#ffd486]"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add tool
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => openCabinetDialog(null, null, "repository")}
+                  className="signal-button h-10 gap-2 rounded-xl border-[#ff8b7c]/20 bg-[#ff7868]/[.06] text-[9px] font-bold uppercase tracking-[.12em] text-[#ffb1a7] hover:bg-[#ff7868]/10 hover:text-white"
+                >
+                  <Github className="h-3.5 w-3.5" /> Add repo
+                </Button>
+              </div>
             </div>
           </section>
         </aside>
-      </section>
-
-      <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
-        <img
-          src={verticalOrnament}
-          alt=""
-          aria-hidden="true"
-          className="panel-ornament panel-ornament--cabinet"
-        />
-        <div className="relative z-10 flex flex-col gap-4 border-b border-white/[.06] p-6 md:flex-row md:items-end md:justify-between md:p-7">
-          <div>
-            <p className="text-[9px] font-bold uppercase tracking-[.2em] text-[#ffc268]">
-              Tools kept
-            </p>
-            <h2 className="mt-2 text-2xl font-bold text-white">Dojo cabinet</h2>
-            <p className="mt-2 text-sm text-white/42">
-              A separate place for important links, references, and small notes.
-              Add them freely; a period reflection can be linked only when it
-              adds useful context.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-white/[.08] bg-white/[.035] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.14em] text-white/42">
-              {cabinetItems.length} kept
-            </span>
-            <Button
-              onClick={() => openCabinetDialog()}
-              className="signal-button h-10 gap-2 rounded-xl bg-[#ffc268] px-3 text-[9px] font-bold uppercase tracking-[.14em] text-[#17120a] hover:bg-[#ffd486]"
-            >
-              <Plus className="h-3.5 w-3.5" /> Add tool
-            </Button>
-          </div>
-        </div>
-        <div className="relative z-10 grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3 md:p-7">
-          {cabinetItems.length ? (
-            cabinetItems.map((item: DojoCabinetItem) => (
-              <article
-                key={item.id}
-                className="group flex min-h-36 flex-col rounded-2xl border border-white/[.08] bg-white/[.025] p-4 transition-colors hover:border-[#ffc268]/30 hover:bg-white/[.04]"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-2 text-[#ffc268]">
-                    <Link2 className="h-4 w-4 shrink-0" />
-                    <p className="truncate text-sm font-semibold text-white">
-                      {item.title}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (window.confirm("Remove this cabinet item?"))
-                        deleteCabinetItem.mutate(
-                          { id: item.id },
-                          { onSuccess: invalidateCabinet },
-                        );
-                    }}
-                    className="p-1 text-white/20 opacity-0 transition-opacity group-hover:opacity-100 hover:text-[#ff8b7c]"
-                    aria-label={`Remove ${item.title}`}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-                {item.note && (
-                  <p className="mt-3 line-clamp-3 text-xs leading-5 text-white/43">
-                    {item.note}
-                  </p>
-                )}
-                <div className="mt-auto pt-4">
-                  {item.url ? (
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-[.14em] text-[#ffc268] hover:text-[#ffe0a5]"
-                    >
-                      Open reference <ExternalLink className="h-3 w-3" />
-                    </a>
-                  ) : (
-                    <span className="text-[9px] font-bold uppercase tracking-[.14em] text-white/28">
-                      Quiet note
-                    </span>
-                  )}
-                </div>
-              </article>
-            ))
-          ) : (
-            <div className="dojo-pattern-surface col-span-full relative isolate overflow-hidden rounded-2xl border border-dashed border-[#ffc268]/20 bg-[#0c1119] px-6 py-12 text-center">
-              <img
-                src={armoryRoom}
-                alt=""
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-[.78] [filter:brightness(.98)_contrast(1.03)_saturate(.88)]"
-              />
-              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(7,12,18,.64),rgba(7,12,18,.34)_50%,rgba(7,12,18,.5)),linear-gradient(0deg,rgba(7,12,18,.4),transparent_58%)]" />
-              <Archive className="relative z-10 mx-auto h-9 w-9 text-[#ffc268]/72" />
-              <p className="relative z-10 mt-4 text-base font-semibold text-white/82">
-                The cabinet is empty.
-              </p>
-              <p className="relative z-10 mx-auto mt-1 max-w-md text-xs leading-5 text-white/54">
-                Keep the first important link, reference, or quiet note here.
-                You can link it to a period reflection later when that context
-                matters.
-              </p>
-              <Button
-                onClick={() => openCabinetDialog()}
-                className="signal-button relative z-10 mt-5 h-10 gap-2 rounded-xl bg-[#ffc268] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-[#17120a] hover:bg-[#ffd486]"
-              >
-                <Plus className="h-4 w-4" /> Keep first tool
-              </Button>
-            </div>
-          )}
-        </div>
       </section>
 
       <section className="signal-surface relative isolate overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
@@ -2064,46 +2346,112 @@ export default function Cabinet() {
 
       <Dialog
         open={dialog === "cabinet"}
-        onOpenChange={(open) => !open && setDialog(null)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDialog(null);
+            setEditingCabinetItem(null);
+            setCabinetError("");
+          }
+        }}
       >
         <DialogContent className="max-w-xl rounded-3xl border-white/10 bg-[#090d14] p-7 shadow-2xl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-white">
-              Place in the dojo cabinet
+              {editingCabinetItem
+                ? "Edit kept item"
+                : cabinetForm.kind === "repository"
+                  ? "Keep a repository close"
+                  : "Place in the dojo cabinet"}
             </DialogTitle>
             <DialogDescription className="text-white/42">
-              {cabinetReflectionId
-                ? "This tool will be linked to the selected period reflection."
-                : "Keep an important link, reference, or note independently from your reflections."}
+              {editingCabinetItem
+                ? "Adjust the name, address, type, or note without recreating it."
+                : cabinetReflectionId
+                  ? "This tool will be linked to the selected period reflection."
+                  : cabinetForm.kind === "repository"
+                    ? "Add a GitHub repository to the compact course shelf. Private repositories open through your existing GitHub session."
+                    : "Keep an important link, reference, or note independently from your reflections."}
             </DialogDescription>
           </DialogHeader>
           <form className="mt-4 space-y-5" onSubmit={saveCabinetItem}>
             <label className="block space-y-2">
-              <Label>Title</Label>
+              <Label htmlFor="cabinet-item-kind">Type</Label>
+              <select
+                id="cabinet-item-kind"
+                value={cabinetForm.kind}
+                onChange={(event) => {
+                  setCabinetForm({
+                    ...cabinetForm,
+                    kind: event.target.value as DojoCabinetKind,
+                  });
+                  setCabinetError("");
+                }}
+                className="h-11 w-full rounded-xl border border-white/10 bg-[#101722] px-3 text-sm text-white"
+              >
+                <option value="link">Link</option>
+                <option value="repository">GitHub repository</option>
+                <option value="note">Quiet note</option>
+              </select>
+            </label>
+            <label className="block space-y-2">
+              <Label htmlFor="cabinet-item-title">Title</Label>
               <Input
+                id="cabinet-item-title"
                 autoFocus
                 value={cabinetForm.title}
-                onChange={(event) =>
-                  setCabinetForm({ ...cabinetForm, title: event.target.value })
+                onChange={(event) => {
+                  setCabinetForm({ ...cabinetForm, title: event.target.value });
+                  setCabinetError("");
+                }}
+                aria-describedby={
+                  cabinetError ? "cabinet-form-error" : undefined
+                }
+                aria-invalid={
+                  Boolean(cabinetError) && !cabinetForm.title.trim()
                 }
                 className="border-white/10 bg-white/[.04] text-white"
-                placeholder="Article, tool, or small note"
+                placeholder={
+                  cabinetForm.kind === "repository"
+                    ? "Course or project name"
+                    : "Article, tool, or small note"
+                }
               />
             </label>
             <label className="block space-y-2">
-              <Label>Link (optional)</Label>
+              <Label htmlFor="cabinet-item-url">
+                {cabinetForm.kind === "repository"
+                  ? "GitHub repository address"
+                  : "Link (optional)"}
+              </Label>
               <Input
+                id="cabinet-item-url"
+                type="url"
                 value={cabinetForm.url}
-                onChange={(event) =>
-                  setCabinetForm({ ...cabinetForm, url: event.target.value })
+                onChange={(event) => {
+                  setCabinetForm({ ...cabinetForm, url: event.target.value });
+                  setCabinetError("");
+                }}
+                required={cabinetForm.kind === "repository"}
+                aria-describedby={
+                  cabinetError ? "cabinet-form-error" : undefined
+                }
+                aria-invalid={
+                  Boolean(cabinetError) &&
+                  cabinetForm.kind === "repository" &&
+                  !cabinetForm.url.trim()
                 }
                 className="border-white/10 bg-white/[.04] text-white"
-                placeholder="https://…"
+                placeholder={
+                  cabinetForm.kind === "repository"
+                    ? "https://github.com/owner/repository"
+                    : "https://…"
+                }
               />
             </label>
             <label className="block space-y-2">
-              <Label>What to remember</Label>
+              <Label htmlFor="cabinet-item-note">What to remember</Label>
               <Textarea
+                id="cabinet-item-note"
                 value={cabinetForm.note}
                 onChange={(event) =>
                   setCabinetForm({ ...cabinetForm, note: event.target.value })
@@ -2112,22 +2460,55 @@ export default function Cabinet() {
                 placeholder="A short reason it is worth keeping."
               />
             </label>
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setDialog(null)}
-                className="text-white/55"
+            {cabinetError && (
+              <p
+                id="cabinet-form-error"
+                className="rounded-xl border border-[#ff8b7c]/20 bg-[#ff7868]/[.08] px-3 py-2 text-xs leading-5 text-[#ffb1a7]"
+                role="alert"
               >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={createCabinetItem.isPending}
-                className="signal-button bg-[#ffc268] text-[#17120a] hover:bg-[#ffd486]"
-              >
-                Keep tool
-              </Button>
+                {cabinetError}
+              </p>
+            )}
+            <div className="flex items-center justify-between gap-3 pt-2">
+              {editingCabinetItem ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={removeCabinetItem}
+                  disabled={deleteCabinetItem.isPending}
+                  className="text-[#ff9a89]/72 hover:bg-[#ff7868]/10 hover:text-[#ffb1a7]"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {deleteCabinetItem.isPending ? "Removing…" : "Remove"}
+                </Button>
+              ) : (
+                <span />
+              )}
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setDialog(null)}
+                  className="text-white/55"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={
+                    createCabinetItem.isPending || updateCabinetItem.isPending
+                  }
+                  className="signal-button bg-[#ffc268] text-[#17120a] hover:bg-[#ffd486]"
+                >
+                  {createCabinetItem.isPending || updateCabinetItem.isPending
+                    ? "Saving…"
+                    : editingCabinetItem
+                      ? "Save changes"
+                      : cabinetForm.kind === "repository"
+                        ? "Keep repository"
+                        : "Keep tool"}
+                </Button>
+              </div>
             </div>
           </form>
         </DialogContent>

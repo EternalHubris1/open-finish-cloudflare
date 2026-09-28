@@ -123,16 +123,24 @@ const reflectionInput = z.object({
   carry: z.string().trim().max(1600).default(""),
 });
 
-const cabinetInput = z.object({
+const cabinetObject = z.object({
   periodReflectionId: idSchema.nullable().optional(),
   title: z.string().trim().min(1).max(160),
   url: z.string().trim().max(2048).nullable().optional(),
   note: z.string().trim().max(1200).default(""),
-  kind: z.enum(["link", "note"]).default("link"),
+  kind: z.enum(["link", "note", "repository"]).default("link"),
   position: z.number().int().min(0).max(999).optional(),
 });
 
-const cabinetPatch = cabinetInput.partial();
+const cabinetInput = cabinetObject.refine(
+  (item) => item.kind !== "repository" || Boolean(item.url?.trim()),
+  {
+    message: "A repository needs a GitHub address",
+    path: ["url"],
+  },
+);
+
+const cabinetPatch = cabinetObject.partial();
 
 function asIso(value: Date | null): string | null {
   return value ? value.toISOString() : null;
@@ -198,6 +206,17 @@ function normalizeUrl(value: string | null | undefined): string | null {
     return url.toString();
   } catch {
     return null;
+  }
+}
+
+function isGitHubRepositoryUrl(value: string | null): boolean {
+  if (!value) return false;
+  try {
+    const url = new URL(value);
+    const path = url.pathname.replace(/^\/+|\/+$/g, "").split("/");
+    return url.hostname.toLowerCase() === "github.com" && path.length >= 2;
+  } catch {
+    return false;
   }
 }
 
@@ -610,6 +629,10 @@ router.post("/dojo-cabinet", async (req, res): Promise<void> => {
     res.status(400).json({ error: "Links must use http or https" });
     return;
   }
+  if (parsed.data.kind === "repository" && !isGitHubRepositoryUrl(url)) {
+    res.status(400).json({ error: "Use a complete GitHub repository address" });
+    return;
+  }
   if (!(await validateReflectionId(parsed.data.periodReflectionId))) {
     res.status(400).json({ error: "Period reflection not found" });
     return;
@@ -635,6 +658,10 @@ router.patch("/dojo-cabinet/:id", async (req, res): Promise<void> => {
   const url = normalizeUrl(parsed.data.url);
   if (parsed.data.url && !url) {
     res.status(400).json({ error: "Links must use http or https" });
+    return;
+  }
+  if (parsed.data.kind === "repository" && !isGitHubRepositoryUrl(url)) {
+    res.status(400).json({ error: "Use a complete GitHub repository address" });
     return;
   }
   if (!(await validateReflectionId(parsed.data.periodReflectionId))) {
