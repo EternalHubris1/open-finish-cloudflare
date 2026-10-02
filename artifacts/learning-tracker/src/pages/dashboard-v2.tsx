@@ -176,8 +176,8 @@ function momentumSeries(days: CalendarDay[]) {
       day.restDay && day.focusMinutes === 0
         ? accumulated
         : day.focusMinutes === 0
-        ? accumulated * 0.52
-        : Math.min(1, accumulated * 0.68 + dailyEnergy * 0.52);
+          ? accumulated * 0.52
+          : Math.min(1, accumulated * 0.68 + dailyEnergy * 0.52);
     return accumulated;
   });
 }
@@ -357,6 +357,7 @@ function TodaySessionsList({
 
 function Timeline({
   days,
+  displayDate,
   activities,
   todayLogs,
   milestones,
@@ -366,6 +367,7 @@ function Timeline({
   pulseDate,
 }: {
   days: CalendarDay[];
+  displayDate: string;
   activities: Activity[];
   todayLogs: ActivityLog[];
   milestones: Milestone[];
@@ -715,11 +717,11 @@ function Timeline({
               >
                 {days.map((day, index) => {
                   const exceptional = day.focusMinutes > 240;
-                  const isLatestDay = index === days.length - 1;
-                  const latestDayWithWork = isLatestDay && day.focusMinutes > 0;
+                  const isToday = day.date === displayDate;
+                  const todayWithWork = isToday && day.focusMinutes > 0;
                   const selectedDay = selected?.date === day.date;
                   const showDayValue =
-                    latestDayWithWork || day.restDay || focusedDate === day.date;
+                    todayWithWork || day.restDay || focusedDate === day.date;
                   const grade = effortGradeFor(day.focusMinutes);
                   const barStyle = effortBarStyle(day.focusMinutes);
                   const effortHeight = Math.max(
@@ -743,13 +745,13 @@ function Timeline({
                       onBlur={() => setFocusedDate(null)}
                       onClick={() => selectDay(day)}
                       aria-pressed={selectedDay}
-                      className={`group relative flex h-full min-w-0 flex-col justify-end gap-2 sm:gap-3 outline-none ${latestDayWithWork ? "today-energy-day" : ""} ${pulseDate === day.date ? "session-pulse" : ""}`}
+                      className={`group relative flex h-full min-w-0 flex-col justify-end gap-2 sm:gap-3 outline-none ${todayWithWork ? "today-energy-day" : ""} ${pulseDate === day.date ? "session-pulse" : ""}`}
                       data-focus-item
                     >
                       <span className="relative flex w-full flex-1 items-end justify-center">
                         {showDayValue && (
                           <span
-                            className={`energy-day-tooltip absolute inset-x-[-.25rem] z-40 text-center tabular-nums ${isLatestDay ? "energy-day-tooltip-latest" : ""} ${light ? "text-black/78" : "text-white/90"}`}
+                            className={`energy-day-tooltip absolute inset-x-[-.25rem] z-40 text-center tabular-nums ${isToday ? "energy-day-tooltip-latest" : ""} ${light ? "text-black/78" : "text-white/90"}`}
                             style={{
                               bottom: `calc(${tooltipHeight}% + 13px)`,
                             }}
@@ -757,7 +759,7 @@ function Timeline({
                             <span className="block font-semibold leading-none">
                               {minutesLabel(day.focusMinutes)}
                             </span>
-                            {isLatestDay && (
+                            {isToday && (
                               <span
                                 className={`mt-1 block text-[7px] font-bold uppercase tracking-[.11em] ${light ? "text-black/42" : "text-white/42"}`}
                               >
@@ -777,7 +779,7 @@ function Timeline({
                           </span>
                         )}
                         <span
-                          className={`signal-bar energy-bar-settle relative block w-[90%] min-w-[22px] max-w-none rounded-t-[.65rem] border border-white/10 group-hover:brightness-110 group-focus-visible:ring-2 sm:w-[88%] ${isLatestDay ? "today-energy-bar" : ""} ${exceptional ? "exceptional-bloom" : ""}`}
+                          className={`signal-bar energy-bar-settle relative block w-[90%] min-w-[22px] max-w-none rounded-t-[.65rem] border border-white/10 group-hover:brightness-110 group-focus-visible:ring-2 sm:w-[88%] ${isToday ? "today-energy-bar" : ""} ${exceptional ? "exceptional-bloom" : ""}`}
                           style={{
                             height: `${effortHeight}%`,
                             animationDelay: `${index * 60}ms`,
@@ -808,7 +810,7 @@ function Timeline({
                       <span
                         className={`text-[8px] font-bold uppercase tracking-[.08em] sm:text-[10px] sm:tracking-[.14em] ${selectedDay ? (light ? "text-black/75" : "text-white/80") : light ? "text-black/45" : "text-white/40"}`}
                       >
-                        {isLatestDay
+                        {isToday
                           ? "Today"
                           : format(new Date(`${day.date}T00:00:00`), "EEE")}
                       </span>
@@ -1480,8 +1482,11 @@ export default function DashboardV2() {
                   </p>
                 )}
                 {todayRestDay && (
-                  <p className={`mt-3 flex items-center gap-2 text-sm ${light ? "text-[#536987]" : "text-[#c2d2e9]"}`}>
-                    <MoonStar className="h-4 w-4" /> Rest day remains separate from recorded sessions
+                  <p
+                    className={`mt-3 flex items-center gap-2 text-sm ${light ? "text-[#536987]" : "text-[#c2d2e9]"}`}
+                  >
+                    <MoonStar className="h-4 w-4" /> Rest day remains separate
+                    from recorded sessions
                   </p>
                 )}
               </div>
@@ -1571,6 +1576,7 @@ export default function DashboardV2() {
 
         <Timeline
           days={days}
+          displayDate={displayDate}
           activities={activities}
           todayLogs={dashboard?.todayLogs ?? []}
           milestones={milestones}
