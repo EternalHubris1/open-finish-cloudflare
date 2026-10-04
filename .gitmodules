@@ -1,0 +1,3 @@
+[submodule ".agents/skills/open-design/runtime"]
+	path = .agents/skills/open-design/runtime
+	url = https://github.com/nexu-io/open-design.git
