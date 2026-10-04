@@ -1,6 +1,6 @@
 # Responsive density review
 
-Status: experimental implementation, awaiting visual approval. 2026-10-04.
+Status: approved for implementation and publication by the user on 2026-10-04; release verification tracked in the task.
 
 ## Goal
 
@@ -43,4 +43,4 @@ The desktop language is preserved; narrow layouts get less visual competition wi
 
 ## Ready for review
 
-Ready as a Design Lab prototype. Do not interpret a successful build as production acceptance or a complete accessibility audit.
+User authorized completion and immediate deployment. Final follow-up adds bounded dynamic-viewport dialogs, narrow sprint editor rows, and 44px mobile composition-chart controls. At 390px the sprint dialog's scroll width equals its client width; moving a task preserves its title and date. Preview edits were cancelled, not saved. Final typecheck and frontend build passed. CI and production verification remain a separate release gate; this is not a complete accessibility audit.

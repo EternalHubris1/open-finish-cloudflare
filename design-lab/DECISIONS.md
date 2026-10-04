@@ -28,7 +28,19 @@ This is the permanent decision history. IDs never change; superseded entries rem
 | OF-0025 | Approved | Model rest as a reversible calendar-day marker that coexists with sessions, adds no activity, and neutrally bridges streak and Momentum continuity.                                      | 2026-09-08 | Explicit user rest-day requirement             |
 | OF-0026 | Approved | Treat sprints as flexible editable routes with independent task order, open days, non-sequential completion, schedule shifting, and identity-preserving edits.                           | 2026-09-09 | Explicit user sprint-editing requirement       |
 
+## OF-0027 — Adapt narrow-screen hierarchy without replacing the art direction
+
+- **Status:** Approved for implementation and release.
+- **Approved:** 2026-10-04, user requested the responsive improvements and immediate deployment after completion.
+- **Problem:** desktop navigation and large hero statistics crowded narrow rooms; long sprint rows exceeded dialog width.
+- **Alternatives:** uniformly shrink the desktop; strip artwork; adapt hierarchy. Selected hierarchy adaptation preserves identity and readable controls.
+- **Direction:** bottom navigation below 1024px, compact secondary mobile readouts, stacked tablet History filters, viewport-bounded forms, multi-row narrow sprint editing, and touch-sized composition controls.
+- **Trade-off:** Progress uses More on narrow screens; dense charts scroll locally instead of shrinking each day.
+- **Validation:** desktop/tablet/mobile review, preserved titles/dates during draft reordering, no horizontal overflow in the tested mobile sprint dialog, typecheck/build, CI and production smoke checks.
+- **Memory:** System completeness → Responsive hierarchy. OF-0021 and OF-0023 remain unchanged.
+
 ## OF-0026 — Sprints are flexible routes, not locked sequences
+
 
 - **Status:** Approved.
 - **Approved:** 2026-09-09, explicit request to substantially improve sprint editing, including rearranging days and tasks and leaving gaps.
