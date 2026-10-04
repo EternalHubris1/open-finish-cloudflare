@@ -91,10 +91,10 @@ export function CompletionArchiveWall() {
     }
   };
 
-  return <section className="completion-wall" aria-labelledby="completion-wall-title">
+  return <section className="completion-wall" data-empty={records.length === 0 ? "true" : "false"} aria-labelledby="completion-wall-title">
     <div className="completion-wall__header">
       <div><p className="completion-wall__kicker">Progress archive · finished work</p><h2 id="completion-wall-title">Completed works</h2><p>Books, courses and substantial blocks — what was finished, when, and how much time it took.</p></div>
-      <Button type="button" onClick={openNewRecord} className="signal-button h-11 rounded-full bg-[#e95448] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white hover:bg-[#f26456]"><Plus className="mr-2 h-4 w-4" /> Add completed work</Button>
+      {records.length > 0 && <Button type="button" onClick={openNewRecord} className="signal-button h-11 rounded-full bg-[#e95448] px-5 text-[10px] font-bold uppercase tracking-[.14em] text-white hover:bg-[#f26456]"><Plus className="mr-2 h-4 w-4" /> Add completed work</Button>}
     </div>
     {records.length ? <div className="completion-wall__layout">
       <div className="completion-wall__records">{records.map((record) => { const Icon = kindIcon[record.kind]; const medalStyle = { "--medal-scale": String((record.medalScale ?? 100) / 100) } as CSSProperties; return <button aria-pressed={selected?.id === record.id} className="completion-plaque" key={record.id} onClick={() => setSelectedId(record.id)} type="button"><span className={`completion-plaque__seal ${record.medalImage ? "completion-plaque__seal--image" : ""}`} aria-hidden="true">{record.medalImage ? <img src={record.medalImage} alt="" style={medalStyle} /> : record.mark}</span><span className="completion-plaque__body"><span className="completion-plaque__kind"><Icon aria-hidden="true" className="h-3.5 w-3.5" />{completionKindLabel[record.kind]}</span><strong>{record.title}</strong><small>{record.creator}</small></span><span className="completion-plaque__date"><Check aria-hidden="true" className="h-3 w-3" />{recordDate(record.completedOn)} · {completionDuration(record.durationMinutes)}</span></button>; })}</div>

@@ -507,8 +507,8 @@ export default function History() {
   }
 
   return (
-    <div className="history-instrument page-arrival relative z-10 mx-auto min-h-screen max-w-6xl space-y-8 px-4 py-6 pb-28 md:p-8 md:pb-20">
-      <header className="relative isolate overflow-hidden rounded-[1.75rem] border border-white/[.08] bg-[#0a1019]/86 px-5 py-6 shadow-[0_18px_46px_rgba(0,0,0,.18)] md:flex md:items-end md:justify-between md:gap-5 md:px-7">
+    <div className="history-instrument history-page page-arrival relative z-10 mx-auto min-h-screen max-w-6xl space-y-6 px-4 py-5 pb-28 md:space-y-8 md:p-8 md:pb-24 lg:pb-20">
+      <header className="history-page-hero relative isolate overflow-hidden rounded-[1.75rem] border border-white/[.08] bg-[#0a1019]/86 px-5 py-5 shadow-[0_18px_46px_rgba(0,0,0,.18)] xl:flex xl:items-end xl:justify-between xl:gap-5 md:px-7 md:py-6">
         <img
           src={zenGarden}
           alt=""
@@ -538,13 +538,13 @@ export default function History() {
             See where your time went — every active day counts.
           </p>
         </div>
-        <div className="relative z-10 mt-4 flex w-fit rounded-2xl border border-white/10 bg-white/[0.03] p-1 md:mt-0">
+        <div className="history-period-tabs relative z-10 mt-4 flex w-fit max-w-full overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.03] p-1 xl:mt-0">
           {(Object.keys(PERIOD_LABELS) as Period[]).map((value) => (
             <button
               key={value}
               type="button"
               onClick={() => setPeriod(value)}
-              className={`signal-button rounded-xl px-4 py-2 text-[10px] font-bold uppercase tracking-wider ${period === value ? "bg-[#e95448] text-white shadow-[0_8px_24px_rgba(233,84,72,.16)]" : "text-white/35 hover:bg-white/[.04] hover:text-white"}`}
+              className={`signal-button shrink-0 whitespace-nowrap rounded-xl px-3 py-2 text-[9px] font-bold uppercase tracking-wider sm:px-4 sm:text-[10px] ${period === value ? "bg-[#e95448] text-white shadow-[0_8px_24px_rgba(233,84,72,.16)]" : "text-white/35 hover:bg-white/[.04] hover:text-white"}`}
             >
               {PERIOD_LABELS[value]}
             </button>

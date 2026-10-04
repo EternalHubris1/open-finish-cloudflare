@@ -293,7 +293,7 @@ export default function Achievements() {
   const nextMark = lockedMarks[0] ?? null;
 
   return (
-    <div className="page-arrival relative z-10 mx-auto min-h-screen max-w-6xl px-4 py-6 pb-28 md:p-8 md:pb-20">
+    <div className="progress-page page-arrival relative z-10 mx-auto min-h-screen max-w-6xl px-4 py-5 pb-28 md:p-8 md:pb-24 lg:pb-20">
       {latestAchievement && (
         <Dialog
           open={ritualOpen}
@@ -331,7 +331,7 @@ export default function Achievements() {
         </Dialog>
       )}
       <section className="progress-room">
-      <header className="progress-room__hero relative isolate overflow-hidden px-6 py-7 md:px-8 md:py-8">
+      <header className="progress-room__hero relative isolate overflow-hidden px-5 py-5 md:px-8 md:py-8">
         <img src={templePath} alt="" aria-hidden="true" className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center opacity-95 saturate-[1.08]" />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.82),rgba(8,13,20,.48)_58%,rgba(8,13,20,.12))]" />
         <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">

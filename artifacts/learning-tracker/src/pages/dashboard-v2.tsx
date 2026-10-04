@@ -1323,7 +1323,7 @@ export default function DashboardV2() {
         } as CSSProperties
       }
     >
-      <div className="mx-auto max-w-[1280px] space-y-8 px-4 py-6 pb-28 md:px-9 md:py-9">
+      <div className="dashboard-page mx-auto max-w-[1280px] space-y-8 px-4 py-6 pb-28 md:px-7 md:py-8 xl:px-9 xl:py-9">
         {hasRefreshError && (
           <div
             className={`flex items-center justify-between gap-4 rounded-2xl border px-5 py-4 text-sm ${light ? "border-amber-900/20 bg-amber-100/60 text-amber-950" : "border-amber-500/20 bg-amber-500/10 text-amber-100"}`}
@@ -1341,7 +1341,7 @@ export default function DashboardV2() {
           </div>
         )}
         <header
-          className={`dashboard-hero signal-surface relative overflow-hidden rounded-[2rem] border px-5 py-7 sm:px-6 sm:py-9 md:px-10 md:py-12 ${light ? "border-black/[.08] bg-white/84" : "border-white/[.08] bg-[#0c1119]/94"}`}
+          className={`dashboard-hero signal-surface relative overflow-hidden rounded-[2rem] border px-4 py-5 sm:px-6 sm:py-8 md:px-8 md:py-9 xl:px-10 xl:py-12 ${light ? "border-black/[.08] bg-white/84" : "border-white/[.08] bg-[#0c1119]/94"}`}
         >
           <div
             className={`momentum-field absolute right-[-8%] top-[-55%] h-96 w-96 rounded-full blur-3xl ${light ? "bg-[#ff7b69]" : "bg-[#ff6f61]"}`}
@@ -1377,10 +1377,10 @@ export default function DashboardV2() {
           />
           <div className="dashboard-hero-clouds" aria-hidden="true" />
           <div className="dashboard-hero-fog" aria-hidden="true" />
-          <div className="relative z-10 grid items-center gap-7 sm:gap-10 lg:grid-cols-[1fr_.58fr]">
+          <div className="relative z-10 grid items-center gap-5 sm:gap-8 md:grid-cols-[minmax(0,1fr)_minmax(11rem,.42fr)] xl:grid-cols-[1fr_.58fr] xl:gap-10">
             <div>
               <div
-                className={`mb-5 flex items-center gap-3 pr-28 text-[10px] font-bold uppercase tracking-[.22em] ${light ? "text-[#91463f]" : "text-[#ff9a89]"}`}
+                className={`dashboard-hero-meta mb-3 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.18em] sm:mb-5 sm:gap-3 sm:pr-20 sm:text-[10px] sm:tracking-[.22em] ${light ? "text-[#91463f]" : "text-[#ff9a89]"}`}
               >
                 <img
                   src={samuraiArmorEmblem}
@@ -1397,7 +1397,7 @@ export default function DashboardV2() {
                 </span>
               </div>
               <h1
-                className={`dashboard-hero-title max-w-3xl text-[2.45rem] font-semibold leading-[.98] tracking-[-.045em] sm:text-6xl lg:text-7xl ${light ? "text-[#181719]" : "text-white"}`}
+                className={`dashboard-hero-title max-w-3xl text-[2.1rem] font-semibold leading-[.98] tracking-[-.04em] sm:text-5xl md:text-[3.35rem] xl:text-7xl ${light ? "text-[#181719]" : "text-white"}`}
               >
                 <span className="dashboard-hero-focus">{focus?.name}.</span>
                 <br />
@@ -1445,7 +1445,7 @@ export default function DashboardV2() {
                 </span>
               </p>
               <div
-                className={`mt-5 rounded-[1.35rem] border px-4 py-4 sm:hidden ${light ? "border-black/[.08] bg-black/[.025]" : "border-[#ff8b7c]/18 bg-[#080b10]/48"}`}
+                className={`dashboard-mobile-effort mt-4 rounded-[1.2rem] border px-3.5 py-3 sm:hidden ${light ? "border-black/[.08] bg-black/[.025]" : "border-[#ff8b7c]/18 bg-[#080b10]/48"}`}
                 aria-label={`Today’s deliberate effort: ${minutesLabel(practiceMinutesToday(dashboard.totalMinutesToday, dashboard.sportMinutesToday))}${dashboard.sportMinutesToday > 0 ? ` and ${minutesLabel(dashboard.sportMinutesToday)} of sport` : ""}`}
               >
                 <p
@@ -1455,7 +1455,7 @@ export default function DashboardV2() {
                 </p>
                 <div className="mt-2 flex items-end justify-between gap-4">
                   <p
-                    className={`tabular-nums text-[2.85rem] font-semibold leading-none tracking-[-.055em] ${light ? "text-[#86221f]" : "text-[#ff8b7c]"}`}
+                    className={`tabular-nums text-[2.35rem] font-semibold leading-none tracking-[-.05em] ${light ? "text-[#86221f]" : "text-[#ff8b7c]"}`}
                   >
                     {minutesLabel(
                       practiceMinutesToday(
@@ -1490,7 +1490,7 @@ export default function DashboardV2() {
                   </p>
                 )}
               </div>
-              <div className="mt-6 sm:mt-8">
+              <div className="mt-4 sm:mt-7">
                 <div className="flex flex-wrap items-center gap-3">
                   <Button
                     onClick={() => setActivityPickerOpen(true)}
@@ -1516,15 +1516,15 @@ export default function DashboardV2() {
               </div>
             </div>
             <div className="grid w-full gap-5 sm:gap-6 lg:justify-items-end">
-              <div className="flex items-center justify-center gap-5 sm:gap-7 lg:justify-end">
-                <div className="dashboard-movement-orbit relative flex h-28 w-28 items-center justify-center rounded-full border border-[#ff7868]/18 sm:h-44 sm:w-44 md:h-52 md:w-52">
+              <div className="flex items-center justify-center gap-4 sm:gap-6 md:justify-end">
+                <div className="dashboard-movement-orbit relative flex h-24 w-24 items-center justify-center rounded-full border border-[#ff7868]/18 sm:h-36 sm:w-36 md:h-40 md:w-40 xl:h-52 xl:w-52">
                   <span className="absolute inset-3 rounded-full border border-white/5" />
                   <div className="relative z-10 text-center">
                     <Flame
                       className={`mx-auto mb-2 h-5 w-5 ${light ? "text-[#9c4d44]" : "text-[#ff8b7c]"}`}
                     />
                     <p
-                      className={`text-4xl font-light sm:text-6xl ${light ? "text-[#181719]" : "text-white"}`}
+                      className={`text-3xl font-light sm:text-5xl xl:text-6xl ${light ? "text-[#181719]" : "text-white"}`}
                     >
                       {dashboard.overallCurrentStreak}
                     </p>
