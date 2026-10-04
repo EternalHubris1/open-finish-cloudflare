@@ -91,6 +91,10 @@ Buttons respond with a restrained lift on fine-pointer hover, a short compressio
 
 ## System completeness
 
+### Responsive hierarchy
+
+Preserve the approved artwork and spacious desktop composition while adapting hierarchy on narrow screens. Below 1024px, navigation yields content width to the rooms; secondary hero statistics become compact rather than displacing the primary action. Forms stay inside the dynamic viewport and retain accessible scrolling. Dense daily composition charts keep selectable columns and controls large enough for touch, using local horizontal scrolling rather than compressing dates and values. This is adaptive refinement, not permission to discard the Japanese identity.
+
 Every approved pattern includes its loading, empty, error, success, edge, responsive, keyboard, touch, and reduced-motion behavior where relevant. A polished default state does not make an incomplete component approved.
 
 ### Record agency

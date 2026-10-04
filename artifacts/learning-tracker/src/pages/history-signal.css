@@ -397,7 +397,22 @@
     gap: 6px;
   }
   .composition-chart__legend button {
-    min-height: 36px;
+    min-height: 44px;
+  }
+  .composition-chart__columns {
+    grid-template-columns: repeat(var(--day-count), minmax(44px, 1fr));
+    min-width: calc(var(--day-count) * 50px);
+  }
+  .instrument-arrow {
+    width: 44px;
+    height: 44px;
+  }
+  .composition-chart__inspector p {
+    overflow-wrap: anywhere;
+  }
+  .composition-chart__inspector strong {
+    flex: none;
+    white-space: nowrap;
   }
   .instrument-panel--readout > :not(img) {
     max-width: 72%;

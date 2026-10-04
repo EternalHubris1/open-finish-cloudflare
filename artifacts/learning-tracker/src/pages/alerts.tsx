@@ -964,8 +964,8 @@ export default function Cabinet() {
   }
 
   return (
-    <div className="page-arrival cabinet-room-line relative z-10 mx-auto min-h-screen max-w-6xl space-y-8 overflow-hidden px-4 py-6 pb-28 md:p-8 md:pb-20">
-      <header className="relative isolate overflow-hidden rounded-[2rem] border border-[#ffc268]/15 bg-[radial-gradient(circle_at_72%_24%,rgba(255,194,104,.16),transparent_26%),linear-gradient(125deg,rgba(16,22,33,.98),rgba(10,15,23,.94)_58%,rgba(76,38,37,.58))] px-6 py-7 shadow-[inset_0_1px_0_rgba(255,255,255,.06),0_18px_54px_rgba(0,0,0,.24)] md:px-8 md:py-8">
+    <div className="page-arrival cabinet-room-line cabinet-page relative z-10 mx-auto min-h-screen max-w-6xl space-y-6 overflow-hidden px-4 py-5 pb-28 md:space-y-8 md:p-8 md:pb-24 lg:pb-20">
+      <header className="cabinet-page-hero relative isolate overflow-hidden rounded-[2rem] border border-[#ffc268]/15 bg-[radial-gradient(circle_at_72%_24%,rgba(255,194,104,.16),transparent_26%),linear-gradient(125deg,rgba(16,22,33,.98),rgba(10,15,23,.94)_58%,rgba(76,38,37,.58))] px-5 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,.06),0_18px_54px_rgba(0,0,0,.24)] md:px-8 md:py-8">
         <img
           src={readingRoom}
           alt=""
@@ -988,16 +988,17 @@ export default function Cabinet() {
               />
               Cabinet · quiet records
             </div>
-            <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">
+            <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
               Cabinet
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/52">
-              Keep the useful traces of your practice: a period reflection, the
+            <p className="cabinet-hero-copy mt-2 max-w-2xl text-sm leading-6 text-white/52 sm:mt-3">
+              <span className="sm:hidden">Reflections, useful tools, and notes for your next return.</span>
+              <span className="hidden sm:inline">Keep the useful traces of your practice: a period reflection, the
               tools it revealed, and the small session notes that make return
-              easier.
+              easier.</span>
             </p>
           </div>
-          <div className="flex flex-wrap gap-2.5">
+          <div className="cabinet-hero-actions grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-2.5">
             <Button
               onClick={() => openSprintDialog()}
               className="signal-button h-11 gap-2 rounded-2xl border border-[#72c6b3]/35 bg-[#14302f] px-4 text-[10px] font-bold uppercase tracking-[.14em] text-[#b8f1e5] shadow-[0_10px_24px_rgba(36,150,132,.16)] transition-[transform,background-color,box-shadow,border-color] duration-150 hover:bg-[#1a403d] active:scale-[.97]"
@@ -1919,7 +1920,7 @@ export default function Cabinet() {
           }
         }}
       >
-        <DialogContent className="max-h-[92vh] max-w-4xl overflow-y-auto rounded-3xl border-[#72c6b3]/18 bg-[#080f14] p-7 shadow-2xl">
+        <DialogContent className="max-h-[92dvh] max-w-4xl overflow-y-auto rounded-3xl border-[#72c6b3]/18 bg-[#080f14] p-7 shadow-2xl">
           <DialogHeader>
             <div className="mb-2 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[.2em] text-[#72c6b3]">
               <Route className="h-4 w-4" /> Flexible sprint route
@@ -2053,7 +2054,7 @@ export default function Cabinet() {
               </div>
             </div>
             <div className="rounded-2xl border border-white/[.08] bg-black/15 p-4">
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
                 <div>
                   <Label>Sprint route</Label>
                   <p className="mt-1 text-[10px] leading-4 text-white/30">
@@ -2094,7 +2095,7 @@ export default function Cabinet() {
                         }
                         setDraggedSprintStep(null);
                       }}
-                      className={`grid gap-2 rounded-xl border p-2 transition-[border-color,background-color] sm:grid-cols-[2rem_3.5rem_minmax(10rem,1fr)_8.75rem_6.5rem_2rem] sm:items-center ${draggedSprintStep === index ? "border-[#72c6b3]/45 bg-[#72c6b3]/[.08]" : buffer ? "border-[#ffc268]/12 bg-[#ffc268]/[.025]" : "border-white/[.055] bg-white/[.018]"}`}
+                      className={`sprint-route-item grid gap-2 rounded-xl border p-2 transition-[border-color,background-color] lg:grid-cols-[2rem_3.5rem_minmax(10rem,1fr)_8.75rem_6.5rem_2rem] lg:items-center ${draggedSprintStep === index ? "border-[#72c6b3]/45 bg-[#72c6b3]/[.08]" : buffer ? "border-[#ffc268]/12 bg-[#ffc268]/[.025]" : "border-white/[.055] bg-white/[.018]"}`}
                     >
                       <button
                         type="button"

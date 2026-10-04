@@ -325,7 +325,7 @@ export default function Activities() {
   }
 
   return (
-    <div className="relative z-10 mx-auto min-h-screen max-w-7xl space-y-6 px-4 py-6 pb-28 md:p-8 md:pb-20 animate-slide-up">
+    <div className="relative z-10 mx-auto min-h-screen max-w-7xl space-y-6 px-4 py-6 pb-28 md:p-8 md:pb-24 lg:pb-20 animate-slide-up">
       <section className="signal-surface relative min-h-[14.5rem] overflow-hidden rounded-[2rem] border border-white/[.11] bg-[#0a1019]/92 p-5 shadow-[0_28px_80px_rgba(0,0,0,.28)] md:p-7">
         <img src={practiceHall} alt="" aria-hidden="true" className="room-motif-image pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center" style={{ opacity: 0.74 }} />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,13,20,.84)_0%,rgba(8,13,20,.46)_54%,rgba(8,13,20,.06)_100%)]" />
