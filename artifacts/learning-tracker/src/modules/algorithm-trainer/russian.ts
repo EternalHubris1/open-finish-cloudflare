@@ -15,7 +15,7 @@ export const russianLabels: Record<string, string> = {
   Intervals: "Интервалы",
   "Math & bits": "Математика и биты",
   Tries: "Префиксные деревья",
-  Foundation: "Базовая",
+  Foundation: "Лёгкая",
   Easy: "Лёгкая",
   Medium: "Средняя",
   Hard: "Сложная",
@@ -26,7 +26,16 @@ export const russianLabels: Record<string, string> = {
 export const ruLabel = (value: string) => russianLabels[value] ?? value;
 
 export const russianTitles: Record<string, string> = Object.fromEntries(
-  `two-sum|Сумма двух чисел
+  `longest-nice-substring|Подстрока с парными регистрами букв
+find-target-indices-after-sorting-array|Индексы значения после сортировки
+number-of-arithmetic-triplets|Число арифметических троек
+reverse-words-in-a-string-iii|Переворот букв в каждом слове
+average-of-levels-in-binary-tree|Средние значения уровней дерева
+unique-email-addresses|Уникальные адреса электронной почты
+shortest-completing-word|Кратчайшее дополняющее слово
+find-resultant-array-after-removing-anagrams|Удаление соседних анаграмм
+take-k-of-each-character-from-left-and-right|Забрать k символов с краёв строки
+two-sum|Сумма двух чисел
 contains-duplicate|Есть ли повторяющиеся элементы
 valid-anagram|Проверка анаграммы
 group-anagrams|Группировка анаграмм

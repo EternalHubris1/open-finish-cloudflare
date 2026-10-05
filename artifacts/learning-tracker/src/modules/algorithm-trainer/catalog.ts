@@ -1,5 +1,6 @@
 import { russianTitles } from "./russian.ts";
 import { dataDrills } from "./data-drills.ts";
+import { adaptations } from "./adaptations.ts";
 export type TestCase = { args: unknown[]; expected: unknown };
 export type Problem = {
   id: string;
@@ -277,7 +278,7 @@ const sourceRows = `Arrays & hashing|Easy|two-sum
 Arrays & hashing|Easy|contains-duplicate
 Arrays & hashing|Easy|valid-anagram
 Arrays & hashing|Medium|group-anagrams
-Arrays & hashing|Medium|top-k-frequent-elements
+Heap|Medium|top-k-frequent-elements
 Arrays & hashing|Medium|product-of-array-except-self
 Arrays & hashing|Medium|valid-sudoku
 Arrays & hashing|Medium|longest-consecutive-sequence
@@ -295,7 +296,7 @@ Sliding window|Hard|sliding-window-maximum
 Stack|Easy|valid-parentheses
 Stack|Medium|min-stack
 Stack|Medium|evaluate-reverse-polish-notation
-Stack|Medium|generate-parentheses
+Backtracking|Medium|generate-parentheses
 Stack|Medium|daily-temperatures
 Stack|Medium|car-fleet
 Stack|Hard|largest-rectangle-in-histogram
@@ -422,10 +423,41 @@ Trees|Easy|symmetric-tree
 Trees|Easy|minimum-depth-of-binary-tree
 Graphs|Easy|flood-fill
 Dynamic programming|Easy|fibonacci-number
-Dynamic programming|Easy|n-th-tribonacci-number`;
+Dynamic programming|Easy|n-th-tribonacci-number
+Arrays & hashing|Easy|longest-nice-substring
+Binary search|Easy|find-target-indices-after-sorting-array
+Arrays & hashing|Easy|number-of-arithmetic-triplets
+Two pointers|Easy|reverse-words-in-a-string-iii
+Trees|Easy|average-of-levels-in-binary-tree
+Arrays & hashing|Easy|unique-email-addresses
+Arrays & hashing|Easy|shortest-completing-word
+Arrays & hashing|Easy|find-resultant-array-after-removing-anagrams
+Sliding window|Medium|take-k-of-each-character-from-left-and-right`;
+const reportedInterviews: Problem[] = [
+  [
+    "treasures",
+    "Сокровища: маршрут без повторных вершин",
+    "Dynamic programming",
+    "A",
+  ],
+  ["flooding", "Затопление: распространение по рельефу", "Graphs", "B"],
+  ["word-groups", "Группы слов: транзитивная связность", "Graphs", "C"],
+  ["greater-parity", "Ближайшее большее той же чётности", "Stack", "D"],
+  ["bridges", "Устранение мостов в графе", "Graphs", "E"],
+].map(([slug, title, topic, letter]) => ({
+  id: `dojo-interview-${slug}`,
+  title,
+  topic,
+  difficulty: "Hard",
+  url: `https://github.com/Shipovmax/Yandex_interview/blob/add31a0bc6686eaea8059b695c446068a80e281a/Task_${letter}.md`,
+  starter:
+    "# Откройте исходное условие по ссылке.\n# Отчёт кандидата не подтверждён независимо.\n# Здесь — черновик, не автоматическая проверка этой задачи.\n",
+  hints: [],
+}));
 export const catalog: Problem[] = [
   ...drills,
   ...dataDrills,
+  ...reportedInterviews,
   ...sourceRows.split("\n").map((line) => {
     const [topic, difficulty, slug] = line.split("|");
     return {
@@ -442,6 +474,7 @@ export const catalog: Problem[] = [
       starter:
         "# Прочитайте условие на сайте-источнике.\n# Напишите свой код на Python здесь.\n",
       hints: [],
+      ...adaptations[slug],
     };
   }),
 ];

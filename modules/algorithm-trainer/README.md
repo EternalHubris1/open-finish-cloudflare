@@ -11,10 +11,10 @@ UI is experimental within the approved Neotrad Japan × Hi-tech Data language. N
 ## Boundaries
 
 - Lazy-loaded `/algorithms` room, isolated catalog, runner, UI and state model.
-- Original dōjō exercises have locally visible fixtures. External tasks are link-only; no scraped statements, copied solutions or premium company-frequency data.
+- Original dōjō exercises and explicitly labelled local teaching adaptations have visible fixtures. Other external tasks are link-only; no scraped statements, copied solutions or premium company-frequency data.
 - Pattern/reference sources: https://github.com/seanprashad/leetcode-patterns and https://github.com/neetcode-gh/leetcode. This is a curated local index, **not** a live import or synchronization claim. External task availability/difficulty may change.
 - Python uses pinned Pyodide 314.0.7 from jsDelivr, downloaded only on Run. Runs use a disposable browser worker, 180-second loading timeout, 10-second execution timeout, Stop, output truncation and automatic termination. It is **not** a hostile-code sandbox; do not execute untrusted third-party scripts. No user code runs on the site server. Explicit runtime presets load only allowlisted NumPy/pandas packages, never arbitrary imports or URLs.
-- External problems support scratch runs, not automatic acceptance or source submissions. Original local fixtures verify sample behavior, not algorithmic complexity.
+- Link-only problems support scratch runs, not automatic acceptance or source submissions. Local adapters verify their own visible fixtures, not algorithmic complexity or official platform acceptance.
 - Authentication is inherited from the existing API gate. Progress persists in the additive `algorithm_practice` table, one versioned JSON document per problem. Optimistic writes reject stale edits instead of overwriting them. Existing tables/data are untouched.
 - Notes, drafts, queue membership, repeat dates and attempts remain editable. Export provides a portable copy. Browser-only storage is not presented as permanent persistence. Design preview keeps temporary state in memory only.
 
@@ -36,3 +36,14 @@ Permission-checked import adapters, stronger fixture suites, accessible code-edi
 - In Colab use File → Upload notebook for a downloaded draft; the direct template link opens the original template, not unsaved site edits. Review outcomes and notes are recorded manually on the site. No Google authorization, Drive mounting or background compute integration.
 - Browser tasks return plain Python JSON-shaped values; call `.tolist()` for NumPy arrays/Series. This avoids ambiguous DataFrame/array equality. Complex visualization and scikit-learn work belong in Colab.
 - Sources: https://pyodide.org/en/stable/usage/api/js-api.html and https://research.google.com/colaboratory/faq.html (official package loading and notebook upload guidance).
+
+## Pattern learning route (2026-10-06)
+
+- 18 prerequisite-ordered blocks: 16 algorithms and two separate data-analysis blocks. 88 essential tasks, with supplemental tasks hidden by default. Warmup → canonical pattern → transfer → independent checkpoint → repetition. No access locks or invented deadlines.
+- 182 catalog entries: 159 LeetCode references, five pinned candidate-report links, ten original algorithm drills and eight original data exercises/cases. 12 standard LeetCode patterns now have independently written Russian teaching adapters (67 visible reference fixtures). Their input/output contracts can differ from the original and are explicitly labelled; saved IDs and existing drafts are preserved.
+- Nine new links are explicitly recommended on the official Yandex analytics preparation page. Two existing pattern types (anagrams, generated parentheses) are illustrated on the official algorithm-interview page. This is not proof that a particular LeetCode variant was asked, nor a prediction of current company frequency.
+- The Naumovets list is a recruiter recommendation **according to its author**, not official confirmation. Shipovmax's five tasks are an **unverified candidate report**. Their statements and solutions are not reproduced; the user opens pinned originals.
+- `sources.ts` records evidence categories, limitations, review date and pinned GitHub revisions. `learning-path.ts` records outcomes, cues, invariants, prerequisite edges, ordered essential IDs and supporting resources. Material is linked, not live-synced.
+- Self-reported progress uses the latest saved assessment per essential task, never test passes, code length or queue membership. Retry/help can lower the displayed count. Review-first recommendations respect editable repeat dates. Mixed practice selects one task per already attempted algorithm block; data cases stay in their own track.
+- Difficulty has only three selectable levels: Easy, Medium, Hard; the old Foundation value maps to Easy without changing stored IDs. “Warmup” denotes a learning stage, not a fourth difficulty. Personal tasks remain in All/queue without an invented rating.
+- No backend/schema/auth/deployment configuration changes. Progress remains in the existing versioned record API. Catalog/model tests and independently written reference fixture checks run in CI.
