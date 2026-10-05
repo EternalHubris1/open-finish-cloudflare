@@ -1,7 +1,10 @@
 // Only the person's own code is executed. No repository code is fetched or run.
 // A worker keeps Python off the UI thread; it is not a hostile-code security boundary.
 const runtimeBase = "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/";
-type Runtime = { runPythonAsync: (code: string) => Promise<unknown> };
+type Runtime = {
+  runPythonAsync: (code: string) => Promise<unknown>;
+  loadPackage: (names: string[]) => Promise<unknown>;
+};
 let output = "";
 const emit = (line: string) => {
   if (output.length < 12000)
@@ -22,10 +25,24 @@ scope.onmessage = async (event) => {
       stderr: emit,
       stdin: () => null,
     });
+    const { code, tests, packages = [] } = event.data;
+    // Explicit allowlist: never install arbitrary packages or scan user imports.
+    if (
+      !Array.isArray(packages) ||
+      packages.some((name) => !["numpy", "pandas"].includes(name))
+    )
+      throw new Error(
+        "Выберите поддерживаемую среду: Python, NumPy или pandas.",
+      );
+    if (packages.length) {
+      scope.postMessage({
+        phase: "loading",
+        detail: `Загрузка ${packages.join(" + ")}…`,
+      });
+      await python.loadPackage(packages);
+    }
     scope.postMessage({ phase: "running" });
-    // No package installation or automatic downloads based on submitted imports.
     output = "";
-    const { code, tests } = event.data;
     const harness = tests
       ? `
 import json as _dojo_json

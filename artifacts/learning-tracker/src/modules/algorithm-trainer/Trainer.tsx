@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { catalog, type Problem } from "./catalog";
 import { ruLabel } from "./russian";
+import { practiceNotebook } from "./notebook";
 import CustomTaskForm from "./CustomTaskForm";
 import {
   emptyState,
@@ -64,6 +65,7 @@ const outcomeNames: Record<Outcome, string> = {
 };
 type RunResult = {
   phase: string;
+  detail?: string;
   output?: string;
   error?: string;
   results?: { passed: boolean; actual: string }[] | null;
@@ -92,6 +94,13 @@ function Workspace({
   const [saving, setSaving] = useState(false);
   const [hints, setHints] = useState(0);
   const [run, setRun] = useState<RunResult | null>(null);
+  const [environment, setEnvironment] = useState(
+    problem.packages?.includes("pandas")
+      ? "pandas"
+      : problem.packages?.includes("numpy")
+        ? "numpy"
+        : "standard",
+  );
   const worker = useRef<Worker | null>(null);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [elapsed, setElapsed] = useState(0);
@@ -218,8 +227,8 @@ function Workspace({
       }, ms);
     };
     limit(
-      90000,
-      "Python download timed out. Check access to jsDelivr and retry; your draft is unchanged.",
+      180000,
+      "Не удалось загрузить Python или библиотеки. Проверьте доступ к jsDelivr или скачайте ноутбук для Colab. Черновик не изменён.",
     );
     instance.onmessage = (event: MessageEvent<RunResult>) => {
       setRun(event.data);
@@ -238,7 +247,16 @@ function Workspace({
           "Python could not load. Check your connection or continue on the source.",
       });
     };
-    instance.postMessage({ code: state.code, tests: activeProblem.tests });
+    instance.postMessage({
+      code: state.code,
+      tests: activeProblem.tests,
+      packages:
+        environment === "pandas"
+          ? ["numpy", "pandas"]
+          : environment === "numpy"
+            ? ["numpy"]
+            : [],
+    });
   };
   const recordAttempt = async () => {
     const duration = Number(minutes);
@@ -358,6 +376,18 @@ function Workspace({
         )}
       </div>
       <div className="trainer-codebar">
+        <label>
+          <span className="sr-only">Библиотеки Python</span>
+          <select
+            value={environment}
+            disabled={busy || activeProblem.colabOnly}
+            onChange={(event) => setEnvironment(event.target.value)}
+          >
+            <option value="standard">Python · стандартная библиотека</option>
+            <option value="numpy">Python + NumPy</option>
+            <option value="pandas">Python + pandas + NumPy</option>
+          </select>
+        </label>
         <span>
           <Code2 size={16} /> Python · browser runtime
         </span>
@@ -394,9 +424,42 @@ function Workspace({
         />
       </label>
       <div className="trainer-actions">
-        <button className="trainer-primary" onClick={execute} disabled={busy}>
+        <button
+          onClick={() => {
+            download(
+              practiceNotebook(activeProblem, state.code),
+              `${problem.id}.ipynb`,
+            );
+            setMessage(
+              "Скачивание ноутбука запрошено: текущий код, условие и тесты. В Colab выберите Файл → Загрузить блокнот. Если встроенный браузер не скачивает файл, откройте сайт в обычном браузере. Результат отметьте здесь вручную.",
+            );
+          }}
+        >
+          <Download size={16} /> Ноутбук для Colab
+        </button>
+        <a
+          href={
+            activeProblem.colabOnly
+              ? `https://colab.research.google.com/github/EternalHubris1/open-finish-cloudflare/blob/dgt/algorithm-trainer/modules/algorithm-trainer/notebooks/${problem.id}.ipynb`
+              : "https://colab.research.google.com/"
+          }
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <ExternalLink size={16} />{" "}
+          {activeProblem.colabOnly ? "Открыть шаблон в Colab" : "Открыть Colab"}
+        </a>
+        <button
+          className="trainer-primary"
+          onClick={execute}
+          disabled={busy || activeProblem.colabOnly}
+        >
           <Play size={16} />
-          {activeProblem.tests ? "Запустить тесты" : "Запустить код"}
+          {activeProblem.colabOnly
+            ? "Выполняется в Colab"
+            : activeProblem.tests
+              ? "Запустить тесты"
+              : "Запустить код"}
         </button>
         {busy && (
           <button
@@ -437,18 +500,23 @@ function Workspace({
         </button>
       </div>
       <p className="trainer-caption">
+        {activeProblem.colabOnly &&
+          "Этот кейс выполняется в Colab: скачайте ноутбук, затем загрузите его через Файл → Загрузить блокнот. "}
         Python загружается с jsDelivr при первом запуске. Код выполняется в
         браузере, не на сервере, и останавливается через 10 секунд. Запускайте
-        только доверенный код. Модули стандартной библиотеки (collections,
-        heapq, math и другие) подключайте обычным import. Установка сторонних
-        пакетов не поддерживается. Тесты проверяют примеры, но не сложность
-        алгоритма.
+        только доверенный код. Выберите среду выше и подключайте библиотеки
+        через import. pandas и NumPy загружаются по выбору; другие пакеты —
+        через Colab. Для тестов возвращайте обычные Python-значения, не
+        DataFrame/ndarray. Тесты проверяют примеры, но не сложность алгоритма.
+        Ноутбук содержит ваш текущий код и примеры, но не историю аккаунта;
+        загрузка в Colab ручная.
       </p>
       {run && (
         <div className="trainer-console" role="status" aria-live="polite">
           <strong>
             {run.phase === "loading"
-              ? "Downloading Python… first run may take a moment."
+              ? (run.detail ??
+                "Загрузка Python… Первый запуск может занять несколько минут.")
               : run.phase === "running"
                 ? "Running Python…"
                 : run.error
@@ -683,7 +751,8 @@ export default function AlgorithmTrainer() {
         (mode === "library" ||
           (mode === "queue" && state?.queued) ||
           (mode === "due" && isDue(state)) ||
-          (mode === "drills" && !!item.tests))
+          (mode === "drills" && !!item.tests) ||
+          (mode === "data" && item.track === "data"))
       );
     })
     .sort((a, b) =>
@@ -805,6 +874,7 @@ export default function AlgorithmTrainer() {
                 ["queue", "Моя очередь"],
                 ["due", "Повторение"],
                 ["drills", "Локальные задачи"],
+                ["data", "Анализ данных"],
               ].map(([value, name]) => (
                 <button
                   key={value}

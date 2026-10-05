@@ -1,4 +1,5 @@
 import { russianTitles } from "./russian.ts";
+import { dataDrills } from "./data-drills.ts";
 export type TestCase = { args: unknown[]; expected: unknown };
 export type Problem = {
   id: string;
@@ -10,6 +11,10 @@ export type Problem = {
   starter: string;
   hints: string[];
   tests?: TestCase[];
+  packages?: ("numpy" | "pandas")[];
+  track?: "data";
+  colabOnly?: boolean;
+  notebookSetup?: string;
 };
 function drill(
   slug: string,
@@ -420,6 +425,7 @@ Dynamic programming|Easy|fibonacci-number
 Dynamic programming|Easy|n-th-tribonacci-number`;
 export const catalog: Problem[] = [
   ...drills,
+  ...dataDrills,
   ...sourceRows.split("\n").map((line) => {
     const [topic, difficulty, slug] = line.split("|");
     return {
