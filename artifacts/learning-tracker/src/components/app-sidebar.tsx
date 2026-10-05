@@ -11,6 +11,7 @@ import {
   X,
   BookOpenText,
   ChevronRight,
+  Code2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import dashboardThreshold from "@/assets/environments/optimized/dashboard-threshold.webp";
@@ -64,6 +65,13 @@ const orientationRoutes: SidebarRoute[] = [
 ];
 
 const longViewRoutes: SidebarRoute[] = [
+  {
+    path: "/algorithms",
+    label: "Algorithms",
+    cue: "Interview practice",
+    icon: Code2,
+    scene: practiceHall,
+  },
   {
     path: "/achievements",
     label: "Progress",

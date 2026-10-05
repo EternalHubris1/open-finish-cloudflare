@@ -43,6 +43,8 @@ describe("private API smoke flow", () => {
     assert.deepEqual(await anonymousHealth.json(), {
       error: "Authentication required",
     });
+    assert.equal((await fetch(`${origin}/api/algorithm-trainer`)).status, 401);
+    assert.equal((await fetch(`${origin}/api/algorithm-trainer/dojo-first-repeat`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: "{}" })).status, 401);
 
     const initialSession = await fetch(`${origin}/api/auth/session`);
     assert.equal(initialSession.status, 200);

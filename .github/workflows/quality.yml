@@ -41,5 +41,8 @@ jobs:
       - name: Verify web session presentation
         run: pnpm --filter @workspace/api-server exec tsx --test ../learning-tracker/src/lib/session-timeline.test.ts ../learning-tracker/src/lib/history-composition.test.ts
 
+      - name: Verify algorithm trainer catalog and repetition model
+        run: node --test modules/algorithm-trainer/model.test.ts artifacts/learning-tracker/src/modules/algorithm-trainer/catalog.test.ts
+
       - name: Build Worker assets
         run: pnpm run build
