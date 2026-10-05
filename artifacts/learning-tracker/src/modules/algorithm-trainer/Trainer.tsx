@@ -17,6 +17,19 @@ import { catalog, type Problem } from "./catalog";
 import { ruLabel } from "./russian";
 import { practiceNotebook } from "./notebook";
 import CustomTaskForm from "./CustomTaskForm";
+import LearningGuide, { SourceNote, Sources } from "./LearningGuide";
+import {
+  blockFor,
+  blockProblems,
+  blockProgress,
+  difficultyLevel,
+  learningBlocks,
+  latestOutcome,
+  mixedPractice,
+  nextInBlock,
+  taskStage,
+} from "./learning-path";
+import { provenance } from "./sources";
 import {
   emptyState,
   isDue,
@@ -76,11 +89,13 @@ function Workspace({
   record,
   save,
   onDirty,
+  hidePattern = false,
 }: {
   problem: Problem;
   record?: PracticeRecord;
   save: (value: PracticeRecord) => Promise<PracticeRecord>;
   onDirty: (dirty: boolean) => void;
+  hidePattern?: boolean;
 }) {
   const [state, setState] = useState<PracticeState>(
     () => record?.state ?? emptyState(problem.starter),
@@ -297,7 +312,10 @@ function Workspace({
       <header className="trainer-problem-head">
         <div>
           <p className="trainer-eyebrow">
-            {ruLabel(activeProblem.topic)} / {ruLabel(problem.difficulty)}
+            {hidePattern
+              ? "Выберите подход самостоятельно"
+              : ruLabel(activeProblem.topic)}{" "}
+            / {ruLabel(problem.difficulty)}
           </p>
           <h2>{activeProblem.title}</h2>
         </div>
@@ -309,6 +327,7 @@ function Workspace({
           {state.queued ? "In queue" : "Add to queue"}
         </button>
       </header>
+      <SourceNote problem={activeProblem} />
       <div className="trainer-statement">
         {activeProblem.statement ? (
           <p style={{ whiteSpace: "pre-wrap" }}>{activeProblem.statement}</p>
@@ -715,7 +734,9 @@ export default function AlgorithmTrainer() {
   const [search, setSearch] = useState("");
   const [topic, setTopic] = useState("All topics");
   const [difficulty, setDifficulty] = useState("All levels");
-  const [mode, setMode] = useState("library");
+  const [mode, setMode] = useState("path");
+  const [blockId, setBlockId] = useState("hash");
+  const [showExtra, setShowExtra] = useState(false);
   const dirty = useRef(false);
   const saved = new Map(
     (records.data ?? []).map((record) => [record.problemId, record]),
@@ -739,16 +760,26 @@ export default function AlgorithmTrainer() {
       })),
   ];
   const topics = [...new Set(allProblems.map((item) => item.topic))];
-  const filtered = allProblems
+  const block = learningBlocks.find((item) => item.id === blockId)!;
+  const modeProblems =
+    mode === "path"
+      ? blockProblems(block).filter(
+          (item) => showExtra || block.core.includes(item.id),
+        )
+      : mode === "mixed"
+        ? mixedPractice(saved)
+        : allProblems;
+  const filtered = modeProblems
     .filter((item) => {
       const state = saved.get(item.id)?.state;
       return (
         (topic === "All topics" || topic === item.topic) &&
-        (difficulty === "All levels" || item.difficulty === difficulty) &&
+        (difficulty === "All levels" ||
+          difficultyLevel(item.difficulty) === difficulty) &&
         `${item.title} ${item.id} ${item.topic} ${ruLabel(item.topic)} ${item.difficulty} ${ruLabel(item.difficulty)}`
           .toLowerCase()
           .includes(search.toLowerCase()) &&
-        (mode === "library" ||
+        (["library", "path", "mixed"].includes(mode) ||
           (mode === "queue" && state?.queued) ||
           (mode === "due" && isDue(state)) ||
           (mode === "drills" && !!item.tests) ||
@@ -764,6 +795,40 @@ export default function AlgorithmTrainer() {
     );
   const problem =
     allProblems.find((item) => item.id === selected) ?? catalog[0];
+  const openProblem = (id: string) => {
+    if (id === selected) return true;
+    if (
+      id !== selected &&
+      dirty.current &&
+      !confirm(
+        "Есть несохранённый черновик. Сохраните или экспортируйте его перед переходом. Перейти без сохранения?",
+      )
+    )
+      return false;
+    dirty.current = false;
+    setSelected(id);
+    return true;
+  };
+  const clearFilters = () => {
+    setTopic("All topics");
+    setDifficulty("All levels");
+    setSearch("");
+  };
+  const chooseBlock = (id: string) => {
+    const chosen = learningBlocks.find((item) => item.id === id)!;
+    const next = nextInBlock(chosen, saved) ?? chosen.core[0];
+    if (!openProblem(next)) return;
+    setBlockId(id);
+    setShowExtra(false);
+    setMode("path");
+    clearFilters();
+  };
+  const openMixed = () => {
+    const candidate = mixedPractice(saved)[0];
+    if (candidate && !openProblem(candidate.id)) return;
+    setMode("mixed");
+    clearFilters();
+  };
   const save = async (record: PracticeRecord) => {
     const result = preview
       ? { ...record, version: record.version + 1 }
@@ -792,7 +857,10 @@ export default function AlgorithmTrainer() {
           Algorithm practice / a separate training module
         </p>
         <h1>Algorithm room</h1>
-        <p>One problem. A deliberate attempt. A clearer next step.</p>
+        <p>
+          Паттерн → базовая задача → перенос → самостоятельная проверка →
+          повторение.
+        </p>
         <div className="trainer-readouts">
           <span>
             <Code2 size={16} />
@@ -834,34 +902,29 @@ export default function AlgorithmTrainer() {
                 onChange={(event) => setSearch(event.target.value)}
               />
             </label>
-            <label>
-              <span className="sr-only">Topic</span>
-              <select
-                value={topic}
-                onChange={(event) => setTopic(event.target.value)}
-              >
-                <option value="All topics">Все темы</option>
-                {topics.map((value) => (
-                  <option key={value} value={value}>
-                    {ruLabel(value)}
-                  </option>
-                ))}
-              </select>
-            </label>
+            {mode !== "path" && mode !== "mixed" && (
+              <label>
+                <span className="sr-only">Topic</span>
+                <select
+                  value={topic}
+                  onChange={(event) => setTopic(event.target.value)}
+                >
+                  <option value="All topics">Все темы</option>
+                  {topics.map((value) => (
+                    <option key={value} value={value}>
+                      {ruLabel(value)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             <label>
               <span className="sr-only">Difficulty</span>
               <select
                 value={difficulty}
                 onChange={(event) => setDifficulty(event.target.value)}
               >
-                {[
-                  "All levels",
-                  "Foundation",
-                  "Easy",
-                  "Medium",
-                  "Hard",
-                  "Personal",
-                ].map((value) => (
+                {["All levels", "Easy", "Medium", "Hard"].map((value) => (
                   <option key={value} value={value}>
                     {ruLabel(value)}
                   </option>
@@ -870,22 +933,91 @@ export default function AlgorithmTrainer() {
             </label>
             <div className="trainer-modes">
               {[
+                ["path", "Учебный маршрут"],
                 ["library", "Все"],
-                ["queue", "Моя очередь"],
                 ["due", "Повторение"],
-                ["drills", "Локальные задачи"],
-                ["data", "Анализ данных"],
               ].map(([value, name]) => (
                 <button
                   key={value}
                   aria-pressed={mode === value}
-                  onClick={() => setMode(value)}
+                  onClick={() => {
+                    if (value === "path")
+                      chooseBlock(blockFor(problem)?.id ?? blockId);
+                    else {
+                      setMode(value);
+                      clearFilters();
+                    }
+                  }}
                 >
                   {name}
                 </button>
               ))}
             </div>
-            <small>Найдено задач: {filtered.length}</small>
+            <details
+              className="trainer-extra-filters"
+              open={
+                ["queue", "drills", "data", "mixed"].includes(mode)
+                  ? true
+                  : undefined
+              }
+            >
+              <summary>Другие подборки</summary>
+              <div className="trainer-modes">
+                {[
+                  ["queue", "Моя очередь"],
+                  ["drills", "Локальные задачи"],
+                  ["data", "Анализ данных"],
+                  ["mixed", "Смешанная практика"],
+                ].map(([value, name]) => (
+                  <button
+                    key={value}
+                    aria-pressed={mode === value}
+                    onClick={() => {
+                      if (value === "mixed") openMixed();
+                      else {
+                        setMode(value);
+                        clearFilters();
+                      }
+                    }}
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
+            </details>
+            {mode === "path" && (
+              <label>
+                Тематический блок
+                <select
+                  value={blockId}
+                  onChange={(event) => chooseBlock(event.target.value)}
+                >
+                  {learningBlocks.map((item, index) => {
+                    const progress = blockProgress(item, saved);
+                    return (
+                      <option key={item.id} value={item.id}>
+                        {String(index + 1).padStart(2, "0")} · {item.title} ·{" "}
+                        {progress.independent}/{progress.total}
+                      </option>
+                    );
+                  })}
+                </select>
+              </label>
+            )}
+            {mode === "path" && (
+              <button
+                aria-pressed={showExtra}
+                onClick={() => setShowExtra(!showExtra)}
+              >
+                {showExtra
+                  ? "Скрыть дополнительные"
+                  : `Дополнительные задачи · ${blockProblems(block).length - block.core.length}`}
+              </button>
+            )}
+            <small>
+              Найдено задач: {filtered.length} · Разминка — этап маршрута, не
+              отдельная сложность.
+            </small>
           </div>
           <div className="trainer-problem-list">
             {filtered.map((item) => (
@@ -893,31 +1025,34 @@ export default function AlgorithmTrainer() {
                 className="trainer-list-item"
                 key={item.id}
                 aria-pressed={selected === item.id}
-                onClick={() => {
-                  if (
-                    item.id !== selected &&
-                    dirty.current &&
-                    !confirm(
-                      "Leave this task with unsaved changes? Export or save the draft first to keep it.",
-                    )
-                  )
-                    return;
-                  dirty.current = false;
-                  setSelected(item.id);
-                }}
+                onClick={() => openProblem(item.id)}
               >
                 <span>{item.title}</span>
                 <small>
-                  {ruLabel(item.topic)} · {ruLabel(item.difficulty)}
+                  {mode === "path"
+                    ? taskStage(block, item)
+                    : mode === "mixed"
+                      ? "Паттерн не указан"
+                      : ruLabel(item.topic)}{" "}
+                  · {ruLabel(item.difficulty)}
                   {saved.get(item.id)?.state.queued ? " · Queued" : ""}
                   {isDue(saved.get(item.id)?.state) ? " · Due" : ""}
+                </small>
+                <small>
+                  {latestOutcome(saved.get(item.id)) === "independent"
+                    ? "✓ Самостоятельно · "
+                    : latestOutcome(saved.get(item.id)) === "assisted"
+                      ? "С помощью · "
+                      : ""}
+                  {provenance(item).label}
                 </small>
               </button>
             ))}
             {!filtered.length && (
               <p className="trainer-empty">
-                No tasks in this view. Open All, choose a task and add it to
-                your queue.
+                {mode === "mixed"
+                  ? "Сначала сохраните хотя бы одну попытку в учебном маршруте. Затем здесь появятся задачи из разных пройденных блоков для повторения и переноса."
+                  : "Нет задач с такими фильтрами. Сбросьте поиск или откройте «Все»."}
               </p>
             )}
           </div>
@@ -953,28 +1088,7 @@ export default function AlgorithmTrainer() {
               }}
             />
           </details>
-          <details className="trainer-sources">
-            <summary>Sources & provenance</summary>
-            <p>
-              Original dōjō drills have local tests. External tasks are links
-              only, not imported statements or solutions.
-            </p>
-            <a
-              href="https://github.com/seanprashad/leetcode-patterns"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Pattern-based reference
-            </a>
-            <a
-              href="https://github.com/neetcode-gh/leetcode"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              NeetCode solution reference
-            </a>
-            <p>No claim is made about current company interview frequency.</p>
-          </details>
+          <Sources />
           <button
             onClick={() =>
               download(
@@ -1005,15 +1119,51 @@ export default function AlgorithmTrainer() {
             </button>
           </section>
         ) : (
-          <Workspace
-            key={selected}
-            problem={problem}
-            record={saved.get(selected)}
-            save={save}
-            onDirty={(value) => {
-              dirty.current = value;
-            }}
-          />
+          <div className="trainer-study-column">
+            {mode === "path" && (
+              <LearningGuide
+                block={block}
+                saved={saved}
+                selected={selected}
+                onChoose={chooseBlock}
+                onOpen={(id) => {
+                  if (openProblem(id)) clearFilters();
+                }}
+                onRepeat={openMixed}
+              />
+            )}
+            {mode === "mixed" && (
+              <section className="trainer-learning-guide">
+                <p className="trainer-eyebrow">Перенос · разные паттерны</p>
+                <h2>Смешанная практика</h2>
+                <p className="trainer-learning-outcome">
+                  По одной задаче из каждого начатого алгоритмического блока.
+                  Сначала — просроченное повторение, затем нерешённая вариация.
+                  Это учебная выборка, не симуляция конкретной компании.
+                </p>
+                <p className="trainer-caption">
+                  Не смотрите подсказки до попытки. Объясните ограничения,
+                  подход, инвариант и сложность; сохраните честную оценку
+                  результата.
+                </p>
+              </section>
+            )}
+            <Workspace
+              key={selected}
+              problem={problem}
+              record={saved.get(selected)}
+              save={save}
+              hidePattern={mode === "mixed"}
+              onDirty={(value) => {
+                dirty.current = value;
+              }}
+            />
+            {mode !== "path" && blockFor(problem) && (
+              <button onClick={() => chooseBlock(blockFor(problem)!.id)}>
+                Открыть учебный блок этой задачи →
+              </button>
+            )}
+          </div>
         )}
       </div>
     </div>

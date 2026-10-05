@@ -365,6 +365,115 @@
 .trainer-custom :is(input, textarea) {
   margin-top: 6px;
 }
+.trainer-study-column {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.trainer-learning-guide {
+  border: 1px solid #80d8d33a;
+  border-radius: 18px;
+  padding: 22px 26px;
+  background: linear-gradient(120deg, #0f2630f5, #0a131df5);
+  min-width: 0;
+}
+.trainer-learning-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.trainer-learning-guide h2 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.trainer-learning-count {
+  font: 11px/1.7 monospace;
+  color: #a5dacf;
+  padding: 6px 10px;
+  border: 1px solid #a5dacf36;
+  border-radius: 6px;
+}
+.trainer-learning-outcome {
+  color: #bdd0da;
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 10px 0;
+}
+.trainer-learning-cycle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font: 10px/1.8 monospace;
+  color: #86b4bb;
+  margin: 14px 0;
+}
+.trainer-learning-actions,
+.trainer-prerequisites {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.trainer-learning-actions p {
+  font-size: 12px;
+  color: #b4dccf;
+}
+.trainer-pattern-notes {
+  border-top: 1px solid #80d8d323;
+  margin-top: 16px;
+}
+.trainer-pattern-notes dl {
+  display: grid;
+  grid-template-columns: 135px 1fr;
+  gap: 10px 16px;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.trainer-pattern-notes dt {
+  color: #a3d8d0;
+}
+.trainer-pattern-notes dd {
+  color: #bed0d9;
+}
+.trainer-pattern-notes p,
+.trainer-pattern-notes small,
+.trainer-provenance p {
+  font-size: 12px;
+  line-height: 1.8;
+  color: #aebfcb;
+  margin: 12px 0;
+}
+.trainer-pattern-notes small {
+  display: block;
+}
+.trainer-learning-references {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 16px;
+}
+.trainer-learning-references a,
+.trainer-provenance a {
+  color: #9bdace;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.trainer-provenance {
+  border-bottom: 1px solid #80d8d323;
+  margin-top: 12px;
+}
+.trainer-provenance summary {
+  color: #aac8cf;
+  font-size: 11px;
+}
+.trainer-provenance > a {
+  display: inline-block;
+  margin-bottom: 12px;
+}
 @media (max-width: 1200px) {
   .trainer-layout {
     grid-template-columns: 245px minmax(0, 1fr);

@@ -4,8 +4,30 @@ import { catalog, drills } from "./catalog.ts";
 import { russianTitles, ruLabel } from "./russian.ts";
 import { dataDrills } from "./data-drills.ts";
 import { practiceNotebook } from "./notebook.ts";
-test("catalog has 150 distinct source links and 10 runnable original exercises", () => {
-  assert.equal(catalog.length, 168);
+import { adaptations } from "./adaptations.ts";
+import {
+  blockFor,
+  blockProblems,
+  blockProgress,
+  difficultyLevel,
+  learningBlocks,
+  latestOutcome,
+  mixedPractice,
+  nextInBlock,
+  taskStage,
+} from "./learning-path.ts";
+import { learningSources, officialPrepSlugs, provenance } from "./sources.ts";
+import {
+  emptyState,
+  type PracticeRecord,
+} from "../../../../../modules/algorithm-trainer/model.ts";
+test("catalog has stable unique IDs, 159 LeetCode references, 5 candidate reports and original exercises", () => {
+  assert.equal(catalog.length, 182);
+  assert.equal(catalog.filter((item) => item.id.startsWith("lc-")).length, 159);
+  assert.equal(
+    catalog.filter((item) => item.id.startsWith("dojo-interview-")).length,
+    5,
+  );
   assert.equal(new Set(catalog.map((item) => item.id)).size, catalog.length);
   assert.equal(drills.length, 10);
   for (const item of drills) {
@@ -15,12 +37,157 @@ test("catalog has 150 distinct source links and 10 runnable original exercises",
     assert.ok(item.hints.every((hint) => /[а-яё]/i.test(hint)));
     assert.match(item.starter, /^def solve\(/);
   }
-  for (const item of catalog.filter((item) => item.url)) {
+  for (const item of catalog.filter((item) => item.id.startsWith("lc-"))) {
     assert.equal(new URL(item.url!).hostname, "leetcode.com");
-    assert.equal(item.statement, undefined);
+    if (adaptations[item.id.slice(3)]) {
+      assert.ok(item.tests && item.tests.length >= 4);
+      assert.match(item.statement!, /[а-яё]/i);
+      assert.match(item.starter, /^def solve\(/);
+    } else assert.equal(item.statement, undefined);
     assert.equal(item.title, russianTitles[item.id.slice(3)]);
     assert.match(item.title, /[а-яё]/i);
   }
+});
+test("every catalog entry belongs to a coherent block, with unique core tasks and acyclic prerequisites", () => {
+  assert.equal(learningBlocks.length, 18);
+  const preceding = new Set<string>();
+  const coreIds = new Set<string>();
+  for (const block of learningBlocks) {
+    assert.ok(
+      block.prerequisites.every((id) => preceding.has(id)),
+      block.id,
+    );
+    preceding.add(block.id);
+    for (const id of block.core) {
+      const problem = catalog.find((item) => item.id === id);
+      assert.ok(problem, id);
+      assert.equal(blockFor(problem!)?.id, block.id, id);
+      assert.ok(!coreIds.has(id), id);
+      coreIds.add(id);
+    }
+    const problems = blockProblems(block);
+    assert.equal(
+      new Set(problems.map((item) => item.id)).size,
+      problems.length,
+    );
+    assert.deepEqual(
+      problems.slice(0, block.core.length).map((item) => item.id),
+      block.core,
+    );
+    for (const problem of problems.slice(block.core.length))
+      assert.equal(taskStage(block, problem), "Дополнительно");
+    assert.equal(
+      taskStage(
+        block,
+        catalog.find((problem) => problem.id === block.core.at(-1))!,
+      ),
+      "Самопроверка",
+    );
+    assert.ok(
+      block.sources.every((id) =>
+        learningSources.some((source) => source.id === id),
+      ),
+    );
+  }
+  for (const problem of catalog) assert.ok(blockFor(problem), problem.id);
+  assert.equal(
+    blockFor(catalog.find((item) => item.id === "lc-generate-parentheses")!)
+      ?.id,
+    "backtracking",
+  );
+});
+function record(
+  id: string,
+  outcome: "independent" | "assisted" | "retry",
+  nextReview: string | null = null,
+): PracticeRecord {
+  return {
+    problemId: id,
+    version: 1,
+    state: {
+      ...emptyState(),
+      nextReview,
+      attempts: [
+        {
+          id: "one",
+          recordedAt: "2026-10-05T10:00:00Z",
+          minutes: 10,
+          outcome,
+          note: "",
+        },
+      ],
+    },
+  };
+}
+test("progress uses latest saved assessment, recommendations prioritize reviews, and drafts never count", () => {
+  const block = learningBlocks[0];
+  const saved = new Map<string, PracticeRecord>();
+  saved.set(block.core[0], {
+    problemId: block.core[0],
+    version: 1,
+    state: emptyState("finished-looking code"),
+  });
+  assert.equal(blockProgress(block, saved).independent, 0);
+  assert.equal(nextInBlock(block, saved, "2026-10-06"), block.core[0]);
+  saved.set(block.core[0], record(block.core[0], "independent", "2026-10-20"));
+  assert.equal(blockProgress(block, saved).independent, 1);
+  assert.equal(nextInBlock(block, saved, "2026-10-06"), block.core[1]);
+  saved.set(block.core[3], record(block.core[3], "assisted", "2026-10-04"));
+  assert.equal(nextInBlock(block, saved, "2026-10-06"), block.core[3]);
+  const changed = record(block.core[0], "independent");
+  changed.state.attempts.unshift({
+    id: "two",
+    recordedAt: "2026-10-06T10:00:00Z",
+    minutes: 5,
+    outcome: "retry",
+    note: "",
+  });
+  assert.equal(latestOutcome(changed), "retry");
+  saved.set(block.core[0], changed);
+  assert.equal(blockProgress(block, saved).independent, 0);
+  for (const id of block.core)
+    saved.set(id, record(id, "independent", "2026-10-20"));
+  assert.equal(nextInBlock(block, saved, "2026-10-06"), undefined);
+});
+test("mixed practice is deterministic, drawn only from attempted algorithm blocks and not duplicated", () => {
+  assert.deepEqual(mixedPractice(new Map(), "2026-10-06"), []);
+  const saved = new Map<string, PracticeRecord>();
+  saved.set("lc-two-sum", record("lc-two-sum", "independent", "2026-10-01"));
+  saved.set("lc-valid-palindrome", record("lc-valid-palindrome", "assisted"));
+  saved.set("dojo-data-filter", record("dojo-data-filter", "independent"));
+  const tasks = mixedPractice(saved, "2026-10-06");
+  assert.equal(tasks.length, 2);
+  assert.equal(tasks[0].id, "lc-two-sum");
+  assert.equal(new Set(tasks.map((item) => item.id)).size, tasks.length);
+  assert.ok(tasks.every((item) => item.track !== "data"));
+});
+test("official examples, employer recommendations, community reports and original exercises stay distinct", () => {
+  for (const slug of officialPrepSlugs) {
+    const task = catalog.find((item) => item.id === `lc-${slug}`)!;
+    assert.ok(task);
+    assert.equal(
+      provenance(task).label,
+      "Официальная рекомендация для подготовки",
+    );
+  }
+  assert.equal(
+    provenance(catalog.find((item) => item.id === "lc-valid-anagram")!).label,
+    "Официальный пример интервью",
+  );
+  assert.equal(
+    provenance(catalog.find((item) => item.id === "lc-two-sum")!).label,
+    "Список рекрутеров · по словам автора",
+  );
+  assert.equal(provenance(drills[0]).label, "Авторское упражнение");
+  for (const task of catalog.filter((item) =>
+    item.id.startsWith("dojo-interview-"),
+  )) {
+    assert.equal(provenance(task).label, "Отчёт кандидата · не подтверждён");
+    assert.equal(task.tests, undefined);
+    assert.equal(new URL(task.url!).hostname, "github.com");
+  }
+  assert.equal(difficultyLevel("Foundation"), "Easy");
+  assert.equal(ruLabel("Foundation"), ruLabel("Easy"));
 });
 test("Russian labels preserve filter values and personal text", () => {
   for (const item of catalog) {

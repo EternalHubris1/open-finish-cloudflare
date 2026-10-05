@@ -44,5 +44,8 @@ jobs:
       - name: Verify algorithm trainer catalog and repetition model
         run: node --test modules/algorithm-trainer/model.test.ts artifacts/learning-tracker/src/modules/algorithm-trainer/catalog.test.ts
 
+      - name: Verify local interview adaptation fixtures
+        run: node --input-type=module -e "import {catalog} from './artifacts/learning-tracker/src/modules/algorithm-trainer/catalog.ts'; console.log(JSON.stringify(catalog.filter(p => p.id.startsWith('lc-') && p.tests)))" | python3 modules/algorithm-trainer/verify-adaptations.py
+
       - name: Build Worker assets
         run: pnpm run build
