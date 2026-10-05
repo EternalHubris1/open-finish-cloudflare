@@ -1,0 +1,429 @@
+.algorithm-room {
+  max-width: 1600px;
+  margin: auto;
+  padding: 32px 28px 110px;
+  color: #ecf0f3;
+}
+.trainer-hero {
+  padding: 30px 36px;
+  border: 1px solid #ffffff18;
+  border-radius: 24px;
+  background-size: cover;
+  background-position: center;
+  min-height: 190px;
+  margin-bottom: 24px;
+}
+.trainer-eyebrow {
+  font: 11px monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #ebaa91;
+  margin-bottom: 10px;
+}
+.trainer-hero h1 {
+  font-size: 38px;
+  letter-spacing: -0.04em;
+  font-weight: 650;
+  margin-bottom: 8px;
+}
+.trainer-hero > p:not(.trainer-eyebrow) {
+  color: #c3cbd1;
+}
+.trainer-readouts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 24px;
+  font: 12px monospace;
+  color: #b5cbd0;
+}
+.trainer-readouts span,
+.algorithm-room button,
+.trainer-codebar span,
+.trainer-statement a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.trainer-layout {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.trainer-library,
+.trainer-workspace {
+  border: 1px solid #80d8d322;
+  background: #09121bf2;
+  border-radius: 18px;
+  min-width: 0;
+  overflow: hidden;
+}
+.trainer-library {
+  padding: 16px;
+  position: sticky;
+  top: 20px;
+}
+.trainer-workspace {
+  padding: 26px;
+  background-image: linear-gradient(#ffffff02 1px, transparent 1px);
+  background-size: 100% 36px;
+}
+.algorithm-room button {
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #a2c0ce35;
+  border-radius: 8px;
+  font-size: 12px;
+  justify-content: center;
+  color: #d3e0e8;
+  background: #172430;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.algorithm-room button:hover {
+  background: #263843;
+  border-color: #a6ded879;
+}
+.algorithm-room button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.algorithm-room :is(button, input, textarea, select, a, summary):focus-visible {
+  outline: 2px solid #8be1d2;
+  outline-offset: 3px;
+}
+.algorithm-room .trainer-primary {
+  background: #823e38;
+  border-color: #e58b7b88;
+  color: #fff;
+}
+.algorithm-room input,
+.algorithm-room select,
+.algorithm-room textarea {
+  width: 100%;
+  min-width: 0;
+  background: #080e15;
+  color: #e2edf2;
+  border: 1px solid #7895a538;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+}
+.algorithm-room select option {
+  background: #0d1822;
+}
+.trainer-filter {
+  display: grid;
+  gap: 12px;
+}
+.trainer-filter > label:first-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.trainer-filter small,
+.trainer-list-item small,
+.trainer-caption,
+.trainer-attempt small {
+  font-size: 11px;
+  color: #9aaebc;
+  line-height: 1.7;
+}
+.trainer-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.algorithm-room [aria-pressed="true"] {
+  border-color: #96dad5aa;
+  background: #203d46;
+}
+.trainer-problem-list {
+  max-height: 58vh;
+  overflow: auto;
+  margin: 16px -4px;
+  padding: 4px;
+  display: grid;
+  gap: 6px;
+}
+.algorithm-room .trainer-list-item {
+  align-items: flex-start;
+  flex-direction: column;
+  text-align: left;
+  gap: 3px;
+  padding: 12px;
+  justify-content: flex-start;
+  width: 100%;
+}
+.trainer-list-item span {
+  font-weight: 600;
+  line-height: 1.5;
+}
+.trainer-problem-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+}
+.trainer-problem-head h2 {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.trainer-problem-head button {
+  flex-shrink: 0;
+}
+.trainer-statement {
+  padding: 20px 0;
+  color: #c5d1d9;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.trainer-statement a,
+.trainer-sources a {
+  color: #9bdace;
+  margin: 10px 0;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.trainer-statement small {
+  display: block;
+  color: #a5b3bd;
+}
+.algorithm-room summary {
+  cursor: pointer;
+  padding: 12px 0;
+  color: #b9d6de;
+  font-size: 12px;
+}
+.trainer-cases pre {
+  font: 12px monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 8px;
+  background: #15222d;
+  margin-bottom: 4px;
+}
+.trainer-hints p {
+  padding: 8px 12px;
+  border-left: 2px solid #d4a97c;
+  margin-bottom: 8px;
+}
+.trainer-codebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font: 12px monospace;
+  margin: 12px 0;
+  color: #b2c7d1;
+  flex-wrap: wrap;
+}
+.trainer-codebar > label {
+  flex: 1 1 220px;
+  max-width: 340px;
+}
+.trainer-actions > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #7895a538;
+  border-radius: 8px;
+  color: #b8d8d2;
+}
+.trainer-codebar > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.trainer-code-label {
+  display: block;
+}
+.algorithm-room .trainer-editor {
+  min-height: 300px;
+  resize: vertical;
+  font:
+    14px/1.7 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+  tab-size: 4;
+  padding: 20px;
+  border-color: #70c1c444;
+}
+.trainer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+.trainer-console {
+  margin: 18px 0;
+  padding: 16px;
+  border: 1px solid #80cbc43d;
+  background: #030a10;
+  color: #c8e5df;
+  font: 12px/1.7 monospace;
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+}
+.trainer-console pre {
+  white-space: pre-wrap;
+  max-height: 240px;
+  overflow: auto;
+}
+.trainer-reflection {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px;
+  gap: 16px;
+  margin: 22px 0;
+}
+.algorithm-room label {
+  display: block;
+  font-size: 12px;
+  color: #b9c9d4;
+}
+.trainer-reflection :is(input, textarea),
+.trainer-attempt-fields :is(input, select) {
+  margin-top: 8px;
+}
+.trainer-attempt {
+  border-top: 1px solid #7895a530;
+  padding-top: 22px;
+}
+.trainer-attempt h3 {
+  font-weight: 600;
+  font-size: 18px;
+}
+.trainer-attempt p {
+  font-size: 12px;
+  color: #a6bbc7;
+  margin-top: 6px;
+}
+.trainer-attempt-fields {
+  display: grid;
+  grid-template-columns: 1fr 100px 1fr;
+  gap: 12px;
+  margin: 16px 0;
+}
+.trainer-attempt small {
+  display: block;
+  margin: 12px 0;
+}
+.trainer-error,
+.trainer-success,
+.trainer-notice {
+  padding: 12px 16px;
+  border: 1px solid #d7918066;
+  border-radius: 8px;
+  background: #44201b;
+  font-size: 13px;
+  margin: 12px 0;
+}
+.trainer-success {
+  border-color: #8fe0c959;
+  background: #173b36;
+  color: #bce9dc;
+}
+.trainer-notice {
+  background: #19262e;
+  border-color: #7cb2c855;
+}
+.trainer-history {
+  border-top: 1px solid #7895a530;
+  margin-top: 18px;
+}
+.trainer-history-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 65px 1fr auto;
+  gap: 8px;
+  padding: 12px 0;
+  align-items: center;
+  font-size: 11px;
+}
+.trainer-history > p,
+.trainer-empty,
+.trainer-sources p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #aebcc7;
+  padding: 12px 0;
+}
+.trainer-sources a {
+  display: block;
+  font-size: 12px;
+}
+.trainer-custom {
+  display: grid;
+  gap: 12px;
+  padding: 12px 0;
+}
+.trainer-custom :is(input, textarea) {
+  margin-top: 6px;
+}
+@media (max-width: 1200px) {
+  .trainer-layout {
+    grid-template-columns: 245px minmax(0, 1fr);
+  }
+  .trainer-workspace {
+    padding: 20px;
+  }
+  .trainer-attempt-fields {
+    grid-template-columns: 1fr 90px;
+  }
+  .trainer-attempt-fields label:last-child {
+    grid-column: 1/-1;
+  }
+  .trainer-history-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .trainer-history-row button {
+    justify-self: start;
+  }
+}
+@media (max-width: 760px) {
+  .algorithm-room {
+    padding: 20px 16px 110px;
+  }
+  .trainer-hero {
+    padding: 24px;
+    min-height: 160px;
+  }
+  .trainer-hero h1 {
+    font-size: 30px;
+  }
+  .trainer-layout {
+    grid-template-columns: 1fr;
+  }
+  .trainer-library {
+    position: static;
+  }
+  .trainer-problem-list {
+    max-height: 230px;
+  }
+  .trainer-problem-head {
+    flex-direction: column;
+  }
+  .trainer-reflection {
+    grid-template-columns: 1fr;
+  }
+  .trainer-codebar {
+    flex-wrap: wrap;
+  }
+  .algorithm-room button {
+    min-height: 44px;
+  }
+  .algorithm-room :is(input, select, textarea) {
+    font-size: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .algorithm-room * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

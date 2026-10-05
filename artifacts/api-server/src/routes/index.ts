@@ -12,6 +12,7 @@ import dailyContextRouter from "./daily-context";
 import continuityMemoryRouter from "./continuity-memory";
 import rhythmsRouter from "./rhythms";
 import dayMarkersRouter from "./day-markers";
+import algorithmTrainerRouter from "./algorithm-trainer";
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use(dailyContextRouter);
 router.use(continuityMemoryRouter);
 router.use(rhythmsRouter);
 router.use(dayMarkersRouter);
+router.use(algorithmTrainerRouter);
 
 export default router;
