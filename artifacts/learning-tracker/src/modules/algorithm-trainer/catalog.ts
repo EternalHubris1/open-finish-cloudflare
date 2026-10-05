@@ -1,3 +1,4 @@
+import { russianTitles } from "./russian.ts";
 export type TestCase = { args: unknown[]; expected: unknown };
 export type Problem = {
   id: string;
@@ -25,7 +26,7 @@ function drill(
     topic,
     difficulty: "Foundation",
     statement,
-    starter: `def solve(${signature}):\n    # Write your solution here\n    pass\n`,
+    starter: `def solve(${signature}):\n    # Напишите решение здесь\n    pass\n`,
     hints,
     tests,
   };
@@ -34,13 +35,13 @@ function drill(
 export const drills: Problem[] = [
   drill(
     "first-repeat",
-    "First repeated signal",
+    "Первое повторяющееся число",
     "Arrays & hashing",
-    "Return the first value encountered for a second time while scanning a list of integers from left to right. Return None if all values are distinct. Aim for linear time.",
+    "Просматривая список целых чисел слева направо, верните первое число, встретившееся во второй раз. Если все числа различны, верните None. Требуемая сложность — O(n).",
     "values",
     [
-      "Keep a record of values already seen.",
-      "Check membership before adding the current value.",
+      "Храните множество уже встреченных чисел.",
+      "Проверяйте наличие числа до его добавления в множество.",
     ],
     [
       { args: [[8, 3, 8, 3]], expected: 8 },
@@ -51,13 +52,13 @@ export const drills: Problem[] = [
   ),
   drill(
     "merge-signals",
-    "Merge two ordered traces",
+    "Слияние двух отсортированных списков",
     "Two pointers",
-    "Given two ascending lists of integers, return one ascending list containing every element, including duplicates. Do not use sorted() or list.sort(). Aim for O(n + m).",
+    "Даны два списка целых чисел, отсортированных по неубыванию. Верните один отсортированный список со всеми элементами, включая повторы. Не используйте sorted() и list.sort(). Требуемая сложность — O(n + m).",
     "left, right",
     [
-      "Use one index for each list.",
-      "Append the smaller current value; append any unconsumed tail.",
+      "Используйте отдельный указатель для каждого списка.",
+      "Добавляйте меньшее из текущих чисел, затем допишите оставшуюся часть списка.",
     ],
     [
       {
@@ -74,13 +75,13 @@ export const drills: Problem[] = [
   ),
   drill(
     "window-total",
-    "Strongest practice window",
+    "Максимальная сумма окна",
     "Sliding window",
-    "Return the greatest sum of exactly k consecutive integers. Values may be negative. Assume 1 <= k <= len(values). Aim for linear time.",
+    "Верните максимальную сумму ровно k последовательных элементов списка. Числа могут быть отрицательными. Гарантируется 1 <= k <= len(values). Требуемая сложность — O(n).",
     "values, k",
     [
-      "Start with the sum of the first k values.",
-      "Slide by subtracting the outgoing value and adding the incoming one.",
+      "Начните с суммы первых k элементов.",
+      "Сдвигайте окно: вычитайте уходящий элемент и добавляйте новый.",
     ],
     [
       { args: [[3, -2, 6, 1, -5], 2], expected: 7 },
@@ -91,13 +92,13 @@ export const drills: Problem[] = [
   ),
   drill(
     "brackets",
-    "Balanced instrument frames",
+    "Правильная скобочная последовательность",
     "Stack",
-    "Return True if a string made only of ()[]{} has matching, correctly nested brackets. The empty string is balanced.",
+    "Строка состоит только из символов ()[]{}. Верните True, если каждой открывающей скобке соответствует закрывающая того же типа и вложенность не нарушена. Иначе верните False. Пустая строка считается правильной последовательностью.",
     "text",
     [
-      "An opening bracket enters a stack.",
-      "A closing bracket must match the top, and the final stack must be empty.",
+      "Добавляйте открывающие скобки в стек.",
+      "Закрывающая скобка должна соответствовать вершине стека. В конце стек должен быть пуст.",
     ],
     [
       { args: ["{[()]()}"], expected: true },
@@ -109,13 +110,13 @@ export const drills: Problem[] = [
   ),
   drill(
     "lower-bound",
-    "Find the insertion threshold",
+    "Поиск нижней границы",
     "Binary search",
-    "Return the first index whose value is at least target in an ascending list. If no such value exists, return len(values). Duplicate values are allowed. Aim for O(log n).",
+    "В списке, отсортированном по неубыванию, найдите первый индекс элемента, который не меньше target. Если такого элемента нет, верните len(values). Повторы допустимы. Требуемая сложность — O(log n).",
     "values, target",
     [
-      "Search in a half-open interval [lo, hi).",
-      "When values[mid] >= target, keep mid as a candidate by moving hi.",
+      "Ведите поиск в полуинтервале [lo, hi).",
+      "Если values[mid] >= target, сдвиньте hi к mid, сохранив этот индекс среди кандидатов.",
     ],
     [
       { args: [[1, 4, 4, 8], 4], expected: 1 },
@@ -126,13 +127,13 @@ export const drills: Problem[] = [
   ),
   drill(
     "runs",
-    "Compress a session trace",
+    "Сжатие последовательных повторов",
     "Arrays & hashing",
-    "Compress consecutive equal integers into [value, count] pairs, keeping run order. Non-adjacent equal values stay separate. Return a list of pairs.",
+    "Сожмите последовательные одинаковые числа в пары [число, количество], сохраняя порядок групп. Одинаковые числа, разделённые другими значениями, остаются в разных группах. Верните список пар.",
     "values",
     [
-      "Compare each value with the last run.",
-      "Extend the last count or start a new [value, 1] pair.",
+      "Сравнивайте очередное число с последней группой.",
+      "Увеличьте счётчик последней группы или добавьте новую пару [число, 1].",
     ],
     [
       {
@@ -149,13 +150,13 @@ export const drills: Problem[] = [
   ),
   drill(
     "rooms",
-    "Count connected rooms",
+    "Количество компонент связности",
     "Graphs",
-    "An undirected graph has rooms numbered 0 to n-1 and edges as [a, b] pairs. Return its number of connected components, including isolated rooms. Assume valid room indices.",
+    "В неориентированном графе n вершин с номерами от 0 до n-1. Рёбра заданы парами [a, b]. Верните количество компонент связности, включая изолированные вершины. Номера вершин корректны.",
     "n, edges",
     [
-      "Build an adjacency list.",
-      "Start a traversal from every not-yet-visited room and count starts.",
+      "Постройте список смежности.",
+      "Запускайте обход из каждой ещё не посещённой вершины и подсчитывайте число запусков.",
     ],
     [
       {
@@ -186,13 +187,13 @@ export const drills: Problem[] = [
   ),
   drill(
     "steps",
-    "Paths through the stairwell",
+    "Количество способов подняться по лестнице",
     "Dynamic programming",
-    "A stairwell has n steps. Each move climbs one or two. Return the number of distinct sequences reaching the top. For n=0 there is one empty sequence; assume 0 <= n <= 35.",
+    "Лестница состоит из n ступеней. За один шаг можно подняться на одну или две ступени. Верните количество различных последовательностей шагов до вершины. Для n=0 существует один способ — не делать шагов. Гарантируется 0 <= n <= 35.",
     "n",
     [
-      "The last move came from n-1 or n-2.",
-      "Keep only the previous two counts; define the zero-step base case.",
+      "Последний шаг сделан со ступени n-1 или n-2.",
+      "Достаточно хранить два предыдущих значения. Не забудьте базовый случай для нуля ступеней.",
     ],
     [
       { args: [0], expected: 1 },
@@ -203,11 +204,14 @@ export const drills: Problem[] = [
   ),
   drill(
     "intervals",
-    "Unify practice intervals",
+    "Объединение интервалов",
     "Intervals",
-    "Given [start, end] intervals with start <= end, return a sorted list merging overlapping or touching intervals. Empty input returns []. You may sort the input.",
+    "Даны интервалы [start, end], где start <= end. Объедините пересекающиеся или соприкасающиеся интервалы и верните отсортированный список. Для пустого входа верните []. Сортировка разрешена.",
     "intervals",
-    ["Sort by start.", "Merge when the next start is at most the current end."],
+    [
+      "Отсортируйте интервалы по началу.",
+      "Объединяйте интервалы, если начало следующего не больше конца текущего.",
+    ],
     [
       {
         args: [
@@ -245,13 +249,13 @@ export const drills: Problem[] = [
   ),
   drill(
     "frequency",
-    "Most frequent cue",
+    "Самое частое число",
     "Arrays & hashing",
-    "Return the integer occurring most often. If frequencies tie, choose the smallest integer. Return None for an empty list.",
+    "Верните наиболее часто встречающееся целое число. При равных частотах выберите наименьшее число. Для пустого списка верните None.",
     "values",
     [
-      "Count each distinct value.",
-      "Compare count first and integer value second.",
+      "Подсчитайте частоту каждого числа.",
+      "Сначала сравнивайте частоты, затем значения чисел.",
     ],
     [
       { args: [[7, 2, 7, 2, 9]], expected: 2 },
@@ -420,15 +424,17 @@ export const catalog: Problem[] = [
     const [topic, difficulty, slug] = line.split("|");
     return {
       id: `lc-${slug}`,
-      title: slug
-        .split("-")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" "),
+      title:
+        russianTitles[slug] ??
+        slug
+          .split("-")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" "),
       topic,
       difficulty,
       url: `https://leetcode.com/problems/${slug}/`,
       starter:
-        "# Read the original statement on the source.\n# Paste your Python draft here.\n",
+        "# Прочитайте условие на сайте-источнике.\n# Напишите свой код на Python здесь.\n",
       hints: [],
     };
   }),

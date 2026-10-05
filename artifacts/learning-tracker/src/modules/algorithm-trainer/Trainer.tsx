@@ -14,6 +14,7 @@ import {
   Clock,
 } from "lucide-react";
 import { catalog, type Problem } from "./catalog";
+import { ruLabel } from "./russian";
 import CustomTaskForm from "./CustomTaskForm";
 import {
   emptyState,
@@ -278,7 +279,7 @@ function Workspace({
       <header className="trainer-problem-head">
         <div>
           <p className="trainer-eyebrow">
-            {activeProblem.topic} / {problem.difficulty}
+            {ruLabel(activeProblem.topic)} / {ruLabel(problem.difficulty)}
           </p>
           <h2>{activeProblem.title}</h2>
         </div>
@@ -296,8 +297,9 @@ function Workspace({
         ) : (
           <>
             <p>
-              This is a linked source problem. Read its original statement,
-              constraints and examples before working here.
+              Это ссылка на внешнюю задачу. Полное условие, ограничения и
+              примеры находятся на сайте-источнике; его язык может отличаться от
+              русского.
             </p>
             {activeProblem.url && (
               <a
@@ -305,7 +307,7 @@ function Workspace({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <ExternalLink size={16} /> Open original source
+                <ExternalLink size={16} /> Открыть оригинал
               </a>
             )}
             <small>
@@ -331,9 +333,7 @@ function Workspace({
         )}
         {activeProblem.tests && (
           <details>
-            <summary>
-              Examples & test cases · {activeProblem.tests.length}
-            </summary>
+            <summary>Примеры и тесты · {activeProblem.tests.length}</summary>
             <div className="trainer-cases">
               {activeProblem.tests.map((item, index) => (
                 <pre key={index}>
@@ -351,7 +351,7 @@ function Workspace({
             ))}
             {hints < problem.hints.length && (
               <button onClick={() => setHints(hints + 1)}>
-                Reveal hint {hints + 1} / {problem.hints.length}
+                Показать подсказку {hints + 1} / {problem.hints.length}
               </button>
             )}
           </div>
@@ -396,7 +396,7 @@ function Workspace({
       <div className="trainer-actions">
         <button className="trainer-primary" onClick={execute} disabled={busy}>
           <Play size={16} />
-          {activeProblem.tests ? "Run tests" : "Run scratch code"}
+          {activeProblem.tests ? "Запустить тесты" : "Запустить код"}
         </button>
         {busy && (
           <button
@@ -437,10 +437,12 @@ function Workspace({
         </button>
       </div>
       <p className="trainer-caption">
-        Python downloads on demand from jsDelivr. Runs stay in your browser,
-        stop after 10 seconds and never execute on the site server. Run only
-        code you trust. Tests check examples, not complexity or a proof of
-        correctness.
+        Python загружается с jsDelivr при первом запуске. Код выполняется в
+        браузере, не на сервере, и останавливается через 10 секунд. Запускайте
+        только доверенный код. Модули стандартной библиотеки (collections,
+        heapq, math и другие) подключайте обычным import. Установка сторонних
+        пакетов не поддерживается. Тесты проверяют примеры, но не сложность
+        алгоритма.
       </p>
       {run && (
         <div className="trainer-console" role="status" aria-live="polite">
@@ -675,7 +677,7 @@ export default function AlgorithmTrainer() {
       return (
         (topic === "All topics" || topic === item.topic) &&
         (difficulty === "All levels" || item.difficulty === difficulty) &&
-        `${item.title} ${item.topic} ${item.difficulty}`
+        `${item.title} ${item.id} ${item.topic} ${ruLabel(item.topic)} ${item.difficulty} ${ruLabel(item.difficulty)}`
           .toLowerCase()
           .includes(search.toLowerCase()) &&
         (mode === "library" ||
@@ -758,7 +760,7 @@ export default function AlgorithmTrainer() {
               <Search size={16} />
               <span className="sr-only">Search problems</span>
               <input
-                placeholder="Search problems…"
+                placeholder="Поиск задач…"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />
@@ -769,9 +771,11 @@ export default function AlgorithmTrainer() {
                 value={topic}
                 onChange={(event) => setTopic(event.target.value)}
               >
-                <option>All topics</option>
+                <option value="All topics">Все темы</option>
                 {topics.map((value) => (
-                  <option key={value}>{value}</option>
+                  <option key={value} value={value}>
+                    {ruLabel(value)}
+                  </option>
                 ))}
               </select>
             </label>
@@ -789,16 +793,18 @@ export default function AlgorithmTrainer() {
                   "Hard",
                   "Personal",
                 ].map((value) => (
-                  <option key={value}>{value}</option>
+                  <option key={value} value={value}>
+                    {ruLabel(value)}
+                  </option>
                 ))}
               </select>
             </label>
             <div className="trainer-modes">
               {[
-                ["library", "All"],
-                ["queue", "My queue"],
-                ["due", "Repeat"],
-                ["drills", "Local drills"],
+                ["library", "Все"],
+                ["queue", "Моя очередь"],
+                ["due", "Повторение"],
+                ["drills", "Локальные задачи"],
               ].map(([value, name]) => (
                 <button
                   key={value}
@@ -809,7 +815,7 @@ export default function AlgorithmTrainer() {
                 </button>
               ))}
             </div>
-            <small>{filtered.length} matching problems</small>
+            <small>Найдено задач: {filtered.length}</small>
           </div>
           <div className="trainer-problem-list">
             {filtered.map((item) => (
@@ -832,7 +838,7 @@ export default function AlgorithmTrainer() {
               >
                 <span>{item.title}</span>
                 <small>
-                  {item.topic} · {item.difficulty}
+                  {ruLabel(item.topic)} · {ruLabel(item.difficulty)}
                   {saved.get(item.id)?.state.queued ? " · Queued" : ""}
                   {isDue(saved.get(item.id)?.state) ? " · Due" : ""}
                 </small>
