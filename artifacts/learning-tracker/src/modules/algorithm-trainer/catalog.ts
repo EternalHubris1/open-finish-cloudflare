@@ -13,7 +13,11 @@ export type Problem = {
   hints: string[];
   tests?: TestCase[];
   packages?: ("numpy" | "pandas")[];
-  track?: "data";
+  track?: "data" | "math";
+  manual?: boolean;
+  answer?: string;
+  answerLabel?: string;
+  lessonNumber?: number;
   colabOnly?: boolean;
   notebookSetup?: string;
 };

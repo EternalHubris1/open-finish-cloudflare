@@ -1,0 +1,220 @@
+{
+  "artifactStatus": "experimental-design-only",
+  "implemented": false,
+  "sprintId": "linear-models-matrix-products-13",
+  "sourceFile": "source.json",
+  "proposedRoomLabel": "Практикум",
+  "existingRoomRoute": "/algorithms",
+  "tasks": [
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-01-practice-01",
+      "sourcePointer": "/days/0/practice/0",
+      "lessonNumber": 1,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-01-practice-01",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=1"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-01-practice-02",
+      "sourcePointer": "/days/0/practice/1",
+      "lessonNumber": 1,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-01-practice-02",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=1"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-02-practice-01",
+      "sourcePointer": "/days/1/practice/0",
+      "lessonNumber": 2,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-02-practice-01",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=2"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-02-practice-02",
+      "sourcePointer": "/days/1/practice/1",
+      "lessonNumber": 2,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-02-practice-02",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=2"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-03-practice-01",
+      "sourcePointer": "/days/2/practice/0",
+      "lessonNumber": 3,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-03-practice-01",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=3"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-03-practice-02",
+      "sourcePointer": "/days/2/practice/1",
+      "lessonNumber": 3,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-03-practice-02",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=3"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-04-practice-01",
+      "sourcePointer": "/days/3/practice/0",
+      "lessonNumber": 4,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-04-practice-01",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=4"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-04-practice-02",
+      "sourcePointer": "/days/3/practice/1",
+      "lessonNumber": 4,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-04-practice-02",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=4"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-05-practice-01",
+      "sourcePointer": "/days/4/practice/0",
+      "lessonNumber": 5,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-05-practice-01",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=5"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-05-practice-02",
+      "sourcePointer": "/days/4/practice/1",
+      "lessonNumber": 5,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-05-practice-02",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=5"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-06-practice-01",
+      "sourcePointer": "/days/5/practice/0",
+      "lessonNumber": 6,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-06-practice-01",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=6"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-06-practice-02",
+      "sourcePointer": "/days/5/practice/1",
+      "lessonNumber": 6,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-06-practice-02",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=6"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-07-practice-01",
+      "sourcePointer": "/days/6/practice/0",
+      "lessonNumber": 7,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-07-practice-01",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=7"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-07-practice-02",
+      "sourcePointer": "/days/6/practice/1",
+      "lessonNumber": 7,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-07-practice-02",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=7"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-08-practice-01",
+      "sourcePointer": "/days/7/practice/0",
+      "lessonNumber": 8,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-08-practice-01",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=8"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-08-practice-02",
+      "sourcePointer": "/days/7/practice/1",
+      "lessonNumber": 8,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-08-practice-02",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=8"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-09-practice-01",
+      "sourcePointer": "/days/8/practice/0",
+      "lessonNumber": 9,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-09-practice-01",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=9"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-09-practice-02",
+      "sourcePointer": "/days/8/practice/1",
+      "lessonNumber": 9,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-09-practice-02",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=9"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-10-practice-01",
+      "sourcePointer": "/days/9/practice/0",
+      "lessonNumber": 10,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-10-practice-01",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=10"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-10-practice-02",
+      "sourcePointer": "/days/9/practice/1",
+      "lessonNumber": 10,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-10-practice-02",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=10"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-11-practice-01",
+      "sourcePointer": "/days/10/practice/0",
+      "lessonNumber": 11,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-11-practice-01",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=11"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-11-practice-02",
+      "sourcePointer": "/days/10/practice/1",
+      "lessonNumber": 11,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-11-practice-02",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=11"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-12-practice-01",
+      "sourcePointer": "/days/11/practice/0",
+      "lessonNumber": 12,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-12-practice-01",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=12"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-12-practice-02",
+      "sourcePointer": "/days/11/practice/1",
+      "lessonNumber": 12,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-12-practice-02",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=12"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-13-practice-01",
+      "sourcePointer": "/days/12/practice/0",
+      "lessonNumber": 13,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-13-practice-01",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=13"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-day-13-practice-02",
+      "sourcePointer": "/days/12/practice/1",
+      "lessonNumber": 13,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-day-13-practice-02",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&lesson=13"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-final-01",
+      "sourcePointer": "/final_assessment/0",
+      "assessmentNumber": 1,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-final-01",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&assessment=true"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-final-02",
+      "sourcePointer": "/final_assessment/1",
+      "assessmentNumber": 2,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-final-02",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&assessment=true"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-final-03",
+      "sourcePointer": "/final_assessment/2",
+      "assessmentNumber": 3,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-final-03",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&assessment=true"
+    },
+    {
+      "problemId": "math-linear-models-matrix-products-13-final-04",
+      "sourcePointer": "/final_assessment/3",
+      "assessmentNumber": 4,
+      "proposedTaskUrl": "/algorithms?task=math-linear-models-matrix-products-13-final-04",
+      "proposedReturnUrl": "/reflections?sprint=linear-models-matrix-products-13&assessment=true"
+    }
+  ]
+}

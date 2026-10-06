@@ -41,10 +41,22 @@ import {
 } from "../../../../../modules/algorithm-trainer/model";
 import scene from "@/assets/environments/optimized/activities-practice-hall.webp";
 import "./trainer.css";
+import {
+  mathTasks,
+  lessonHref,
+} from "../../../../../modules/learning-sprints/linear-models";
 
 const preview =
   import.meta.env.DEV && new URLSearchParams(location.search).has("preview");
 const queryKey = ["algorithm-trainer", preview];
+const previewStorageKey = "design-preview-practicum-v1";
+function previewRecords(): PracticeRecord[] {
+  try {
+    return JSON.parse(sessionStorage.getItem(previewStorageKey) ?? "[]");
+  } catch {
+    return [];
+  }
+}
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api/algorithm-trainer${path}`, {
     ...init,
@@ -72,9 +84,9 @@ function download(value: unknown, name: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 const outcomeNames: Record<Outcome, string> = {
-  independent: "Solved independently",
-  assisted: "Solved with help",
-  retry: "Needs another attempt",
+  independent: "Решено самостоятельно",
+  assisted: "Решено с помощью",
+  retry: "Нужна ещё попытка",
 };
 type RunResult = {
   phase: string;
@@ -153,7 +165,7 @@ function Workspace({
       const destination = new URL(link.href, location.href);
       if (
         destination.origin === location.origin &&
-        destination.pathname !== location.pathname &&
+        destination.href !== location.href &&
         !confirm(
           "Leave with unsaved practice? Save or export the draft first to keep it.",
         )
@@ -327,7 +339,19 @@ function Workspace({
           {state.queued ? "In queue" : "Add to queue"}
         </button>
       </header>
-      <SourceNote problem={activeProblem} />
+      {activeProblem.manual ? (
+        <p className="trainer-caption">
+          Практика из матспринта · часть 2. Ручная самопроверка, не
+          автоматическая оценка освоения.
+        </p>
+      ) : (
+        <SourceNote problem={activeProblem} />
+      )}
+      {activeProblem.manual && (
+        <a href={lessonHref(activeProblem.lessonNumber ?? 13, preview)}>
+          ← Вернуться к занятию спринта
+        </a>
+      )}
       <div className="trainer-statement">
         {activeProblem.statement ? (
           <p style={{ whiteSpace: "pre-wrap" }}>{activeProblem.statement}</p>
@@ -394,21 +418,32 @@ function Workspace({
           </div>
         )}
       </div>
+      {activeProblem.answer && (
+        <details className="trainer-history">
+          <summary>
+            {activeProblem.answerLabel ?? "Ответ для самопроверки"}
+          </summary>
+          <p className="math-formula">{activeProblem.answer}</p>
+        </details>
+      )}
       <div className="trainer-codebar">
-        <label>
-          <span className="sr-only">Библиотеки Python</span>
-          <select
-            value={environment}
-            disabled={busy || activeProblem.colabOnly}
-            onChange={(event) => setEnvironment(event.target.value)}
-          >
-            <option value="standard">Python · стандартная библиотека</option>
-            <option value="numpy">Python + NumPy</option>
-            <option value="pandas">Python + pandas + NumPy</option>
-          </select>
-        </label>
+        {!activeProblem.manual && (
+          <label>
+            <span className="sr-only">Библиотеки Python</span>
+            <select
+              value={environment}
+              disabled={busy || activeProblem.colabOnly || activeProblem.manual}
+              onChange={(event) => setEnvironment(event.target.value)}
+            >
+              <option value="standard">Python · стандартная библиотека</option>
+              <option value="numpy">Python + NumPy</option>
+              <option value="pandas">Python + pandas + NumPy</option>
+            </select>
+          </label>
+        )}
         <span>
-          <Code2 size={16} /> Python · browser runtime
+          <Code2 size={16} />{" "}
+          {activeProblem.manual ? "Ручное решение" : "Python · browser runtime"}
         </span>
         <div>
           <span aria-label="Practice timer">
@@ -433,7 +468,11 @@ function Workspace({
         </div>
       </div>
       <label className="trainer-code-label">
-        <span className="sr-only">Python solution draft</span>
+        <span>
+          {activeProblem.manual
+            ? "Решение: вычисления, формулы и пояснения"
+            : "Черновик Python"}
+        </span>
         <textarea
           className="trainer-editor"
           spellCheck={false}
@@ -443,59 +482,65 @@ function Workspace({
         />
       </label>
       <div className="trainer-actions">
-        <button
-          onClick={() => {
-            download(
-              practiceNotebook(activeProblem, state.code),
-              `${problem.id}.ipynb`,
-            );
-            setMessage(
-              "Скачивание ноутбука запрошено: текущий код, условие и тесты. В Colab выберите Файл → Загрузить блокнот. Если встроенный браузер не скачивает файл, откройте сайт в обычном браузере. Результат отметьте здесь вручную.",
-            );
-          }}
-        >
-          <Download size={16} /> Ноутбук для Colab
-        </button>
-        <a
-          href={
-            activeProblem.colabOnly
-              ? `https://colab.research.google.com/github/EternalHubris1/open-finish-cloudflare/blob/dgt/algorithm-trainer/modules/algorithm-trainer/notebooks/${problem.id}.ipynb`
-              : "https://colab.research.google.com/"
-          }
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <ExternalLink size={16} />{" "}
-          {activeProblem.colabOnly ? "Открыть шаблон в Colab" : "Открыть Colab"}
-        </a>
-        <button
-          className="trainer-primary"
-          onClick={execute}
-          disabled={busy || activeProblem.colabOnly}
-        >
-          <Play size={16} />
-          {activeProblem.colabOnly
-            ? "Выполняется в Colab"
-            : activeProblem.tests
-              ? "Запустить тесты"
-              : "Запустить код"}
-        </button>
-        {busy && (
-          <button
-            onClick={() => {
-              stop();
-              setRun({
-                phase: "error",
-                error: "Stopped. Your draft is unchanged.",
-              });
-            }}
-          >
-            <Square size={16} /> Stop
-          </button>
+        {!activeProblem.manual && (
+          <>
+            <button
+              onClick={() => {
+                download(
+                  practiceNotebook(activeProblem, state.code),
+                  `${problem.id}.ipynb`,
+                );
+                setMessage(
+                  "Скачивание ноутбука запрошено: текущий код, условие и тесты. В Colab выберите Файл → Загрузить блокнот. Если встроенный браузер не скачивает файл, откройте сайт в обычном браузере. Результат отметьте здесь вручную.",
+                );
+              }}
+            >
+              <Download size={16} /> Ноутбук для Colab
+            </button>
+            <a
+              href={
+                activeProblem.colabOnly
+                  ? `https://colab.research.google.com/github/EternalHubris1/open-finish-cloudflare/blob/dgt/algorithm-trainer/modules/algorithm-trainer/notebooks/${problem.id}.ipynb`
+                  : "https://colab.research.google.com/"
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ExternalLink size={16} />{" "}
+              {activeProblem.colabOnly
+                ? "Открыть шаблон в Colab"
+                : "Открыть Colab"}
+            </a>
+            <button
+              className="trainer-primary"
+              onClick={execute}
+              disabled={busy || activeProblem.colabOnly}
+            >
+              <Play size={16} />
+              {activeProblem.colabOnly
+                ? "Выполняется в Colab"
+                : activeProblem.tests
+                  ? "Запустить тесты"
+                  : "Запустить код"}
+            </button>
+            {busy && (
+              <button
+                onClick={() => {
+                  stop();
+                  setRun({
+                    phase: "error",
+                    error: "Stopped. Your draft is unchanged.",
+                  });
+                }}
+              >
+                <Square size={16} /> Stop
+              </button>
+            )}
+          </>
         )}
         <button disabled={saving} onClick={() => void persist()}>
           <Save size={16} />
-          {saving ? "Saving…" : "Save draft"}
+          {saving ? "Сохранение…" : "Сохранить решение"}
         </button>
         <button
           onClick={() => {
@@ -505,31 +550,42 @@ function Workspace({
         >
           <Download size={16} /> Export draft
         </button>
-        <button
-          onClick={() => {
-            if (
-              confirm(
-                "Replace the current code with the starter? Notes and attempts stay unchanged.",
+        {!activeProblem.manual && (
+          <button
+            onClick={() => {
+              if (
+                confirm(
+                  "Replace the current code with the starter? Notes and attempts stay unchanged.",
+                )
               )
-            )
-              change({ code: problem.starter });
-          }}
-        >
-          <RotateCcw size={16} /> Reset code
-        </button>
+                change({ code: problem.starter });
+            }}
+          >
+            <RotateCcw size={16} /> Reset code
+          </button>
+        )}
       </div>
-      <p className="trainer-caption">
-        {activeProblem.colabOnly &&
-          "Этот кейс выполняется в Colab: скачайте ноутбук, затем загрузите его через Файл → Загрузить блокнот. "}
-        Python загружается с jsDelivr при первом запуске. Код выполняется в
-        браузере, не на сервере, и останавливается через 10 секунд. Запускайте
-        только доверенный код. Выберите среду выше и подключайте библиотеки
-        через import. pandas и NumPy загружаются по выбору; другие пакеты —
-        через Colab. Для тестов возвращайте обычные Python-значения, не
-        DataFrame/ndarray. Тесты проверяют примеры, но не сложность алгоритма.
-        Ноутбук содержит ваш текущий код и примеры, но не историю аккаунта;
-        загрузка в Colab ручная.
-      </p>
+      {!activeProblem.manual && (
+        <p className="trainer-caption">
+          {activeProblem.colabOnly &&
+            "Этот кейс выполняется в Colab: скачайте ноутбук, затем загрузите его через Файл → Загрузить блокнот. "}
+          Python загружается с jsDelivr при первом запуске. Код выполняется в
+          браузере, не на сервере, и останавливается через 10 секунд. Запускайте
+          только доверенный код. Выберите среду выше и подключайте библиотеки
+          через import. pandas и NumPy загружаются по выбору; другие пакеты —
+          через Colab. Для тестов возвращайте обычные Python-значения, не
+          DataFrame/ndarray. Тесты проверяют примеры, но не сложность алгоритма.
+          Ноутбук содержит ваш текущий код и примеры, но не историю аккаунта;
+          загрузка в Colab ручная.
+        </p>
+      )}
+      {activeProblem.manual && (
+        <p className="trainer-caption">
+          Можно решать на бумаге и сохранить здесь объяснение или ссылку в
+          заметках. Ответ открывается вручную. Решённая задача не завершает
+          занятие спринта автоматически.
+        </p>
+      )}
       {run && (
         <div className="trainer-console" role="status" aria-live="polite">
           <strong>
@@ -555,7 +611,7 @@ function Workspace({
       )}
       <div className="trainer-reflection">
         <label>
-          Approach, mistakes & next step
+          Подход, ошибки, следующий шаг или ссылка на решение
           <textarea
             rows={3}
             maxLength={6000}
@@ -564,7 +620,7 @@ function Workspace({
           />
         </label>
         <label>
-          Next repetition
+          Дата повторения
           <input
             type="date"
             value={state.nextReview ?? ""}
@@ -575,11 +631,14 @@ function Workspace({
         </label>
       </div>
       <section className="trainer-attempt">
-        <h3>Record this attempt</h3>
-        <p>Passing tests does not automatically mean independent mastery.</p>
+        <h3>Записать попытку</h3>
+        <p>
+          Просмотр ответа и прохождение тестов не означают самостоятельного
+          освоения.
+        </p>
         <div className="trainer-attempt-fields">
           <label>
-            Outcome
+            Результат
             <select
               value={outcome}
               onChange={(event) => setOutcome(event.target.value as Outcome)}
@@ -592,7 +651,7 @@ function Workspace({
             </select>
           </label>
           <label>
-            Minutes
+            Минуты
             <input
               type="number"
               min={0}
@@ -602,7 +661,7 @@ function Workspace({
             />
           </label>
           <label>
-            Attempt note
+            Заметка к попытке
             <input
               maxLength={600}
               value={attemptNote}
@@ -616,11 +675,11 @@ function Workspace({
           onClick={() => void recordAttempt()}
         >
           <Check size={16} />
-          Save attempt & schedule repetition
+          Сохранить попытку и назначить повторение
         </button>
         <small>
-          Repeat in 1 day after a retry, 3 days with help, 7 days independently.
-          You can change the date.
+          Повторение: через 1 день, если нужна ещё попытка; через 3 дня — с
+          помощью; через 7 — самостоятельно. Дату можно изменить.
         </small>
       </section>
       <div aria-live="polite">
@@ -727,14 +786,21 @@ export default function AlgorithmTrainer() {
   const records = useQuery<PracticeRecord[]>({
     queryKey,
     queryFn: ({ signal }) =>
-      preview ? Promise.resolve([]) : request("", { signal }),
+      preview ? Promise.resolve(previewRecords()) : request("", { signal }),
     retry: false,
   });
-  const [selected, setSelected] = useState(catalog[0].id);
+  const requestedTask = new URLSearchParams(location.search).get("task");
+  const [selected, setSelected] = useState(requestedTask ?? catalog[0].id);
   const [search, setSearch] = useState("");
   const [topic, setTopic] = useState("All topics");
   const [difficulty, setDifficulty] = useState("All levels");
-  const [mode, setMode] = useState("path");
+  const [mode, setMode] = useState(
+    requestedTask
+      ? mathTasks.some((item) => item.id === requestedTask)
+        ? "math"
+        : "library"
+      : "path",
+  );
   const [blockId, setBlockId] = useState("hash");
   const [showExtra, setShowExtra] = useState(false);
   const dirty = useRef(false);
@@ -743,6 +809,7 @@ export default function AlgorithmTrainer() {
   );
   const allProblems: Problem[] = [
     ...catalog,
+    ...mathTasks,
     ...(records.data ?? [])
       .filter(
         (record) =>
@@ -783,7 +850,8 @@ export default function AlgorithmTrainer() {
           (mode === "queue" && state?.queued) ||
           (mode === "due" && isDue(state)) ||
           (mode === "drills" && !!item.tests) ||
-          (mode === "data" && item.track === "data"))
+          (mode === "data" && item.track === "data") ||
+          (mode === "math" && item.track === "math"))
       );
     })
     .sort((a, b) =>
@@ -807,6 +875,9 @@ export default function AlgorithmTrainer() {
       return false;
     dirty.current = false;
     setSelected(id);
+    const url = new URL(location.href);
+    url.searchParams.set("task", id);
+    history.replaceState(null, "", url);
     return true;
   };
   const clearFilters = () => {
@@ -839,10 +910,15 @@ export default function AlgorithmTrainer() {
             state: record.state,
           }),
         });
-    cache.setQueryData<PracticeRecord[]>(queryKey, (current = []) => [
-      ...current.filter((entry) => entry.problemId !== record.problemId),
+    const next = [
+      ...(cache.getQueryData<PracticeRecord[]>(queryKey) ?? []).filter(
+        (entry) => entry.problemId !== record.problemId,
+      ),
       result,
-    ]);
+    ];
+    if (preview)
+      sessionStorage.setItem(previewStorageKey, JSON.stringify(next));
+    cache.setQueryData<PracticeRecord[]>(queryKey, next);
     return result;
   };
   return (
@@ -854,9 +930,9 @@ export default function AlgorithmTrainer() {
         }}
       >
         <p className="trainer-eyebrow">
-          Algorithm practice / a separate training module
+          Алгоритмы · анализ данных · математика
         </p>
-        <h1>Algorithm room</h1>
+        <h1>Практикум</h1>
         <p>
           Паттерн → базовая задача → перенос → самостоятельная проверка →
           повторение.
@@ -886,10 +962,18 @@ export default function AlgorithmTrainer() {
       </header>
       {preview && (
         <p className="trainer-notice">
-          Design preview · Python runs are real; progress is temporary and does
-          not change your account.
+          Тестовый режим: Python выполняется реально. Прогресс хранится только в
+          этой вкладке и восстанавливается после перезагрузки; аккаунт не
+          изменяется.
         </p>
       )}
+      {requestedTask &&
+        !allProblems.some((item) => item.id === requestedTask) && (
+          <p className="trainer-error" role="alert">
+            Задача по ссылке не найдена. Выберите задачу из каталога;
+            сохранённый прогресс не изменён.
+          </p>
+        )}
       <div className="trainer-layout">
         <aside className="trainer-library" aria-label="Problem library">
           <div className="trainer-filter">
@@ -967,6 +1051,7 @@ export default function AlgorithmTrainer() {
                   ["queue", "Моя очередь"],
                   ["drills", "Локальные задачи"],
                   ["data", "Анализ данных"],
+                  ["math", "Математика"],
                   ["mixed", "Смешанная практика"],
                 ].map(([value, name]) => (
                   <button
