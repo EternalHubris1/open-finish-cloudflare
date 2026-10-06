@@ -79,7 +79,7 @@ const sprintStepPatch = z.object({ status: sprintStepStatusSchema });
 
 let sprintSchemaReady: Promise<void> | undefined;
 
-function ensureSprintSchema() {
+export function ensureSprintSchema() {
   sprintSchemaReady ??= (async () => {
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS "sprints" (
@@ -111,6 +111,15 @@ function ensureSprintSchema() {
       ALTER TABLE "sprint_steps"
         ADD COLUMN IF NOT EXISTS "kind" text NOT NULL DEFAULT 'task'
     `);
+    await db.execute(
+      sql`ALTER TABLE "sprints" ADD COLUMN IF NOT EXISTS "curriculum_key" text`,
+    );
+    await db.execute(
+      sql`CREATE UNIQUE INDEX IF NOT EXISTS sprints_curriculum_key_unique ON sprints(curriculum_key)`,
+    );
+    await db.execute(
+      sql`ALTER TABLE sprint_steps ADD COLUMN IF NOT EXISTS learning_state jsonb, ADD COLUMN IF NOT EXISTS learning_version integer NOT NULL DEFAULT 0`,
+    );
   })().catch((error) => {
     sprintSchemaReady = undefined;
     throw error;
@@ -166,6 +175,7 @@ async function listSprints() {
     .select({ sprint: sprintsTable, activityName: activitiesTable.name })
     .from(sprintsTable)
     .leftJoin(activitiesTable, eq(sprintsTable.activityId, activitiesTable.id))
+    .where(sql`sprints.curriculum_key IS NULL`)
     .orderBy(asc(sprintsTable.dueDate), desc(sprintsTable.createdAt));
   const steps = await db
     .select()

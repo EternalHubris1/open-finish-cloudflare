@@ -67,8 +67,8 @@ const orientationRoutes: SidebarRoute[] = [
 const longViewRoutes: SidebarRoute[] = [
   {
     path: "/algorithms",
-    label: "Algorithms",
-    cue: "Interview practice",
+    label: "Практикум",
+    cue: "Алгоритмы · данные · математика",
     icon: Code2,
     scene: practiceHall,
   },
@@ -223,7 +223,10 @@ export function AppSidebar({ onLogout }: { onLogout: () => Promise<void> }) {
   return (
     <>
       <aside className="sidebar-shell relative z-20 hidden h-dvh w-[17rem] shrink-0 flex-col overflow-hidden border-r border-[#ffb1a7]/20 lg:flex">
-        <div className="sidebar-shoji pointer-events-none absolute inset-0" aria-hidden="true" />
+        <div
+          className="sidebar-shoji pointer-events-none absolute inset-0"
+          aria-hidden="true"
+        />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_30%_0%,rgba(255,111,97,.2),transparent_62%)]" />
         <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-[#ff7868]/38 to-transparent shadow-[0_0_14px_rgba(255,120,104,.12)]" />
 
