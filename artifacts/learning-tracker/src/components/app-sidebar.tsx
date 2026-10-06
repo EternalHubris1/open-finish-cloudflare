@@ -67,8 +67,8 @@ const orientationRoutes: SidebarRoute[] = [
 const longViewRoutes: SidebarRoute[] = [
   {
     path: "/algorithms",
-    label: "Практикум",
-    cue: "Алгоритмы · данные · математика",
+    label: "Practice Lab",
+    cue: "Algorithms · data · mathematics",
     icon: Code2,
     scene: practiceHall,
   },

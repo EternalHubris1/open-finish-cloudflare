@@ -42,6 +42,7 @@ import {
 import scene from "@/assets/environments/optimized/activities-practice-hall.webp";
 import "./trainer.css";
 import {
+  linearModels,
   mathTasks,
   lessonHref,
 } from "../../../../../modules/learning-sprints/linear-models";
@@ -802,6 +803,9 @@ export default function AlgorithmTrainer() {
       : "path",
   );
   const [blockId, setBlockId] = useState("hash");
+  const [mathLesson, setMathLesson] = useState(
+    mathTasks.find((item) => item.id === requestedTask)?.lessonNumber ?? 1,
+  );
   const [showExtra, setShowExtra] = useState(false);
   const dirty = useRef(false);
   const saved = new Map(
@@ -835,6 +839,10 @@ export default function AlgorithmTrainer() {
         )
       : mode === "mixed"
         ? mixedPractice(saved)
+        : mode === "math"
+          ? (mathTasks.filter(
+              (item) => item.lessonNumber === mathLesson,
+            ) as Problem[])
         : allProblems;
   const filtered = modeProblems
     .filter((item) => {
@@ -900,6 +908,13 @@ export default function AlgorithmTrainer() {
     setMode("mixed");
     clearFilters();
   };
+  const chooseMathLesson = (number: number) => {
+    const candidate = mathTasks.find((item) => item.lessonNumber === number);
+    if (candidate && !openProblem(candidate.id)) return;
+    setMathLesson(number);
+    setMode("math");
+    clearFilters();
+  };
   const save = async (record: PracticeRecord) => {
     const result = preview
       ? { ...record, version: record.version + 1 }
@@ -930,9 +945,9 @@ export default function AlgorithmTrainer() {
         }}
       >
         <p className="trainer-eyebrow">
-          Алгоритмы · анализ данных · математика
+          Algorithms · data analysis · mathematics
         </p>
-        <h1>Практикум</h1>
+        <h1>Practice Lab</h1>
         <p>
           Паттерн → базовая задача → перенос → самостоятельная проверка →
           повторение.
@@ -986,7 +1001,7 @@ export default function AlgorithmTrainer() {
                 onChange={(event) => setSearch(event.target.value)}
               />
             </label>
-            {mode !== "path" && mode !== "mixed" && (
+            {!["path", "mixed", "math"].includes(mode) && (
               <label>
                 <span className="sr-only">Topic</span>
                 <select
@@ -1002,24 +1017,27 @@ export default function AlgorithmTrainer() {
                 </select>
               </label>
             )}
-            <label>
-              <span className="sr-only">Difficulty</span>
-              <select
-                value={difficulty}
-                onChange={(event) => setDifficulty(event.target.value)}
-              >
-                {["All levels", "Easy", "Medium", "Hard"].map((value) => (
-                  <option key={value} value={value}>
-                    {ruLabel(value)}
-                  </option>
-                ))}
-              </select>
-            </label>
+            {mode !== "math" && (
+              <label>
+                <span className="sr-only">Difficulty</span>
+                <select
+                  value={difficulty}
+                  onChange={(event) => setDifficulty(event.target.value)}
+                >
+                  {["All levels", "Easy", "Medium", "Hard"].map((value) => (
+                    <option key={value} value={value}>
+                      {ruLabel(value)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             <div className="trainer-modes">
               {[
-                ["path", "Учебный маршрут"],
-                ["library", "Все"],
-                ["due", "Повторение"],
+                ["path", "Маршрут"],
+                ["library", "Все задачи"],
+                ["due", "Повторить"],
+                ["math", "Матспринт"],
               ].map(([value, name]) => (
                 <button
                   key={value}
@@ -1027,6 +1045,11 @@ export default function AlgorithmTrainer() {
                   onClick={() => {
                     if (value === "path")
                       chooseBlock(blockFor(problem)?.id ?? blockId);
+                    else if (value === "math")
+                      chooseMathLesson(
+                        mathTasks.find((item) => item.id === selected)
+                          ?.lessonNumber ?? mathLesson,
+                      );
                     else {
                       setMode(value);
                       clearFilters();
@@ -1051,7 +1074,6 @@ export default function AlgorithmTrainer() {
                   ["queue", "Моя очередь"],
                   ["drills", "Локальные задачи"],
                   ["data", "Анализ данных"],
-                  ["math", "Математика"],
                   ["mixed", "Смешанная практика"],
                 ].map(([value, name]) => (
                   <button
@@ -1086,6 +1108,23 @@ export default function AlgorithmTrainer() {
                       </option>
                     );
                   })}
+                </select>
+              </label>
+            )}
+            {mode === "math" && (
+              <label>
+                Занятие матспринта
+                <select
+                  value={mathLesson}
+                  onChange={(event) =>
+                    chooseMathLesson(Number(event.target.value))
+                  }
+                >
+                  {linearModels.days.map((day) => (
+                    <option key={day.number} value={day.number}>
+                      {String(day.number).padStart(2, "0")} · {day.title}
+                    </option>
+                  ))}
                 </select>
               </label>
             )}

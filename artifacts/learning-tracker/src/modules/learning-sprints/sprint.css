@@ -96,58 +96,125 @@
   padding: 5px 0;
 }
 .math-stages {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 8px;
-  padding: 0 24px 20px;
+  padding: 8px 0 4px;
 }
 .math-stages span {
   font:
     11px ui-monospace,
     monospace;
   border: 1px solid #8be1d430;
-  border-radius: 8px;
-  padding: 6px 10px;
+  border-radius: 6px;
+  padding: 6px 8px;
   color: #a4dbd2;
+}
+.math-curriculum {
+  display: grid;
+  grid-template-columns: minmax(220px, 290px) minmax(0, 1fr);
+  align-items: start;
+  border-top: 1px solid #ffffff10;
+}
+.math-outline {
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 18px;
+  border-right: 1px solid #8be1d424;
+  background: #081019b8;
+  scrollbar-width: thin;
+  scrollbar-color: #55717d #09121a;
+}
+.math-outline::-webkit-scrollbar {
+  width: 8px;
+}
+.math-outline::-webkit-scrollbar-track {
+  background: #09121a;
+}
+.math-outline::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background: #55717d;
+}
+.math-outline-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.math-outline-head strong {
+  font-size: 13px;
+}
+.math-outline-head span {
+  font: 10px ui-monospace, monospace;
+  color: #91aab9;
+}
+.math-stage-list {
+  border: 0 !important;
+  margin-bottom: 10px;
+}
+.math-stage-list summary {
+  min-height: 36px;
+  padding: 8px 0;
+  font: 10px ui-monospace, monospace;
+  color: #9ab8c4;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 .math-days {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  padding: 0 24px 24px;
+  gap: 4px;
 }
-.math-days a {
-  text-decoration: none;
-  padding: 12px;
+.math-sprint .math-days button {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  column-gap: 8px;
+  row-gap: 2px;
+  width: 100%;
+  min-height: 0;
+  padding: 9px 10px;
   border: 1px solid #ffffff20;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #091019;
   min-width: 0;
+  text-align: left;
+  justify-content: stretch;
+  align-items: baseline;
 }
-.math-days a[aria-current="step"] {
+.math-sprint .math-days button:hover {
+  background: #101d27;
+  border-color: #8be1d455;
+}
+.math-days button[aria-current="step"] {
   border-color: #ffc268;
   background: #ffc26812;
 }
 .math-days strong,
 .math-days span,
 .math-days small {
-  display: block;
+  min-width: 0;
 }
 .math-days strong {
+  grid-row: 1 / span 2;
   font:
     12px ui-monospace,
     monospace;
   color: #ffcf8f;
 }
 .math-days span {
-  font-size: 12px;
-  margin: 6px 0;
+  font-size: 11px;
+  line-height: 1.35;
 }
 .math-days small {
   font:
     10px ui-monospace,
     monospace;
   color: #bcc5cf;
+}
+.math-current {
+  min-width: 0;
+  padding-top: 18px;
 }
 .math-lesson,
 .math-assessment {
@@ -246,17 +313,25 @@
   padding: 0;
 }
 @media (max-width: 1000px) {
-  .math-days {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
   .math-sprint-head {
     flex-direction: column;
   }
+  .math-curriculum {
+    grid-template-columns: 230px minmax(0, 1fr);
+  }
 }
-@media (max-width: 600px) {
+@media (max-width: 760px) {
+  .math-curriculum {
+    grid-template-columns: 1fr;
+  }
+  .math-outline {
+    position: static;
+    max-height: none;
+    border-right: 0;
+    border-bottom: 1px solid #8be1d424;
+  }
   .math-days {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding: 0 16px 16px;
   }
   .math-fields {
     grid-template-columns: 1fr;
@@ -267,10 +342,12 @@
   .math-assessment {
     padding: 20px 16px;
   }
-  .math-stages {
-    padding: 0 16px 16px;
-  }
   .math-sprint h2 {
     font-size: 20px;
+  }
+}
+@media (max-width: 520px) {
+  .math-days {
+    grid-template-columns: 1fr;
   }
 }
