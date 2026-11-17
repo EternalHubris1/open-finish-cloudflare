@@ -4,6 +4,74 @@
   padding: 32px 28px 110px;
   color: #ecf0f3;
 }
+.practice-entry {
+  max-width: 1180px;
+}
+.practice-entry .trainer-hero {
+  min-height: 220px;
+  display: grid;
+  align-content: center;
+}
+.practice-entry .trainer-hero p { max-width: 39ch; }
+.practice-entry section h2,
+.practice-list-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.practice-track-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.practice-track {
+  min-height: 115px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 13px;
+  border: 1px solid #374c55;
+  border-radius: 16px;
+  padding: clamp(13px, 2.5vw, 21px);
+  background: #0d1822;
+  color: #ecf0f3;
+  transition: background 150ms, border-color 150ms;
+}
+.practice-track:hover { background: #142731; border-color: #6e9a99; }
+.practice-track-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  background: #18322e;
+  border: 1px solid #385753;
+  border-radius: 11px;
+  color: #a1e7d5;
+}
+.practice-track-arrow { color: #a1e7d5; }
+.practice-track strong { display: block; font-size: 1.08rem; }
+.practice-track-description { display: block; color: #b5c3ce; margin-top: 4px; font-size: .9rem; line-height: 1.45; }
+.practice-entry-note { color: #b5c3ce; margin-top: 19px; font-size: .93rem; }
+.practice-entry-note a { color: #a1e7d5; text-decoration: underline; text-underline-offset: 3px; }
+.practice-back { display: inline-flex; align-items: center; min-height: 44px; gap: 8px; color: #a1e7d5; font-weight: 600; }
+.practice-back:hover { text-decoration: underline; }
+.practice-switcher .trainer-modes { margin-top: 7px; }
+.practice-switcher summary { min-height: 44px; display: list-item; align-content: center; }
+.practice-work-head {
+  border-bottom: 1px solid #37525b;
+  padding: 8px 0 17px;
+  margin-bottom: 18px;
+}
+.practice-work-head h1 { font-size: clamp(1.65rem, 3.5vw, 2.35rem); font-weight: 700; letter-spacing: -.03em; }
+.practice-work-head p { color: #b5c3ce; margin-top: 3px; }
+@media (max-width: 650px) {
+  .practice-track-grid { grid-template-columns: minmax(0, 1fr); }
+  .practice-entry .trainer-hero { min-height: 164px; }
+  .practice-track { min-height: 92px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .practice-track { transition: none; }
+}
 .trainer-hero {
   padding: 30px 36px;
   border: 1px solid #ffffff18;

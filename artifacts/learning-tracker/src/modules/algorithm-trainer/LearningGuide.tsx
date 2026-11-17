@@ -98,6 +98,13 @@ export default function LearningGuide({
           {progress.independent}/{progress.total} самостоятельно
         </span>
       </div>
+      {next && next !== selected && (
+        <button className="trainer-primary" onClick={() => onOpen(next)}>
+          Открыть рекомендуемую задачу
+        </button>
+      )}
+      <details className="trainer-pattern-notes">
+        <summary>Как пройти этот блок</summary>
       <p className="trainer-learning-outcome">{block.outcome}</p>
       <div className="trainer-learning-cycle" aria-label="Учебный цикл">
         <span>01 Разобрать паттерн</span>
@@ -107,13 +114,7 @@ export default function LearningGuide({
         <span>05 Повторить</span>
       </div>
       <div className="trainer-learning-actions">
-        {next === selected ? (
-          <p>Рекомендуемая задача открыта ниже.</p>
-        ) : next ? (
-          <button className="trainer-primary" onClick={() => onOpen(next)}>
-            Рекомендуемая задача →
-          </button>
-        ) : (
+        {!next && (
           <p role="status">
             Основные задачи отмечены самостоятельными. Проверьте перенос в
             смешанной практике.
@@ -121,8 +122,6 @@ export default function LearningGuide({
         )}
         <button onClick={onRepeat}>Смешанная практика</button>
       </div>
-      <details className="trainer-pattern-notes">
-        <summary>Как распознать паттерн и проверить себя</summary>
         <dl>
           <dt>Сигнал в условии</dt>
           <dd>{block.cue}</dd>
