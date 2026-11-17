@@ -1,0 +1,167 @@
+.ml-room,
+.ml-sprint-card {
+  --ml-ink: #eef4f7;
+  --ml-muted: #b2beca;
+  --ml-line: #2d4250;
+  --ml-panel: #0d1720;
+  --ml-accent: #99e4d4;
+  --ml-warm: #ffbcab;
+  color: var(--ml-ink);
+}
+
+.ml-room {
+  width: min(100%, 1190px);
+  margin-inline: auto;
+  padding: clamp(16px, 3vw, 36px) clamp(14px, 3vw, 36px) 112px;
+}
+
+.ml-sprint-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  background: #102023;
+  border: 1px solid #365952;
+  border-radius: 20px;
+  padding: clamp(16px, 2vw, 24px);
+}
+
+.ml-card-icon {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border: 1px solid #436e64;
+  border-radius: 12px;
+  background: #18332f;
+  color: var(--ml-accent);
+}
+
+.ml-card-copy h3 { font-size: 1.18rem; font-weight: 700; }
+.ml-card-copy p { color: var(--ml-muted); margin: 3px 0; }
+.ml-card-copy span { color: var(--ml-accent); font-size: .875rem; }
+
+.ml-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  width: fit-content;
+  border: 1px solid var(--ml-line);
+  border-radius: 10px;
+  background: #172733;
+  color: var(--ml-ink);
+  padding: 8px 13px;
+  font-size: .92rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 150ms, border-color 150ms;
+}
+.ml-control:disabled { opacity: .55; cursor: default; }
+.ml-control:not(:disabled):hover { background: #223a49; border-color: #64858e; }
+.ml-control[aria-pressed="true"] { border-color: var(--ml-accent); }
+.ml-control.ml-primary { background: #a5e8d8; color: #0c2825; border-color: transparent; }
+.ml-control.ml-primary:hover { background: #c3f5e9; }
+.ml-back { margin-bottom: 16px; }
+.ml-room :is(a, button, select, input):focus-visible,
+.ml-sprint-card a:focus-visible {
+  outline: 2px solid var(--ml-warm);
+  outline-offset: 3px;
+}
+.ml-heading {
+  border: 1px solid var(--ml-line);
+  border-radius: 20px;
+  background: linear-gradient(120deg, #142627, #111a26 72%);
+  padding: clamp(18px, 3vw, 32px);
+  margin-bottom: 18px;
+}
+.ml-heading h1 {
+  font-size: clamp(1.75rem, 3.8vw, 2.8rem);
+  line-height: 1.13;
+  font-weight: 700;
+  letter-spacing: -.035em;
+}
+.ml-heading p { max-width: 68ch; margin-top: 9px; }
+.ml-note { color: var(--ml-muted); font-size: .9rem; }
+.ml-note svg { display: inline-block; vertical-align: text-bottom; margin-inline-end: 4px; }
+.ml-meter { display: grid; gap: 6px; max-width: 420px; margin-top: 20px; }
+.ml-meter label { color: var(--ml-accent); font-size: .875rem; }
+.ml-meter progress { width: 100%; height: 8px; border: 0; background: #253746; border-radius: 8px; overflow: hidden; }
+.ml-meter progress::-webkit-progress-bar { background: #253746; }
+.ml-meter progress::-webkit-progress-value { background: var(--ml-accent); }
+.ml-meter progress::-moz-progress-bar { background: var(--ml-accent); }
+.ml-layout { display: grid; align-items: start; grid-template-columns: minmax(220px, 275px) minmax(0, 1fr); gap: 16px; }
+.ml-steps, .ml-detail { background: var(--ml-panel); border: 1px solid var(--ml-line); border-radius: 16px; min-width: 0; }
+.ml-steps { padding: 12px; }
+.ml-steps h2 { margin: 6px 8px 10px; font-size: 1rem; font-weight: 700; }
+.ml-steps ol { display: grid; gap: 5px; list-style: none; }
+.ml-steps button {
+  width: 100%; min-height: 58px; display: grid; grid-template-columns: 32px minmax(0, 1fr);
+  align-items: center; gap: 9px; padding: 8px; border: 1px solid transparent; border-radius: 10px;
+  text-align: left; cursor: pointer;
+}
+.ml-steps button:hover { background: #172733; }
+.ml-steps button[aria-current] { background: #19352f; border-color: #48736a; }
+.ml-step-number {
+  display: grid; place-items: center; height: 32px; width: 32px; border-radius: 8px;
+  background: #1d2d3c; color: var(--ml-accent); font: .8rem ui-monospace, monospace;
+}
+.ml-steps strong { display: block; font-size: .91rem; line-height: 1.35; }
+.ml-steps small { display: block; color: var(--ml-muted); font-size: .78rem; line-height: 1.35; margin-top: 3px; }
+.ml-detail { padding: clamp(16px, 2.8vw, 30px); }
+.ml-topic { color: var(--ml-accent); font: .825rem ui-monospace, monospace; }
+.ml-detail h2 { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 700; margin-top: 5px; line-height: 1.25; scroll-margin-top: 16px; }
+.ml-detail h2:focus { outline: none; }
+.ml-detail h3 { font-size: 1.05rem; font-weight: 700; margin-top: 20px; }
+.ml-detail p:not(.ml-topic) { margin-block: 5px 10px; color: var(--ml-muted); line-height: 1.6; overflow-wrap: anywhere; }
+.ml-section-heading { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+.ml-section-heading svg, .ml-checklist legend svg { color: var(--ml-accent); flex-shrink: 0; }
+.ml-section-heading h3 { margin: 0; }
+.ml-lessons { list-style: none; margin-top: 2px; }
+.ml-lessons li { padding-block: 6px; border-bottom: 1px solid #263541; }
+.ml-lessons li:last-child { border-bottom: 0; }
+.ml-source { display: inline-flex; align-items: center; gap: 7px; min-height: 32px; color: var(--ml-accent); font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+.ml-source svg { flex-shrink: 0; }
+.ml-source:hover { color: #c4fff0; }
+.ml-checklist { margin-block: 21px 8px; min-width: 0; border: 1px solid var(--ml-line); border-radius: 12px; padding: 8px 13px; }
+.ml-checklist legend { display: flex; align-items: center; gap: 6px; padding-inline: 6px; font-weight: 700; }
+.ml-checklist label { display: flex; align-items: start; gap: 11px; min-height: 44px; padding-block: 10px; cursor: pointer; }
+.ml-checklist input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--ml-accent); flex-shrink: 0; }
+.ml-checklist small { display: block; color: var(--ml-muted); font-size: .84rem; }
+.ml-resource-footer { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; color: var(--ml-muted); margin-top: 18px; font-size: .9rem; }
+
+.ml-trace { border: 1px solid #405666; border-radius: 12px; background: #0a1119; padding: 14px; margin-top: 16px; }
+.ml-trace .ml-section-heading { margin-top: 0; }
+.ml-scenario { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin-block: 12px; font-weight: 600; }
+.ml-scenario select { padding: 6px 9px; min-height: 44px; border: 1px solid #4a6572; border-radius: 8px; color: var(--ml-ink); background: #142430; }
+.ml-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.ml-trace-stages { list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; padding: 0; }
+.ml-trace-stages li { border: 1px solid #324655; border-radius: 7px; background: #101b25; padding: 6px; font-size: .84rem; text-align: center; }
+.ml-trace-stages li span { display: block; color: var(--ml-muted); font: .72rem ui-monospace, monospace; }
+.ml-trace-stages li[data-status="active"] { border-color: var(--ml-accent); background: #173530; }
+.ml-trace-stages li[data-status="visited"] { background: #162b2b; }
+.ml-trace-stages li[data-status="failed"] { border-color: var(--ml-warm); background: #412828; }
+.ml-detail .ml-trace-signal { min-height: 48px; margin-block: 11px; }
+.ml-trace-signal strong { color: var(--ml-ink); margin-right: 5px; }
+.ml-diagnosis { border-top: 1px solid var(--ml-line); margin-top: 12px; padding-top: 12px; }
+.ml-diagnosis h4 { font-weight: 700; margin-bottom: 8px; }
+.ml-trace footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 5px 12px; color: var(--ml-muted); font-size: .86rem; margin-top: 10px; }
+
+@media (max-width: 830px) {
+  .ml-layout { grid-template-columns: minmax(0, 1fr); }
+  .ml-steps ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 480px) {
+  .ml-sprint-card { grid-template-columns: auto minmax(0, 1fr); }
+  .ml-sprint-card > a { grid-column: 1 / -1; width: 100%; }
+  .ml-steps ol { grid-template-columns: minmax(0, 1fr); }
+  .ml-trace-stages li { font-size: .72rem; padding-inline: 2px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ml-control { transition: none; }
+}

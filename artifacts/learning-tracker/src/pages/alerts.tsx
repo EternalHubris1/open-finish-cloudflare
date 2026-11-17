@@ -6,6 +6,7 @@ import seatedSamuraiSignal from "@/assets/icons/seated-samurai-signal.png";
 import { SessionNotes } from "./reflections";
 import { SessionRecordsPanel } from "@/components/session-records-panel";
 import LinearModelsSprint from "@/modules/learning-sprints/LinearModelsSprint";
+import { MlServicesSprintCard } from "@/modules/learning-sprints/MlServicesSprint";
 import {
   addDays,
   differenceInCalendarDays,
@@ -954,6 +955,11 @@ export default function Cabinet() {
     milestonesLoading ||
     sprintsLoading ||
     cabinetLoading;
+  useEffect(() => {
+    if (!loading && window.location.hash === "#learning-sprints") {
+      document.getElementById("learning-sprints")?.scrollIntoView({ block: "start" });
+    }
+  }, [loading]);
   if (loading) {
     return (
       <div className="mx-auto max-w-6xl space-y-6 px-4 py-8 md:p-8">
@@ -1030,7 +1036,11 @@ export default function Cabinet() {
         </div>
       </header>
 
-      <LinearModelsSprint />
+      <section id="learning-sprints" className="space-y-4" aria-labelledby="learning-sprints-title">
+        <h2 id="learning-sprints-title" className="text-xl font-bold text-white">Учебные спринты</h2>
+        <MlServicesSprintCard preview={preview} />
+        <LinearModelsSprint />
+      </section>
       <section className="grid gap-5 lg:grid-cols-[minmax(0,1.42fr)_minmax(18rem,.78fr)]">
         <div className="signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
           <div className="relative isolate overflow-hidden flex items-start justify-between gap-4 border-b border-white/[.06] p-6 md:p-7">

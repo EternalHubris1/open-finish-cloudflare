@@ -31,7 +31,8 @@ const Cabinet = lazy(() => import("@/pages/alerts"));
 const Settings = lazy(() => import("@/pages/profile"));
 const Achievements = lazy(() => import("@/pages/achievements"));
 const NotFound = lazy(() => import("@/pages/not-found"));
-const AlgorithmTrainer = lazy(() => import("@/modules/algorithm-trainer/Trainer"));
+const PracticeLab = lazy(() => import("@/modules/algorithm-trainer/PracticeLab"));
+const MlServicesSprint = lazy(() => import("@/modules/learning-sprints/MlServicesSprint"));
 
 type SessionStatus = {
   passwordEnabled: boolean;
@@ -258,7 +259,9 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
             <Switch>
               <Route path="/" component={Dashboard} />
               <Route path="/activities" component={Activities} />
-              <Route path="/algorithms" component={AlgorithmTrainer} />
+              <Route path="/algorithms" component={PracticeLab} />
+              <Route path="/algorithms/:track" component={PracticeLab} />
+              <Route path="/reflections/sprints/ml-services" component={MlServicesSprint} />
               <Route path="/activities/:id" component={ActivityDetail} />
               <Route path="/history" component={History} />
               <Route path="/reflections" component={Cabinet} />

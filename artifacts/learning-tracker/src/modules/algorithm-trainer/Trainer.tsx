@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "wouter";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  ArrowLeft,
   Code2,
   Play,
   Square,
@@ -11,7 +13,6 @@ import {
   Search,
   Bookmark,
   Check,
-  Clock,
 } from "lucide-react";
 import { catalog, type Problem } from "./catalog";
 import { ruLabel } from "./russian";
@@ -39,8 +40,8 @@ import {
   type PracticeRecord,
   type PracticeState,
 } from "../../../../../modules/algorithm-trainer/model";
-import scene from "@/assets/environments/optimized/activities-practice-hall.webp";
 import "./trainer.css";
+import type { PracticeTrack } from "./PracticeLab";
 import {
   linearModels,
   mathTasks,
@@ -782,7 +783,7 @@ function Workspace({
   );
 }
 
-export default function AlgorithmTrainer() {
+export default function AlgorithmTrainer({ initialTrack }: { initialTrack?: PracticeTrack }) {
   const cache = useQueryClient();
   const records = useQuery<PracticeRecord[]>({
     queryKey,
@@ -791,7 +792,11 @@ export default function AlgorithmTrainer() {
     retry: false,
   });
   const requestedTask = new URLSearchParams(location.search).get("task");
-  const [selected, setSelected] = useState(requestedTask ?? catalog[0].id);
+  const [selected, setSelected] = useState(
+    requestedTask ??
+    (initialTrack === "math" ? mathTasks[0]?.id : initialTrack === "data" ? catalog.find((item) => item.track === "data")?.id : undefined) ??
+    catalog[0].id,
+  );
   const [search, setSearch] = useState("");
   const [topic, setTopic] = useState("All topics");
   const [difficulty, setDifficulty] = useState("All levels");
@@ -799,10 +804,12 @@ export default function AlgorithmTrainer() {
     requestedTask
       ? mathTasks.some((item) => item.id === requestedTask)
         ? "math"
-        : "library"
-      : "path",
+        : initialTrack ?? "library"
+      : initialTrack ?? "path",
   );
-  const [blockId, setBlockId] = useState("hash");
+  const [blockId, setBlockId] = useState(
+    () => blockFor(catalog.find((item) => item.id === requestedTask) ?? catalog[0])?.id ?? "hash",
+  );
   const [mathLesson, setMathLesson] = useState(
     mathTasks.find((item) => item.id === requestedTask)?.lessonNumber ?? 1,
   );
@@ -938,42 +945,19 @@ export default function AlgorithmTrainer() {
   };
   return (
     <div className="algorithm-room">
-      <header
-        className="trainer-hero"
-        style={{
-          backgroundImage: `linear-gradient(90deg,rgba(7,12,18,.94),rgba(7,12,18,.56)),url(${scene})`,
-        }}
-      >
-        <p className="trainer-eyebrow">
-          Algorithms · data analysis · mathematics
-        </p>
-        <h1>Practice Lab</h1>
-        <p>
-          Паттерн → базовая задача → перенос → самостоятельная проверка →
-          повторение.
-        </p>
-        <div className="trainer-readouts">
-          <span>
-            <Code2 size={16} />
-            {allProblems.length} problems
-          </span>
-          <span>
-            <Check size={16} />
-            {
-              [...saved.values()].filter(
-                (record) => record.state.attempts.length,
-              ).length
-            }{" "}
-            practiced
-          </span>
-          <span>
-            <Clock size={16} />
-            {
-              [...saved.values()].filter((record) => isDue(record.state)).length
-            }{" "}
-            due for repetition
-          </span>
-        </div>
+      <Link className="practice-back" href={`/algorithms${preview ? "?preview" : ""}`}
+        onClick={(event) => {
+          if (dirty.current && !confirm("Черновик не сохранён. Вернуться к картам?")) event.preventDefault();
+        }}>
+        <ArrowLeft size={16} aria-hidden="true" /> К картам практики
+      </Link>
+      <header className="practice-work-head">
+        <h1>{({
+          path: "Алгоритмы", library: "Каталог задач", due: "Повторение",
+          data: "Анализ данных", math: "Математика", mixed: "Смешанная практика",
+          queue: "Моя очередь", drills: "Локальные задачи",
+        } as Record<string, string>)[mode]}</h1>
+        <p>Выбери задачу, реши её в редакторе и сохрани результат.</p>
       </header>
       {preview && (
         <p className="trainer-notice">
@@ -990,11 +974,12 @@ export default function AlgorithmTrainer() {
           </p>
         )}
       <div className="trainer-layout">
-        <aside className="trainer-library" aria-label="Problem library">
+        <aside className="trainer-library" aria-label="Задачи и подборки">
+          <h2 className="practice-list-title">Задачи</h2>
           <div className="trainer-filter">
             <label>
               <Search size={16} />
-              <span className="sr-only">Search problems</span>
+              <span className="sr-only">Поиск задач</span>
               <input
                 placeholder="Поиск задач…"
                 value={search}
@@ -1032,6 +1017,8 @@ export default function AlgorithmTrainer() {
                 </select>
               </label>
             )}
+            <details className="trainer-extra-filters practice-switcher">
+              <summary>Сменить подборку</summary>
             <div className="trainer-modes">
               {[
                 ["path", "Маршрут"],
@@ -1051,6 +1038,10 @@ export default function AlgorithmTrainer() {
                           ?.lessonNumber ?? mathLesson,
                       );
                     else {
+                      const hidesDraft = value === "due" && !isDue(saved.get(selected)?.state);
+                      if (hidesDraft && dirty.current &&
+                        !confirm("Черновик не сохранён. Открыть повторение?")) return;
+                      if (hidesDraft) dirty.current = false;
                       setMode(value);
                       clearFilters();
                     }
@@ -1060,15 +1051,6 @@ export default function AlgorithmTrainer() {
                 </button>
               ))}
             </div>
-            <details
-              className="trainer-extra-filters"
-              open={
-                ["queue", "drills", "data", "mixed"].includes(mode)
-                  ? true
-                  : undefined
-              }
-            >
-              <summary>Другие подборки</summary>
               <div className="trainer-modes">
                 {[
                   ["queue", "Моя очередь"],
@@ -1138,10 +1120,7 @@ export default function AlgorithmTrainer() {
                   : `Дополнительные задачи · ${blockProblems(block).length - block.core.length}`}
               </button>
             )}
-            <small>
-              Найдено задач: {filtered.length} · Разминка — этап маршрута, не
-              отдельная сложность.
-            </small>
+            <small>Задач в подборке: {filtered.length}</small>
           </div>
           <div className="trainer-problem-list">
             {filtered.map((item) => (
@@ -1174,14 +1153,16 @@ export default function AlgorithmTrainer() {
             ))}
             {!filtered.length && (
               <p className="trainer-empty">
-                {mode === "mixed"
+                {mode === "due" && !search && topic === "All topics" && difficulty === "All levels"
+                  ? "Пока нет задач, которые пора повторить. Срок появляется после сохранения попытки."
+                  : mode === "mixed"
                   ? "Сначала сохраните хотя бы одну попытку в учебном маршруте. Затем здесь появятся задачи из разных пройденных блоков для повторения и переноса."
-                  : "Нет задач с такими фильтрами. Сбросьте поиск или откройте «Все»."}
+                  : "Нет задач с такими фильтрами. Сбрось поиск или открой «Все задачи»."}
               </p>
             )}
           </div>
           <details className="trainer-sources">
-            <summary>Add an interview task</summary>
+            <summary>Добавить свою задачу</summary>
             <CustomTaskForm
               onSave={async (custom) => {
                 if (
@@ -1226,7 +1207,7 @@ export default function AlgorithmTrainer() {
             }
             disabled={!records.data}
           >
-            <Download size={16} /> Export saved progress
+            <Download size={16} /> Экспорт прогресса
           </button>
         </aside>
         {records.isPending ? (
@@ -1272,7 +1253,14 @@ export default function AlgorithmTrainer() {
                 </p>
               </section>
             )}
-            <Workspace
+            {mode === "due" && !isDue(saved.get(selected)?.state) ? (
+              <section className="trainer-workspace">
+                <h2>Повторение</h2>
+                <p className="trainer-empty">{filtered.length
+                  ? "Выбери задачу из списка слева."
+                  : "Когда появятся задачи для повторения, они будут здесь."}</p>
+              </section>
+            ) : <Workspace
               key={selected}
               problem={problem}
               record={saved.get(selected)}
@@ -1281,7 +1269,7 @@ export default function AlgorithmTrainer() {
               onDirty={(value) => {
                 dirty.current = value;
               }}
-            />
+            />}
             {mode !== "path" && blockFor(problem) && (
               <button onClick={() => chooseBlock(blockFor(problem)!.id)}>
                 Открыть учебный блок этой задачи →
