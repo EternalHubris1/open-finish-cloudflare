@@ -33,6 +33,7 @@ const Achievements = lazy(() => import("@/pages/achievements"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 const PracticeLab = lazy(() => import("@/modules/algorithm-trainer/PracticeLab"));
 const MlServicesSprint = lazy(() => import("@/modules/learning-sprints/MlServicesSprint"));
+const LinearModelsSprintPage = lazy(() => import("@/modules/learning-sprints/LinearModelsSprint").then((module) => ({ default: module.LinearModelsSprintPage })));
 
 type SessionStatus = {
   passwordEnabled: boolean;
@@ -262,6 +263,7 @@ function Router({ onLogout }: { onLogout: () => Promise<void> }) {
               <Route path="/algorithms" component={PracticeLab} />
               <Route path="/algorithms/:track" component={PracticeLab} />
               <Route path="/reflections/sprints/ml-services" component={MlServicesSprint} />
+              <Route path="/reflections/sprints/linear-models" component={LinearModelsSprintPage} />
               <Route path="/activities/:id" component={ActivityDetail} />
               <Route path="/history" component={History} />
               <Route path="/reflections" component={Cabinet} />

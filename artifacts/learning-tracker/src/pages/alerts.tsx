@@ -5,7 +5,7 @@ import verticalOrnament from "@/assets/patterns/japanese-ornament-transparent-v2
 import seatedSamuraiSignal from "@/assets/icons/seated-samurai-signal.png";
 import { SessionNotes } from "./reflections";
 import { SessionRecordsPanel } from "@/components/session-records-panel";
-import LinearModelsSprint from "@/modules/learning-sprints/LinearModelsSprint";
+import LinearModelsSprint, { LinearModelsSprintCard } from "@/modules/learning-sprints/LinearModelsSprint";
 import { MlServicesSprintCard } from "@/modules/learning-sprints/MlServicesSprint";
 import {
   addDays,
@@ -1039,7 +1039,13 @@ export default function Cabinet() {
       <section id="learning-sprints" className="space-y-4" aria-labelledby="learning-sprints-title">
         <h2 id="learning-sprints-title" className="text-xl font-bold text-white">Учебные спринты</h2>
         <MlServicesSprintCard preview={preview} />
-        <LinearModelsSprint />
+        <LinearModelsSprintCard />
+        <div className="learning-resource">
+          <a href="https://nareshka.ru/hub" target="_blank" rel="noopener noreferrer">Нарешка <ExternalLink size={14} aria-hidden="true" /></a>
+          <span>Теория ML, короткие вопросы и повторение между занятиями.</span>
+          <a href="https://nareshka.ru/fire/hub/ml-theory" target="_blank" rel="noopener noreferrer">ML теория <ExternalLink size={14} aria-hidden="true" /></a>
+        </div>
+        {new URLSearchParams(location.search).has("sprint") && <LinearModelsSprint />}
       </section>
       <section className="grid gap-5 lg:grid-cols-[minmax(0,1.42fr)_minmax(18rem,.78fr)]">
         <div className="signal-surface overflow-hidden rounded-3xl border border-white/[.08] bg-[#0c1119]/92">
