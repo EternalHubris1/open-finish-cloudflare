@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Sigma } from "lucide-react";
+import { SprintCard, SprintPageHeader } from "./SprintPresentation";
 import {
   linearModels,
   sprintKey,
@@ -478,13 +480,45 @@ function Lesson({
     </article>
   );
 }
-export default function LinearModelsSprint() {
-  const cache = useQueryClient();
-  const records = useQuery<LessonRecord[]>({
+export const linearSprintPath = "/reflections/sprints/linear-models";
+function useSprintRecords() {
+  return useQuery<LessonRecord[]>({
     queryKey,
     queryFn: () => (preview ? Promise.resolve(previewRecords()) : request()),
     retry: false,
   });
+}
+export function LinearModelsSprintCard() {
+  const records = useSprintRecords();
+  const completed = records.isSuccess
+    ? records.data.filter((item) => item.state.status === "completed").length
+    : null;
+  return (
+    <SprintCard
+      icon={Sigma}
+      title={linearModels.title}
+      description={linearModels.description}
+      meta={`${sprintTitle} · 13 занятий · 19 ч 30 мин`}
+      completed={completed}
+      total={13}
+      href={linearSprintPath + (preview ? "?preview" : "")}
+    />
+  );
+}
+export function LinearModelsSprintPage() {
+  return (
+    <div className="learning-sprint-room">
+      <LinearModelsSprint standalone />
+    </div>
+  );
+}
+export default function LinearModelsSprint({
+  standalone = false,
+}: {
+  standalone?: boolean;
+}) {
+  const cache = useQueryClient();
+  const records = useSprintRecords();
   const params = new URLSearchParams(location.search);
   const requested = Number(params.get("lesson") ?? 1);
   const [selected, setSelected] = useState(
@@ -493,7 +527,9 @@ export default function LinearModelsSprint() {
       : 1,
   );
   const [assessment, setAssessment] = useState(params.has("assessment"));
-  const [open, setOpen] = useState(params.get("sprint") === sprintKey);
+  const [open, setOpen] = useState(
+    standalone || params.get("sprint") === sprintKey,
+  );
   const [lessonDirty, setLessonDirty] = useState(false);
   const record = records.data?.find((item) => item.lessonNumber === selected);
   const save = async (draft: LessonRecord) => {
@@ -536,155 +572,177 @@ export default function LinearModelsSprint() {
     (item) => item.state.status === "completed",
   ).length;
   return (
-    <section
-      id="math-sprint"
-      className="math-sprint signal-surface"
-      aria-labelledby="math-sprint-title"
-    >
-      <header className="math-sprint-head">
-        <div>
-          <p className="math-kicker">
-            {sprintTitle} · 13 занятий · 19 ч 30 мин
-          </p>
-          <h2 id="math-sprint-title">{linearModels.title}</h2>
-          <p>{linearModels.description}</p>
-        </div>
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-controls="math-sprint-body"
-          onClick={() => setOpen(!open)}
+    <>
+      {standalone && (
+        <SprintPageHeader
+          title={linearModels.title}
+          description={linearModels.description}
+          preview={preview}
+          completed={records.isSuccess ? completed : null}
+          total={13}
+          unit="занятий"
         >
-          {open ? "Свернуть программу" : "Открыть программу"}
-        </button>
-      </header>
-      {open && (
-        <div id="math-sprint-body">
-          <p className="math-note">
-            {preview
-              ? "Тестовый режим: сохранение только в этой вкладке, переживает перезагрузку; аккаунт не изменяется."
-              : "Содержание уже доступно. Запись спринта создаётся только при первом сохранении занятия; просмотр не записывает прогресс."}
-          </p>
-          <div className="math-curriculum">
-            <aside className="math-outline" aria-label="План матспринта">
-              <div className="math-outline-head">
-                <strong>13 занятий</strong>
-                <span>{completed}/13 завершено</span>
-              </div>
-              <details className="math-stage-list">
-                <summary>6 этапов программы</summary>
-                <div className="math-stages">
-                  {[
-                    "Чтение формул",
-                    "Линейная модеь",
-                    "Логистическая модель и LogLoss",
-                    "Производные",
-                    "Матрицы",
-                    "Матричное дифференцирование",
-                  ].map((stage) => (
-                    <span key={stage}>{stage}</span>
-                  ))}
+          <p>{sprintTitle} · 19 ч 30 мин · теория и практика в своём темпе</p>
+        </SprintPageHeader>
+      )}
+      <section
+        id="math-sprint"
+        className="math-sprint signal-surface"
+        aria-labelledby={standalone ? undefined : "math-sprint-title"}
+        aria-label={standalone ? "Программа матспринта" : undefined}
+      >
+        {!standalone && (
+          <header className="math-sprint-head">
+            <div>
+              <p className="math-kicker">
+                {sprintTitle} · 13 занятий · 19 ч 30 мин
+              </p>
+              <h2 id="math-sprint-title">{linearModels.title}</h2>
+              <p>{linearModels.description}</p>
+            </div>
+            <button
+              type="button"
+              aria-expanded={open}
+              aria-controls="math-sprint-body"
+              onClick={() => setOpen(!open)}
+            >
+              {open ? "Свернуть программу" : "Открыть программу"}
+            </button>
+          </header>
+        )}
+        {open && (
+          <div id="math-sprint-body">
+            <p className="math-note">
+              {preview
+                ? "Тестовый режим: сохранение только в этой вкладке, переживает перезагрузку; аккаунт не изменяется."
+                : "Содержание уже доступно. Запись спринта создаётся только при первом сохранении занятия; просмотр не записывает прогресс."}
+            </p>
+            <div className="math-curriculum">
+              <aside className="math-outline" aria-label="План матспринта">
+                <div className="math-outline-head">
+                  <strong>13 занятий</strong>
+                  <span>{completed}/13 завершено</span>
                 </div>
-              </details>
-              <nav className="math-days" aria-label="Занятия матспринта">
-                {linearModels.days.map((day) => {
-                  const saved = records.data?.find(
-                    (item) => item.lessonNumber === day.number,
-                  );
-                  return (
+                <details className="math-stage-list">
+                  <summary>6 этапов программы</summary>
+                  <div className="math-stages">
+                    {[
+                      "Чтение формул",
+                      "Линейная модель",
+                      "Логистическая модель и LogLoss",
+                      "Производные",
+                      "Матрицы",
+                      "Матричное дифференцирование",
+                    ].map((stage) => (
+                      <span key={stage}>{stage}</span>
+                    ))}
+                  </div>
+                </details>
+                <nav className="math-days" aria-label="Занятия матспринта">
+                  {linearModels.days.map((day) => {
+                    const saved = records.data?.find(
+                      (item) => item.lessonNumber === day.number,
+                    );
+                    return (
+                      <button
+                        type="button"
+                        key={day.number}
+                        onClick={() => selectLesson(day.number)}
+                        aria-current={
+                          !assessment && selected === day.number
+                            ? "step"
+                            : undefined
+                        }
+                      >
+                        <strong>{String(day.number).padStart(2, "0")}</strong>
+                        <span>{day.title}</span>
+                        <small>
+                          {
+                            lessonStatusNames[
+                              saved?.state.status ?? "not_started"
+                            ]
+                          }
+                          {saved?.state.plannedDate
+                            ? ` · ${saved.state.plannedDate}`
+                            : ""}
+                        </small>
+                      </button>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    onClick={() => selectLesson(13, true)}
+                    aria-current={assessment ? "step" : undefined}
+                  >
+                    <strong>Σ</strong>
+                    <span>Итоговая проверка</span>
+                    <small>4 задания</small>
+                  </button>
+                </nav>
+              </aside>
+              <div className="math-current">
+                {records.isLoading && (
+                  <p role="status">
+                    Загрузка сохранённого прогресса… Материалы доступны ниже.
+                  </p>
+                )}
+                {records.isError && (
+                  <div role="alert" className="math-error">
+                    <p>{records.error.message}</p>
                     <button
                       type="button"
-                      key={day.number}
-                      onClick={() => selectLesson(day.number)}
-                      aria-current={
-                        !assessment && selected === day.number
-                          ? "step"
-                          : undefined
-                      }
+                      onClick={() => void records.refetch()}
                     >
-                      <strong>{String(day.number).padStart(2, "0")}</strong>
-                      <span>{day.title}</span>
-                      <small>
-                        {lessonStatusNames[
-                          saved?.state.status ?? "not_started"
-                        ]}
-                        {saved?.state.plannedDate
-                          ? ` · ${saved.state.plannedDate}`
-                          : ""}
-                      </small>
+                      Повторить загрузку
                     </button>
-                  );
-                })}
-                <button
-                  type="button"
-                  onClick={() => selectLesson(13, true)}
-                  aria-current={assessment ? "step" : undefined}
-                >
-                  <strong>Σ</strong>
-                  <span>Итоговая проверка</span>
-                  <small>4 задания</small>
-                </button>
-              </nav>
-            </aside>
-            <div className="math-current">
-              {records.isLoading && (
-            <p role="status">
-              Загрузка сохранённого прогресса… Материалы доступны ниже.
-            </p>
-          )}
-          {records.isError && (
-            <div role="alert" className="math-error">
-              <p>{records.error.message}</p>
-              <button type="button" onClick={() => void records.refetch()}>
-                Повторить загрузку
-              </button>
-              <p>
-                Пока прогресс не загружен, сохранение выключено: старые записи
-                не будут перезаписаны.
-              </p>
-            </div>
-          )}
-          {assessment ? (
-            <div className="math-assessment">
-              <h3>Итоговая проверка · четыре задания</h3>
-              <p>
-                Умение умножать матрицы и умение дифференцировать их
-                произведение — разные результаты. Просмотр ответа не
-                подтверждает освоение.
-              </p>
-              {linearModels.final_assessment.map((item, index) => (
-                <article key={item.title}>
-                  <h4>
-                    {index + 1}. {item.title}
-                  </h4>
-                  <p className="math-formula">{item.task}</p>
-                  <a
-                    className="math-task-link"
-                    href={taskHref(assessmentId(index), preview)}
-                  >
-                    Решить в Practice Lab →
-                  </a>
-                  <details>
-                    <summary>Ответ · после попытки</summary>
-                    <p className="math-formula">{item.answer}</p>
-                  </details>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <Lesson
-              key={`${selected}:${records.isSuccess}`}
-              day={linearModels.days[selected - 1]}
-              record={record}
-              ready={records.isSuccess}
-              save={save}
-              onDirtyChange={setLessonDirty}
-            />
-          )}
+                    <p>
+                      Пока прогресс не загружен, сохранение выключено: старые
+                      записи не будут перезаписаны.
+                    </p>
+                  </div>
+                )}
+                {assessment ? (
+                  <div className="math-assessment">
+                    <h3>Итоговая проверка · четыре задания</h3>
+                    <p>
+                      Умение умножать матрицы и умение дифференцировать их
+                      произведение — разные результаты. Просмотр ответа не
+                      подтверждает освоение.
+                    </p>
+                    {linearModels.final_assessment.map((item, index) => (
+                      <article key={item.title}>
+                        <h4>
+                          {index + 1}. {item.title}
+                        </h4>
+                        <p className="math-formula">{item.task}</p>
+                        <a
+                          className="math-task-link"
+                          href={taskHref(assessmentId(index), preview)}
+                        >
+                          Решить в Practice Lab →
+                        </a>
+                        <details>
+                          <summary>Ответ · после попытки</summary>
+                          <p className="math-formula">{item.answer}</p>
+                        </details>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <Lesson
+                    key={`${selected}:${records.isSuccess}`}
+                    day={linearModels.days[selected - 1]}
+                    record={record}
+                    ready={records.isSuccess}
+                    save={save}
+                    onDirtyChange={setLessonDirty}
+                  />
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </section>
+        )}
+      </section>
+    </>
   );
 }

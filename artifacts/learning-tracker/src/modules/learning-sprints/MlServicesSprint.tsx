@@ -1,11 +1,13 @@
 import { useRef, useState } from "react";
-import { Link, useLocation, useSearch } from "wouter";
+import { useLocation, useSearch } from "wouter";
 import {
   Activity, ArrowLeft, ArrowRight, BookOpenText, Check, CircleAlert,
   ExternalLink, FlaskConical, Network, RotateCcw,
 } from "lucide-react";
 import { faults, mlServices, requestStages, sources } from "./ml-services";
 import "./ml-services.css";
+import { SprintCard, SprintPageHeader } from "./SprintPresentation";
+import { NareshkaGuide } from "./NareshkaGuide";
 
 export const mlSprintPath = "/reflections/sprints/ml-services";
 const key = "eternaldojo:ml-services:v1";
@@ -125,18 +127,20 @@ function RequestTrace({ progress, complete }: {
 
 export function MlServicesSprintCard({ preview }: { preview: boolean }) {
   const progress = readProgress();
-  const done = required.filter((checkpoint) => isComplete(checkpoint, progress)).length;
-  return <article className="ml-sprint-card">
-    <div className="ml-card-icon"><Network size={24} aria-hidden="true" /></div>
-    <div className="ml-card-copy">
-      <h3>{mlServices.title}</h3>
-      <p>От модели до работающего API, сетевой диагностики и мониторинга.</p>
-      <span>{done} из {required.length} чекпоинтов · в своём темпе</span>
-    </div>
-    <Link className="ml-control ml-primary" href={mlSprintPath + (preview ? "?preview" : "")}>
-      {progress.size ? "Продолжить" : "Открыть карту"} <ArrowRight size={16} aria-hidden="true" />
-    </Link>
-  </article>;
+  const done = required.filter((checkpoint) =>
+    isComplete(checkpoint, progress),
+  ).length;
+  return (
+    <SprintCard
+      icon={Network}
+      title={mlServices.title}
+      description="От модели до работающего API, сетевой диагностики и мониторинга."
+      meta="ML-инженерия · 7 чекпоинтов + облако по желанию"
+      completed={done}
+      total={required.length}
+      href={mlSprintPath + (preview ? "?preview" : "")}
+    />
+  );
 }
 
 export default function MlServicesSprint() {
@@ -174,19 +178,20 @@ export default function MlServicesSprint() {
   };
 
   return <div className="ml-room">
-    <Link href={`/reflections${search.has("preview") ? "?preview#learning-sprints" : "#learning-sprints"}`}
-      className="ml-control ml-back">
-      <ArrowLeft size={16} aria-hidden="true" /> К спринтам
-    </Link>
-    <header className="ml-heading">
-      <h1>{mlServices.title}</h1>
-      <p>{mlServices.intro}</p>
-      <p className="ml-note">Основной маршрут проходит локально. AWS нужен только для дополнительной практики на удалённой машине.</p>
-      <div className="ml-meter">
-        <label htmlFor="ml-progress">{done} из {required.length} основных чекпоинтов</label>
-        <progress id="ml-progress" max={required.length} value={done} />
-      </div>
-    </header>
+      <SprintPageHeader
+        title={mlServices.title}
+        description={mlServices.intro}
+        preview={search.has("preview")}
+        completed={done}
+        total={required.length}
+        unit="основных чекпоинтов"
+      >
+        <p className="ml-note">
+          Основной маршрут проходит локально. AWS нужен только для
+          дополнительной практики на удалённой машине.
+        </p>
+      </SprintPageHeader>
+      <NareshkaGuide />
     <div className="ml-layout">
       <nav className="ml-steps" aria-label="Чекпоинты спринта">
         <h2>Карта спринта</h2>
